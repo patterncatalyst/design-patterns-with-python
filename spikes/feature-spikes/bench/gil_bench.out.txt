@@ -1,0 +1,16 @@
+GIL benchmark, 2026-11-03
+python 3.14.10  gil_enabled=True
+4 workers, best of 3, pool start-up excluded for processes
+
+CPU-bound: 4 x rate_loop(3,000,000)
+  strategy               seconds   vs serial
+  serial                   0.646       1.00x
+  4 threads                0.756       0.86x
+  4 processes              0.169       3.82x
+
+I/O-bound: 4 x 0.2s wait
+  strategy               seconds   vs serial
+  serial                   0.801       1.00x
+  4 threads                0.201       3.98x
+  asyncio (4 tasks)        0.201       3.99x
+
