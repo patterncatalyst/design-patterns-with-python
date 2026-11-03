@@ -24,7 +24,7 @@ permalink: /examples/
     <div class="container">
         <h2 class="section-heading">Runnable examples</h2>
         <p class="section-lead">
-            Each example makes a single pattern concrete and runnable with one
+            Each example makes a single pattern or idiom concrete and runnable with one
             command. Every card links to the example's page on this site (a
             rendering of the README with cross-references), and each page links
             to the source on GitHub. Each example also stands alone and builds
@@ -61,8 +61,9 @@ uv sync --locked --all-packages
 ./scripts/verify.sh
 </code></pre>
         <p>
-            Every example is also runnable from its own directory
-            with <code>uv run pytest</code>, without configuring the whole repo.
+            After the one-time <code>uv sync --locked --all-packages</code> at the
+            root, every example also runs from its own directory with
+            <code>uv run pytest</code>.
         </p>
     </div>
 </section>

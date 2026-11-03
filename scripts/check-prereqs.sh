@@ -4,7 +4,10 @@
 # Verify the local toolchain the examples build with: uv, CPython 3.14, git,
 # and the locked dev tools (ruff, mypy, pytest). Prints a table and exits
 # non-zero if anything is missing. A uv or CPython version that differs from
-# the pins prints WARN (uv older than the pin is FAIL). Installs nothing.
+# the pins prints WARN (uv older than the pin is FAIL). Installs nothing and
+# creates no environment: the tool rows run the tools from an existing .venv
+# (`uv run` would create one), so a missing .venv is a FAIL row with a hint to
+# run `uv sync --locked --all-packages`.
 set -euo pipefail
 
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
@@ -67,7 +70,7 @@ else
 fi
 
 for tool in ruff mypy pytest; do
-    if [ "$uv_ok" -eq 1 ] && out="$(uv run --all-packages --quiet "$tool" --version 2>/dev/null)"; then
+    if [ -x ".venv/bin/$tool" ] && out="$(".venv/bin/$tool" --version 2>/dev/null)"; then
         record "$tool" 0 "$out"
     else
         record "$tool" 1 "does not resolve (run: uv sync --locked --all-packages)"

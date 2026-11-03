@@ -35,7 +35,7 @@ jobs:
       - name: Build site
         env:
           JEKYLL_ENV: production
-          # configure-pages (v6) sometimes returns an empty base_path
+          # configure-pages (v6) has been seen to return an empty base_path
           # despite this being a project-pages deployment. When that
           # happens, an empty --baseurl="" on the command line OVERRIDES
           # _config.yml's baseurl, producing URLs without the repo-name

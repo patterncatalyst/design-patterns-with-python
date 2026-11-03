@@ -153,6 +153,8 @@ the one AI sidebar; "For deeper coverage" citing the hub's `books.yml` and this 
 5. `python3 scripts/host_ids.py check` exits 0.
 6. Quoted output matches a fresh run modulo scrubbing.
 
+The voice ban scan excludes `LICENSE-docs.md`, which is the verbatim CC BY 4.0 legal text.
+
 ## Publishing rule: nothing identifies the machine or its owner
 
 The repo is public, so no tracked file may name the development machine, its owner or anything

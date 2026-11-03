@@ -26,7 +26,7 @@ A misspelled attribute or a `None` passed where a value is required fails only w
 
 ## The toolchain and its pins
 
-Five tools do all the work, and uv installs or drives each of them. uv is the single entry point for interpreter management, virtual environments, dependency resolution, and the lockfile, so there is no separate `pyenv`, `venv`, `pip`, or `pip-tools` step to learn. ruff covers linting and formatting in one binary, replacing the usual flake8, isort, and black trio. mypy checks types. pytest runs the tests, and pytest-mock supplies the `mocker` fixture for the chapters that need a test double.
+Five tools on one interpreter do all the work, and uv installs or drives each of them. uv is the single entry point for interpreter management, virtual environments, dependency resolution, and the lockfile, so there is no separate `pyenv`, `venv`, `pip`, or `pip-tools` step to learn. ruff covers linting and formatting in one binary, replacing the usual flake8, isort, and black trio. mypy checks types. pytest runs the tests, and pytest-mock supplies the `mocker` fixture for the chapters that need a test double.
 
 | Tool | Version | Role |
 | --- | --- | --- |
@@ -53,7 +53,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 uv python install 3.14.10
 ```
 
-uv downloads a standalone CPython build into its own directory under your home. It doesn't replace the system `python3`, which Fedora's own tools depend on, and it needs no `dnf` package or root. Open a new shell so `~/.local/bin` is on `PATH`, then confirm with `uv --version`.
+uv downloads a standalone CPython build into its own directory under your home. It doesn't replace the system `python3`, which Fedora's own tools depend on, and it needs no `dnf` package or root. It does link `~/.local/bin/python3.14`, which can shadow a system `python3.14` earlier on `PATH`. Open a new shell so `~/.local/bin` is on `PATH`, then confirm with `uv --version`.
 
 ## Cloning and the one-time sync
 
@@ -71,7 +71,7 @@ The repository is a uv workspace. The root `pyproject.toml` is virtual, meaning 
 bash scripts/check-prereqs.sh
 ```
 
-The script installs nothing. It confirms that uv is on `PATH`, that a 3.14 interpreter resolves, that git exists, and that ruff, mypy and pytest run from the locked environment. It prints a table, exits non-zero if any row fails, and on failure prints the install command and the teardown command. Run it first when something behaves oddly: most environment problems show up as one failing row.
+The script installs nothing and creates no environment. It confirms that uv is on `PATH`, that a 3.14 interpreter resolves, that git exists, and that ruff, mypy and pytest run from the existing `.venv`; before the sync those three rows fail with a hint to run `uv sync --locked --all-packages`. It prints a table and exits non-zero if any row fails. If one does, it also prints the uv install command, and it always ends with the teardown command. Run it first when something behaves oddly: most environment problems show up as one failing row.
 
 ## The four gates
 
@@ -82,13 +82,13 @@ Every example must pass four checks, in this order:
 3. `uv run mypy --strict src tests` for types, with unreachable code and redundant casts also reported.
 4. `uv run pytest` for behaviour.
 
-`bash scripts/verify.sh` runs all of them across the repository, preceded by the locked sync and followed by a strict type check of the repository's own scripts. It stops at the first failure and prints `verify: all steps passed` at the end. This is the command to run before opening a pull request, and it is what CI runs.
+`bash scripts/verify.sh` runs all of them across the repository, preceded by the locked sync, with a strict type check of the repository's own scripts before the tests. It stops at the first failure and prints `verify: all steps passed` at the end. This is the command to run before opening a pull request, and it is what CI runs.
 
 ## Running one example or all of them
 
 Each example is also runnable by itself. From an example directory, `uv run pytest` and `uv run mypy --strict src tests` use the shared root environment and the root configuration, because pytest, ruff and mypy each walk up from the current directory to the first `pyproject.toml` that defines their settings. From the root, `uv run pytest` collects every example, and the ruff commands take a path such as `examples/00-prerequisites`.
 
-mypy is the exception to "run it from the root". Examples keep their tests in a `tests/` directory without `__init__.py`, so two examples that both contain `tests/test_model.py` would give mypy two modules called `test_model` and it would stop with a duplicate-module error. pytest avoids the problem through `--import-mode=importlib` in the root configuration, but mypy has no equivalent. The answer is to run mypy once per example, from inside it, which is what `verify.sh` does in a loop. Adding `__init__.py` to every `tests/` directory would also work, but it changes import behaviour in ways that complicate the examples, so the layout stays minimal. That's why the mypy loop exists at all.
+mypy is the exception to "run it from the root". Examples keep their tests in a `tests/` directory without `__init__.py`, so two examples that both contain `tests/test_model.py` would give mypy two modules called `test_model` and it would stop with a duplicate-module error. pytest avoids the problem through `--import-mode=importlib` in the root configuration, but mypy has no equivalent. The answer is to run mypy once per example, from inside it, which is what `verify.sh` does in a loop. Adding `__init__.py` to every `tests/` directory would also work, but it changes import behaviour in ways that complicate the examples, so the layout stays minimal.
 
 ## The example: a consignment
 
@@ -141,7 +141,7 @@ class Consignment:
 
 ## What each gate catches
 
-The gates overlap less than they seem to. ruff check finds an unused import, a mutable default argument, or a bare `except` before anything runs, and ruff format settles layout so reviews don't argue about it. mypy finds the wrong argument type, the attribute that doesn't exist, and the `None` that reaches a call expecting a value, none of which a passing test proves absent unless a test happens to hit that line. pytest finds behaviour that is well typed and wrong: a hash that disagrees with equality, a validator with an off-by-one. The `reweigh` experiment above shows the asymmetry in one direction, and a test that passes a malformed id shows it in the other, since a type checker can't know that `"CN-1"` is too short. Skipping any one gate leaves a class of defect that the other three accept.
+The gates overlap less than they seem to. ruff check finds an unused import, a mutable default argument, or a bare `except` before anything runs, and ruff format settles layout so reviews don't argue about it. mypy finds the wrong argument type, the attribute that doesn't exist, and the `None` that reaches a call expecting a value, none of which a passing test proves absent unless a test happens to hit that line. pytest finds behaviour that is well typed and wrong: a hash that disagrees with equality, a validator with an off-by-one. The `reweigh` experiment in Build, run, observe shows the asymmetry in one direction, and a test that passes a malformed id shows it in the other, since a type checker can't know that `"CN-1"` is too short. Skipping any one gate leaves a class of defect that the other three accept.
 
 ## Bumping a pin
 
@@ -153,7 +153,7 @@ Most failures come from the environment, not the code, and `bash scripts/check-p
 
 - **The wrong Python is picked up.** If `python --version` prints the system 3.x release, you're bypassing the environment. Use `uv run python` or activate `.venv`, and check that `.python-version` is present in the checkout. `uv python list` shows what uv can see.
 - **`uv sync --locked` refuses to run.** The message says the lockfile needs updating. Either `pyproject.toml` changed without a matching `uv lock`, or you edited a pin by hand. Run `uv lock`, review the diff to `uv.lock`, and sync again. Dropping `--locked` hides the problem rather than fixing it.
-- **The `.venv` is stale after a pin bump.** Tools in the old environment keep reporting the old versions. `rm -rf .venv` and a fresh sync rebuild it in a few seconds from uv's cache.
+- **Tools report the old versions after a pin bump.** `uv run` re-syncs the environment after `uv lock` on its own. An activated `.venv`, or a direct call to a tool in `.venv/bin`, doesn't, so run `uv sync --locked --all-packages` after `uv lock`.
 - **mypy reports a duplicate module.** It was run once from the root over several examples. Run it from inside one example, as `verify.sh` does.
 - **The editor underlines every import.** The editor is using the system interpreter. Select `.venv/bin/python` at the repository root, as described next.
 

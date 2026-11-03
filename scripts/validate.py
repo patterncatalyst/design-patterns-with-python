@@ -27,6 +27,10 @@ CAPTION_MAX = 45
 SIDEBAR = '<blockquote class="ai-sidebar" markdown="1">'
 
 XREF_RE = re.compile(r"\b(ch\.?|chapter)\s*\d+\b", re.IGNORECASE)
+FM_PROSE_KEYS = ("title", "description", "blurb")
+FM_PROSE_PREFIX = "card_"
+CODETABS_RE = re.compile(r"\{%-?\s*include\s+codetabs\.html\b(.*?)-?%\}", re.DOTALL)
+PLAN_REL = "_plans/r01-build-plan.md"
 PDP_RE = re.compile(r"PDP-\d+")
 ITER_RE = re.compile(r"\br\d{2}\b")
 SPIKE_RE = re.compile(r"(?<![\w/])spikes?\b(?!/)", re.IGNORECASE)
@@ -267,6 +271,33 @@ def check_xrefs(rel: str, text: str) -> list[Finding]:
     ]
 
 
+def check_front_matter_xrefs(rel: str, text: str) -> list[Finding]:
+    """Chapter cross-references in the prose-valued front-matter keys (not order, part, etc.)."""
+    fm, _ = split_front_matter(text)
+    lines = text.split("\n")
+    out: list[Finding] = []
+    for key, value in fm.items():
+        if key not in FM_PROSE_KEYS and not key.startswith(FM_PROSE_PREFIX):
+            continue
+        line = next((i for i, t in enumerate(lines, 1) if t.startswith(f"{key}:")), 1)
+        out.extend(
+            Finding(rel, line, f"chapter cross-reference {m.group(0)!r} in front matter {key}")
+            for m in XREF_RE.finditer(value)
+        )
+    return out
+
+
+def check_codetabs(rel: str, text: str) -> list[Finding]:
+    """Every codetabs include must pass an explicit, non-empty labels parameter."""
+    out: list[Finding] = []
+    for m in CODETABS_RE.finditer(text):
+        labels = dict(PARAM_RE.findall(m.group(1))).get("labels", "")
+        if not labels.strip():
+            line = text.count("\n", 0, m.start()) + 1
+            out.append(Finding(rel, line, "codetabs include has no labels parameter"))
+    return out
+
+
 def check_spine(rel: str, text: str, kind: str) -> list[Finding]:
     headings = {m.group(1) for _, line in prose_lines(text) if (m := H2_RE.match(line))}
     return [
@@ -387,7 +418,7 @@ def ci_uv_versions(ci_text: str) -> list[tuple[int, str]]:
 
 
 def pin_findings(
-    pyproject: str, lock: str, python_version: str, chapter: str, ci: str
+    pyproject: str, lock: str, python_version: str, chapter: str, ci: str, plan: str = ""
 ) -> list[Finding]:
     """Cross-check pyproject pins, uv.lock, .python-version, Chapter 0 and ci.yml."""
     out: list[Finding] = []
@@ -452,6 +483,61 @@ def pin_findings(
                         f"setup-uv version {version}, {chapter_rel}:{uv_line} says {uv_version}",
                     )
                 )
+    out.extend(plan_findings(plan, data, python_version, table.get("uv")))
+    return out
+
+
+def plan_table(text: str) -> dict[str, tuple[int, str]]:
+    """Rows of the plan's 'Verified toolchain' table: tool name -> (line, leading version)."""
+    known = {"cpython": "python", "uv": "uv", "pytest": "pytest", "pytest-mock": "pytest-mock"}
+    known.update({"ruff": "ruff", "mypy": "mypy"})
+    rows: dict[str, tuple[int, str]] = {}
+    in_section = False
+    for n, line in enumerate(text.split("\n"), start=1):
+        if line.startswith("## "):
+            in_section = line.lower().startswith("## verified toolchain")
+            continue
+        if not in_section or not line.lstrip().startswith("|"):
+            continue
+        cells = [c.strip().strip("`") for c in line.strip().strip("|").split("|")]
+        name = known.get(normalize(cells[0])) if len(cells) >= 2 else None
+        m = re.match(r"\d+(\.\d+)+", cells[1]) if name else None
+        if name and m:
+            rows.setdefault(name, (n, m.group(0)))
+    return rows
+
+
+def plan_findings(
+    plan: str,
+    pyproject: dict[str, object],
+    python_version: str,
+    uv_row: tuple[int, str] | None,
+) -> list[Finding]:
+    """Cross-check the plan's Verified toolchain rows against the pins."""
+    if not plan:
+        return []
+    rows = plan_table(plan)
+    expected: dict[str, str] = {"python": python_version}
+    if uv_row is not None:
+        expected["uv"] = uv_row[1]
+    groups = pyproject.get("dependency-groups", {})
+    devs = groups.get("dev", []) if isinstance(groups, dict) else []
+    for dep in devs:
+        name, sep, version = str(dep).partition("==")
+        if sep:
+            expected[normalize(name)] = version
+    out: list[Finding] = []
+    for key, want in sorted(expected.items()):
+        if key not in rows:
+            out.append(Finding(PLAN_REL, 1, f"Verified toolchain table has no row for {key}"))
+        elif rows[key][1] != want:
+            out.append(
+                Finding(
+                    PLAN_REL,
+                    rows[key][0],
+                    f"{key} row says {rows[key][1]}, pins say {want}",
+                )
+            )
     return out
 
 
@@ -466,6 +552,7 @@ def check_pins(root: Path) -> list[Finding]:
         read(".python-version").strip(),
         read("_docs/00-prerequisites.md"),
         read(".github/workflows/ci.yml"),
+        read(PLAN_REL),
     )
 
 
@@ -571,6 +658,8 @@ def validate(root: Path) -> Report:
         rep.errors.extend(check_banned(rel, text, svg=path.suffix == ".svg"))
         if path.suffix != ".svg":
             rep.errors.extend(check_xrefs(rel, text))
+            rep.errors.extend(check_front_matter_xrefs(rel, text))
+            rep.errors.extend(check_codetabs(rel, text))
         if liquid_processed(path, root):
             rep.errors.extend(check_templates(rel, text))
 
@@ -606,6 +695,14 @@ def self_test() -> int:
 
     doc = "---\ntitle: T\n---\nSee chapter 5 and Ch. 6.\n```\nchapter 7\n```\n"
     expect("xref in prose only", len(check_xrefs("a.md", doc)) == 2)
+    part = '---\ntitle: "P"\norder: 3\nblurb: "Intro, see chapter 5."\n---\nbody\n'
+    expect("xref in part blurb", len(check_front_matter_xrefs("p.md", part)) == 1)
+    card = '---\ncard_blurb: "Compare with Ch. 2"\ndescription: "fine"\norder: 5\n---\n'
+    expect("xref in card blurb", len(check_front_matter_xrefs("e.md", card)) == 1)
+    clean = '---\ntitle: "T"\norder: 5\nchapter: 7\nblurb: "No refs."\n---\n'
+    expect("front matter clean", not check_front_matter_xrefs("p.md", clean))
+    bare_tabs = '{% include codetabs.html %}\n{% include codetabs.html labels="A|B" %}\n'
+    expect("codetabs without labels", len(check_codetabs("a.md", bare_tabs)) == 1)
     expect("ai-sidebar attr", bool(check_prose("a.md", "{: .ai-sidebar}\n", "argument", "stub")[0]))
 
     short = "---\ntitle: T\n---\nfew words\n"
@@ -677,6 +774,30 @@ def self_test() -> int:
     expect(
         "ci uv mismatch",
         bool(pin_findings(pyproject, lock, "3.14.1", table, ci.replace("0.1.0", "0.2.0"))),
+    )
+
+    plan = "## Verified toolchain\n\n| Item | Version |\n| --- | --- |\n"
+    plan += "| CPython | 3.14.1 (released x) | d |\n| uv | 0.1.0 (d) | d |\n"
+    plan += "| ruff | 1.0.0 | d |\n\n## Next\n\n| ruff | 9.9.9 | d |\n"
+    expect("plan agrees", not pin_findings(pyproject, lock, "3.14.1", table, ci, plan))
+    expect(
+        "plan ruff mismatch",
+        bool(
+            pin_findings(
+                pyproject,
+                lock,
+                "3.14.1",
+                table,
+                ci,
+                plan.replace("| ruff | 1.0.0", "| ruff | 1.0.2"),
+            )
+        ),
+    )
+    expect(
+        "plan python mismatch",
+        bool(
+            pin_findings(pyproject, lock, "3.14.1", table, ci, plan.replace("3.14.1 (", "3.14.0 ("))
+        ),
     )
 
     entries = parse_diagram_yaml("- name: a\n  caption: >-\n    one two\n    three\n- name: b\n")

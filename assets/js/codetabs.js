@@ -1,9 +1,9 @@
-/* Multi-standard code tabs for the Design Patterns with Python book.
+/* Code tabs for the Design Patterns with Python book.
  *
  * No framework, no plugin, GitHub-Pages-safe. For each <div class="codetabs">
  * marker emitted by _includes/codetabs.html, absorb the following N Rouge
  * code blocks (N = number of pipe-separated labels) into a tab group.
- * The default labels are "Class hierarchy" and "Idiomatic"; both tabs hold Python. Selecting a
+ * Each include supplies its own labels. Selecting a
  * label syncs every group on the page and is remembered in localStorage so a
  * reader who picks "Idiomatic" keeps seeing the idiomatic form everywhere.
  */

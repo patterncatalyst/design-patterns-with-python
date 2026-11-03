@@ -6,12 +6,12 @@ description: A small shipping model that exercises uv, Python 3.14, ruff, mypy i
 github_path: examples/00-prerequisites
 card_eyebrow: "Orientation · Toolchain"
 card_title: "A frozen Consignment that proves the toolchain"
-card_blurb: "A frozen, slotted Consignment built from validated ConsignmentId and Weight value types and amended with dataclasses.replace. It passes ruff, mypy --strict and pytest, so a green run means the environment is ready for every other demo."
+card_blurb: "A frozen, slotted Consignment built from validated ConsignmentId and Weight value types and amended with dataclasses.replace. It passes ruff, mypy --strict and pytest, so a green run means the environment is ready for every other example."
 ---
 
 A small shipping model exercises the whole toolchain: uv, Python 3.14, ruff,
 mypy in strict mode and pytest. If the commands below pass, the environment is
-ready for the other demos.
+ready for the other examples.
 
 ## The model
 
@@ -34,7 +34,7 @@ From the repository root, once:
 uv sync --locked --all-packages
 ```
 
-Then from the demo directory:
+Then from the example directory:
 
 ```bash
 cd examples/00-prerequisites

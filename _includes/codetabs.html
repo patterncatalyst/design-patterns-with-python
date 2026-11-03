@@ -9,7 +9,7 @@
   Usage (place the bare include, then one fenced block per label, IN THIS
   ORDER). Do NOT wrap the include in raw tags, which stops Liquid running it:
 
-      {% include codetabs.html langs="Class hierarchy|Idiomatic" %}
+      {% include codetabs.html labels="Before|After" %}
 
       ```python
       # Class hierarchy
@@ -18,11 +18,12 @@
       # Idiomatic
       ```
 
-  The default pair shows the class hierarchy the 1994 catalogue draws next to
-  the form Python 3.14 supports directly (a callable, a dataclass, a
-  protocol), so the two read side by side. Both tabs are Python. Other pairs
-  of Python idioms use their own labels, for example "Before|After" or
-  "Protocol|Callable". Selecting a tab syncs every group on the page and is
-  remembered across pages.
+  The labels parameter is required: there is no default pair. Each label
+  names one tab, for example "Before|After" or "Protocol|Callable". When
+  labels is missing or blank the include renders nothing, and
+  scripts/validate.py reports the page. Selecting a tab syncs every group on
+  the page and is remembered across pages.
 {%- endcomment -%}
-<div class="codetabs" data-langs="{{ include.langs }}"></div>
+{%- if include.labels != blank -%}
+<div class="codetabs" data-langs="{{ include.labels }}"></div>
+{%- endif -%}
