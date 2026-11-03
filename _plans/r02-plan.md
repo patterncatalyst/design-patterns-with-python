@@ -197,7 +197,7 @@ Also `README.md`, `_examples/03-three-way-split.md`; `uv.lock` updated.
 
 | Step | What | Depends | Status |
 | --- | --- | --- | --- |
-| 0 | Plan file; iteration-plan rows 101-104; canonical map + ch1-4 rows in domain model; reconciliation claims 1-4 plan; ch3 `has_example = true`; fix Part 2 blurb; note PRD table superseded in Notion | - | in progress |
+| 0 | Plan file; iteration-plan rows 101-104; canonical map + ch1-4 rows in domain model; reconciliation claims 1-4 plan; ch3 `has_example = true`; fix Part 2 blurb; note PRD table superseded in Notion | - | **done** |
 | 1 | Example member + card + uv.lock; gates; handback of names and scrubbed output | 0 | todo |
 | 2 | Record witness results in reconciliation; change map if any witness fails | 1 | todo |
 | 3 | Four figures + `_data/diagrams.yml` (single owner); chapter 0 figure unchanged | 1 | todo |
