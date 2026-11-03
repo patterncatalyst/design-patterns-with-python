@@ -1,0 +1,98 @@
+"""One pattern name, two readings."""
+
+from generate_diagram import emit
+
+emit(
+    "04-naming-patterns-for-teams-and-ai",
+    820,
+    560,
+    nodes=[
+        {
+            "x": 230,
+            "y": 30,
+            "w": 360,
+            "h": 56,
+            "style": "box",
+            "lines": ["A request names a pattern", "add a pricing rule to the rate quote"],
+        },
+        {
+            "x": 20,
+            "y": 140,
+            "w": 370,
+            "h": 56,
+            "style": "kernel",
+            "lines": ["Names only the pattern", "the label says nothing about the mechanism"],
+        },
+        {
+            "x": 430,
+            "y": 140,
+            "w": 370,
+            "h": 56,
+            "style": "accent",
+            "lines": ["Names the role and the mechanism", "the label points at the idiom"],
+        },
+        {
+            "x": 20,
+            "y": 250,
+            "w": 370,
+            "h": 56,
+            "style": "kernel",
+            "lines": ["RateStrategy", "a class suffix that suggests a subclass per rule"],
+        },
+        {
+            "x": 430,
+            "y": 250,
+            "w": 180,
+            "h": 56,
+            "style": "accent",
+            "lines": ["PricingRule", "a callable type alias"],
+        },
+        {
+            "x": 620,
+            "y": 250,
+            "w": 180,
+            "h": 56,
+            "style": "accent",
+            "lines": ["per_kg", "a function that fits it"],
+        },
+        {
+            "x": 20,
+            "y": 360,
+            "w": 370,
+            "h": 56,
+            "style": "kernel",
+            "lines": ["Read as a class hierarchy", "the reviewer expects the 1994 structure"],
+        },
+        {
+            "x": 430,
+            "y": 360,
+            "w": 370,
+            "h": 56,
+            "style": "accent",
+            "lines": ["Read as a callable", "the reviewer checks signature and types"],
+        },
+        {
+            "x": 230,
+            "y": 470,
+            "w": 360,
+            "h": 56,
+            "style": "ink",
+            "lines": [
+                "Reviewer and assistant check the same contract",
+                "one name, one claim to verify",
+            ],
+        },
+    ],
+    edges=[
+        {"x1": 330, "y1": 86, "x2": 205, "y2": 140},
+        {"x1": 490, "y1": 86, "x2": 615, "y2": 140},
+        {"x1": 205, "y1": 196, "x2": 205, "y2": 250},
+        {"x1": 520, "y1": 196, "x2": 520, "y2": 250},
+        {"x1": 710, "y1": 196, "x2": 710, "y2": 250},
+        {"x1": 205, "y1": 306, "x2": 205, "y2": 360},
+        {"x1": 520, "y1": 306, "x2": 560, "y2": 360},
+        {"x1": 710, "y1": 306, "x2": 670, "y2": 360},
+        {"x1": 205, "y1": 416, "x2": 330, "y2": 470, "dashed": True},
+        {"x1": 615, "y1": 416, "x2": 490, "y2": 470},
+    ],
+)

@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 620" font-family="'Red Hat Text', system-ui, sans-serif" role="img">
+<defs><marker id="a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#555"/></marker><marker id="am" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#b8650a"/></marker></defs>
+<rect x="420" y="20" width="380" height="150" rx="12" fill="#fafafa" stroke="#ddd"/>
+<text x="432" y="40" font-size="12" font-weight="700" fill="#888">Needs disambiguating</text>
+<rect x="420" y="190" width="380" height="250" rx="12" fill="#fafafa" stroke="#ddd"/>
+<text x="432" y="210" font-size="12" font-weight="700" fill="#888">Dissolves into a language feature</text>
+<rect x="420" y="460" width="380" height="140" rx="12" fill="#fafafa" stroke="#ddd"/>
+<text x="432" y="480" font-size="12" font-weight="700" fill="#888">Survives with its shape</text>
+<rect x="20" y="62" width="340" height="66" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+<text x="190.0" y="93.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">Does the name mean two things</text>
+<text x="190.0" y="110.0" font-size="11.5" fill="#555555" text-anchor="middle">in Python?</text>
+<rect x="20" y="282" width="340" height="66" rx="9" fill="#fff8ef" stroke="#e8870c" stroke-width="2"/>
+<text x="190.0" y="313.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">Does a language feature</text>
+<text x="190.0" y="330.0" font-size="11.5" fill="#555555" text-anchor="middle">remove the force?</text>
+<rect x="20" y="497" width="340" height="56" rx="9" fill="#f1f5f9" stroke="#64748b" stroke-width="2"/>
+<text x="190.0" y="523.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">The force remains</text>
+<text x="190.0" y="540.0" font-size="11.5" fill="#555555" text-anchor="middle">so the structure stays</text>
+<path d="M360,95 L420,95" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<text x="390.0" y="87.0" font-size="11" fill="#ffffff" stroke="#ffffff" stroke-width="3" paint-order="stroke" text-anchor="middle">yes</text>
+<text x="390.0" y="87.0" font-size="11" fill="#555" text-anchor="middle">yes</text>
+<path d="M190,128 L190,282" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<text x="206.0" y="205.0" font-size="11" fill="#ffffff" stroke="#ffffff" stroke-width="3" paint-order="stroke" text-anchor="middle">no</text>
+<text x="206.0" y="205.0" font-size="11" fill="#555" text-anchor="middle">no</text>
+<path d="M360,315 L420,315" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<text x="390.0" y="307.0" font-size="11" fill="#ffffff" stroke="#ffffff" stroke-width="3" paint-order="stroke" text-anchor="middle">yes</text>
+<text x="390.0" y="307.0" font-size="11" fill="#555" text-anchor="middle">yes</text>
+<path d="M190,348 L190,497" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<text x="206.0" y="422.5" font-size="11" fill="#ffffff" stroke="#ffffff" stroke-width="3" paint-order="stroke" text-anchor="middle">no</text>
+<text x="206.0" y="422.5" font-size="11" fill="#555" text-anchor="middle">no</text>
+<path d="M360,525 L420,525" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<text x="436" y="74" font-size="12.5" fill="#111111" text-anchor="start">Decorator vs @decorator</text>
+<text x="436" y="98" font-size="12.5" fill="#111111" text-anchor="start">Singleton</text>
+<text x="436" y="122" font-size="12.5" fill="#111111" text-anchor="start">Proxy</text>
+<text x="436" y="146" font-size="12.5" fill="#111111" text-anchor="start">Protocol vs ABC</text>
+<text x="436" y="242" font-size="12.5" fill="#111111" text-anchor="start">Strategy: a callable</text>
+<text x="436" y="266" font-size="12.5" fill="#111111" text-anchor="start">Iterator: a generator</text>
+<text x="436" y="290" font-size="12.5" fill="#111111" text-anchor="start">Factory Method: a dict of classes</text>
+<text x="436" y="314" font-size="12.5" fill="#111111" text-anchor="start">Template Method: hook callables</text>
+<text x="436" y="338" font-size="12.5" fill="#111111" text-anchor="start">Builder and Prototype: a dataclass</text>
+<text x="436" y="362" font-size="12.5" fill="#111111" text-anchor="start">Visitor: singledispatch or match</text>
+<text x="436" y="386" font-size="12.5" fill="#111111" text-anchor="start">Null Object: a type that allows None</text>
+<text x="436" y="512" font-size="12.5" fill="#111111" text-anchor="start">State and Command with undo</text>
+<text x="436" y="536" font-size="12.5" fill="#111111" text-anchor="start">Composite and Observer</text>
+<text x="436" y="560" font-size="12.5" fill="#111111" text-anchor="start">Chain of Responsibility and Memento</text>
+</svg>

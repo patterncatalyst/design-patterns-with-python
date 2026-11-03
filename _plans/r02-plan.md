@@ -200,7 +200,7 @@ Also `README.md`, `_examples/03-three-way-split.md`; `uv.lock` updated.
 | 0 | Plan file; iteration-plan rows 101-104; canonical map + ch1-4 rows in domain model; reconciliation claims 1-4 plan; ch3 `has_example = true`; fix Part 2 blurb; note PRD table superseded in Notion | - | **done** |
 | 1 | Example member + card + uv.lock; gates; handback of names and scrubbed output | 0 | **done** |
 | 2 | Record witness results in reconciliation; change map if any witness fails | 1 | **done** |
-| 3 | Four figures + `_data/diagrams.yml` (single owner); chapter 0 figure unchanged | 1 | todo |
+| 3 | Four figures + `_data/diagrams.yml` (single owner); chapter 0 figure unchanged | 1 | **done** |
 | 4 | ch1-4 `status = "drafted"` | 3 | todo |
 | 5 | Four prose agents in parallel, one file each | 3,4 | todo |
 | 6 | Opus validation; up to two repair rounds | 5 | todo |
