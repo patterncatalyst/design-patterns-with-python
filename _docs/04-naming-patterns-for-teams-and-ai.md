@@ -25,7 +25,7 @@ A pattern name is the shortest design review comment there is. "This should be a
 
 The vocabulary only works when everyone attaches the same contract to the same word. Python complicates this in two ways. The mechanism behind a pattern is often lighter than the 1994 structure, so a Strategy may be a function and the word "Strategy" no longer implies a class hierarchy. And two unrelated things share one name, so "decorator" can mean a wrapper object or a line starting with `@`. A team that doesn't settle these questions in its names settles them in review threads.
 
-AI coding assistants add a second reader to the same code. An assistant that is asked for "a factory" or "a strategy" may produce something that matches the name and not the intent, and the reviewer then has to decide whether the result matches the intent. The practical question is what the name lets you verify once the assistant has produced its diff. A name that states the role and the mechanism gives the reviewer something specific to look for in the diff, and it gives the assistant the same specific target in the prompt.
+AI coding assistants add a second reader to the same code. An assistant that is asked for "a factory" or "a strategy" may produce something that matches the name and not the intent, so the reviewer checks the result against the intent. The practical question is what the name lets you verify once the assistant has produced its diff. A name that states the role and the mechanism gives the reviewer something specific to look for in the diff, and it gives the assistant the same specific target in the prompt.
 
 {% include excalidraw.html name="04-naming-patterns-for-teams-and-ai" caption="Figure 4.1: One pattern name, two readers. A reviewer and an AI assistant read the same name for the same contract; naming the Python mechanism as well, a callable type alias rather than a class hierarchy, keeps both readers on the idiomatic shape." %}
 
@@ -71,7 +71,7 @@ The three-way split sorts every pattern into dissolved, survives or needs disamb
 
 The suffixes `Manager` and `Helper` hide more. They name no role or contract. A `ConsignmentManager` might hold state, wrap a gateway or validate input, and a reviewer can't tell which from the name. Because the name can't be wrong, it can't be checked, and the class collects responsibilities until someone splits it. When a name like this appears in a diff, the useful review question is which job the class does, since the answer is usually the name it should have had: a `CarrierGateway` for the boundary to a carrier, a `PricingRule` for a computation, a `TrackingHistory` for an ordered record.
 
-Fowler's *Refactoring* gives the remedy a name of its own: Rename Variable and Rename Field, and Change Function Declaration for functions. A rename is a small, safe change, and it's worth making as soon as a better name is clear.
+Fowler's *Refactoring* gives the remedy names of its own: Rename Variable and Rename Field, and Change Function Declaration for functions. A rename is a small, safe change, and it's worth making as soon as a better name is clear.
 
 ## Keeping Decorator and `@decorator` apart in names
 

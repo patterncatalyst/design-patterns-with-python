@@ -44,7 +44,7 @@ emit(
             "w": 340,
             "h": 56,
             "style": "ink",
-            "lines": ["The force remains", "so the structure stays"],
+            "lines": ["No feature resolves it", "so the structure stays"],
         },
     ],
     edges=[

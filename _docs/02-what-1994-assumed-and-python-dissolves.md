@@ -119,7 +119,7 @@ class AircoGateway:
         return f"AIRCO:{consignment.id}"
 ```
 
-Neither gateway names `CarrierGateway`. Each has a `book` with a compatible signature, so each is accepted wherever the protocol is expected. Neither gateway refers to `CarrierGateway`, so either could live in a module that never imports it, and a third-party client class can satisfy it without being edited.
+Each has a `book` with a compatible signature, so each is accepted wherever the protocol is expected. Neither gateway refers to `CarrierGateway`, so either could live in a module that never imports it, and a third-party client class can satisfy it without being edited.
 
 That removes the scaffolding Adapter used to supply in one common situation: two parts already agree on shape and only disagree on declaration. It doesn't remove the Adapter pattern. If a carrier's client exposed `submit_shipment(payload)` instead of `book(consignment)`, no checker can bridge that. The force of Adapter is a mismatch of shape, and a mismatch of shape needs code that translates. Duck typing removes the adapter only when the shapes already match; when they don't, you write the wrapper, and it's the same class it has always been.
 
@@ -174,7 +174,7 @@ The return type is a union, and the checker won't let a caller treat it as the p
 
 The mistake is caught before the code runs, at the exact expression that forgot the case. The same test confirms that the guarded form (`if gateway is None: return "unknown carrier"`) passes with no output. Absence is neither hidden behind a do-nothing object nor left as a run-time `AttributeError`; it's a branch the checker makes you write.
 
-The force survives here: callers still need protecting from a missing object. Null Object protected them by making the missing case look present. The type checker protects them by making the missing case impossible to ignore. Where a do-nothing default is the correct behaviour (a logger that discards output, a discount of zero), a real null object remains a fine design, and now it's a deliberate choice rather than the only option.
+The force remains here: callers still need protecting from a missing object. Null Object protected them by making the missing case look present. The type checker protects them by making the missing case impossible to ignore. Where a do-nothing default is the correct behaviour (a logger that discards output, a discount of zero), a real null object remains a fine design, and now it's a deliberate choice rather than the only option.
 
 ## Did the force move, or only the mechanism?
 
@@ -184,7 +184,7 @@ For Strategy, the force (vary the algorithm at run time) is intact and the class
 
 Some patterns fail the dissolve test because the force isn't about mechanism. Composite exists because clients must treat one item and a group of items through the same interface; a `Protocol` makes that cheaper to declare but doesn't decide the recursive structure, how a total is computed across children, or what a leaf does with `add`. State exists because behaviour depends on a history of transitions that must be explicit and checkable; a dictionary of functions can store the table, but the table is the design. Command with undo needs a record of what to reverse and an order in which to do it, and no callable holds that for you. These keep their shape, and later chapters develop each.
 
-The practical consequence is a rule of proportion. When a review comment says "this should be a function", the justification is that the force survives and the mechanism doesn't need a class. When the comment says "this needs a real object", the justification is that the force itself has state, structure or ordering that a callable can't carry. Both comments are about forces, and the grouping of the whole catalogue into what dissolves, what survives and what needs a clearer name is the job of the three-way split chapter.
+The practical consequence is a rule of proportion. When a review comment says "this should be a function", the justification is that the force remains and the mechanism doesn't need a class. When the comment says "this needs a real object", the justification is that the force itself has state, structure or ordering that a callable can't carry. Both comments are about forces, and the grouping of the whole catalogue into what dissolves, what survives and what needs a clearer name is the job of the three-way split chapter.
 
 ## For deeper coverage
 
