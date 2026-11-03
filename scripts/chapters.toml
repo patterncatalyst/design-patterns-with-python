@@ -7,7 +7,7 @@ title = "Prerequisites and the toolchain"
 part = 0
 kind = "hands-on"
 has_example = true
-status = "in-progress"
+status = "drafted"
 
 [[chapter]]
 number = 1

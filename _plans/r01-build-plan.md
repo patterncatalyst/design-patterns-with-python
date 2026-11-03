@@ -61,7 +61,7 @@ PDP-150..152 decks 101/201/301.
 | S7 | 100a | `examples/00-prerequisites` (pkg `consignments`): frozen slotted Consignment, ConsignmentId/Weight validation, `replace`; tests assert behaviour | S4 | todo |
 | S8 | 007-009 | `_plans/iteration-plan.md`, `shipping-domain-model.md` (7 domain areas, example per chapter, non-overlap 20/26, 25/28, 20/30), `reconciliation-plan.md`; revise after S6 | - | **done** (revise after S6) |
 | S9 | 100b | Ch0 figure spec (vertical flow uv -> .venv -> ruff -> mypy -> pytest), render, `_data/diagrams.yml` | S7 | **done** |
-| S10 | 100c | Ch0 prose, 1,900-2,500 words, real scrubbed output, scan.sh 0 ban-tier | S7,S9 | todo |
+| S10 | 100c | Ch0 prose, 1,900-2,500 words, real scrubbed output, scan.sh 0 ban-tier | S7,S9 | **done** (2013 words) |
 | S11 | 016 | `_examples/00-prerequisites.md` card; bibliography (books only, verified) | S0,S7 | **done** (O'Reilly URLs 403 to curl; ISBN form) |
 | S12 | 017 | `ci.yml` (python, validate, host-ids, ci-ok), CLAUDE.md, README | S4,S5 | **done** |
 | S13 | 018 | Validation wave: every acceptance criterion; fix in-iteration | all | todo |
