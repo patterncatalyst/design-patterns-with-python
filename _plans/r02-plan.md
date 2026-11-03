@@ -201,8 +201,8 @@ Also `README.md`, `_examples/03-three-way-split.md`; `uv.lock` updated.
 | 1 | Example member + card + uv.lock; gates; handback of names and scrubbed output | 0 | **done** |
 | 2 | Record witness results in reconciliation; change map if any witness fails | 1 | **done** |
 | 3 | Four figures + `_data/diagrams.yml` (single owner); chapter 0 figure unchanged | 1 | **done** |
-| 4 | ch1-4 `status = "drafted"` | 3 | todo |
-| 5 | Four prose agents in parallel, one file each | 3,4 | todo |
+| 4 | ch1-4 `status = "drafted"` | 3 | **done** |
+| 5 | Four prose agents in parallel, one file each | 3,4 | **done** |
 | 6 | Opus validation; up to two repair rounds | 5 | todo |
 | 7 | PR, `ci-ok` green, ask user before merge; tag r02.x; release; PRD build log | 6 | todo |
 
