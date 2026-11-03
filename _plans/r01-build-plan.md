@@ -64,7 +64,7 @@ PDP-150..152 decks 101/201/301.
 | S10 | 100c | Ch0 prose, 1,900-2,500 words, real scrubbed output, scan.sh 0 ban-tier | S7,S9 | **done** (2013 words) |
 | S11 | 016 | `_examples/00-prerequisites.md` card; bibliography (books only, verified) | S0,S7 | **done** (O'Reilly URLs 403 to curl; ISBN form) |
 | S12 | 017 | `ci.yml` (python, validate, host-ids, ci-ok), CLAUDE.md, README | S4,S5 | **done** |
-| S13 | 018 | Validation wave: every acceptance criterion; fix in-iteration | all | todo |
+| S13 | 018 | Validation wave: every acceptance criterion; fix in-iteration | all | **done** (2 repair rounds; criteria 1-13 met) |
 | S14 | 019 | PR, CI green, squash-merge --delete-branch, Pages live, tag r01.x, notes-only release, ruleset | S13 | todo |
 | S15 | 020 | Hub PR: sites.yml card (GoF section), books.yml + book_categories.yml | S14 | todo |
 
