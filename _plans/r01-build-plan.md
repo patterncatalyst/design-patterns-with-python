@@ -65,8 +65,8 @@ PDP-150..152 decks 101/201/301.
 | S11 | 016 | `_examples/00-prerequisites.md` card; bibliography (books only, verified) | S0,S7 | **done** (O'Reilly URLs 403 to curl; ISBN form) |
 | S12 | 017 | `ci.yml` (python, validate, host-ids, ci-ok), CLAUDE.md, README | S4,S5 | **done** |
 | S13 | 018 | Validation wave: every acceptance criterion; fix in-iteration | all | **done** (2 repair rounds; criteria 1-13 met) |
-| S14 | 019 | PR, CI green, squash-merge --delete-branch, Pages live, tag r01.x, notes-only release, ruleset | S13 | todo |
-| S15 | 020 | Hub PR: sites.yml card (GoF section), books.yml + book_categories.yml | S14 | todo |
+| S14 | 019 | PR, CI green, squash-merge --delete-branch, Pages live, tag r01.x, notes-only release, ruleset | S13 | **done** (PR #1, r01.x, ruleset) |
+| S15 | 020 | Hub PR: sites.yml card (GoF section), books.yml + book_categories.yml | S14 | **done** (hub PR #49) |
 
 ## Verified toolchain (fill in S0, dated)
 
