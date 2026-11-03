@@ -33,7 +33,7 @@ This creates `.venv` and installs the pinned tools and every example.
 uv run pytest
 uv run ruff check .
 uv run ruff format --check .
-for d in examples/*/ spikes/*/; do (cd "$d" && uv run mypy --strict src tests); done
+for d in examples/*/; do (cd "$d" && uv run mypy --strict src tests); done
 ```
 
 mypy runs once per example because different examples may reuse the same test file

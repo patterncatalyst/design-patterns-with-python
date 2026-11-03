@@ -164,7 +164,8 @@ Host (user-local, no system change): uv upgraded 0.13.5 -> 0.13.7; `uv python in
 8. `uv run python scripts/validate.py` exits 0.
 9. lgtm-professional-voice `scan.sh --tier ban --fail` over reader-facing files exits 0;
    `--stats` reviewed for Chapter 0.
-10. lgtm-idiomatic-review scan over `examples/` and `spikes/`: 0 ban-tier.
+10. lgtm-idiomatic-review scan over `examples/` and `spikes/`: 0 ban-tier, or each survivor kept
+    for a reason recorded in `_plans/spikes.md` (the GIL benchmark's `print()` report is kept).
 11. `python3 scripts/host_ids.py check` exits 0; no home path or account name tracked.
 12. Chapter 0: >= 1,900 words, full spine, one figure include with 20-45 word caption,
     no em-dashes, dated pin table, quoted output matches a fresh run modulo scrubbing.

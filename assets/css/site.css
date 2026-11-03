@@ -1,16 +1,16 @@
 /* ──────────────────────────────────────────────────────────────────────────
-   design-patterns-with-python — site.css
+   design-patterns-with-python - site.css
 
    Class system mirrors patterncatalyst/hummingbird-tutorial so the visual
    language is consistent across the patterncatalyst Jekyll family. Every
    selector here is tied to a structural class produced by the layouts and
    includes in this repo; nothing styles raw HTML beyond minimal resets.
 
-   Color tokens follow a light/dark system that respects OS preference.
+   Color tokens follow a light/dark system that respects OS preference;
    ────────────────────────────────────────────────────────────────────── */
 
 :root {
-    /* Light theme tokens. Site stays light regardless of OS preference —
+    /* Light theme tokens. Site stays light regardless of OS preference;
        matches hummingbird-tutorial's behaviour. To opt back into auto
        dark mode, see the commented block at the bottom of this file. */
     color-scheme: light;

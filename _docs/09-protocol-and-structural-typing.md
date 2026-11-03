@@ -4,7 +4,7 @@ order: 9
 layout: tutorial
 sectionid: docs
 part: "python-substrate"
-description: "Draft pending: Protocol, duck typing, and structural typing with mypy."
+description: "Draft pending: Protocol, duck typing, and structural typing with mypy, including the Null Object that replaces a None carrier."
 ---
 
 ## Learning objectives

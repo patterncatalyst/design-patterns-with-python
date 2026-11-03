@@ -1,20 +1,20 @@
 ---
 layout: default
-title: Example demos
-description: Runnable companion demos for Design Patterns with Python. Each runs locally with uv and pytest, no containers.
+title: Examples
+description: Runnable companion examples for Design Patterns with Python. Each runs locally with uv and pytest, no containers.
 permalink: /examples/
 ---
 
 <section class="hero hero--compact">
     <div class="container">
-        <span class="hero__eyebrow">Example demos</span>
+        <span class="hero__eyebrow">Examples</span>
         <h1>Runnable companions to the book.</h1>
         <p class="hero__lead">
-            Every pattern chapter has a demo behind it. Each demo is a
+            Every pattern chapter has an example behind it. Each example is a
             self-contained Python project in one uv workspace, with a pytest
             suite, pytest-mock where a collaborator needs substitution, and no
             containers. Read the matching chapter for context, then run the
-            demo from its directory with the same local uv and Python 3.14
+            example from its directory with the same local uv and Python 3.14
             toolchain the prerequisites chapter installs.
         </p>
     </div>
@@ -25,11 +25,10 @@ permalink: /examples/
         <h2 class="section-heading">Runnable examples</h2>
         <p class="section-lead">
             Each example makes a single pattern concrete and runnable with one
-            command. Every card links to the demo's page on this site (a
+            command. Every card links to the example's page on this site (a
             rendering of the README with cross-references), and each page links
-            to the source on GitHub. Each demo also stands alone, so you can
-            build it without reading the book first if you would rather poke at
-            it directly.
+            to the source on GitHub. Each example also stands alone and builds
+            without the book.
         </p>
         <div class="cards">
         {%- assign sorted_examples = site.examples | sort: "order" -%}
@@ -43,14 +42,14 @@ permalink: /examples/
         {%- endfor %}
         </div>
         {%- if sorted_examples.size == 0 -%}
-        <p class="section-lead">The runnable examples ship as the chapters land. Check back as the book fills in.</p>
+        <p class="section-lead">The runnable examples ship as the chapters land.</p>
         {%- endif -%}
     </div>
 </section>
 
 <section class="section" style="background: var(--bg-soft);">
     <div class="container container-prose">
-        <h2 class="section-heading">Building every demo</h2>
+        <h2 class="section-heading">Building every example</h2>
         <p>
             Clone the repo and run every example in one pass with the pinned
             local toolchain (uv and Python 3.14; see the prerequisites chapter and

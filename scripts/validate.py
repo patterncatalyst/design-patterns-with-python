@@ -10,17 +10,15 @@ Every violation prints as `path:line: message`; the exit status is 1 if any
 error was found. Warnings and info lines never change the exit status.
 """
 
-from __future__ import annotations
-
 import re
 import sys
 import tomllib
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 EXPECTED_DOCS = 47
-EM_DASH = "—"
+EM_DASH = "\u2014"
 PROSE_STATUSES = frozenset({"done", "drafted", "verified"})
 MIN_WORDS = 1900
 MAX_WORDS = 2500
@@ -38,6 +36,38 @@ PARAM_RE = re.compile(r'(\w+)\s*=\s*"((?:[^"\\]|\\.)*)"')
 FENCE_RE = re.compile(r"^\s*(```+|~~~+)\s*([\w+-]*)")
 RAW_TOKEN_RE = re.compile(r"\{%-?\s*(raw|endraw)\s*-?%\}")
 TEMPLATE_RE = re.compile(r"\{\{|\{%")
+INLINE_CODE_RE = re.compile(r"`[^`\n]+`")
+LIQUID_RE = re.compile(r"\{%.*?%\}|\{\{.*?\}\}", re.DOTALL)
+LINK_RE = re.compile(r"!?\[([^\]]*)\]\([^)]*\)")
+URL_RE = re.compile(r"https?://\S+")
+HTML_TAG_RE = re.compile(r"<[^>]+>")
+H2_RE = re.compile(r"^##\s+(.+?)\s*$")
+FIGURE_RE = re.compile(r"\{%-?\s*include\s+excalidraw\.html\b")
+SPINE = {
+    "argument": ("Learning objectives", "Why this matters", "For deeper coverage"),
+    "appendix": ("Learning objectives", "Why this matters", "For deeper coverage"),
+    "hands-on": (
+        "Learning objectives",
+        "Why this matters",
+        "Build, run, observe",
+        "For deeper coverage",
+    ),
+    "pattern": (
+        "Learning objectives",
+        "Why this matters",
+        "Build, run, observe",
+        "When not to use it",
+        "For deeper coverage",
+    ),
+}
+TOOL_ALIASES = {"cpython": "python"}
+EM_DASH_ONLY = (
+    "LICENSE-docs.md",
+    "diagrams/README.md",
+    "_includes/**/*",
+    "_layouts/**/*",
+    "_data/diagrams.yml",
+)
 SVG_TEXT_RE = re.compile(r"<text\b[^>]*>(.*?)</text>", re.DOTALL)
 
 
@@ -53,14 +83,9 @@ class Finding:
 
 @dataclass
 class Report:
-    errors: list[Finding]
-    warnings: list[Finding]
-    info: list[Finding]
-
-    def __init__(self) -> None:
-        self.errors = []
-        self.warnings = []
-        self.info = []
+    errors: list[Finding] = field(default_factory=list)
+    warnings: list[Finding] = field(default_factory=list)
+    info: list[Finding] = field(default_factory=list)
 
 
 # ---------------------------------------------------------------- parsing
@@ -117,10 +142,22 @@ def prose_lines(text: str) -> list[tuple[int, str]]:
 
 
 def word_count(text: str) -> int:
+    """Count prose words only.
+
+    Drops fenced code, Liquid tags, inline code, link and image targets (link text
+    stays), bare URLs, HTML tags, heading lines and table rows.
+    """
+    joined = "\n".join(line for _, line in prose_lines(text))
+    joined = LIQUID_RE.sub(" ", joined)
     count = 0
-    for _, line in prose_lines(text):
-        if line.lstrip().startswith("{%"):
+    for line in joined.split("\n"):
+        stripped = line.lstrip()
+        if stripped.startswith(("#", "|")):
             continue
+        line = INLINE_CODE_RE.sub(" ", line)
+        line = LINK_RE.sub(r"\1", line)
+        line = URL_RE.sub(" ", line)
+        line = HTML_TAG_RE.sub(" ", line)
         count += len(re.findall(r"[A-Za-z0-9][A-Za-z0-9'_-]*", line))
     return count
 
@@ -199,14 +236,14 @@ def check_prose(rel: str, text: str, kind: str, status: str) -> tuple[list[Findi
     """Prose rules for one chapter. Returns (errors, warnings)."""
     errors: list[Finding] = []
     warnings: list[Finding] = []
-    for n, line in prose_lines(text):
-        for m in XREF_RE.finditer(line):
-            errors.append(Finding(rel, n, f"chapter cross-reference {m.group(0)!r} in prose"))
     for n, line, _ in body_lines(text):
         if "{: .ai-sidebar}" in line:
             errors.append(Finding(rel, n, "use the blockquote markup, not {: .ai-sidebar}"))
-    errors.extend(check_raw_wrapping(rel, text))
     if status in PROSE_STATUSES:
+        errors.extend(check_spine(rel, text, kind))
+        figures = len(FIGURE_RE.findall(text))
+        if kind != "appendix" and figures != 1:
+            errors.append(Finding(rel, 1, f"{figures} figure includes, need exactly 1"))
         words = word_count(text)
         if words < MIN_WORDS:
             errors.append(Finding(rel, 1, f"prose has {words} words, minimum {MIN_WORDS}"))
@@ -221,34 +258,63 @@ def check_prose(rel: str, text: str, kind: str, status: str) -> tuple[list[Findi
     return errors, warnings
 
 
-def check_raw_wrapping(rel: str, text: str) -> list[Finding]:
+def check_xrefs(rel: str, text: str) -> list[Finding]:
+    """Chapter cross-references are banned in reader-facing prose (fenced code exempt)."""
+    return [
+        Finding(rel, n, f"chapter cross-reference {m.group(0)!r} in prose")
+        for n, line in prose_lines(text)
+        for m in XREF_RE.finditer(line)
+    ]
+
+
+def check_spine(rel: str, text: str, kind: str) -> list[Finding]:
+    headings = {m.group(1) for _, line in prose_lines(text) if (m := H2_RE.match(line))}
+    return [
+        Finding(rel, 1, f"missing spine heading '## {need}' for kind {kind!r}")
+        for need in SPINE.get(kind, ())
+        if need not in headings
+    ]
+
+
+def check_templates(rel: str, text: str) -> list[Finding]:
+    """Unescaped Liquid in fenced blocks or inline code, outside {% raw %}...{% endraw %}."""
     out: list[Finding] = []
     in_raw = False
     for n, line, fence in body_lines(text):
         pos = 0
+        segments: list[tuple[str, bool]] = []
         for tok in RAW_TOKEN_RE.finditer(line):
-            if fence == "python":
-                out.extend(template_hits(rel, n, line[pos : tok.start()], in_raw))
+            segments.append((line[pos : tok.start()], in_raw))
             in_raw = tok.group(1) == "raw"
             pos = tok.end()
-        if fence == "python":
-            out.extend(template_hits(rel, n, line[pos:], in_raw))
+        segments.append((line[pos:], in_raw))
+        for segment, raw in segments:
+            if raw:
+                continue
+            if fence is not None:
+                hit = bool(TEMPLATE_RE.search(segment))
+                where = "fenced block"
+            else:
+                hit = any(TEMPLATE_RE.search(m.group(0)) for m in INLINE_CODE_RE.finditer(segment))
+                where = "inline code"
+            if hit:
+                out.append(Finding(rel, n, f"unescaped '{{{{' or '{{%' in {where}; wrap in raw"))
     return out
 
 
-def template_hits(rel: str, n: int, segment: str, in_raw: bool) -> list[Finding]:
-    if in_raw or not TEMPLATE_RE.search(segment):
-        return []
-    return [Finding(rel, n, "unescaped '{{' or '{%' in python block; wrap in {% raw %}")]
+def check_em_dash(rel: str, text: str) -> list[Finding]:
+    return [
+        Finding(rel, n, "em-dash (U+2014)")
+        for n, line in enumerate(text.split("\n"), start=1)
+        if EM_DASH in line
+    ]
 
 
 def check_banned(rel: str, text: str, *, svg: bool) -> list[Finding]:
     """Em-dash, capstone, PDP ids, iteration ids and 'spike' in reader-facing text."""
     out: list[Finding] = []
     lines = text.split("\n")
-    for n, line in enumerate(lines, start=1):
-        if EM_DASH in line:
-            out.append(Finding(rel, n, "em-dash (U+2014)"))
+    out.extend(check_em_dash(rel, text))
     scoped: list[tuple[int, str]]
     if svg:
         scoped = []
@@ -274,21 +340,133 @@ def check_banned(rel: str, text: str, *, svg: bool) -> list[Finding]:
     return out
 
 
-def check_pins(root: Path) -> list[Finding]:
-    out: list[Finding] = []
-    pyproject = root / "pyproject.toml"
-    data = tomllib.loads(pyproject.read_text(encoding="utf-8"))
-    for dep in data.get("dependency-groups", {}).get("dev", []):
-        if isinstance(dep, str) and "==" not in dep:
-            out.append(
-                Finding("pyproject.toml", 1, f"dev dependency {dep!r} is not pinned with ==")
-            )
-    pv = root / ".python-version"
-    if not pv.is_file() or not re.fullmatch(
-        r"\d+\.\d+\.\d+", pv.read_text(encoding="utf-8").strip()
-    ):
-        out.append(Finding(".python-version", 1, "must be an exact x.y.z"))
+def normalize(name: str) -> str:
+    return re.sub(r"[-_.]+", "-", name).lower()
+
+
+def chapter_table(text: str) -> dict[str, tuple[int, str]]:
+    """Version-table rows of Chapter 0: tool name -> (line, version)."""
+    known = {"python", "uv", "pytest", "pytest-mock", "ruff", "mypy"}
+    rows: dict[str, tuple[int, str]] = {}
+    for n, line in enumerate(text.split("\n"), start=1):
+        if not line.lstrip().startswith("|"):
+            continue
+        cells = [c.strip().strip("`") for c in line.strip().strip("|").split("|")]
+        if len(cells) < 2:
+            continue
+        name = TOOL_ALIASES.get(normalize(cells[0]), normalize(cells[0]))
+        if name in known and re.fullmatch(r"\d+(\.\d+)+", cells[1]):
+            rows.setdefault(name, (n, cells[1]))
+    return rows
+
+
+def lock_versions(lock_text: str) -> dict[str, tuple[int, str]]:
+    out: dict[str, tuple[int, str]] = {}
+    lines = lock_text.split("\n")
+    for i, line in enumerate(lines):
+        m = re.fullmatch(r'name = "([^"]+)"', line)
+        if m and i + 1 < len(lines):
+            v = re.fullmatch(r'version = "([^"]+)"', lines[i + 1])
+            if v:
+                out[normalize(m.group(1))] = (i + 1, v.group(1))
     return out
+
+
+def ci_uv_versions(ci_text: str) -> list[tuple[int, str]]:
+    lines = ci_text.split("\n")
+    found: list[tuple[int, str]] = []
+    for i, line in enumerate(lines):
+        if "astral-sh/setup-uv" not in line:
+            continue
+        for j in range(i + 1, min(i + 6, len(lines))):
+            m = re.match(r"\s*version:\s*[\"']?([\w.]+)", lines[j])
+            if m:
+                found.append((j + 1, m.group(1)))
+                break
+    return found
+
+
+def pin_findings(
+    pyproject: str, lock: str, python_version: str, chapter: str, ci: str
+) -> list[Finding]:
+    """Cross-check pyproject pins, uv.lock, .python-version, Chapter 0 and ci.yml."""
+    out: list[Finding] = []
+    table = chapter_table(chapter)
+    chapter_rel = "_docs/00-prerequisites.md"
+    locked = lock_versions(lock)
+    pin_lines = pyproject.split("\n")
+    data = tomllib.loads(pyproject)
+    for dep in data.get("dependency-groups", {}).get("dev", []):
+        if not isinstance(dep, str):
+            continue
+        line = next((i for i, t in enumerate(pin_lines, 1) if f'"{dep}"' in t), 1)
+        name, sep, version = dep.partition("==")
+        if not sep:
+            out.append(
+                Finding("pyproject.toml", line, f"dev dependency {dep!r} is not pinned with ==")
+            )
+            continue
+        key = normalize(name)
+        if key not in locked:
+            out.append(Finding("uv.lock", 1, f"{key} is pinned in pyproject.toml but not locked"))
+        elif locked[key][1] != version:
+            out.append(
+                Finding(
+                    "uv.lock",
+                    locked[key][0],
+                    f"{key} locked at {locked[key][1]}, pyproject.toml pins {version}",
+                )
+            )
+        if key not in table:
+            out.append(Finding(chapter_rel, 1, f"version table has no row for {key}"))
+        elif table[key][1] != version:
+            out.append(
+                Finding(
+                    chapter_rel,
+                    table[key][0],
+                    f"{key} row says {table[key][1]}, pyproject.toml pins {version}",
+                )
+            )
+    if not re.fullmatch(r"\d+\.\d+\.\d+", python_version):
+        out.append(Finding(".python-version", 1, "must be an exact x.y.z"))
+    elif "python" not in table:
+        out.append(Finding(chapter_rel, 1, "version table has no row for CPython"))
+    elif table["python"][1] != python_version:
+        out.append(
+            Finding(
+                chapter_rel,
+                table["python"][0],
+                f"CPython row says {table['python'][1]}, .python-version is {python_version}",
+            )
+        )
+    if "uv" not in table:
+        out.append(Finding(chapter_rel, 1, "version table has no row for uv"))
+    else:
+        uv_line, uv_version = table["uv"]
+        for line, version in ci_uv_versions(ci):
+            if version != uv_version:
+                out.append(
+                    Finding(
+                        ".github/workflows/ci.yml",
+                        line,
+                        f"setup-uv version {version}, {chapter_rel}:{uv_line} says {uv_version}",
+                    )
+                )
+    return out
+
+
+def check_pins(root: Path) -> list[Finding]:
+    def read(rel: str) -> str:
+        path = root / rel
+        return path.read_text(encoding="utf-8") if path.is_file() else ""
+
+    return pin_findings(
+        read("pyproject.toml"),
+        read("uv.lock"),
+        read(".python-version").strip(),
+        read("_docs/00-prerequisites.md"),
+        read(".github/workflows/ci.yml"),
+    )
 
 
 # ------------------------------------------------------------ whole tree
@@ -307,6 +485,21 @@ def reader_facing(root: Path) -> list[Path]:
     ):
         files.extend(sorted(root.glob(pattern)))
     return sorted(set(files))
+
+
+def em_dash_only(root: Path) -> list[Path]:
+    files: list[Path] = []
+    for pattern in EM_DASH_ONLY:
+        files.extend(p for p in sorted(root.glob(pattern)) if p.is_file())
+    return sorted(set(files))
+
+
+def liquid_processed(path: Path, root: Path) -> bool:
+    rel = path.relative_to(root)
+    top = rel.parts[0]
+    return top in {"_docs", "_parts", "_examples"} or (
+        len(rel.parts) == 1 and path.suffix == ".html"
+    )
 
 
 def load_manifest(root: Path) -> list[dict[str, object]]:
@@ -376,6 +569,14 @@ def validate(root: Path) -> Report:
         rel = path.relative_to(root).as_posix()
         text = path.read_text(encoding="utf-8")
         rep.errors.extend(check_banned(rel, text, svg=path.suffix == ".svg"))
+        if path.suffix != ".svg":
+            rep.errors.extend(check_xrefs(rel, text))
+        if liquid_processed(path, root):
+            rep.errors.extend(check_templates(rel, text))
+
+    for path in em_dash_only(root):
+        rel = path.relative_to(root).as_posix()
+        rep.errors.extend(check_em_dash(rel, path.read_text(encoding="utf-8")))
 
     rep.errors.extend(check_pins(root))
     return rep
@@ -404,8 +605,7 @@ def self_test() -> int:
     )
 
     doc = "---\ntitle: T\n---\nSee chapter 5 and Ch. 6.\n```\nchapter 7\n```\n"
-    errors, _ = check_prose("a.md", doc, "pattern", "stub")
-    expect("xref in prose only", len(errors) == 2)
+    expect("xref in prose only", len(check_xrefs("a.md", doc)) == 2)
     expect("ai-sidebar attr", bool(check_prose("a.md", "{: .ai-sidebar}\n", "argument", "stub")[0]))
 
     short = "---\ntitle: T\n---\nfew words\n"
@@ -413,23 +613,71 @@ def self_test() -> int:
     expect("short stub ok", not check_prose("a.md", short, "argument", "stub")[0])
     expect("short in-progress ok", not check_prose("a.md", short, "argument", "in-progress")[0])
     long_body = "word " * 2000
+    figure_line = '{% include excalidraw.html name="x" caption="c" %}\n'
     expect("pattern needs sidebar", bool(check_prose("a.md", long_body, "pattern", "done")[0]))
-    ok = long_body + "\n" + SIDEBAR + "\n"
+    full_spine = "".join(f"## {h}\n" for h in SPINE["pattern"])
+    ok = full_spine + long_body + "\n" + SIDEBAR + "\n" + figure_line
     expect("pattern with sidebar", not check_prose("a.md", ok, "pattern", "done")[0])
     expect("long warns", bool(check_prose("a.md", "word " * 2600, "argument", "done")[1]))
 
     bad = "```python\nx = '{{ a }}'\n```\n"
     good = "{% raw %}\n```python\nx = '{{ a }}'\n```\n{% endraw %}\n"
     other = "```text\n{{ a }}\n```\n"
-    expect("raw missing", bool(check_raw_wrapping("a.md", bad)))
-    expect("raw wrapped", not check_raw_wrapping("a.md", good))
-    expect("non-python ignored", not check_raw_wrapping("a.md", other))
+    bare = "```\n{% if x %}\n```\n"
+    inline = "Use `{{ a }}` here.\n"
+    inline_raw = "{% raw %}Use `{{ a }}` here.{% endraw %}\n"
+    expect("raw missing", bool(check_templates("a.md", bad)))
+    expect("raw wrapped", not check_templates("a.md", good))
+    expect("text fence flagged", bool(check_templates("a.md", other)))
+    expect("bare fence flagged", bool(check_templates("a.md", bare)))
+    expect("inline code flagged", bool(check_templates("a.md", inline)))
+    expect("inline code raw ok", not check_templates("a.md", inline_raw))
+    expect("plain prose ok", not check_templates("a.md", "Use {{ a }} outside code.\n"))
 
     expect("caption short", bool(caption_findings("a", 1, "too short")))
     expect("caption todo", bool(caption_findings("a", 1, "TODO " + "word " * 25)))
     expect("caption ok", not caption_findings("a", 1, "word " * 25))
     inc = '{% include excalidraw.html name="x" caption="short" %}'
     expect("include caption parsed", bool(check_figure_captions("a.md", inc)))
+
+    wc = "---\nt: x\n---\n# Heading words here\n| a | b words |\n"
+    wc += "Real [link text](http://example.com/very/long) and `code span` and http://x.io/y.\n"
+    wc += '```\nfenced words\n```\n{% include a.html name="x" %}\n<b>bold</b> end\n'
+    expect("word count prose only", word_count(wc) == 7)
+    spine_text = "## Learning objectives\n## Why this matters\n## For deeper coverage\n"
+    expect("spine hands-on missing", bool(check_spine("a.md", spine_text, "hands-on")))
+    expect("spine argument ok", not check_spine("a.md", spine_text, "argument"))
+    expect("spine pattern missing", len(check_spine("a.md", spine_text, "pattern")) == 2)
+    fig = figure_line
+    body = "word " * 2000
+    expect("zero figures", bool(check_prose("a.md", body, "argument", "done")[0]))
+    expect(
+        "two figures",
+        any(
+            "figure" in f.message
+            for f in check_prose("a.md", fig * 2 + body, "argument", "done")[0]
+        ),
+    )
+    expect(
+        "appendix no figure ok",
+        not any("figure" in f.message for f in check_prose("a.md", body, "appendix", "done")[0]),
+    )
+
+    pyproject = '[dependency-groups]\ndev = [\n    "ruff==1.0.0",\n]\n'
+    lock = 'name = "ruff"\nversion = "1.0.0"\n'
+    table = "| Tool | Version | Role |\n| --- | --- | --- |\n| CPython | 3.14.1 | x |\n"
+    table += "| uv | 0.1.0 | x |\n| ruff | 1.0.0 | x |\n"
+    ci = '- uses: astral-sh/setup-uv@v10\n  with:\n    version: "0.1.0"\n'
+    expect("pins agree", not pin_findings(pyproject, lock, "3.14.1", table, ci))
+    bad_row = table.replace("| ruff | 1.0.0", "| ruff | 1.0.1")
+    expect("chapter row mismatch", bool(pin_findings(pyproject, lock, "3.14.1", bad_row, ci)))
+    bad_lock = lock.replace("1.0.0", "0.9.0")
+    expect("lock mismatch", bool(pin_findings(pyproject, bad_lock, "3.14.1", table, ci)))
+    expect("python mismatch", bool(pin_findings(pyproject, lock, "3.14.2", table, ci)))
+    expect(
+        "ci uv mismatch",
+        bool(pin_findings(pyproject, lock, "3.14.1", table, ci.replace("0.1.0", "0.2.0"))),
+    )
 
     entries = parse_diagram_yaml("- name: a\n  caption: >-\n    one two\n    three\n- name: b\n")
     expect("yaml parse", len(entries) == 2 and entries[0][1]["caption"] == "one two three")

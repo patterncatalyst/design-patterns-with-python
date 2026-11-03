@@ -76,7 +76,10 @@ Key surprise for the Protocol and testing chapters:
 
 Files: `concurrency.py`, `async_patterns.py`, `test_concurrency.py` (9), `test_async_patterns.py` (17),
 `bench/gil_bench.py` + `bench/gil_bench.out.txt`. 3 consecutive green runs; no sleep, wall clock or
-perf_counter in tests. Barrier/Event waits carry a 10 s guard timeout that a healthy run never reaches.
+perf_counter in tests. Barrier/Event waits carry a 10 s guard timeout that a healthy run never reaches
+(`alternating_pollers` raises `TimeoutError` if one expires).
+`bench/gil_bench.py` uses `print()` deliberately: it is a CLI benchmark whose output is a report on stdout,
+and it is the one kept survivor of the idiomatic-review ban tier.
 
 Rule for both concurrency chapters: **every race is forced by a seam** (a hook, `threading.Barrier`,
 `threading.Event`, `asyncio.Event`, `asyncio.sleep(0)`), never by timing. Assert exact outcomes of the

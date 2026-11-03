@@ -3,7 +3,7 @@ title: "Design Patterns with Python"
 description: >-
     The Gang of Four patterns and SOLID principles in idiomatic Python 3.14:
     the patterns that dissolve into language features, the ones that survive
-    as design, and the confusions worth untangling, with shipping-domain code
+    as design, and the names that need disambiguating, with shipping-domain code
     tested by pytest and checked by mypy.
 author: design-patterns-with-python contributors
 brand_emoji: "🐍"

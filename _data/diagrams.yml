@@ -6,6 +6,6 @@
   section: "Ch. 0"
   title: The local build-and-test loop
   caption: >-
-    One locked environment feeds lint, strict type checking, and the test
-    suite in order. Any red step sends you back to the source, and a
-    prerequisites script gates the toolchain before the loop begins.
+    The local build-and-test loop. One locked environment feeds lint, format,
+    strict type checking and tests in order; a red step returns you to the
+    source, and the prerequisites script gates the toolchain first.

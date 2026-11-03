@@ -36,9 +36,9 @@ jobs:
           enable-cache: true
           version: "0.13.7"
       - name: Book checks
-        run: uv run python scripts/validate.py
+        run: uv run --locked python scripts/validate.py
       - name: Book checks, self-test
-        run: uv run python scripts/validate.py --self-test
+        run: uv run --locked python scripts/validate.py --self-test
 
   host-ids:
     runs-on: ubuntu-latest

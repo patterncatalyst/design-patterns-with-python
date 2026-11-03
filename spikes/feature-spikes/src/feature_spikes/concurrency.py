@@ -91,10 +91,14 @@ def alternating_pollers(carrier_a: Sequence[str], carrier_b: Sequence[str]) -> l
         raise ValueError(msg)
     turn_a, turn_b = threading.Event(), threading.Event()
     log: list[str] = []
+    timed_out: list[str] = []
 
     def poll(events: Sequence[str], mine: threading.Event, theirs: threading.Event) -> None:
         for event in events:
-            mine.wait(timeout=_BARRIER_GUARD_SECONDS)
+            if not mine.wait(timeout=_BARRIER_GUARD_SECONDS):
+                timed_out.append(event)
+                theirs.set()  # release the other poller so it fails fast too
+                return
             mine.clear()
             log.append(event)
             theirs.set()
@@ -108,6 +112,9 @@ def alternating_pollers(carrier_a: Sequence[str], carrier_b: Sequence[str]) -> l
     turn_a.set()
     for thread in threads:
         thread.join()
+    if timed_out:
+        msg = f"poller handshake timed out before event {timed_out[0]!r}"
+        raise TimeoutError(msg)
     return log
 
 

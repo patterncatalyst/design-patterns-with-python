@@ -8,8 +8,6 @@ source of truth: never hand-edit the generated SVG.
     uv run python scripts/render_diagrams.py
 """
 
-from __future__ import annotations
-
 import runpy
 import sys
 from pathlib import Path

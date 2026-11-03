@@ -14,7 +14,7 @@
 <text x="405.0" y="331.0" font-size="11.5" fill="#555555" text-anchor="middle">the build gate</text>
 <rect x="230" y="374" width="350" height="56" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
 <text x="405.0" y="400.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">pytest</text>
-<text x="405.0" y="417.0" font-size="11.5" fill="#555555" text-anchor="middle">26 tests on Consignment, ConsignmentId, Weight</text>
+<text x="405.0" y="417.0" font-size="11.5" fill="#555555" text-anchor="middle">tests on Consignment, ConsignmentId, Weight</text>
 <rect x="230" y="460" width="350" height="56" rx="9" fill="#f1f5f9" stroke="#64748b" stroke-width="2"/>
 <text x="405.0" y="486.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">green</text>
 <text x="405.0" y="503.0" font-size="11.5" fill="#555555" text-anchor="middle">the example is ready to build on</text>
@@ -22,7 +22,7 @@
 <text x="100.0" y="306.5" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">red</text>
 <text x="100.0" y="323.5" font-size="11.5" fill="#555555" text-anchor="middle">fix the source</text>
 <text x="100.0" y="338.5" font-size="11.5" fill="#555555" text-anchor="middle">and rerun</text>
-<rect x="620" y="116" width="180" height="56" rx="9" fill="#ffffff" stroke="#999999" stroke-width="1.5"/>
+<rect x="610" y="110" width="200" height="68" rx="9" fill="#ffffff" stroke="#999999" stroke-width="1.5"/>
 <text x="710.0" y="142.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">scripts/check-prereqs.sh</text>
 <text x="710.0" y="159.0" font-size="11.5" fill="#555555" text-anchor="middle">gates the toolchain first</text>
 <path d="M405,86 L405,116" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
@@ -30,9 +30,9 @@
 <path d="M405,258 L405,288" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
 <path d="M405,344 L405,374" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
 <path d="M405,430 L405,460" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
-<text x="411.0" y="439.0" font-size="11" fill="#ffffff" stroke="#ffffff" stroke-width="3" paint-order="stroke" text-anchor="middle">pass</text>
-<text x="411.0" y="439.0" font-size="11" fill="#555" text-anchor="middle">pass</text>
-<path d="M620,144.0 L580,144.0" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<text x="425.0" y="449.0" font-size="11" fill="#ffffff" stroke="#ffffff" stroke-width="3" paint-order="stroke" text-anchor="middle">pass</text>
+<text x="425.0" y="449.0" font-size="11" fill="#555" text-anchor="middle">pass</text>
+<path d="M610,144.0 L580,144.0" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
 <path d="M230,230.0 L180,230.0" fill="none" stroke="#b8650a" stroke-width="2" marker-end="url(#am)"/>
 <path d="M230,316.0 L180,316.0" fill="none" stroke="#b8650a" stroke-width="2" marker-end="url(#am)"/>
 <path d="M230,402.0 L180,402.0" fill="none" stroke="#b8650a" stroke-width="2" marker-end="url(#am)"/>

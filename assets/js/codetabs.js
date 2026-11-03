@@ -3,7 +3,7 @@
  * No framework, no plugin, GitHub-Pages-safe. For each <div class="codetabs">
  * marker emitted by _includes/codetabs.html, absorb the following N Rouge
  * code blocks (N = number of pipe-separated labels) into a tab group.
- * The usual labels are "Java-shaped" and "Idiomatic". Selecting a
+ * The default labels are "Class hierarchy" and "Idiomatic"; both tabs hold Python. Selecting a
  * label syncs every group on the page and is remembered in localStorage so a
  * reader who picks "Idiomatic" keeps seeing the idiomatic form everywhere.
  */

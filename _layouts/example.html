@@ -2,15 +2,15 @@
 layout: default
 ---
 {%- comment -%}
-  Layout for a single demo page in the `examples` collection.
+  Layout for a single example page in the `examples` collection.
   Similar shape to the `tutorial` layout but:
     - breadcrumb points to /examples/ rather than the tutorial outline
-    - no prev/next pager (demos aren't read sequentially)
-    - title pill shows "Demo NN" rather than "Section NN"
+    - no prev/next pager (examples aren't read sequentially)
+    - title pill shows "Example NN" rather than "Section NN"
     - frontmatter `github_path` produces an explicit "View source on
       GitHub" link, since the body of the page is a rendering of the
-      demo's README — the canonical source still lives in
-      `examples/<demo_dir>/`.
+      example's README and the canonical source still lives in
+      `examples/<example_dir>/`.
 {%- endcomment -%}
 
 <article class="tutorial">
@@ -31,7 +31,7 @@ layout: default
             <p class="tutorial__lead">{{ page.description }}</p>
             {%- endif -%}
             <p class="tutorial__meta">
-                <span class="tutorial__pill">Demo {{ page.order | prepend: '0' | slice: -2, 2 }}</span>
+                <span class="tutorial__pill">Example {{ page.order | prepend: '0' | slice: -2, 2 }}</span>
                 {%- if page.github_path -%}
                 <a class="tutorial__pill"
                    href="https://github.com/{{ site.github_username }}/{{ site.github_repo }}/tree/main/{{ page.github_path }}"
@@ -46,8 +46,8 @@ layout: default
 
         <nav class="tutorial__pager tutorial__pager--back" aria-label="Back to examples">
             <a class="is-back" href="{{ '/examples/' | relative_url }}">
-                <span class="label">← All demos</span>
-                <span class="title">Back to the demo gallery</span>
+                <span class="label">← All examples</span>
+                <span class="title">Back to the example gallery</span>
             </a>
         </nav>
     </div>

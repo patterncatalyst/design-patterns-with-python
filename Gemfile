@@ -17,7 +17,7 @@ gem "logger"      # used by jekyll's own logger and the listen gem (serve mode)
 # Ruby 3.0+ dropped the bundled HTTP server; `jekyll serve` needs it explicitly.
 gem "webrick"
 
-# Keep this group in exact sync with the `plugins:` list in _config.yml —
+# Keep this group in exact sync with the `plugins:` list in _config.yml:
 # do not add plugins the site doesn't declare/use there.
 group :jekyll_plugins do
   gem "jekyll-seo-tag"
