@@ -1,0 +1,4 @@
+# Diagram gallery, in file order. Each entry pairs a diagrams/<name>.svg with
+# its editable diagrams/<name>.excalidraw source. Entries use the keys
+# name, section, title and caption. The gallery fills in as chapters land.
+[]

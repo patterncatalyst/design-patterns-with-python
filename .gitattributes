@@ -1,0 +1,15 @@
+# GitHub Linguist overrides: report the real source language on the repo card.
+# examples/ and spikes/ hold the runnable Python, so they count as source.
+examples/** linguist-vendored=false linguist-generated=false linguist-documentation=false
+spikes/**   linguist-vendored=false linguist-generated=false linguist-documentation=false
+
+# Jekyll site chrome, generated output, and tooling are not the source.
+_site/**          linguist-generated
+_layouts/**       linguist-documentation
+_includes/**      linguist-documentation
+assets/**         linguist-documentation
+*.html            linguist-documentation
+scripts/**        linguist-vendored
+diagrams/specs/** linguist-vendored
+presentation/**   linguist-vendored
+presentations/**  linguist-vendored

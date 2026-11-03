@@ -1,0 +1,32 @@
+---
+title: "Mediator and Chain of Responsibility"
+order: 23
+layout: tutorial
+sectionid: docs
+part: "coordinating-traversing"
+description: "Draft pending: Mediator and Chain of Responsibility."
+---
+
+## Learning objectives
+
+Draft pending.
+
+## Why this matters
+
+Draft pending.
+
+## How it works
+
+Draft pending.
+
+## Build, run, observe
+
+Draft pending.
+
+## When not to use it
+
+Draft pending.
+
+## For deeper coverage
+
+Draft pending.

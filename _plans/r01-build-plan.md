@@ -53,8 +53,8 @@ PDP-150..152 decks 101/201/301.
 | --- | --- | --- | --- | --- |
 | S0 | 001 | Upstream survey: Python 3.14.x, uv, pytest, pytest-mock, ruff, mypy, uv_build, GH Actions, ruby:4.0.x tag + Jekyll gems, bibliography editions; dated table below | - | **done** |
 | S1 | 002 | Repo created remote-first, About = Pages URL, `release/r01` branch | - | **done** |
-| S2 | 003 | Site scaffold copied from C# and rewritten for Python; `_config.yml` (examples collection, excludes with trailing slash), red accent, nav, `.gitattributes` | S1 | todo |
-| S3 | 004 | 15 part pages (00-13 + 14-appendices), 47 doc stubs with spine headings, no figure include/TODO, `scripts/chapters.toml` | S2 | todo |
+| S2 | 003 | Site scaffold copied from C# and rewritten for Python; `_config.yml` (examples collection, excludes with trailing slash), red accent, nav, `.gitattributes` | S1 | **done** |
+| S3 | 004 | 15 part pages (00-13 + 14-appendices), 47 doc stubs with spine headings, no figure include/TODO, `scripts/chapters.toml` | S2 | **done** |
 | S4 | 005 | uv workspace: root pyproject (exact `==` dev pins, ruff py314, mypy strict, pytest importlib), `.python-version`, `uv.lock`, `.gitignore`, `examples/README.md`; gate spike S4a (member dev tools, mypy duplicate modules, config pickup) recorded in `spikes.md` | S0 | todo |
 | S5 | 006 | scripts: check-prereqs.sh, verify.sh, site-build.sh (docker), validate.py, host_ids.py (+ .host-scrub.toml), generate_diagram.py, render_diagrams.py | S4 | todo |
 | S6 | 010-015 | Six spikes in `spikes/feature-spikes` (pkg `feature_spikes`): Decorator vs @decorator; Protocol/ParamSpec/PEP 695; singledispatch on 3.14; __init_subclass__ vs metaclass; match + assert_never; GIL/asyncio determinism | S4 | todo |

@@ -1,0 +1,27 @@
+{%- comment -%}
+  Multi-language code tabs.
+
+  Emits an empty marker; assets/js/codetabs.js absorbs the next N fenced
+  code blocks (N = number of pipe-separated labels) into an accessible
+  tab group. Because the code blocks stay ordinary Markdown fences, Rouge
+  still highlights them at build time — no plugin required.
+
+  Usage (place the bare include, then one fenced block per label, IN THIS
+  ORDER). Do NOT wrap the include in raw tags — that stops Liquid running it:
+
+      {% include codetabs.html langs="Java-shaped|Idiomatic" %}
+
+      ```python
+      # Java-shaped
+      ```
+      ```python
+      # Idiomatic
+      ```
+
+  This book uses codetabs where a pattern has a Java-shaped form (the class
+  hierarchy the 1994 catalogue draws) and an idiomatic Python form (a
+  callable, a dataclass, a protocol), and the two are worth reading side by
+  side. Other pairs of modern idioms use their own labels. Selecting a tab syncs every group on the
+  page and is remembered across pages.
+{%- endcomment -%}
+<div class="codetabs" data-langs="{{ include.langs }}"></div>
