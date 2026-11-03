@@ -15,9 +15,9 @@ pytest 9.2.0. Workspace layout decisions (S4a) are in `spikes/S4a-findings.md`.
 | --- | --- | --- |
 | 010 | Decorator pattern vs `@decorator` | **go** (framing adjusted) |
 | 011 | Protocol, ParamSpec, PEP 695 generics | **go** |
-| 012 | singledispatch on 3.14 | pending |
-| 013 | `__init_subclass__` vs metaclass registry | pending |
-| 014 | `match` + `assert_never` | pending |
+| 012 | singledispatch on 3.14 | **go** (caveats) |
+| 013 | `__init_subclass__` vs metaclass registry | **go** (lead with `__init_subclass__`) |
+| 014 | `match` + `assert_never` | **go** |
 | 015 | GIL and asyncio determinism | **go** (perf claims benchmark-only) |
 
 ## PDP-010 Decorator pattern vs `@decorator`: go
@@ -128,3 +128,57 @@ I/O-bound: 4 x 0.2s wait
 ```
 
 Chapter prose must also cover pool start-up, pickling and memory costs of processes.
+
+## PDP-012 singledispatch on 3.14: go, with caveats
+
+Files: `dispatch.py`, `test_dispatch.py`. mypy-behaviour tests call `mypy.api.run` on snippets in `tmp_path`.
+
+Proven: register by annotation picks the most specific class, unregistered subclasses fall back to the
+base registration; `A | B` annotation registers both; `singledispatchmethod` works with no extra setup;
+open extension from another module works (registrations are global, process-wide state);
+no double dispatch: dispatch on the first argument then `match` on the second (`load_plan(cargo, vehicle)`).
+
+Caveats:
+- **Forward reference fails at registration** even on 3.14 with deferred annotations:
+  `TypeError: Invalid annotation for 'x'. ForwardRef('Later') is an unresolved forward reference.`
+  Define classes first, or use `f.register(Later, fn)`. No `from __future__ import annotations` needed.
+- **mypy does not model dispatch.** With fallback `(cargo: Cargo)`, registering `int` is legal at runtime
+  but mypy says `Dispatch type "int" must be subtype of fallback function first argument "Cargo" [misc]`;
+  registered functions must return the fallback's return type (`[arg-type]`). Use an `object`
+  fallback for open-ended dispatch.
+- singledispatch gives **no exhaustiveness check**. Closed hierarchy: union alias + `match` + `assert_never`;
+  open extension: singledispatch.
+
+## PDP-013 `__init_subclass__` vs metaclass registry: go, lead with `__init_subclass__`
+
+Files: `registry.py`, `test_registry.py`.
+
+Proven for both designs: concrete classes register by `code=`, intermediates without `code=` don't,
+duplicates raise `DuplicateCarrierError` and keep the original, unknown class keywords raise `TypeError`.
+
+Typing:
+- `__init_subclass__` needs no `type: ignore`; mypy **checks class keywords** against its signature
+  (`code=1` is an error). With a metaclass mypy never checks the keywords; it needs two targeted ignores
+  (`[attr-defined]`, `[assignment]`); `-> Self` in a metaclass `__new__` is rejected
+  (`Self type cannot be used in a metaclass [misc]`).
+- `ClassVar[dict[str, type[Carrier]]]` works; mypy lets `registry["NWD"]()` type-check even for an abstract class.
+- **`__init_subclass__` cannot see abstractness** (it runs before `ABCMeta` computes
+  `__abstractmethods__`); a metaclass can reject an abstract class that declares `code=` at creation time.
+
+Keep the metaclass for: validating abstractness at creation, `__prepare__`/namespace rewriting,
+class-level dunders (`__call__`, `__getitem__`, `__instancecheck__`).
+
+## PDP-014 `match` + `assert_never`: go
+
+Files: `matching.py`, `test_matching.py`.
+
+Proven: frozen dataclasses give positional `__match_args__`; or-patterns of literal subpatterns and
+guards; mapping patterns ignore extra keys and `str(x)` checks value types (webhook payloads);
+sequence patterns with star captures, and `str` never matches a sequence pattern.
+**Exhaustiveness proven with mypy:** removing the `Delivered` case gives exactly
+`error: Argument 1 to "assert_never" has incompatible type "Delivered"; expected "Never"`; adding a new
+event to `type TrackingEvent = ...` fails every `match` that lacks it. Runtime fallback raises
+`AssertionError: Expected code to be unreachable`.
+
+State/FSM chapter: frozen dataclass states, `type State = A | B | C`, transitions by `match` ending in
+`case _: assert_never(...)`, so adding a state fails mypy until every transition handles it.
