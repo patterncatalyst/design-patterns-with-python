@@ -97,15 +97,15 @@ first-class, so the scaffolding dissolves while the force often stays. The test 
 pattern: did the force move, or only the mechanism?
 Sections: Learning objectives; Why this matters; figure; The object model the catalogue
 assumed (paraphrase GoF on patterns depending on language features, verify first, no language
-names); Functions are objects (Strategy, deferred half of Command: `type RateRule`, `quote`,
-`partial(per_kg, ...)`); Generators (Iterator: `history_pages`, lazy pull); Structural typing
+names); Functions are objects (Strategy, deferred half of Command: `type PricingRule`, `quote(...) -> RateQuote`,
+`partial(per_kg, ...)`); Generators (Iterator: `pages(history, size)`, lazy pull); Structural typing
 (`CarrierGateway` Protocol; what it does not remove: an adapter when shapes differ); Modules
 (`tariff_table`, one instance built at import); Absence in the type (`CarrierGateway | None`,
 real mypy `[union-attr]` line); Did the force move, or only the mechanism? (Composite, State
 keep their shape); For deeper coverage. Excerpts match `examples/03-three-way-split/src` byte
 for byte; link `{{ '/examples/03-three-way-split/' | relative_url }}`.
 Figure `02-what-1994-assumed-and-python-dissolves`: five rows, "assumed in 1994" -> Python
-feature with the real name (`RateRule`, `CarrierGateway`, `history_pages`, `tariff_table`,
+feature with the real name (`PricingRule`, `CarrierGateway`, `pages`, `tariff_table`,
 `CarrierGateway | None`). Caption draft: "Assumptions the 1994 catalogue was written under, each
 paired with the Python 3.14 feature that removes it: functions as objects, structural typing,
 generators, modules imported once, and absence checked by the type checker."
@@ -133,18 +133,18 @@ inline; PEP 544, 557, 695; functools docs.
 
 ### Chapter 4: Naming patterns for teams and AI assistants (argument, no code)
 Thesis: a pattern name compresses a contract that a reviewer or an assistant can check against
-a diff; in Python the name should label the role and mechanism (`RateRule`, `make_consignment`)
+a diff; in Python the name should label the role and mechanism (`PricingRule`, `make_consignment`)
 rather than a class suffix that drags in the 1994 structure.
 Sections: Learning objectives; Why this matters; figure; A name is a checkable claim; Where the
 pattern name lives in Python (type alias, docstring, PR description; PEP 8); Names across the
-consignment lifecycle (Booked, Loaded, Departed, Arrived, Delivered); Names that hide the
-bucket (`RateStrategy` vs `rate_rule`, `ConsignmentFactory` vs `make_consignment`, `*Manager`,
-`*Helper`); Keeping Decorator and `@decorator` apart in names (`HandlingFee` vs `audited`,
+consignment lifecycle (Booked, Loaded, Departed, Cleared, Delivered); Names that hide the
+bucket (`RateStrategy` vs `pricing_rule`, `ConsignmentFactory` vs `make_consignment`, `*Manager`,
+`*Helper`); Keeping Decorator and `@decorator` apart in names (`Surcharge` vs `audited`,
 `retry`); Steering an AI assistant with names; Reviewing a name an assistant attached to its
 output; When a name stops matching the code; For deeper coverage. No empirical claims about
 LLM behaviour (frame as review practice).
 Figure `04-naming-patterns-for-teams-and-ai`: request box splitting into "names only the
-pattern" (muted) and "names the role and mechanism" (`RateRule`, `per_kg`, accent), flowing to
+pattern" (muted) and "names the role and mechanism" (`PricingRule`, `per_kg`, accent), flowing to
 "Reviewer and assistant check the same contract". Caption draft: "One pattern name, two
 readers. A reviewer and an AI assistant read the same name for the same contract; naming the
 Python mechanism as well, a callable type alias rather than a class hierarchy, keeps both
@@ -153,31 +153,44 @@ readers on the idiomatic shape." Cite GoF, Martin Clean Code, Fowler Refactoring
 
 ## Example: `examples/03-three-way-split` (package `three_way_split`)
 
-src: `domain.py` (frozen slotted kw_only `Consignment(id, weight_kg: Decimal, zone, destination)`;
-`Received`, `Departed`, `Delivered`; `type HandlingEvent = ...`); `dissolve.py` (`type RateRule`,
-`flat_rate`, `per_kg`, `quote`; `CarrierGateway` Protocol `book(c, /) -> str`, `NorthwindGateway`,
-`MeridianGateway`, `GATEWAYS: dict[str, Callable[[], CarrierGateway]]`; `history_pages(events, size)`;
-`declare_customs(c, *, lines)` with hooks; `BookingRequest` kw-only dataclass; `describe`
-singledispatch; `find_gateway(code) -> CarrierGateway | None`; `Carrier.__init_subclass__(*, code)`
-+ `DuplicateCarrierError`); `survive.py` (`Booking`; frozen `Amendment` with `apply`/`undo`);
-`disambiguate.py` (`RateCalculator` Protocol, `BaseRate`, `HandlingFee`; `audited(sink)` on
-`quote_carrier`; `TrackingRecord` with `cached_property`; `GatewayProxy` via `__getattr__`;
-`GatewayBase(ABC)`); `tariff_table.py` (module-level `TARIFF` built at import); `loads.py`
-(import-count log, separate module).
+Names follow the series shipping domain standard (`shipping-domain-model.md`): fictional carriers
+FASTLINE and AIRCO, `Money` over `Decimal`, `Weight` from the prerequisites example.
+
+src: `domain.py` (frozen slotted kw_only `Consignment(id: ConsignmentId, weight: Weight, zone,
+destination)`; `Money` frozen dataclass with `Decimal` amount and currency; `Weight`; frozen
+`Booked`, `Loaded`, `Departed`, `Cleared`, `Delivered` (a subset is fine);
+`type HandlingEvent = Booked | Loaded | Departed | Cleared | Delivered`; `RateQuote`; `TrackingHistory`);
+`dissolve.py` (`type PricingRule = Callable[[Consignment], Money]`, `flat_rate`, `per_kg`,
+`quote(c, rule) -> RateQuote`; `CarrierGateway` Protocol `book(c, /) -> str`, `FastlineGateway`,
+`AircoGateway`, `GATEWAYS: dict[str, Callable[[], CarrierGateway]]` keyed `FASTLINE` and `AIRCO`;
+`pages(history, size)` generator over a `TrackingHistory`; `declare_customs(c, *, hooks) ->
+CustomsDeclaration` template function with hooks per destination; `BookingRequest` kw-only
+dataclass; `describe` singledispatch; `find_gateway(code) -> CarrierGateway | None`;
+`CarrierBase.__init_subclass__(*, code)` + `DuplicateCarrierError`); `survive.py` (`Booking`; frozen
+`Amendment` with `apply`/`undo`); `disambiguate.py` (`RateCalculator` Protocol, `BaseRate`,
+additive `Surcharge` wrapping `BaseRate`; `audited(sink)` on `quote_carrier`; `TrackingHistory`
+lazy loader with `cached_property`; `CarrierGatewayProxy` caching proxy via `__getattr__`;
+`CarrierBase(ABC)` vs the Protocol); `tariff_table.py` (module-level `Tariff` instance
+`tariff_table` built at import); `loads.py` (import-count log, separate module).
 
 Tests (each asserts the mechanism):
-- test_dissolve.py: 1 strategy slot accepts def, lambda, partial; 2 a class is already a
-  factory method; 3 iterator is a lazy generator (counting source, `iter(g) is g`, exhausted);
-  4 template method is a function taking hooks (order); 5 builder is a keyword-only dataclass
-  (positional call TypeError); 6 prototype is replace; 7 visitor is singledispatch without
-  `accept`; 8 null object is an optional checked by mypy (`mypy.api.run(["--strict","-c",SNIPPET])`,
-  assert exit 1 and `[union-attr]`, guarded variant passes); 9 value object is a frozen
-  dataclass; 10 registry is `__init_subclass__` (duplicate raises).
-- test_survive.py: 11 deferred command is a partial in a deque; 12 undo needs a command object.
-- test_disambiguate.py: 13 GoF decorator wraps an instance at runtime; 14 decorator syntax
-  rebinds the name at definition time; 15 the two decorators are independent; 16 module is one
-  instance for every importer (log shows one load); 17 cached_property is lazy init without a
-  proxy; 18 proxy forwards only missing attributes; 19 Protocol is structural, ABC is nominal.
+- test_dissolve.py: 1 strategy slot accepts def, lambda, partial (all `PricingRule`s returning
+  `Money`); 2 a class is already a factory method (`GATEWAYS`); 3 iterator is a lazy generator
+  (`pages` over a counting `TrackingHistory`, `iter(g) is g`, exhausted); 4 template method is a
+  function taking hooks (order of the `CustomsDeclaration` steps); 5 builder is a keyword-only
+  dataclass (`BookingRequest` positional call TypeError); 6 prototype is replace; 7 visitor is
+  singledispatch without `accept`; 8 null object is an optional checked by mypy
+  (`mypy.api.run(["--strict","-c",SNIPPET])` on `find_gateway(code).book(...)`, assert exit 1 and
+  `[union-attr]`, guarded variant passes); 9 value object is a frozen dataclass (`Money`);
+  10 registry is `__init_subclass__` (duplicate raises).
+- test_survive.py: 11 deferred command is a partial in a deque; 12 undo needs a command object
+  (`Amendment`).
+- test_disambiguate.py: 13 GoF decorator wraps an instance at runtime (`Surcharge(BaseRate(...))`);
+  14 decorator syntax rebinds the name at definition time (`audited` on `quote_carrier`); 15 the two
+  decorators are independent; 16 module is one instance for every importer (log shows one load of
+  `tariff_table`); 17 cached_property is lazy init without a proxy (`TrackingHistory`); 18 proxy
+  forwards only missing attributes (`CarrierGatewayProxy`); 19 Protocol is structural, ABC is
+  nominal (`CarrierGateway` vs `CarrierBase`).
 Also `README.md`, `_examples/03-three-way-split.md`; `uv.lock` updated.
 
 ## Steps and status

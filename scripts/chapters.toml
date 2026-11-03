@@ -33,7 +33,7 @@ slug = "03-the-three-way-split"
 title = "The three-way split: dissolve, survive, disambiguate"
 part = 2
 kind = "argument"
-has_example = false
+has_example = true
 status = "stub"
 
 [[chapter]]

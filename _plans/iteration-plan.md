@@ -69,16 +69,16 @@ PR, squash-merge with branch deletion, an `rNN.x` tag and a notes-only release.
 | PDP-100a | Ch0 Prerequisites and the toolchain: example | r01 | todo |
 | PDP-100b | Ch0 Prerequisites and the toolchain: figure | r01 | todo |
 | PDP-100c | Ch0 Prerequisites and the toolchain: prose | r01 | todo |
-| PDP-101a | Ch1 Patterns as decisions under forces: example | r02 | todo |
+| PDP-101a | Ch1 Patterns as decisions under forces: example | r02 | n.a. (argument chapter) |
 | PDP-101b | Ch1 Patterns as decisions under forces: figure | r02 | todo |
 | PDP-101c | Ch1 Patterns as decisions under forces: prose | r02 | todo |
-| PDP-102a | Ch2 What 1994 assumed, and what Python dissolves: example | r02 | todo |
+| PDP-102a | Ch2 What 1994 assumed, and what Python dissolves: example | r02 | covered by PDP-103a |
 | PDP-102b | Ch2 What 1994 assumed, and what Python dissolves: figure | r02 | todo |
 | PDP-102c | Ch2 What 1994 assumed, and what Python dissolves: prose | r02 | todo |
-| PDP-103a | Ch3 The three-way split: example | r02 | todo |
+| PDP-103a | Ch3 The three-way split: example (three-way-split witnesses) | r02 | todo |
 | PDP-103b | Ch3 The three-way split: figure | r02 | todo |
 | PDP-103c | Ch3 The three-way split: prose | r02 | todo |
-| PDP-104a | Ch4 Naming patterns for teams and AI: example | r02 | todo |
+| PDP-104a | Ch4 Naming patterns for teams and AI: example | r02 | n.a. (argument chapter) |
 | PDP-104b | Ch4 Naming patterns for teams and AI: figure | r02 | todo |
 | PDP-104c | Ch4 Naming patterns for teams and AI: prose | r02 | todo |
 | PDP-105a | Ch5 SRP, OCP, and LSP: example | r03 | todo |
