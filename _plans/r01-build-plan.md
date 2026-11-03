@@ -58,7 +58,7 @@ PDP-150..152 decks 101/201/301.
 | S4 | 005 | uv workspace: root pyproject (exact `==` dev pins, ruff py314, mypy strict, pytest importlib), `.python-version`, `uv.lock`, `.gitignore`, `examples/README.md`; gate spike S4a (member dev tools, mypy duplicate modules, config pickup) recorded in `spikes.md` | S0 | **done** (mypy per member) |
 | S5 | 006 | scripts: check-prereqs.sh, verify.sh, site-build.sh (docker), validate.py, host_ids.py (+ .host-scrub.toml), generate_diagram.py, render_diagrams.py | S4 | **done** |
 | S6 | 010-015 | Six spikes in `spikes/feature-spikes` (pkg `feature_spikes`): Decorator vs @decorator; Protocol/ParamSpec/PEP 695; singledispatch on 3.14; __init_subclass__ vs metaclass; match + assert_never; GIL/asyncio determinism | S4 | **done** (all go) |
-| S7 | 100a | `examples/00-prerequisites` (pkg `consignments`): frozen slotted Consignment, ConsignmentId/Weight validation, `replace`; tests assert behaviour | S4 | todo |
+| S7 | 100a | `examples/00-prerequisites` (pkg `consignments`): frozen slotted Consignment, ConsignmentId/Weight validation, `replace`; tests assert behaviour | S4 | **done** (26 tests) |
 | S8 | 007-009 | `_plans/iteration-plan.md`, `shipping-domain-model.md` (7 domain areas, example per chapter, non-overlap 20/26, 25/28, 20/30), `reconciliation-plan.md`; revise after S6 | - | **done** (revise after S6) |
 | S9 | 100b | Ch0 figure spec (vertical flow uv -> .venv -> ruff -> mypy -> pytest), render, `_data/diagrams.yml` | S7 | **done** |
 | S10 | 100c | Ch0 prose, 1,900-2,500 words, real scrubbed output, scan.sh 0 ban-tier | S7,S9 | **done** (2013 words) |
