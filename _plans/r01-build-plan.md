@@ -51,7 +51,7 @@ PDP-150..152 decks 101/201/301.
 
 | Step | PDP | What | Depends | Status |
 | --- | --- | --- | --- | --- |
-| S0 | 001 | Upstream survey: Python 3.14.x, uv, pytest, pytest-mock, ruff, mypy, uv_build, GH Actions, ruby:4.0.x tag + Jekyll gems, bibliography editions; dated table below | - | todo |
+| S0 | 001 | Upstream survey: Python 3.14.x, uv, pytest, pytest-mock, ruff, mypy, uv_build, GH Actions, ruby:4.0.x tag + Jekyll gems, bibliography editions; dated table below | - | **done** |
 | S1 | 002 | Repo created remote-first, About = Pages URL, `release/r01` branch | - | **done** |
 | S2 | 003 | Site scaffold copied from C# and rewritten for Python; `_config.yml` (examples collection, excludes with trailing slash), red accent, nav, `.gitattributes` | S1 | todo |
 | S3 | 004 | 15 part pages (00-13 + 14-appendices), 47 doc stubs with spine headings, no figure include/TODO, `scripts/chapters.toml` | S2 | todo |
@@ -59,7 +59,7 @@ PDP-150..152 decks 101/201/301.
 | S5 | 006 | scripts: check-prereqs.sh, verify.sh, site-build.sh (docker), validate.py, host_ids.py (+ .host-scrub.toml), generate_diagram.py, render_diagrams.py | S4 | todo |
 | S6 | 010-015 | Six spikes in `spikes/feature-spikes` (pkg `feature_spikes`): Decorator vs @decorator; Protocol/ParamSpec/PEP 695; singledispatch on 3.14; __init_subclass__ vs metaclass; match + assert_never; GIL/asyncio determinism | S4 | todo |
 | S7 | 100a | `examples/00-prerequisites` (pkg `consignments`): frozen slotted Consignment, ConsignmentId/Weight validation, `replace`; tests assert behaviour | S4 | todo |
-| S8 | 007-009 | `_plans/iteration-plan.md`, `shipping-domain-model.md` (7 domain areas, example per chapter, non-overlap 20/26, 25/28, 20/30), `reconciliation-plan.md`; revise after S6 | - | todo |
+| S8 | 007-009 | `_plans/iteration-plan.md`, `shipping-domain-model.md` (7 domain areas, example per chapter, non-overlap 20/26, 25/28, 20/30), `reconciliation-plan.md`; revise after S6 | - | **done** (revise after S6) |
 | S9 | 100b | Ch0 figure spec (vertical flow uv -> .venv -> ruff -> mypy -> pytest), render, `_data/diagrams.yml` | S7 | todo |
 | S10 | 100c | Ch0 prose, 1,900-2,500 words, real scrubbed output, scan.sh 0 ban-tier | S7,S9 | todo |
 | S11 | 016 | `_examples/00-prerequisites.md` card; bibliography (books only, verified) | S0,S7 | todo |
@@ -72,7 +72,28 @@ PDP-150..152 decks 101/201/301.
 
 | Item | Version | Date checked | Source |
 | --- | --- | --- | --- |
-| _pending S0_ | | | |
+| CPython | 3.14.10 (released 2026-10-25) | 2026-11-03 | endoflife.date python 3.14 |
+| uv | 0.13.7 (2026-11-03) | 2026-11-03 | github.com/astral-sh/uv/releases |
+| uv_build (PyPI `uv-build`) | 0.13.7, pin `>=0.13.7,<0.14` | 2026-11-03 | PyPI |
+| pytest | 9.2.0 | 2026-11-03 | PyPI |
+| pytest-mock | 3.17.0 | 2026-11-03 | PyPI |
+| ruff | 0.17.3 | 2026-11-03 | PyPI |
+| mypy | 2.4.1 (supports 3.14) | 2026-11-03 | PyPI |
+| actions/checkout | v7 (7.0.1) | 2026-11-03 | GitHub releases |
+| astral-sh/setup-uv | v10 (10.3.3) | 2026-11-03 | GitHub releases |
+| actions/configure-pages | v6 (6.0.0) | 2026-11-03 | GitHub releases |
+| actions/upload-pages-artifact | v5 (5.0.0) | 2026-11-03 | GitHub releases |
+| actions/deploy-pages | v5 (5.0.1) | 2026-11-03 | GitHub releases |
+| ruby/setup-ruby | v1 (1.336.0), ruby-version 4.0.9 | 2026-11-03 | GitHub releases |
+| ruby container (site build) | ruby:4.0.9 | 2026-11-03 | Docker Hub |
+| Jekyll + plugins | jekyll 4.4.1, seo-tag 2.9.1, sitemap 1.4.0, redirect-from 0.17.0, sass-converter 3.1.0 (all current); csv 3.3.6 -> bump to 3.3.7 | 2026-11-03 | rubygems.org |
+
+Bibliography (verified via O'Reilly platform 2026-11-03): Fluent Python 2nd ed (2022);
+Architecture Patterns with Python (2020); **Effective Python 3rd ed (2024)**, not 2nd;
+**Python Object-Oriented Programming 5th ed, Lott & Phillips (Packt, 2025)**. Series
+books (GoF, Martin, Feathers, Fowler 2nd, Meszaros) reuse the C# book's URLs.
+
+Host (user-local, no system change): uv upgraded 0.13.5 -> 0.13.7; `uv python install 3.14.10`.
 
 ## Release roadmap
 
