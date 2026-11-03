@@ -1,0 +1,11 @@
+# Diagram gallery, in file order. Each entry pairs a diagrams/<name>.svg with
+# its editable diagrams/<name>.excalidraw source. Entries use the keys
+# name, section, title and caption. The gallery fills in as chapters land.
+
+- name: 00-prerequisites
+  section: "Ch. 0"
+  title: The local build-and-test loop
+  caption: >-
+    The local build-and-test loop. One locked environment feeds lint, format,
+    strict type checking and tests in order; a red step returns you to the
+    source, and the prerequisites script gates the toolchain first.

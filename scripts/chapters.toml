@@ -1,0 +1,424 @@
+# Chapter manifest. One table per doc; status moves stub -> in-progress -> drafted -> verified.
+
+[[chapter]]
+number = 0
+slug = "00-prerequisites"
+title = "Prerequisites and the toolchain"
+part = 0
+kind = "hands-on"
+has_example = true
+status = "drafted"
+
+[[chapter]]
+number = 1
+slug = "01-patterns-as-decisions-under-forces"
+title = "Patterns as decisions under forces"
+part = 1
+kind = "argument"
+has_example = false
+status = "stub"
+
+[[chapter]]
+number = 2
+slug = "02-what-1994-assumed-and-python-dissolves"
+title = "What 1994 assumed, and what Python dissolves"
+part = 1
+kind = "argument"
+has_example = false
+status = "stub"
+
+[[chapter]]
+number = 3
+slug = "03-the-three-way-split"
+title = "The three-way split: dissolve, survive, disambiguate"
+part = 2
+kind = "argument"
+has_example = false
+status = "stub"
+
+[[chapter]]
+number = 4
+slug = "04-naming-patterns-for-teams-and-ai"
+title = "Naming patterns for teams and AI assistants"
+part = 2
+kind = "argument"
+has_example = false
+status = "stub"
+
+[[chapter]]
+number = 5
+slug = "05-srp-ocp-lsp"
+title = "SRP, OCP, and LSP in Python"
+part = 3
+kind = "hands-on"
+has_example = true
+status = "stub"
+
+[[chapter]]
+number = 6
+slug = "06-isp-dip-and-di-without-a-framework"
+title = "ISP, DIP, and dependency injection without a framework"
+part = 3
+kind = "hands-on"
+has_example = true
+status = "stub"
+
+[[chapter]]
+number = 7
+slug = "07-the-data-model"
+title = "The data model: dunder methods as the substrate"
+part = 4
+kind = "hands-on"
+has_example = true
+status = "stub"
+
+[[chapter]]
+number = 8
+slug = "08-dataclasses-and-value-semantics"
+title = "Dataclasses and value semantics"
+part = 4
+kind = "hands-on"
+has_example = true
+status = "stub"
+
+[[chapter]]
+number = 9
+slug = "09-protocol-and-structural-typing"
+title = "Protocol, duck typing, and structural typing with mypy"
+part = 4
+kind = "hands-on"
+has_example = true
+status = "stub"
+
+[[chapter]]
+number = 10
+slug = "10-context-managers"
+title = "Context managers: deterministic cleanup"
+part = 4
+kind = "hands-on"
+has_example = true
+status = "stub"
+
+[[chapter]]
+number = 11
+slug = "11-testing-with-pytest-pytest-mock-and-mypy"
+title = "Proving it works: pytest, pytest-mock, and mypy"
+part = 4
+kind = "hands-on"
+has_example = true
+status = "stub"
+
+[[chapter]]
+number = 12
+slug = "12-strategy-the-callable"
+title = "Strategy: the callable"
+part = 5
+kind = "pattern"
+has_example = true
+status = "stub"
+
+[[chapter]]
+number = 13
+slug = "13-template-method-and-the-function-alternative"
+title = "Template Method and the function alternative"
+part = 5
+kind = "pattern"
+has_example = true
+status = "stub"
+
+[[chapter]]
+number = 14
+slug = "14-state-and-finite-state-machines"
+title = "State and finite state machines"
+part = 5
+kind = "pattern"
+has_example = true
+status = "stub"
+
+[[chapter]]
+number = 15
+slug = "15-command-undo-and-command-queues"
+title = "Command, undo, and command queues"
+part = 5
+kind = "pattern"
+has_example = true
+status = "stub"
+
+[[chapter]]
+number = 16
+slug = "16-factory-method-and-abstract-factory"
+title = "Factory Method and Abstract Factory"
+part = 6
+kind = "pattern"
+has_example = true
+status = "stub"
+
+[[chapter]]
+number = 17
+slug = "17-builder-dataclasses-and-prototype"
+title = "Builder, dataclasses, and Prototype"
+part = 6
+kind = "pattern"
+has_example = true
+status = "stub"
+
+[[chapter]]
+number = 18
+slug = "18-singleton-module-borg-metaclass"
+title = "Singleton: module, Borg, and metaclass"
+part = 6
+kind = "pattern"
+has_example = true
+status = "stub"
+
+[[chapter]]
+number = 19
+slug = "19-adapter-facade-bridge"
+title = "Adapter, Facade, and Bridge"
+part = 7
+kind = "pattern"
+has_example = true
+status = "stub"
+
+[[chapter]]
+number = 20
+slug = "20-decorator-pattern-vs-decorator-syntax-and-proxy"
+title = "Decorator the pattern vs @decorator the syntax, and Proxy"
+part = 7
+kind = "pattern"
+has_example = true
+status = "stub"
+
+[[chapter]]
+number = 21
+slug = "21-composite-and-flyweight"
+title = "Composite and Flyweight"
+part = 7
+kind = "pattern"
+has_example = true
+status = "stub"
+
+[[chapter]]
+number = 22
+slug = "22-observer"
+title = "Observer"
+part = 8
+kind = "pattern"
+has_example = true
+status = "stub"
+
+[[chapter]]
+number = 23
+slug = "23-mediator-and-chain-of-responsibility"
+title = "Mediator and Chain of Responsibility"
+part = 8
+kind = "pattern"
+has_example = true
+status = "stub"
+
+[[chapter]]
+number = 24
+slug = "24-iterator-generators-and-the-iterator-protocol"
+title = "Iterator: generators and the iterator protocol"
+part = 8
+kind = "pattern"
+has_example = true
+status = "stub"
+
+[[chapter]]
+number = 25
+slug = "25-visitor-memento-interpreter"
+title = "Visitor, Memento, and Interpreter"
+part = 8
+kind = "pattern"
+has_example = true
+status = "stub"
+
+[[chapter]]
+number = 26
+slug = "26-decorators-done-right"
+title = "Decorators done right"
+part = 9
+kind = "pattern"
+has_example = true
+status = "stub"
+
+[[chapter]]
+number = 27
+slug = "27-descriptors-and-properties"
+title = "Descriptors and properties"
+part = 9
+kind = "pattern"
+has_example = true
+status = "stub"
+
+[[chapter]]
+number = 28
+slug = "28-singledispatch"
+title = "singledispatch: the Visitor the language gives you"
+part = 9
+kind = "pattern"
+has_example = true
+status = "stub"
+
+[[chapter]]
+number = 29
+slug = "29-metaclasses-init-subclass-and-registries"
+title = "Metaclasses, __init_subclass__, and registries"
+part = 9
+kind = "pattern"
+has_example = true
+status = "stub"
+
+[[chapter]]
+number = 30
+slug = "30-dynamic-attributes-and-proxy"
+title = "Dynamic attributes: __getattr__ and Proxy as a feature"
+part = 9
+kind = "pattern"
+has_example = true
+status = "stub"
+
+[[chapter]]
+number = 31
+slug = "31-shortcut-patterns-dict-dispatch-and-eafp"
+title = "Shortcut patterns: dict dispatch, function tables, and EAFP"
+part = 10
+kind = "pattern"
+has_example = true
+status = "stub"
+
+[[chapter]]
+number = 32
+slug = "32-anti-patterns-and-pattern-misuse"
+title = "Anti-patterns and pattern misuse"
+part = 10
+kind = "argument"
+has_example = false
+status = "stub"
+
+[[chapter]]
+number = 33
+slug = "33-seams-in-python"
+title = "Seams in Python: monkeypatch, injection, and duck typing"
+part = 11
+kind = "hands-on"
+has_example = true
+status = "stub"
+
+[[chapter]]
+number = 34
+slug = "34-dependency-breaking-techniques"
+title = "Dependency-breaking techniques for modern Python"
+part = 11
+kind = "hands-on"
+has_example = true
+status = "stub"
+
+[[chapter]]
+number = 35
+slug = "35-fowler-vs-feathers"
+title = "Fowler vs Feathers, contrasted and combined"
+part = 11
+kind = "argument"
+has_example = false
+status = "stub"
+
+[[chapter]]
+number = 36
+slug = "36-refactor-or-rewrite"
+title = "Refactor or rewrite"
+part = 11
+kind = "argument"
+has_example = false
+status = "stub"
+
+[[chapter]]
+number = 37
+slug = "37-the-gil-and-performance"
+title = "The GIL and performance"
+part = 12
+kind = "hands-on"
+has_example = true
+status = "stub"
+
+[[chapter]]
+number = 38
+slug = "38-asyncio-and-the-patterns"
+title = "asyncio and the patterns"
+part = 12
+kind = "hands-on"
+has_example = true
+status = "stub"
+
+[[chapter]]
+number = 39
+slug = "39-final-project"
+title = "Final project"
+part = 13
+kind = "hands-on"
+has_example = true
+status = "stub"
+
+[[chapter]]
+number = 40
+slug = "40-working-with-ai-and-llm-tools"
+title = "Working with AI and LLM tools"
+part = 13
+kind = "argument"
+has_example = false
+status = "stub"
+
+[[chapter]]
+number = 41
+slug = "41-appendix-a-build-and-toolchain"
+title = "Build and toolchain reference: uv, ruff, mypy"
+part = 14
+kind = "appendix"
+has_example = false
+status = "stub"
+
+[[chapter]]
+number = 42
+slug = "42-appendix-b-pytest"
+title = "pytest reference"
+part = 14
+kind = "appendix"
+has_example = false
+status = "stub"
+
+[[chapter]]
+number = 43
+slug = "43-appendix-c-mocking"
+title = "Mocking reference: unittest.mock and pytest-mock"
+part = 14
+kind = "appendix"
+has_example = false
+status = "stub"
+
+[[chapter]]
+number = 44
+slug = "44-appendix-d-xunit-test-patterns"
+title = "xUnit test patterns (Meszaros)"
+part = 14
+kind = "appendix"
+has_example = false
+status = "stub"
+
+[[chapter]]
+number = 45
+slug = "45-appendix-e-pattern-to-force-reference"
+title = "Pattern-to-force quick reference"
+part = 14
+kind = "appendix"
+has_example = false
+status = "stub"
+
+[[chapter]]
+number = 46
+slug = "46-appendix-f-programming-principles"
+title = "Programming principles reviewed in code"
+part = 14
+kind = "appendix"
+has_example = false
+status = "stub"

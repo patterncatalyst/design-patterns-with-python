@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  # Once per change: on the PR, and on main after the merge.
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.3
+        with:
+          enable-cache: true
+          version: "0.13.7"
+      - name: Install the pinned interpreter
+        run: uv python install
+      - name: Lint, format, types per member, tests
+        run: bash scripts/verify.sh
+
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.3
+        with:
+          enable-cache: true
+          version: "0.13.7"
+      - name: Book checks
+        run: uv run --locked python scripts/validate.py
+      - name: Book checks, self-test
+        run: uv run --locked python scripts/validate.py --self-test
+
+  host-ids:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: No host identifiers in tracked files
+        run: python3 scripts/host_ids.py check
+
+  # The one check the ruleset requires. Passes only when every needed job succeeded.
+  ci-ok:
+    if: always()
+    needs: [python, validate, host-ids]
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          NEEDS: ${{ toJSON(needs) }}
+        run: jq -e 'to_entries | all(.value.result == "success")' <<<"$NEEDS"

@@ -1,0 +1,2 @@
+# Per-repo config for scripts/host_ids.py. Holds no identifiers.
+skip = ["scripts/host_ids.py"]
