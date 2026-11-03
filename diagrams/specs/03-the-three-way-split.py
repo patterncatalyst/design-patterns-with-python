@@ -36,7 +36,7 @@ emit(
             "w": 340,
             "h": 66,
             "style": "accent",
-            "lines": ["Does a language feature", "remove the force?"],
+            "lines": ["Does a language feature resolve", "the force without the structure?"],
         },
         {
             "x": 20,

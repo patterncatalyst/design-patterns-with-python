@@ -25,7 +25,7 @@ A pattern name is the shortest design review comment there is. "This should be a
 
 The vocabulary only works when everyone attaches the same contract to the same word. Python complicates this in two ways. The mechanism behind a pattern is often lighter than the 1994 structure, so a Strategy may be a function and the word "Strategy" no longer implies a class hierarchy. And two unrelated things share one name, so "decorator" can mean a wrapper object or a line starting with `@`. A team that doesn't settle these questions in its names settles them in review threads.
 
-AI coding assistants add a second reader to the same code. An assistant that is asked for "a factory" or "a strategy" produces something that looks like what the name suggests, and the reviewer then has to decide whether the result matches the intent. The practical question is what the name lets you verify once the assistant has produced its diff. A name that states the role and the mechanism gives the reviewer something specific to look for in the diff, and it gives the assistant the same specific target in the prompt.
+AI coding assistants add a second reader to the same code. An assistant that is asked for "a factory" or "a strategy" may produce something that matches the name and not the intent, and the reviewer then has to decide whether the result matches the intent. The practical question is what the name lets you verify once the assistant has produced its diff. A name that states the role and the mechanism gives the reviewer something specific to look for in the diff, and it gives the assistant the same specific target in the prompt.
 
 {% include excalidraw.html name="04-naming-patterns-for-teams-and-ai" caption="Figure 4.1: One pattern name, two readers. A reviewer and an AI assistant read the same name for the same contract; naming the Python mechanism as well, a callable type alias rather than a class hierarchy, keeps both readers on the idiomatic shape." %}
 
@@ -69,9 +69,9 @@ The three-way split sorts every pattern into dissolved, survives or needs disamb
 
 `ConsignmentFactory` has the same problem. The word Factory promises a creation seam, but in Python a function already is one. A function named `make_consignment` says what it produces and what kind of thing it is, and it leaves room for the function to grow keyword arguments without becoming a class. If a class is later needed because creation has state, the name `ConsignmentFactory` can be earned then, and the diff that introduces it is the record of why.
 
-The suffixes `Manager` and `Helper` hide more. They name no role, no mechanism and no contract. A `ConsignmentManager` might hold state, wrap a gateway or validate input, and a reviewer can't tell which from the name. Because the name can't be wrong, it can't be checked, and the class collects responsibilities until someone splits it. When a name like this appears in a diff, the useful review question is which verb the class performs, since the answer is usually the name it should have had: a `CarrierGateway` for the boundary to a carrier, a `PricingRule` for a computation, a `TrackingHistory` for an ordered record.
+The suffixes `Manager` and `Helper` hide more. They name no role or contract. A `ConsignmentManager` might hold state, wrap a gateway or validate input, and a reviewer can't tell which from the name. Because the name can't be wrong, it can't be checked, and the class collects responsibilities until someone splits it. When a name like this appears in a diff, the useful review question is which job the class does, since the answer is usually the name it should have had: a `CarrierGateway` for the boundary to a carrier, a `PricingRule` for a computation, a `TrackingHistory` for an ordered record.
 
-Fowler's *Refactoring* gives the remedy a name of its own: the Rename refactorings, applied together with the Change Function Declaration refactoring when the signature moves with the name. A rename is a small, safe change, and it's worth making as soon as a better name is clear.
+Fowler's *Refactoring* gives the remedy a name of its own: Rename Variable and Rename Field, and Change Function Declaration for functions. A rename is a small, safe change, and it's worth making as soon as a better name is clear.
 
 ## Keeping Decorator and `@decorator` apart in names
 
@@ -79,7 +79,7 @@ The headline disambiguation in this book is the Decorator pattern against the `@
 
 The Decorator pattern is a wrapper object that adds behaviour while keeping the wrapped object's interface, composed at runtime so that stacks are data. In the example it is `Surcharge`, which holds an inner `RateCalculator` and a fee and adds the fee to whatever the inner calculator prices. The name is the domain concept: a surcharge on a rate. It doesn't end in `Decorator`, and it doesn't need to. The docstring can name the pattern, and the class name stays in the domain.
 
-The `@decorator` syntax is a function rebinding at definition time. In the example it is `audited(sink)`, applied to `quote_carrier` with `@audited(audit_trail.append)`. The name is a past participle describing the property the function now has: it is audited. A function like `retry` follows the same rule, naming the behaviour it adds. Neither name contains the word decorator, because the word would be wrong for one of the two.
+The `@decorator` syntax is a function rebinding at definition time. In the example it is `audited(sink)`, applied to `quote_carrier` with `@audited(audit_trail.append)`. The name is a past participle describing the property the function now has: it is audited. `retry` likewise names the behaviour it adds. Neither name contains the word decorator, because the word would be wrong for one of the two.
 
 The rule for review follows from this. Use "Decorator" only for the pattern, and say "decorator syntax" or "the `@` form" for the other. A comment that reads "this decorator should be composable at runtime" is ambiguous, because only the pattern can be reassembled per consignment and the syntax cannot. A comment that says "this should be a Decorator, not an `@`-applied function" states the intended mechanism and can be checked against the diff.
 
@@ -93,9 +93,9 @@ State the bucket. "This is a dissolved pattern: no base class" is one sentence, 
 
 Name the existing vocabulary. Point at `HandlingEvent`, `CarrierGateway` or `Consignment` by name and ask for code that follows them. The names anchor the request in code that already exists and has already been reviewed.
 
-Give the disambiguation up front. "A Decorator pattern object, not an `@` function" costs six words and removes the commonest source of mismatch.
+Give the disambiguation up front. "A Decorator pattern object, not an `@` function" costs one phrase and removes the commonest source of mismatch.
 
-These are the practices that make a request to a colleague checkable, applied to a reader that doesn't share the team's history. The prompt also records the intent, alongside the pull request description.
+These are the practices that make a request to a colleague checkable, applied to a reader whose context is the prompt and the repository. The prompt also records the intent, alongside the pull request description.
 
 ## Reviewing a name an assistant attached to its output
 
@@ -109,13 +109,13 @@ Then check for the disambiguation. If the summary says "added a decorator", find
 
 Finally, check the vocabulary against the domain. A name such as `ShipmentTracker` for something that is really a `TrackingHistory` introduces a second word for an existing concept. Mismatched domain words are cheap to reject in review and costly to find a year later.
 
-This is the review you'd run on a human contributor. An assistant produces names quickly and in volume, so the written checklist matters more.
+This is the review you'd run on a human contributor. Run the same checklist on an assistant's output.
 
 ## When a name stops matching the code
 
 Names drift. A function called `per_kg` gains a minimum charge, a `Surcharge` gains a second fee, a `PricingRule` ends up holding state. Each change is small and reasonable, and the name slowly stops being true.
 
-The drift is a smell in Fowler's terms, and the fix is a rename. Editors rename across a codebase, and a strict type checker catches the references they miss. Do it in its own commit, so that the diff shows a rename and nothing else and a reviewer can approve it in seconds.
+The drift is a smell in Fowler's terms, and the fix is a rename. Editors rename across a codebase, and a strict type checker catches most of the references they miss in annotated code. Do it in its own commit, so that the diff shows a rename and nothing else and a reviewer can approve it in seconds.
 
 Sometimes the right move is not a better label but no label. When a design that was once a Strategy has shrunk to a single function called from one place, the pattern name is documentation of something that no longer exists. Remove the name from the docstring, delete the alias if nothing else uses it, and let the function be a function. The inverse also holds: when a plain callable grows state, validation and a second method, it has become a class, and the right name for the class describes its role in the domain, with the pattern named in the docstring if it helps.
 
@@ -123,4 +123,4 @@ The test is the same at every step: read the name, list what it promises, and ch
 
 ## For deeper coverage
 
-For the vocabulary itself, the Gang of Four catalogue, *Design Patterns: Elements of Reusable Object-Oriented Software*, is the source of the pattern names used throughout this book, and its chapter on how to select a design pattern is the reference for treating them as a shared language. Robert C. Martin's *Clean Code: A Handbook of Agile Software Craftsmanship* covers meaningful names in depth, including the cost of vague names and noise words. Martin Fowler's *Refactoring: Improving the Design of Existing Code*, Second Edition, covers the Mysterious Name smell and the Rename refactorings. The full citations are on the [bibliography page]({{ '/bibliography/' | relative_url }}).
+For the vocabulary itself, the Gang of Four catalogue, *Design Patterns: Elements of Reusable Object-Oriented Software*, is the source of the pattern names used throughout this book, and its Introduction, on what a pattern name adds to a design vocabulary, is the reference for treating them as a shared language. Robert C. Martin's *Clean Code: A Handbook of Agile Software Craftsmanship* covers meaningful names in depth, including the cost of vague names and noise words. Martin Fowler's *Refactoring: Improving the Design of Existing Code*, Second Edition, covers the Mysterious Name smell and the Rename refactorings. The full citations are on the [bibliography page]({{ '/bibliography/' | relative_url }}).

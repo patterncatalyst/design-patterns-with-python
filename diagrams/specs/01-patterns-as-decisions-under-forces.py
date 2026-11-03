@@ -45,7 +45,7 @@ emit(
             "style": "accent",
             "lines": [
                 "Decision: where the rating rules live",
-                "the rule that best resolves the forces",
+                "the shape that best resolves the forces",
             ],
         },
         {

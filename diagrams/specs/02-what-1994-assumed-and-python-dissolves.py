@@ -1,4 +1,4 @@
-"""What the 1994 catalogue assumed, paired with the Python feature that removes it."""
+"""What the classic patterns assumed, paired with the Python feature that removes it."""
 
 from generate_diagram import emit
 
@@ -46,7 +46,7 @@ emit(
         {
             "x": 185,
             "y": 40,
-            "text": "Assumed in 1994",
+            "text": "Assumed by the classic patterns",
             "size": 13,
             "bold": True,
             "color": "#111111",

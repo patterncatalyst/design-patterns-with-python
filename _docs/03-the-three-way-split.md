@@ -11,7 +11,7 @@ description: "Two questions sort every catalogue pattern into dissolves, survive
 
 By the end of this chapter you can:
 
-- Apply the two sorting questions to any catalogue pattern: does the name mean two things in Python, and does a language feature remove the force?
+- Apply the two sorting questions to any catalogue pattern: does the name mean two things in Python, and does a language feature resolve the force without the pattern's structure?
 - Place each pattern of the catalogue in the bucket this book uses and name the Python feature or the surviving force behind that placement.
 - Keep the Decorator pattern and the `@decorator` syntax apart, and say what each one does to a rate calculation.
 - Recognise the idioms that belong to no catalogue entry: the optional as Null Object, the frozen dataclass as Value Object, dict dispatch and EAFP.
@@ -24,7 +24,7 @@ A pattern catalogue is a list of names, and a team that shares the names can rev
 
 The map is the book's thesis in table form, and every later pattern chapter names the bucket it sits in. Each placement is also a claim about code, so the example for this chapter checks the claims that can be checked by running something: that a `Surcharge` layer is chosen per consignment while the program runs, that an `@audited` function is rebound when its definition executes, that a tariff table module loads once however many modules import it.
 
-{% include excalidraw.html name="03-the-three-way-split" caption="Figure 3.1: The three-way split. Two questions sort every catalogue pattern: does the name mean two things in Python, and does a language feature remove the force? The answers place each pattern in dissolves, survives or needs disambiguating." %}
+{% include excalidraw.html name="03-the-three-way-split" caption="Figure 3.1: The three-way split. Two questions sort every catalogue pattern: does the name mean two things in Python, and does a language feature resolve the force without the pattern's structure? The answers place each pattern in dissolves, survives or needs disambiguating." %}
 
 The ladder in the figure reads top to bottom. A name that means two things goes to the third band before anything else is asked, because arguing about the force of an ambiguous name produces two arguments that never meet.
 
@@ -32,13 +32,13 @@ The ladder in the figure reads top to bottom. A name that means two things goes 
 
 The first question is about the name. Does the word mean one thing, or does Python attach a second meaning to it? Decorator is the clearest case: the catalogue pattern and the `@` syntax share a word and almost nothing else. If the name is shared, the pattern goes in the third bucket and the chapter that develops it keeps both meanings visible.
 
-The second question is about the force. Every pattern resolves a force in a context, and the force is what has to be gone for the pattern to dissolve. The Gang of Four catalogue assumed that behaviour reaches a call site only as a method on an object of a declared class, and the choice of language shapes which patterns matter; the catalogue says as much in its own introduction. Strategy exists because a class was the only way to hand a caller a behaviour. When functions are first-class values, the force (a caller must choose behaviour at runtime) is still there, but the language already supplies the resolution. When no feature removes the force, the pattern survives as design.
+The second question is about the force. Does a language feature resolve the force without the pattern's structure? Every pattern resolves a force in a context. The catalogue assumes that behaviour travels inside objects of declared classes, so Strategy needs a class to hand a caller a behaviour. When functions are first-class values, the force (a caller must choose behaviour at runtime) is still there, but the language resolves it without the classes. When no feature does, the pattern survives as design.
 
-Two precautions keep the second question strict. A feature removes a force only when it removes all of it, not just the easy half. And "dissolves" never means "forget it": the force remains, and the vocabulary is still useful when a team talks about it. What dissolves is the class structure the 1994 text drew around the force.
+Two precautions keep the second question strict. A feature resolves a force only when it resolves all of it, not just the easy half. And "dissolves" never means "forget it": the force remains, and the vocabulary is still useful when a team talks about it. What dissolves is the class structure the catalogue drew around the force.
 
 ## Patterns that dissolve
 
-The first eleven rows of the table are the ones where a Python feature removes the structure. The table lists every pattern the book places, in all three buckets, with the chapter that develops it.
+The first eleven rows of the table are the ones where a Python feature resolves the force without the structure. The table lists every pattern the book places, in all three buckets, with the chapter that develops it.
 
 | Pattern | Bucket | What Python gives you | Developed in |
 | --- | --- | --- | --- |
@@ -74,21 +74,21 @@ The first eleven rows of the table are the ones where a Python feature removes t
 
 The example shows the dissolved rows at their smallest. A pricing rule is a `Callable[[Consignment], Money]`, so `quote(consignment, rule)` accepts a `def`, a lambda or a `functools.partial` in the same slot and no `RateStrategy` interface exists. A factory is a class sitting in the `GATEWAYS` dict: `GATEWAYS["AIRCO"]()` builds an `AircoGateway`, and no creator subclass is involved. A paged view of a `TrackingHistory` is a generator over `itertools.batched` that pulls nothing until the first page is requested. A booking request is a keyword-only dataclass, so a positional call fails with `TypeError` and no builder class is needed to name the arguments. A copy with one field changed is `dataclasses.replace`. An event visitor is `singledispatch`, and the event classes carry no `accept` method. A carrier registry is `__init_subclass__`, which also rejects a duplicate code with `DuplicateCarrierError`.
 
-Each of these removes a force and not merely a class. The strategy's force, a caller choosing behaviour at runtime, is still met, by a value passed in. The registry's force, knowing every carrier, is still met, by a dict filled at class creation. What disappears is the participant list: the creator, the product interface, the `accept` method, the builder.
+Each of these resolves its force with a feature, not a class. The strategy's force, a caller choosing behaviour at runtime, is still met, by a value passed in. The registry's force, knowing every carrier, is still met, by a dict filled at class creation. What disappears is the participant list: the creator, the product interface, the `accept` method, the builder.
 
 ## Patterns that survive
 
-The survivors keep a force that no language feature removes. They fall into three groups, and the grouping is by the force, which is also how a team reviewing a design meets them.
+The survivors keep a force that no language feature resolves. They fall into three groups, and the grouping is by the force, which is also how a team reviewing a design meets them.
 
-**Lifecycle.** State, Command with undo, and resource acquisition belong here. A consignment passes from booked to loaded to departed to cleared to delivered, and which transitions are legal is a business rule that someone has to write down in one place; an enum and a `match` help, but the transition table is the design. Command survives where history matters. A deferred call is a `functools.partial` in a `collections.deque`, and the example witnesses that queued partials change nothing until called. Undo is different: a partial has no `undo`, and an `Amendment` that remembers the weight it replaced is a command object because the reversal needs data captured at apply time. Resource acquisition is the lifecycle of something that must be released on every path, which is the force the `with` statement serves; the pattern survives as the contract a context manager honours.
+**Lifecycle.** State, Command with undo, and resource acquisition belong here. A consignment passes from booked to loaded to departed to cleared to delivered, and which transitions are legal is a business rule that someone has to write down in one place; an enum and a `match` help, but the transition table is the design. Command survives where history matters. A deferred call is a `functools.partial` in a `collections.deque`, and the example witnesses that queued partials change nothing until called. Undo is different: a partial has no `undo`, and an `Amendment` that records the weight it replaces is a command object, because the reversal needs data the plain call never kept. Resource acquisition is the lifecycle of something that must be released on every path, which is the force the `with` statement serves; the pattern survives as the contract a context manager honours.
 
-**Structure.** Adapter, Facade, Bridge, Composite and Flyweight are about the shape of what is built. Duck typing removes an Adapter only when the shapes already match; a carrier whose booking call returns a different structure from the one the domain expects still needs a translating layer. A Facade narrows a large subsystem to the few calls a caller needs, a Bridge lets an abstraction and its implementations vary independently, and a Composite gives a tree of consignment groups one interface. Flyweight shares immutable state that would otherwise repeat. None of these forces concerns how a behaviour is passed, so no feature that makes functions values touches them.
+**Structure.** Adapter, Facade, Bridge, Composite and Flyweight are about the shape of what is built. Duck typing removes an Adapter only when the shapes already match. A Facade narrows a large subsystem to the few calls a caller needs, a Bridge lets an abstraction and its implementations vary independently, and a Composite gives a `Container` of consignments one interface. Flyweight shares immutable state that would otherwise repeat. None of these forces concerns how a behaviour is passed, so no feature that makes functions values touches them.
 
 **Coordination.** Observer, Mediator, Chain of Responsibility, Memento and Interpreter govern how parties agree. Observer is callbacks in Python, but the hard parts of the pattern are untouched by that: in what order subscribers are called, whether one failing subscriber stops the rest, and how long a subscriber stays alive. A Mediator centralises who talks to whom, a Chain of Responsibility decides who handles a request, a Memento captures state to restore later, and an Interpreter evaluates a small grammar. Each of these is still a decision about relationships, and the code is shorter in Python without the decision being smaller.
 
 ## Names that need disambiguating
 
-Four names mean two things in Python. The first, Decorator, matters most, because the confusion costs real design mistakes.
+Four names mean two things in Python. The first, Decorator, matters most, because confusing the two produces wrong designs.
 
 **Decorator, the pattern.** In the catalogue, a decorator is an object that wraps another object with the same interface and adds a responsibility, and a stack of such wrappers is composed at runtime, often per request. In the example, a `BaseRate` applies a pricing rule and a `Surcharge` wraps any `RateCalculator` and adds a fixed fee:
 
@@ -126,21 +126,21 @@ The witness test shows what makes this the pattern. For a light consignment `cal
 def quote_carrier(consignment: Consignment, carrier: str) -> Money:
 ```
 
-The witness for this is about timing. `quote_carrier` is no longer the function written under it: the rebound name is a wrapper that keeps the original's name, reaches it through `__wrapped__`, and reports to the sink only when called. Nothing's chosen per consignment and no stack is composed from data; there's one function, replaced at definition time.
+The witness for this is about timing. `quote_carrier` is no longer the function written under it: the rebound name is a wrapper that keeps the original's name, reaches it through `__wrapped__`, and reports to the sink only when called. Nothing is chosen per consignment and no stack is composed from data; there is one function, replaced at definition time.
 
-The two mechanisms are independent, and one test pins that: an audited function placed inside a `Surcharge` stack is reported once per call, and neither mechanism adds the other's attributes. Either can be used without the other, and a team that says "we use the Decorator pattern here" while pointing at `@audited` has made a claim that the code cannot support. The pattern gets its own treatment, with Proxy, in [Decorator the pattern vs @decorator the syntax, and Proxy]({{ '/docs/20-decorator-pattern-vs-decorator-syntax-and-proxy/' | relative_url }}).
+The two mechanisms are independent, and one test pins that: an audited function placed inside a `Surcharge` stack is reported once per call, and neither mechanism adds the other's attributes. Either can be used without the other, and a team that says "we use the Decorator pattern here" while pointing at `@audited` has made a claim that the code can't support. The pattern gets its own treatment, with Proxy, in [Decorator the pattern vs @decorator the syntax, and Proxy]({{ '/docs/20-decorator-pattern-vs-decorator-syntax-and-proxy/' | relative_url }}).
 
-**Singleton.** The default answer is a module built at import time. The `tariff_table` module builds its `Tariff` once when it is first imported, and the witness imports it twice, checks both imports give back the same module object and the same `TARIFF`, and reads a separate load log that records exactly one load. The log lives in another module, since a counter inside the module being loaded would reset whenever that module was rebuilt. Borg and metaclass versions exist and have narrow uses. `functools.cache` does not make a singleton: it memoises calls, and under threads it is not guaranteed to run a function once.
+**Singleton.** The default answer is a module built at import time. The `tariff_table` module builds its `Tariff` once when it is first imported, and the witness imports it twice, checks both imports give back the same module object and the same `TARIFF`, and reads a separate load log that records exactly one load. The log lives in another module, since a counter inside the module being loaded would reset whenever that module was rebuilt. Borg and metaclass versions exist and have narrow uses. `functools.cache` doesn't make a singleton: it memoises calls, and under threads it is not guaranteed to run a function once.
 
-**Proxy.** The catalogue's proxy is a surrogate object standing in for another. Python adds a second sense: intercepting attribute access with `__getattr__`, `property` or `cached_property`. They are different tools. `CarrierGatewayProxy` is the surrogate: it answers `book` from its own per-consignment cache and forwards every attribute it does not define to the wrapped gateway, and unknown names raise `AttributeError`. `LazyTrackingHistory` is lazy initialisation without any surrogate: a `cached_property` runs its loader on first access only, and the value then sits in the instance dictionary.
+**Proxy.** The catalogue's proxy is a surrogate object standing in for another. Python adds a second sense: intercepting attribute access with `__getattr__`, `property` or `cached_property`. They are different tools. `CarrierGatewayProxy` is the surrogate: it answers `book` from its own per-consignment cache and forwards every attribute it doesn't define to the wrapped gateway, and unknown names raise `AttributeError`. `LazyTrackingHistory` is lazy initialisation without any surrogate: a `cached_property` runs its loader on first access only, and the value then sits in the instance dictionary.
 
-**Interface.** The word means a structural `Protocol` or a nominal ABC, and they behave differently. In the example, a class that has never heard of `CarrierGateway` satisfies it, because the shape matches, but it is not a `CarrierBase`; and an incomplete subclass of that base cannot be instantiated. Pick the Protocol when the consumer defines the need, the ABC when the family shares code or must register itself.
+**Interface.** The word means a structural `Protocol` or a nominal ABC, and they behave differently. In the example, a class that has never heard of `CarrierGateway` satisfies it, because the shape matches, but it is not a `CarrierBase`; and an incomplete subclass of that base can't be instantiated. Pick the Protocol when the consumer defines the need, a nominal base class when the family shares code or registers through `__init_subclass__`.
 
 ## Beyond the catalogue
 
 Three idioms do the work a catalogue entry would have done, and they are not in the catalogue. They appear in the map because a reader looking for the pattern should be pointed at them.
 
-**Null Object.** The catalogue's Null Object replaces a missing collaborator with an object that does nothing, so callers need no check. Python moves the force to the type system: `find_gateway` returns `CarrierGateway | None`, and `mypy --strict` rejects any call that forgets the guard. The witness feeds mypy the two versions of a caller and asserts the error code `[union-attr]` on the unguarded one and a clean pass on the guarded one:
+**Null Object.** Null Object, a later addition to the pattern literature, replaces a missing collaborator with an object that does nothing. Here `find_gateway` returns `CarrierGateway | None`, and the witness asserts `[union-attr]` from mypy on the unguarded caller and a clean pass on the guarded one:
 
 ```python
 def book_with(consignment: Consignment) -> str:
@@ -150,15 +150,13 @@ def book_with(consignment: Consignment) -> str:
     return gateway.book(consignment)
 ```
 
-The explicit `None` is the point. A do-nothing carrier would silently book nothing, and that's the failure a billing system most needs to see.
+**Value Object.** `Money` is a frozen dataclass: equal by value, with no `__dict__` because of `slots=True`, and addition defined only within one currency. The declaration supplies equality, hashing and immutability; the same-currency `__add__` is the one method written by hand.
 
-**Value Object.** `Money` is a frozen dataclass: equal by value, hashable, immutable, with no `__dict__` because of `slots=True`, and addition defined only within one currency. The language supplies the whole pattern from a declaration.
-
-**Dict dispatch and EAFP.** An if-chain over carrier codes becomes a dict lookup. The same dict that holds the gateway classes answers "which carrier?" and a missing key is handled by the exception or by `.get`, the style Python calls easier to ask forgiveness than permission. The approach has limits, and it isn't a licence to replace every branch with a table.
+**Dict dispatch and EAFP.** An if-chain over carrier codes becomes a dict lookup. The same dict that holds the gateway classes answers "which carrier?" and a missing key is handled by the exception or by `.get`, the style Python calls easier to ask forgiveness than permission. Keep the branch when cases need different arguments or the order of the tests matters.
 
 ## Patterns that straddle two buckets
 
-Three patterns do not sit cleanly in one bucket, because the catalogue entry holds two forces and a feature removes only one.
+Three patterns don't sit cleanly in one bucket, because the catalogue entry holds two forces and a feature resolves only one.
 
 Command is the plain case already seen: the deferred call dissolves into a `functools.partial` and the undoable, queued command survives. The map lists Command under survives because the part that remains is the part that needed design.
 
@@ -177,7 +175,7 @@ uv run pytest -v
 uv run mypy --strict src tests
 ```
 
-A fresh run, with output passed through `python3 scripts/host_ids.py filter`:
+A fresh run, with the repository path shown as `<repo>`:
 
 ```text
 ============================= test session starts ==============================
@@ -208,7 +206,7 @@ tests/test_dissolve.py::test_registry_is_init_subclass PASSED            [ 89%]
 tests/test_survive.py::test_deferred_command_is_a_partial_in_a_deque PASSED [ 94%]
 tests/test_survive.py::test_undo_needs_a_command_object PASSED           [100%]
 
-============================== 19 passed in 0.93s ==============================
+============================== 19 passed in 0.94s ==============================
 ```
 
 ```text
@@ -217,7 +215,7 @@ Success: no issues found in 11 source files
 
 Read the test names as the map's claims in short form. The Decorator pair and the independence test sit together in the disambiguation file; the singleton test passes only because the load log shows a single load; the Null Object test runs mypy on two source strings and asserts the exact error code, so a green run is a statement about the type checker as well as the code.
 
-One experiment: in the Null Object snippet, delete the `if gateway is None:` guard and its return, leaving `gateway.book(consignment)` directly after the assignment. Run `uv run mypy --strict src tests` again and observe the `[union-attr]` error appear. Restore the guard and the error goes. A second experiment uses the same loop: edit `calculator_for` to return a `Surcharge` for every consignment, and see which test notices.
+One experiment: in `tests/test_dissolve.py`, delete the `if gateway is None:` guard and its return from the `_GUARDED` string and run `uv run pytest`. `test_null_object_is_an_optional_checked_by_mypy` fails, because mypy now reports `[union-attr]` for that snippet. Restore the guard and it passes. A second experiment uses the same loop: edit `calculator_for` to return a `Surcharge` for every consignment, and see which test notices.
 
 ## For deeper coverage
 

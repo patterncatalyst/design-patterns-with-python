@@ -1,4 +1,7 @@
-"""Names that mean two things: the wrapper pattern and the @ syntax, and more."""
+"""Names that mean two things.
+
+The wrapper pattern and the @ syntax, Singleton, Proxy and interface.
+"""
 
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass
@@ -7,7 +10,7 @@ from functools import cached_property, wraps
 from typing import Protocol, runtime_checkable
 
 from three_way_split.dissolve import CarrierGateway, PricingRule
-from three_way_split.domain import Consignment, HandlingEvent, Money, Weight
+from three_way_split.domain import Consignment, ConsignmentId, HandlingEvent, Money, Weight
 
 # Decorator the pattern: objects wrapping objects, composed at runtime.
 
@@ -104,7 +107,7 @@ class CarrierGatewayProxy:
 
     def __init__(self, inner: CarrierGateway) -> None:
         self._inner = inner
-        self._booked: dict[object, str] = {}
+        self._booked: dict[ConsignmentId, str] = {}
 
     def book(self, consignment: Consignment, /) -> str:
         if consignment.id not in self._booked:

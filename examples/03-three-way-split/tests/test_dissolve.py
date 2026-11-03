@@ -45,11 +45,10 @@ CID = ConsignmentId("CN-00012345")
 
 
 def test_strategy_slot_accepts_def_lambda_and_partial(consignment: Consignment) -> None:
-    from_lambda: PricingRule = lambda c: Money(Decimal("9.99"), "EUR")  # noqa: E731
     from_partial: PricingRule = partial(per_kg, rate=Decimal("2.00"))
     rules: dict[str, PricingRule] = {
         "def": flat_rate,
-        "lambda": from_lambda,
+        "lambda": lambda c: Money(Decimal("9.99"), "EUR"),
         "partial": from_partial,
     }
 
@@ -125,7 +124,30 @@ def test_template_method_is_a_function_taking_hooks(consignment: Consignment) ->
     assert declaration.tariff_code == "8471.30"
     assert declaration.certificate == "CERT-SGSIN"
     assert declaration.duty == Money(Decimal("12.50"), "EUR")
-    assert not issubclass(CustomsHooks, CarrierBase)
+    assert CustomsHooks.__bases__ == (object,)
+
+    steps.clear()
+
+    def classify_medical(c: Consignment) -> str:
+        steps.append("classify")
+        return "9018.90"
+
+    def assess_exempt(c: Consignment, tariff_code: str) -> Money:
+        steps.append(f"assess_duty:{tariff_code}")
+        return Money(Decimal("0"), "EUR")
+
+    def certify_exempt(c: Consignment) -> str:
+        steps.append("certify")
+        return "EXEMPT"
+
+    other = CustomsHooks(
+        classify=classify_medical, assess_duty=assess_exempt, certify=certify_exempt
+    )
+    exempt = declare_customs(consignment, hooks=other)
+
+    assert steps == ["classify", "assess_duty:9018.90", "certify"]
+    assert exempt.certificate == "EXEMPT"
+    assert exempt.duty == Money(Decimal("0"), "EUR")
 
 
 def test_builder_is_a_keyword_only_dataclass() -> None:

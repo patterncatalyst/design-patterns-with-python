@@ -1,6 +1,6 @@
 import dataclasses
 import importlib
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from decimal import Decimal
 from typing import Final
 
@@ -81,6 +81,27 @@ def test_decorator_syntax_rebinds_the_name_at_definition_time(consignment: Consi
     assert rebound(consignment, "AIRCO") == Money(Decimal("1.00"), "EUR")
     assert sink == ["quote_plain"]
 
+    decorated: list[str] = []
+
+    def record(
+        log: list[str],
+    ) -> Callable[[Callable[[Consignment, str], Money]], Callable[[Consignment, str], Money]]:
+        def decorate(
+            func: Callable[[Consignment, str], Money],
+        ) -> Callable[[Consignment, str], Money]:
+            log.append(func.__name__)
+            return func
+
+        return decorate
+
+    @record(decorated)
+    def quote_nested(c: Consignment, carrier: str) -> Money:
+        return Money(Decimal("2.00"), "EUR")
+
+    assert decorated == ["quote_nested"]
+    assert quote_nested(consignment, "AIRCO") == Money(Decimal("2.00"), "EUR")
+    assert decorated == ["quote_nested"]
+
     assert quote_carrier.__wrapped__ is not quote_carrier  # type: ignore[attr-defined]
     assert quote_carrier.__name__ == "quote_carrier"
     assert quote_carrier(consignment, "FASTLINE") == Money(Decimal("180.00"), "EUR")
@@ -159,7 +180,10 @@ def test_proxy_forwards_only_missing_attributes(consignment: Consignment) -> Non
         proxy._missing  # noqa: B018
 
 
-def test_protocol_is_structural_and_abc_is_nominal(consignment: Consignment) -> None:
+def test_protocol_is_structural_and_abc_is_nominal(
+    consignment: Consignment, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(dissolve, "CARRIERS", {})
     fastline: CarrierGateway = FastlineGateway()
 
     assert CarrierGateway not in FastlineGateway.__mro__
@@ -177,8 +201,5 @@ def test_protocol_is_structural_and_abc_is_nominal(consignment: Consignment) -> 
     class Incomplete(CarrierBase, code="INCOMPLETE-WITNESS"):
         pass
 
-    try:
-        with pytest.raises(TypeError, match="abstract"):
-            Incomplete()  # type: ignore[abstract]
-    finally:
-        dissolve.CARRIERS.pop("INCOMPLETE-WITNESS")
+    with pytest.raises(TypeError, match="abstract"):
+        Incomplete()  # type: ignore[abstract]

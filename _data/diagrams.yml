@@ -21,10 +21,10 @@
 
 - name: 02-what-1994-assumed-and-python-dissolves
   section: "Ch. 2"
-  title: What the 1994 catalogue assumed
+  title: What the classic patterns assumed
   caption: >-
-    Assumptions the 1994 catalogue was written under, each paired with the
-    Python feature that removes it: functions as objects, structural typing,
+    Assumptions behind the classic patterns, each paired with the Python
+    feature that removes it: functions as objects, structural typing,
     generators, modules imported once, and absence checked by the type checker.
 
 - name: 03-the-three-way-split
@@ -32,9 +32,9 @@
   title: The three-way split
   caption: >-
     The three-way split. Two questions sort every catalogue pattern: does the
-    name mean two things in Python, and does a language feature remove the
-    force? The answers place each pattern in dissolves, survives or needs
-    disambiguating.
+    name mean two things in Python, and does a language feature resolve the
+    force without the pattern's structure? The answers place each pattern in
+    dissolves, survives or needs disambiguating.
 
 - name: 04-naming-patterns-for-teams-and-ai
   section: "Ch. 4"

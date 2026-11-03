@@ -114,7 +114,7 @@ Cite GoF; Fluent Python 2nd ed; Effective Python 3rd ed (by topic, never item nu
 
 ### Chapter 3: The three-way split (argument, has_example = true)
 Thesis: two questions sort every catalogue pattern: does the name mean two things in Python,
-and does a language feature remove the force? The map names each pattern's chapter by title.
+and does a language feature resolve the force without the pattern's structure? The map names each pattern's chapter by title.
 Sections: Learning objectives; Why this matters; figure; Two questions that sort a pattern;
 Patterns that dissolve (map table + prose); Patterns that survive (the force that remains,
 grouped by lifecycle, structure, coordination); Names that need disambiguating (Decorator
@@ -124,7 +124,7 @@ Visitor); Build, run, observe; For deeper coverage. Map table columns: Pattern |
 Python gives you | Developed in (title link `{{ '/docs/<slug>/' | relative_url }}`). Table rows
 do not count toward the word floor.
 Figure `03-the-three-way-split`: decision ladder (Q1 name means two things? -> disambiguate;
-Q2 feature removes the force? yes dissolve / no survive) beside three bands of patterns and
+Q2 feature resolves the force without the structure? yes dissolve / no survive) beside three bands of patterns and
 idioms with real names. Caption draft: "The three-way split. Two questions sort every catalogue
 pattern: does the name mean two things in Python, and does a language feature remove the
 force? The answers place each pattern in dissolves, survives or needs disambiguating."
