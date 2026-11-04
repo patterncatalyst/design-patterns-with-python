@@ -571,7 +571,7 @@ Reconciliation rows (step 0):
 15. Each experiment is performed in a scratch copy and changes one thing; prose quotes the
     observed failing test id and message, or the observed absence of a failure; handback includes
     raw filtered output.
-16. Attribution: ch8 names Fowler (PoEAA, 2002) and Evans (2003) for Value Object;
+16. Attribution (standing rule: credit every source a chapter leans on, by author and work where the idea is used, and put every book in `bibliography.html`; never copy wording, examples or structure; a missing credit is blocking): ch8 names Fowler (PoEAA, 2002) and Evans (2003) for Value Object;
     `bibliography.html` has the Evans row (decision 3); Fluent Python chapter titles appear only if
     verified; bracketed fallbacks applied; each prose agent lists checked sources.
 17. `scripts/site-build.sh` succeeds and `git status` is clean afterwards; both figures and example
