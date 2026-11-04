@@ -9,7 +9,16 @@ render_with_liquid: false
 
 Opus-planned 2026-11-04. Branch `release/r06`. This file is the source of truth for r06 scope, criteria and status. Executors never edit it; the orchestrator updates the status board. There's no toolchain work this iteration: Python 3.15.2, mypy 2.4.1, pytest 9.2.0, pytest-mock 3.17.0, ruff 0.17.3 and uv 0.13.7 are unchanged, and `uv.lock` changes only because two members are added.
 
-## User decisions (open: three, each with a recommendation)
+## User decisions (2026-11-04, confirmed by the owner)
+
+Owner ruling on decision 1 (2026-11-04): there was never a ban on comparison code; CLAUDE.md now
+says comparison code is allowed when it teaches, as the exception, tested against the same
+behaviour table, with the idiomatic code as the lesson. So the class-per-strategy design stays a
+test fixture that runs the shared table, and chapter 12 MAY show one short excerpt of it beside the
+`RATE_RULES` dict (at most one comparison excerpt, inside the six-excerpt limit), with the dict of
+functions taught as the answer. Decisions 2 and 3 proceed as recommended.
+
+Original wording (recommendations as written by the planner):
 
 1. **Keep the class-per-strategy design as a test-only negative fixture in chapter 12.** Domain row 12 requires it ("A class-per-strategy design needs three classes and a registry to pass the same table of cases a dict of functions passes"), and reconciliation row 1 (r02) moved "type and line counts" into this chapter. CLAUDE.md bans classic "before" code written for contrast. The way through is the r05 `_NullGateway` precedent:
    - `_PricingStrategy(ABC)` plus three subclasses and a `_STRATEGIES` dict live only in `tests/test_behaviour_table.py`.

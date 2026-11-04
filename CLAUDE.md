@@ -111,8 +111,11 @@ the one AI sidebar; "For deeper coverage" citing the hub's `books.yml` and this 
 - **Idiomatic modern Python only. Never Java-in-Python.** `Protocol` over interface hierarchies;
   frozen dataclasses; callables and closures; generators; context managers; `functools.singledispatch`;
   `match` with `assert_never`. When a GoF pattern is redundant, say so rather than reproduce it.
-  No classic-style "before" code written purely for contrast; the one exception is the legacy-code
-  part, where inherited code is the subject.
+  Comparison code is allowed when a comparison teaches something, as the exception, not the norm
+  (owner decision 2026-11-04). It must be real, runnable and tested against the same behaviour as
+  the idiomatic version (one shared table of cases), so the comparison is a measured result and not
+  a strawman, and the chapter teaches the idiomatic code: the comparison sits beside it, briefly,
+  and never replaces it. The legacy-code part, where inherited code is the subject, is separate.
 - Strict typing is the gate (`mypy --strict`, `warn_unreachable`). Ruff is configured at the root.
 - Every example is standalone: `cd examples/<NN-slug> && uv run pytest && uv run mypy --strict src tests`.
 - **Deterministic tests.** No `sleep`, wall clock or `perf_counter` in tests. A race is forced by a
