@@ -1,6 +1,6 @@
 # SRP, OCP and LSP
 
-One rate quote, thirteen test functions. Each test witnesses a claim about the single-responsibility,
+One rate quote, fourteen test functions. Each test witnesses a claim about the single-responsibility,
 open-closed and Liskov substitution principles in modern Python. The tax rates are illustrative
 values for the example and are not statutory rates.
 
@@ -92,4 +92,4 @@ uv run mypy --strict src tests
 - `test_mypy_cannot_see_a_behavioural_violation`: the two contract violators pass `mypy --strict`
   with no output.
 
-The two violators are negative fixtures in the test module and are not part of the model code.
+The three violators (`AsiaOnlyRate`, `DollarRate`, `AnyZoneRate`) are negative fixtures in the test module and are not part of the model code.

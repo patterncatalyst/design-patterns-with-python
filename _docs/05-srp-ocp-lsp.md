@@ -21,7 +21,7 @@ By the end of this chapter you can:
 
 A rate quote has three owners. The carrier contract sets the tariff, and it changes when the contract is renegotiated. Tax law sets what a destination country adds, on its own calendar. Compliance decides what must be recorded about a finished quote. When one function does all three, a change to the tax rate for one country is a change to the function that prices every consignment, and the pricing tests have to be rerun and believed again. The cost is not the edit. It is the review and the retest that follow an edit in a place that had no reason to change.
 
-The three principles in this chapter are the old answers to that cost, and the force behind each is still present in modern Python. What changes is the mechanism: a `Protocol` instead of an interface hierarchy, a mapping of callables instead of a subclass per variant, and a contract suite for the part of the Liskov principle that no signature can express. The example is one rate quote, and its thirteen test functions, eighteen cases in all, witness each claim below.
+The three principles in this chapter are the old answers to that cost, and the force behind each is still present in modern Python. What changes is the mechanism: a `Protocol` instead of an interface hierarchy, a mapping of callables instead of a subclass per variant, and a contract suite for the part of the Liskov principle that no signature can express. The example is one rate quote, and its fourteen test functions, nineteen cases in all, witness each claim below.
 
 {% include excalidraw.html name="05-srp-ocp-lsp" caption="Figure 5.1: One quote, three responsibilities. Pricing sits behind the RateCalculator Protocol and hands its net to tax rules keyed by destination country; the finished quote goes to an audit callable. Each changes for its own reason, and one contract suite checks every calculator." %}
 
@@ -141,7 +141,7 @@ mypy names the principle, because a narrowed parameter, one that accepts only a 
 
 A Protocol moves the check to the place of use. A class with `price(...) -> Decimal` that is not declared a `RateCalculator` is accepted until it is passed as `calculator=` to `quote`, where mypy reports `[arg-type]` with the expected and actual signatures under `Following member(s) of "DecimalRate" have conflicts`.
 
-The other half is behaviour, and no signature carries it. A calculator that refuses a zone the contract accepts, or that prices in dollars, has the right types. The contract helper in the test module checks the docstring above: every zone at 0.5 kg and at 1200 kg, EUR, non-negative, quantised to cents, the heavier consignment never cheaper, and a zone outside `ZONES` raising `RatingError`. Two negative fixtures live in the test module and aren't model code. One strengthens a precondition:
+The other half is behaviour, and no signature carries it. A calculator that refuses a zone the contract accepts, or that prices in dollars, has the right types. The contract helper in the test module checks the docstring above: every zone at 0.5 kg and at 1200 kg, EUR, non-negative, quantised to cents, the heavier consignment never cheaper, and a zone outside `ZONES` raising `RatingError`. Three negative fixtures live in the test module and aren't model code. One strengthens a precondition:
 
 ```python
 class AsiaOnlyRate(BaseRate):
@@ -153,7 +153,7 @@ class AsiaOnlyRate(BaseRate):
         return super().price(consignment)
 ```
 
-The other, `DollarRate`, is a structural class that returns `Money(Decimal("10.00"), "USD")` and so weakens a postcondition. `test_mypy_cannot_see_a_behavioural_violation` passes copies of both to `quote` and gets exit status 0 with empty output. The contract suite is what fails: `rejected zone EU` for the first, `priced in USD` for the second. The suite runs against `BaseRate` and `FlatRate` as well, and a calculator added later joins it with one more entry in the parametrize list.
+The other, `DollarRate`, is a structural class that returns `Money(Decimal("10.00"), "USD")` and so weakens a postcondition. `test_mypy_cannot_see_a_behavioural_violation` passes copies of both to `quote` and gets exit status 0 with empty output. The contract suite is what fails: `rejected zone EU` for the first, `priced in USD` for the second. A third, `AnyZoneRate`, prices `POLAR` at zero instead of raising, and fails with `accepted zone POLAR that the contract rejects`. The suite runs against `BaseRate` and `FlatRate` as well, and a calculator added later joins it with one more entry in the parametrize list.
 
 ## Where Python changes how the principles apply
 
@@ -195,28 +195,29 @@ cachedir: .pytest_cache
 rootdir: <repo>
 configfile: pyproject.toml
 plugins: mock-3.17.0
-collecting ... collected 18 items
+collecting ... collected 19 items
 
 tests/test_lsp.py::test_calculator_honours_the_rate_contract[BaseRate] PASSED [  5%]
-tests/test_lsp.py::test_calculator_honours_the_rate_contract[FlatRate] PASSED [ 11%]
-tests/test_lsp.py::test_contract_catches_a_strengthened_precondition PASSED [ 16%]
-tests/test_lsp.py::test_contract_catches_a_weakened_postcondition PASSED [ 22%]
-tests/test_lsp.py::test_mypy_rejects_an_incompatible_override[narrowed-argument] PASSED [ 27%]
-tests/test_lsp.py::test_mypy_rejects_an_incompatible_override[widened-return] PASSED [ 33%]
-tests/test_lsp.py::test_mypy_rejects_an_incompatible_override[misspelled-override] PASSED [ 38%]
-tests/test_lsp.py::test_mypy_accepts_an_override_that_widens_the_argument PASSED [ 44%]
-tests/test_lsp.py::test_mypy_checks_a_structural_calculator_where_it_is_used PASSED [ 50%]
-tests/test_lsp.py::test_mypy_cannot_see_a_behavioural_violation PASSED   [ 55%]
-tests/test_ocp.py::test_a_new_tax_rule_is_added_without_editing_quote PASSED [ 61%]
-tests/test_ocp.py::test_default_tax_table_is_read_only PASSED            [ 66%]
-tests/test_ocp.py::test_missing_tax_rule_is_a_rating_error PASSED        [ 72%]
-tests/test_srp.py::test_each_change_moves_only_the_fields_it_feeds[tariff] PASSED [ 77%]
-tests/test_srp.py::test_each_change_moves_only_the_fields_it_feeds[tax-rule] PASSED [ 83%]
-tests/test_srp.py::test_each_change_moves_only_the_fields_it_feeds[audit-sink] PASSED [ 88%]
+tests/test_lsp.py::test_calculator_honours_the_rate_contract[FlatRate] PASSED [ 10%]
+tests/test_lsp.py::test_contract_catches_a_strengthened_precondition PASSED [ 15%]
+tests/test_lsp.py::test_contract_catches_a_weakened_postcondition PASSED [ 21%]
+tests/test_lsp.py::test_contract_catches_an_accepted_unknown_zone PASSED [ 26%]
+tests/test_lsp.py::test_mypy_rejects_an_incompatible_override[narrowed-argument] PASSED [ 31%]
+tests/test_lsp.py::test_mypy_rejects_an_incompatible_override[widened-return] PASSED [ 36%]
+tests/test_lsp.py::test_mypy_rejects_an_incompatible_override[misspelled-override] PASSED [ 42%]
+tests/test_lsp.py::test_mypy_accepts_an_override_that_widens_the_argument PASSED [ 47%]
+tests/test_lsp.py::test_mypy_checks_a_structural_calculator_where_it_is_used PASSED [ 52%]
+tests/test_lsp.py::test_mypy_cannot_see_a_behavioural_violation PASSED   [ 57%]
+tests/test_ocp.py::test_a_new_tax_rule_is_added_without_editing_quote PASSED [ 63%]
+tests/test_ocp.py::test_default_tax_table_is_read_only PASSED            [ 68%]
+tests/test_ocp.py::test_missing_tax_rule_is_a_rating_error PASSED        [ 73%]
+tests/test_srp.py::test_each_change_moves_only_the_fields_it_feeds[tariff] PASSED [ 78%]
+tests/test_srp.py::test_each_change_moves_only_the_fields_it_feeds[tax-rule] PASSED [ 84%]
+tests/test_srp.py::test_each_change_moves_only_the_fields_it_feeds[audit-sink] PASSED [ 89%]
 tests/test_srp.py::test_audit_receives_exactly_the_quote_returned PASSED [ 94%]
 tests/test_srp.py::test_pricing_and_tax_run_alone PASSED                 [100%]
 
-============================== 18 passed in 2.69s ==============================
+============================== 19 passed in 2.70s ==============================
 ```
 
 ```text
@@ -225,9 +226,9 @@ Success: no issues found in 10 source files
 
 Two experiments, each made in a scratch copy of the example and reverted afterwards.
 
-First, make `FlatRate.price` return `Money(Decimal("10.00"), "USD")` in place of the zone lookup. `mypy --strict src tests` still prints `Success: no issues found in 10 source files`, because the signature is unchanged. `uv run pytest` reports `1 failed, 17 passed`. The failing test is `tests/test_lsp.py::test_calculator_honours_the_rate_contract[FlatRate]`, with `AssertionError: priced in USD, contract requires EUR`. The type checker passed a calculator that breaks the contract, and the suite caught it in one parametrised case while `BaseRate` stayed green.
+First, make `FlatRate.price` return `Money(Decimal("10.00"), "USD")` in place of the zone lookup. `mypy --strict src tests` still prints `Success: no issues found in 10 source files`, because the signature is unchanged. `uv run pytest` reports `1 failed, 18 passed`. The failing test is `tests/test_lsp.py::test_calculator_honours_the_rate_contract[FlatRate]`, with `AssertionError: priced in USD, contract requires EUR`. The type checker passed a calculator that breaks the contract, and the suite caught it in one parametrised case while `BaseRate` stayed green.
 
-Second, widen `FlatRate.price` to take `Consignment | None` and raise `RatingError` on `None`. mypy and pytest both stay green: `Success: no issues found in 10 source files` and `18 passed`. A weaker precondition is allowed, and nothing in the contract suite objects, because it never passes `None`.
+Second, widen `FlatRate.price` to take `Consignment | None` and raise `RatingError` on `None`. mypy and pytest both stay green: `Success: no issues found in 10 source files` and `19 passed`. A weaker precondition is allowed, and nothing in the contract suite objects, because it never passes `None`.
 
 ## For deeper coverage
 

@@ -58,6 +58,15 @@ class DollarRate:
         return Money(Decimal("10.00"), "USD")
 
 
+class AnyZoneRate(BaseRate):
+    """Negative fixture: prices a zone outside ZONES that the contract says to reject."""
+
+    def price(self, consignment: Consignment, /) -> Money:
+        if consignment.zone not in ZONES:
+            return Money(Decimal("0.00"), "EUR")
+        return super().price(consignment)
+
+
 @pytest.mark.parametrize(
     "calculator", [BaseRate(TARIFF), FlatRate(FLAT_BY_ZONE)], ids=["BaseRate", "FlatRate"]
 )
@@ -73,6 +82,11 @@ def test_contract_catches_a_strengthened_precondition() -> None:
 def test_contract_catches_a_weakened_postcondition() -> None:
     with pytest.raises(AssertionError, match="priced in USD"):
         assert_rate_contract(DollarRate())
+
+
+def test_contract_catches_an_accepted_unknown_zone() -> None:
+    with pytest.raises(AssertionError, match="accepted zone POLAR"):
+        assert_rate_contract(AnyZoneRate(TARIFF))
 
 
 def _run(snippet: str, tmp_path: Path) -> tuple[str, int]:

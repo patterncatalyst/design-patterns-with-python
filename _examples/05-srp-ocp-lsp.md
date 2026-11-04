@@ -1,11 +1,11 @@
 ---
 layout: example
 order: 5
-title: "SRP, OCP and LSP: thirteen witnesses"
+title: "SRP, OCP and LSP: fourteen witnesses"
 description: One rate quote whose tests show three reasons to change kept apart, a tax rule added as data, and a contract suite for what no type states.
 github_path: examples/05-srp-ocp-lsp
 card_eyebrow: "Principles: SOLID · SRP, OCP, LSP"
-card_title: "Thirteen test functions for three principles"
+card_title: "Fourteen test functions for three principles"
 card_blurb: "A rate quote split into pricing, tax and audit, extended with a new tax rule as data, and checked by a contract suite that catches the substitution failures mypy cannot see."
 ---
 
