@@ -5,6 +5,7 @@ requires-python = ">=3.15"
 [manifest]
 members = [
     "consignments",
+    "context-managers",
     "data-model",
     "design-patterns-with-python-workspace",
     "feature-spikes",
@@ -73,6 +74,11 @@ wheels = [
 name = "consignments"
 version = "0.1.0"
 source = { editable = "examples/00-prerequisites" }
+
+[[package]]
+name = "context-managers"
+version = "0.1.0"
+source = { editable = "examples/10-context-managers" }
 
 [[package]]
 name = "data-model"
