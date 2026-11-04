@@ -426,7 +426,7 @@ Step ids are `G*` because `--claims` resolves `run:` tokens against every plan's
 | G4 | ch12-13 `status = "drafted"` (`kind` stays `pattern`) | G3 | done |
 | G5 | Two prose agents in parallel. Each re-fetches its sources and quotes exactly, runs the experiments in scratch copies, quotes fresh output filtered by `python3 scripts/host_ids.py filter`, and hands back the sources checked plus a per-paragraph claims table (claim, then test, run or source URL) | G3, G4 | done |
 | G6 | Opus validation; up to two repair rounds | G5 | done |
-| G7 | PR, `ci-ok` green, ask the user before merge; tag r06.x; notes-only release. No hub PR (decision 3) | G6 | todo |
+| G7 | PR, `ci-ok` green, ask the user before merge; tag r06.x; notes-only release. No hub PR (decision 3) | G6 | done |
 
 Reconciliation rows (step G0). The "How to verify" column uses resolvable tokens.
 
