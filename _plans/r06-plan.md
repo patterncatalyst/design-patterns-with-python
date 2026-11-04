@@ -459,7 +459,7 @@ Reconciliation rows (step G0). The "How to verify" column uses resolvable tokens
     - `scan.sh --tier ban --fail` exits 0 over both chapters, READMEs, cards and SVGs, with `--stats` reviewed.
     - Contractions are used: uncontracted `does not|do not|is not|are not|did not|cannot` at most 3 per chapter outside code and output.
     - British spelling: `grep -nE "\b(behavior|favor|color|organiz|recogniz|analyz|initializ|customiz)"` over prose (front matter `part:` slug excluded) prints nothing.
-11. `grep -c $'\\u2014'` is 0 over every file touched in r06, including this plan.
+11. `grep -c $'\u2014'` is 0 over every file touched in r06, including this plan.
 12. `grep -nE "unlike (Java|C#|C\+\+)|in Java|in C#|\.NET|Lisp|Dylan|Smalltalk|capstone|PDP-|\br0[0-9]\b|spike|[Cc]hapter [0-9]|magic method"` over `_docs/1[23]-*.md`, the new READMEs and cards prints nothing.
 13. Idiomatic scan: 0 ban-tier in both members.
 14. `python3 scripts/host_ids.py check` exits 0. Quoted output shows `<repo>` and comes only from fresh runs piped through `host_ids.py filter`, never hand-edited.
