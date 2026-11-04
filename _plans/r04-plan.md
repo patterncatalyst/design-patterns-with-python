@@ -92,7 +92,8 @@ Python* (2nd ed., O'Reilly, 2022) is in both `bibliography.html` and the hub's `
    Software*, Eric Evans (Addison-Wesley, 2003), topic "Value Object, entities", with markup that
    matches the existing rows. The hub `books.yml` Evans entry gets `design-patterns-with-python` in
    `referenced_by` through the hub PR. Fowler's *Patterns of Enterprise Application Architecture*
-   (2002) stays inline. The chapter 8 prose agent owns the `bibliography.html` edit.
+   (2002) also gets a bibliography row and a hub entry (owner rule 2026-11-03: every book a chapter
+   leans on is credited in the bibliography). The chapter 8 prose agent owns the `bibliography.html` edit.
 
 ## Approach
 
@@ -513,7 +514,7 @@ Also `README.md` and card `_examples/08-dataclasses-and-value-semantics.md` (`or
 | 2 | Witness results into reconciliation rows 37-46; a failed witness changes the thesis before prose | 1b | **done** |
 | 3 | Two figures, specs `diagrams/specs/07-the-data-model.py` and `08-dataclasses-and-value-semantics.py`, `_data/diagrams.yml` (single owner; `section: "Ch. 7"`/`"Ch. 8"`); figures 00-06 unchanged | 1b | **done** |
 | 4 | ch7 and ch8 `status = "drafted"` in `scripts/chapters.toml` (kind stays `hands-on`) | 3 | **done** |
-| 5 | Two prose agents in parallel. Verify attributions; run the experiments in a scratch copy; quote fresh filtered output. The ch8 agent edits `bibliography.html` (decision 3). Each lists the sources it checked | 3,4 | todo |
+| 5 | Two prose agents in parallel. Verify attributions; run the experiments in a scratch copy; quote fresh filtered output. The ch8 agent edits `bibliography.html` (decision 3). Each lists the sources it checked | 3,4 | **done** |
 | 6 | Opus validation; up to two repair rounds | 5 | todo |
 | 7 | PR, `ci-ok` green, ask the user before merge; tag r04.x; notes-only release; hub PR for the Evans `referenced_by` (decision 3) | 6 | todo |
 
