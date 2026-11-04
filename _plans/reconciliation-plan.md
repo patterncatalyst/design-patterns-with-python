@@ -53,6 +53,16 @@ Status values: open, verified, adjusted, dropped.
 | 34 | 6 | Policy modules import no adapters; adapters import neither policy nor Protocols | ch6 tests 4-5 | **verified** (r03). Evidence: examples/06-isp-dip-and-di-without-a-framework, 17/17 green, 3 runs, mypy 2.4.1 output matched the plan, 2026-11-03 |
 | 35 | 6 | An autospec mock is `Any` to mypy even for the wrong Protocol, but enforces the shape at runtime | ch6 tests 6-7 | **verified** (r03). Evidence: examples/06-isp-dip-and-di-without-a-framework, 17/17 green, 3 runs, mypy 2.4.1 output matched the plan, 2026-11-03 |
 | 36 | 6 | mypy 2.4.1 checks a partial's bound argument and calls, not its assignment to a `Callable` annotation | ch6 test 8 | **verified** (r03). Evidence: examples/06-isp-dip-and-di-without-a-framework, 17/17 green, 3 runs, mypy 2.4.1 output matched the plan, 2026-11-03 |
+| 37 | 7 | Operators and builtins call the special method on the type; an instance attribute named `__len__` is ignored | ch7 test 1 | open (r04) |
+| 38 | 7 | Equal values must hash equal: `__eq__` alone sets `__hash__` to None; a custom `__eq__` in a frozen dataclass keeps a field hash and breaks set membership; mypy is silent | ch7 tests 2-5, 19 | open (r04) |
+| 39 | 7 | Returning `NotImplemented` hands the operation to the other operand: `factor * price` reaches `Money.__rmul__`; foreign operands raise `TypeError`; `sum()` needs `start=`; mypy checks operand types when the parameter is typed with the class | ch7 tests 6-8, 17, 18 | open (r04) |
+| 40 | 7 | `total_ordering` derives `<=`, `>`, `>=`; with `__lt__` alone `>` works by reflection and `<=` fails; sorting quotes by total needs `Money.__lt__` at runtime and under mypy | ch7 tests 9-11, 18 | open (r04) |
+| 41 | 7 | `bool` falls back to `__len__` and `in` to `__iter__`; an iterable without `__len__` is truthy when empty; iterable isn't subscriptable | ch7 tests 12-14 | open (r04) |
+| 42 | 7 | mypy requires `__eq__` to accept `object`, reporting `[override]` with the LSP note | ch7 test 16 | open (r04) |
+| 43 | 8 | A frozen slotted dataclass supplies Value Object's equality, hash and immutability (dissolve); frozen is a `__setattr__` guard and is shallow; slots drop weak references until `weakref_slot` | ch8 tests 1-5 | open (r04) |
+| 44 | 8 | A mutable consignment shared between bookings aliases; `replace` gives a new value and reruns `__post_init__`; a mutable eq dataclass is unhashable and mypy accepts it as a key | ch8 tests 6-9, 19 | open (r04) |
+| 45 | 8 | `order=True` orders by field tuple, would order `Money` across currencies, and refuses a hand-written `__lt__` | ch8 tests 10-12 | open (r04) |
+| 46 | 8 | `compare=False`, `kw_only`, `eq=False` and `default_factory` behave as documented; mypy checks frozen assignment, kw_only, `replace` keywords and missing order, but not mutable defaults or weakrefs to slotted instances | ch8 tests 13-19 | open (r04) |
 
 ## Process
 

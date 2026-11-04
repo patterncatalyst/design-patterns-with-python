@@ -78,7 +78,7 @@ stubs' `## How it works` heading is a placeholder and is replaced. The reconcili
 rows 1-36; this iteration adds 37-46. `_data/diagrams.yml` has seven entries. Ramalho's *Fluent
 Python* (2nd ed., O'Reilly, 2022) is in both `bibliography.html` and the hub's `books.yml`.
 
-## User decisions (2026-11-03; recommendations pending owner confirmation)
+## User decisions (2026-11-03, confirmed by the owner)
 
 1. **One ai-sidebar per chapter** (r03 decision 1 parity). Chapter 7: inside
    `## When a dunder costs more than it buys` (substrate, no bucket). Chapter 8: inside
@@ -507,7 +507,7 @@ Also `README.md` and card `_examples/08-dataclasses-and-value-semantics.md` (`or
 
 | Step | What | Depends | Status |
 | --- | --- | --- | --- |
-| 0 | This plan file; PDP-107a..c and 108a..c `active`. Domain-model row 7: names `Weight`, `Money`, `Dimensions`, `RateQuote`, `TrackingHistory`, `HandlingEvent`, `HandlingKind`, `functools.total_ordering`, `NotImplemented`, `__mul__`/`__rmul__`, `__format__`; failing column: "`factor * price` fails without `__rmul__`; quotes don't sort by total without `Money.__lt__`; a custom `__eq__` without `__hash__` leaves equal cartons as two set elements". Row 8: add `SlotId`, `StowagePlan`, `BookingRequest`, `Consignment`, `replace`, `field(compare=False)`, `field(default_factory=dict)`, `eq=False`, `kw_only`; `order=True` on `Weight` and `SlotId`, not `Money`. Reconciliation rows 37-46 `open`. Decision 3 bibliography row recorded as pending | - | todo |
+| 0 | This plan file; PDP-107a..c and 108a..c `active`. Domain-model row 7: names `Weight`, `Money`, `Dimensions`, `RateQuote`, `TrackingHistory`, `HandlingEvent`, `HandlingKind`, `functools.total_ordering`, `NotImplemented`, `__mul__`/`__rmul__`, `__format__`; failing column: "`factor * price` fails without `__rmul__`; quotes don't sort by total without `Money.__lt__`; a custom `__eq__` without `__hash__` leaves equal cartons as two set elements". Row 8: add `SlotId`, `StowagePlan`, `BookingRequest`, `Consignment`, `replace`, `field(compare=False)`, `field(default_factory=dict)`, `eq=False`, `kw_only`; `order=True` on `Weight` and `SlotId`, not `Money`. Reconciliation rows 37-46 `open`. Decision 3 bibliography row recorded as pending | - | **done** |
 | 1a | ch7 member, card, README; gates; three consecutive green runs; **deletion table**: in a scratch copy delete each check (`Dimensions.__hash__`, the `Dimensions.__eq__` guard, the `Money.__add__` currency check, the `Money.__add__` guard, `Money.__rmul__`, the `Money.__lt__` currency check, `@total_ordering`, `TrackingHistory.__len__`, `TrackingHistory.__iter__`, `Money.__format__`) and record the failing test id for each. Handback has test names, the table, and scrubbed output | 0 | todo |
 | 1b | ch8 member, card, README; one `uv lock` after both members exist (sequenced after 1a); gates; deletion table: `frozen=True` on `Weight` and on `SlotId`, each `__post_init__` check, the `Money.of` quantise, `compare=False`, `kw_only=True`, `eq=False` on `StowagePlan`, `default_factory`, the `reserve` conflict check; plus adding `order=True` to `Money` | 1a | todo |
 | 2 | Witness results into reconciliation rows 37-46; a failed witness changes the thesis before prose | 1b | todo |
