@@ -9,7 +9,9 @@ render_with_liquid: false
 
 Opus-planned 2026-11-04. Branch `release/r08` (from main at 2506655). This file is the source of truth for r08 scope, criteria and status. Executors never edit it; the orchestrator updates the status board. There's no toolchain work this iteration: Python 3.15.2, mypy 2.4.1, pytest 9.2.0, pytest-mock 3.17.0, ruff 0.17.3 and uv 0.13.7 are unchanged, and `uv.lock` changes only because three members are added.
 
-## User decisions (pending owner review)
+## User decisions (2026-11-04, confirmed by the owner)
+
+Owner answers 2026-11-04: every decision below takes the recommended option (all three chapters in r08, built in sequence, Singleton splitting to r08b only if a third repair round is needed; chapter 18 owns the cache-under-threads trap, `LoadOnce` with an injected lock, and PEP 810 `lazy import`; I step ids; generic `CarrierKit[R]`; the listed supporting names; the GoF creator hierarchy count; both chapter 17 comparison fixtures; Borg, metaclass and `__new__` as test fixtures; *Python Cookbook* 1st ed. added with a hub PR at I0b; domain rows 16-18 updated at I0).
 
 Each decision carries a recommendation. Nothing below is built until the owner answers.
 
