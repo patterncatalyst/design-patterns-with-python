@@ -62,3 +62,21 @@
     carrier adapter and passes it to each consumer, which names only the small
     Protocol it needs; the adapter satisfies both Protocols structurally and
     imports neither.
+
+- name: 07-the-data-model
+  section: "Ch. 7"
+  title: How Python evaluates factor times price
+  caption: >-
+    How Python evaluates factor times price. The interpreter asks the left
+    operand's type first; Decimal returns NotImplemented for Money, so Money's
+    reflected method answers, and only when both decline does the expression
+    raise TypeError.
+
+- name: 08-dataclasses-and-value-semantics
+  section: "Ch. 8"
+  title: One declaration, the Value Object's structure
+  caption: >-
+    One declaration, the Value Object's structure. A frozen, slotted, ordered
+    dataclass writes the constructor, repr, equality, hash, ordering and the
+    assignment guard for SlotId; the invariant, immutable field types and the
+    value-or-entity choice stay with you.

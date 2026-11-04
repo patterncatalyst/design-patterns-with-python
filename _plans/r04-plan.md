@@ -511,8 +511,8 @@ Also `README.md` and card `_examples/08-dataclasses-and-value-semantics.md` (`or
 | 1a | ch7 member, card, README; gates; three consecutive green runs; **deletion table**: in a scratch copy delete each check (`Dimensions.__hash__`, the `Dimensions.__eq__` guard, the `Money.__add__` currency check, the `Money.__add__` guard, `Money.__rmul__`, the `Money.__lt__` currency check, `@total_ordering`, `TrackingHistory.__len__`, `TrackingHistory.__iter__`, `Money.__format__`) and record the failing test id for each. Handback has test names, the table, and scrubbed output | 0 | **done** |
 | 1b | ch8 member, card, README; one `uv lock` after both members exist (sequenced after 1a); gates; deletion table: `frozen=True` on `Weight` and on `SlotId`, each `__post_init__` check, the `Money.of` quantise, `compare=False`, `kw_only=True`, `eq=False` on `StowagePlan`, `default_factory`, the `reserve` conflict check; plus adding `order=True` to `Money` | 1a | **done** |
 | 2 | Witness results into reconciliation rows 37-46; a failed witness changes the thesis before prose | 1b | **done** |
-| 3 | Two figures, specs `diagrams/specs/07-the-data-model.py` and `08-dataclasses-and-value-semantics.py`, `_data/diagrams.yml` (single owner; `section: "Ch. 7"`/`"Ch. 8"`); figures 00-06 unchanged | 1b | todo |
-| 4 | ch7 and ch8 `status = "drafted"` in `scripts/chapters.toml` (kind stays `hands-on`) | 3 | todo |
+| 3 | Two figures, specs `diagrams/specs/07-the-data-model.py` and `08-dataclasses-and-value-semantics.py`, `_data/diagrams.yml` (single owner; `section: "Ch. 7"`/`"Ch. 8"`); figures 00-06 unchanged | 1b | **done** |
+| 4 | ch7 and ch8 `status = "drafted"` in `scripts/chapters.toml` (kind stays `hands-on`) | 3 | **done** |
 | 5 | Two prose agents in parallel. Verify attributions; run the experiments in a scratch copy; quote fresh filtered output. The ch8 agent edits `bibliography.html` (decision 3). Each lists the sources it checked | 3,4 | todo |
 | 6 | Opus validation; up to two repair rounds | 5 | todo |
 | 7 | PR, `ci-ok` green, ask the user before merge; tag r04.x; notes-only release; hub PR for the Evans `referenced_by` (decision 3) | 6 | todo |

@@ -70,7 +70,7 @@ title = "The data model: dunder methods as the substrate"
 part = 4
 kind = "hands-on"
 has_example = true
-status = "stub"
+status = "drafted"
 
 [[chapter]]
 number = 8
@@ -79,7 +79,7 @@ title = "Dataclasses and value semantics"
 part = 4
 kind = "hands-on"
 has_example = true
-status = "stub"
+status = "drafted"
 
 [[chapter]]
 number = 9
