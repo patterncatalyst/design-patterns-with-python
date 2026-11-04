@@ -614,7 +614,7 @@ Row 5 status note at J2: "witnessed by rows 101-103 (r09)". Row 6: Ch cell 26, "
     - `scan.sh --tier ban --fail` exits 0 over both chapters, READMEs, cards and SVGs, with `--stats` reviewed against the house-voice rubric.
     - Contractions are used: uncontracted `does not|do not|is not|are not|did not|cannot` at most 3 per chapter outside code, output and exact quotations.
     - British spelling: `grep -nE "\b(behavior|favor|color|organiz|recogniz|analyz|initializ|customiz|serializ)"` over prose (the front matter `part:` slug, quotations and code excluded) prints nothing.
-11. `grep -c $'—'` is 0 over every file touched in r09, including this plan.
+11. `grep -c $'-'` is 0 over every file touched in r09, including this plan.
 12. `grep -nE "unlike (Java|C#|C\+\+)|in Java|in C#|\.NET|Smalltalk|capstone|PDP-|\br0[0-9]\b|spike|[Cc]hapter [0-9]|magic method"` over `_docs/19-*.md`, `_docs/20-*.md`, the new READMEs and cards prints nothing.
 13. Idiomatic scan: 0 ban-tier in both members.
 14. `python3 scripts/host_ids.py check` exits 0. Quoted output shows `<repo>` and comes only from fresh runs piped through `host_ids.py filter`, never hand-edited.

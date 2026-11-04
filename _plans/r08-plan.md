@@ -642,8 +642,8 @@ Step ids are `I*` because `--claims` resolves `run:` tokens against every plan's
 | I3 | Three figures, specs `diagrams/specs/16-*.py`, `17-*.py`, `18-*.py`, `_data/diagrams.yml` (single owner; `section: "Ch. 16"` to `"Ch. 18"`); figures 00-15 unchanged | I2 | done |
 | I4 | ch16-18 `status = "drafted"` (`kind` stays `pattern`) | I3 | done |
 | I5 | Three prose agents in parallel. Each re-fetches its sources and quotes exactly, runs its two experiments in scratch copies, quotes fresh output filtered by `python3 scripts/host_ids.py filter`, and hands back the sources checked plus a per-paragraph claims table (claim, then test, run or source URL) | I3, I4 | done |
-| I6 | Opus validation; up to two repair rounds (decision 2's split applies if a third is needed) | I5 | todo |
-| I7 | PR, `ci-ok` green, ask the user before merge; tag r08.x; notes-only release. Hub PR only if I0b ran | I6 | todo |
+| I6 | Opus validation; up to two repair rounds (decision 2's split applies if a third is needed) | I5 | done |
+| I7 | PR, `ci-ok` green, ask the user before merge; tag r08.x; notes-only release. Hub PR only if I0b ran | I6 | done |
 
 Reconciliation rows (step I0). The "How to verify" column uses resolvable tokens.
 
