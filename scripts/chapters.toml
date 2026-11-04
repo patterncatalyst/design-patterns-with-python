@@ -16,7 +16,7 @@ title = "Patterns as decisions under forces"
 part = 1
 kind = "argument"
 has_example = false
-status = "stub"
+status = "drafted"
 
 [[chapter]]
 number = 2
@@ -25,7 +25,7 @@ title = "What 1994 assumed, and what Python dissolves"
 part = 1
 kind = "argument"
 has_example = false
-status = "stub"
+status = "drafted"
 
 [[chapter]]
 number = 3
@@ -33,8 +33,8 @@ slug = "03-the-three-way-split"
 title = "The three-way split: dissolve, survive, disambiguate"
 part = 2
 kind = "argument"
-has_example = false
-status = "stub"
+has_example = true
+status = "drafted"
 
 [[chapter]]
 number = 4
@@ -43,7 +43,7 @@ title = "Naming patterns for teams and AI assistants"
 part = 2
 kind = "argument"
 has_example = false
-status = "stub"
+status = "drafted"
 
 [[chapter]]
 number = 5

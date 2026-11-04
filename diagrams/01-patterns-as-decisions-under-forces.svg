@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 620" font-family="'Red Hat Text', system-ui, sans-serif" role="img">
+<defs><marker id="a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#555"/></marker><marker id="am" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#b8650a"/></marker></defs>
+<rect x="15" y="130" width="790" height="110" rx="12" fill="#fafafa" stroke="#ddd"/>
+<text x="27" y="150" font-size="12" font-weight="700" fill="#888">Forces pulling on the design</text>
+<rect x="230" y="20" width="360" height="56" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+<text x="410.0" y="46.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">Problem: quote a consignment</text>
+<text x="410.0" y="63.0" font-size="11.5" fill="#555555" text-anchor="middle">one rate per carrier, zone and weight</text>
+<rect x="30" y="165" width="175" height="56" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+<text x="117.5" y="191.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">Carrier tariffs</text>
+<text x="117.5" y="208.0" font-size="11.5" fill="#555555" text-anchor="middle">zone and weight bands</text>
+<rect x="225" y="165" width="175" height="56" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+<text x="312.5" y="191.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">Surcharges, discounts</text>
+<text x="312.5" y="208.0" font-size="11.5" fill="#555555" text-anchor="middle">commercial, set per contract</text>
+<rect x="420" y="165" width="175" height="56" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+<text x="507.5" y="191.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">Destination tax</text>
+<text x="507.5" y="208.0" font-size="11.5" fill="#555555" text-anchor="middle">varies by country</text>
+<rect x="615" y="165" width="175" height="56" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+<text x="702.5" y="191.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">Reproducible quotes</text>
+<text x="702.5" y="208.0" font-size="11.5" fill="#555555" text-anchor="middle">billing disputes replay them</text>
+<rect x="230" y="300" width="360" height="56" rx="9" fill="#fff8ef" stroke="#e8870c" stroke-width="2"/>
+<text x="410.0" y="326.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">Decision: where the rating rules live</text>
+<text x="410.0" y="343.0" font-size="11.5" fill="#555555" text-anchor="middle">the shape that best resolves the forces</text>
+<rect x="230" y="400" width="360" height="56" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+<text x="410.0" y="426.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">Consequences</text>
+<text x="410.0" y="443.0" font-size="11.5" fill="#555555" text-anchor="middle">what the choice buys and what it costs</text>
+<rect x="230" y="500" width="360" height="56" rx="9" fill="#f1f5f9" stroke="#64748b" stroke-width="2"/>
+<text x="410.0" y="526.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">The shape follows the dominant force</text>
+<text x="410.0" y="543.0" font-size="11.5" fill="#555555" text-anchor="middle">one function, separate callables, or a Protocol</text>
+<path d="M410,76 L410,130" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<path d="M117.5,221 L330.0,300" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<path d="M312.5,221 L383.3,300" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<path d="M507.5,221 L436.6,300" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<path d="M702.5,221 L489.9,300" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<path d="M410,356 L410,400" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<path d="M410,456 L410,500" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+</svg>

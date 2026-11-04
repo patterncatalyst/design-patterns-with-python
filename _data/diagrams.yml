@@ -9,3 +9,38 @@
     The local build-and-test loop. One locked environment feeds lint, format,
     strict type checking and tests in order; a red step returns you to the
     source, and the prerequisites script gates the toolchain first.
+
+- name: 01-patterns-as-decisions-under-forces
+  section: "Ch. 1"
+  title: The rate-quote decision under four forces
+  caption: >-
+    The rate-quote decision under four forces. Carrier tariffs, commercial
+    surcharges and destination tax change on separate schedules while every
+    quote must stay reproducible; the chosen shape follows from which force
+    dominates.
+
+- name: 02-what-1994-assumed-and-python-dissolves
+  section: "Ch. 2"
+  title: What the classic patterns assumed
+  caption: >-
+    Assumptions behind the classic patterns, each paired with the Python
+    feature that removes it: functions as objects, structural typing,
+    generators, modules imported once, and absence checked by the type checker.
+
+- name: 03-the-three-way-split
+  section: "Ch. 3"
+  title: The three-way split
+  caption: >-
+    The three-way split. Two questions sort every catalogue pattern: does the
+    name mean two things in Python, and does a language feature resolve the
+    force without the pattern's structure? The answers place each pattern in
+    dissolves, survives or needs disambiguating.
+
+- name: 04-naming-patterns-for-teams-and-ai
+  section: "Ch. 4"
+  title: One pattern name, two readers
+  caption: >-
+    One pattern name, two readers. A reviewer and an AI assistant read the same
+    name for the same contract; naming the Python mechanism as well, a callable
+    type alias rather than a class hierarchy, keeps both readers on the
+    idiomatic shape.

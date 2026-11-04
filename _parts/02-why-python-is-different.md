@@ -2,5 +2,5 @@
 title: "Why Python Is Different"
 order: 2
 part_name: why-python-is-different
-blurb: "What the 1994 catalogue assumed, the three-way split into patterns that dissolve, survive, or need disambiguating, and how to name patterns for teams and AI assistants."
+blurb: "The map that sorts every catalogue pattern into those a language feature dissolves, those that remain design, and those whose name means two things in Python, followed by naming patterns so that teams and AI assistants read the same contract."
 ---
