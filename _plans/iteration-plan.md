@@ -87,12 +87,12 @@ PR, squash-merge with branch deletion, an `rNN.x` tag and a notes-only release.
 | PDP-106a | Ch6 ISP, DIP, and DI without a framework: example | r03 | active |
 | PDP-106b | Ch6 ISP, DIP, and DI without a framework: figure | r03 | active |
 | PDP-106c | Ch6 ISP, DIP, and DI without a framework: prose | r03 | active |
-| PDP-107a | Ch7 The data model: example | r04 | todo |
-| PDP-107b | Ch7 The data model: figure | r04 | todo |
-| PDP-107c | Ch7 The data model: prose | r04 | todo |
-| PDP-108a | Ch8 Dataclasses and value semantics: example | r04 | todo |
-| PDP-108b | Ch8 Dataclasses and value semantics: figure | r04 | todo |
-| PDP-108c | Ch8 Dataclasses and value semantics: prose | r04 | todo |
+| PDP-107a | Ch7 The data model: example | r04 | active |
+| PDP-107b | Ch7 The data model: figure | r04 | active |
+| PDP-107c | Ch7 The data model: prose | r04 | active |
+| PDP-108a | Ch8 Dataclasses and value semantics: example | r04 | active |
+| PDP-108b | Ch8 Dataclasses and value semantics: figure | r04 | active |
+| PDP-108c | Ch8 Dataclasses and value semantics: prose | r04 | active |
 | PDP-109a | Ch9 Protocol and structural typing: example | r05 | todo |
 | PDP-109b | Ch9 Protocol and structural typing: figure | r05 | todo |
 | PDP-109c | Ch9 Protocol and structural typing: prose | r05 | todo |
