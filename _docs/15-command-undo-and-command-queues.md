@@ -4,7 +4,7 @@ order: 15
 layout: tutorial
 sectionid: docs
 part: "selecting-varying-behavior"
-description: "Draft pending: Command, undo, and command queues."
+description: "Command survives where undo needs data a deferred call never kept: frozen amendment values, an inverse computed when the amendment runs, undo and redo stacks and a queue that applies all or nothing."
 ---
 
 ## Learning objectives

@@ -108,12 +108,12 @@ PR, squash-merge with branch deletion, an `rNN.x` tag and a notes-only release.
 | PDP-113a | Ch13 Template Method and the function alternative: example | r06 | active |
 | PDP-113b | Ch13 Template Method and the function alternative: figure | r06 | active |
 | PDP-113c | Ch13 Template Method and the function alternative: prose | r06 | active |
-| PDP-114a | Ch14 State and finite state machines: example | r07 | todo |
-| PDP-114b | Ch14 State and finite state machines: figure | r07 | todo |
-| PDP-114c | Ch14 State and finite state machines: prose | r07 | todo |
-| PDP-115a | Ch15 Command, undo, and command queues: example | r07 | todo |
-| PDP-115b | Ch15 Command, undo, and command queues: figure | r07 | todo |
-| PDP-115c | Ch15 Command, undo, and command queues: prose | r07 | todo |
+| PDP-114a | Ch14 State and finite state machines: example | r07 | active |
+| PDP-114b | Ch14 State and finite state machines: figure | r07 | active |
+| PDP-114c | Ch14 State and finite state machines: prose | r07 | active |
+| PDP-115a | Ch15 Command, undo, and command queues: example | r07 | active |
+| PDP-115b | Ch15 Command, undo, and command queues: figure | r07 | active |
+| PDP-115c | Ch15 Command, undo, and command queues: prose | r07 | active |
 | PDP-116a | Ch16 Factory Method and Abstract Factory: example | r08 | todo |
 | PDP-116b | Ch16 Factory Method and Abstract Factory: figure | r08 | todo |
 | PDP-116c | Ch16 Factory Method and Abstract Factory: prose | r08 | todo |
@@ -202,3 +202,5 @@ PR, squash-merge with branch deletion, an `rNN.x` tag and a notes-only release.
 2026-11-04 (r05): Python 3.15.2. PDP-109a to PDP-111c are active for r05, and the book moves to Python 3.15.2. Earlier iterations keep their status.
 
 2026-11-04 (r06): PDP-112a to PDP-113c are active for r06 (chapters 12 and 13, Part 5). Earlier iterations keep their status.
+
+2026-11-04 (r07): PDP-114a to PDP-115c are active for r07 (chapters 14 and 15, Part 5). Earlier iterations keep their status.

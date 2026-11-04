@@ -510,8 +510,8 @@ Step ids are `H*` because `--claims` resolves `run:` tokens against every plan's
 
 | Step | What | Depends | Status |
 | --- | --- | --- | --- |
-| H0 | This plan file. PDP-114a-c and 115a-c `active` in `iteration-plan.md` (dated note). Reconciliation rows 75-84 `open`, and the row 1 note (decision 8). Domain-model rows 14-15 updated with the example-spec names (row 14: the state classes, single-class `HandlingEvent` with `HandlingKind`, `TRANSITIONS` over a 3.15 `frozendict`, the state-object form as a test fixture, `sail_one_day`/`simulate_transit`; row 15: `type Amendment = Reweigh \| Redirect \| SetInstructions`, `apply` returning the inverse, `AmendmentError`, `frozendict` instructions, `deque` stacks and queue, and the failing test name). ch14/15 stub `description` lines written. Decisions recorded | - | todo |
-| H1a | ch14 member, card, README; three green runs; the deletion table above, each row run in a scratch copy; `_plans/evidence/transit-delay-model.md` (the 10,000-seed mean, scrubbed) | H0 | todo |
+| H0 | This plan file. PDP-114a-c and 115a-c `active` in `iteration-plan.md` (dated note). Reconciliation rows 75-84 `open`, and the row 1 note (decision 8). Domain-model rows 14-15 updated with the example-spec names (row 14: the state classes, single-class `HandlingEvent` with `HandlingKind`, `TRANSITIONS` over a 3.15 `frozendict`, the state-object form as a test fixture, `sail_one_day`/`simulate_transit`; row 15: `type Amendment = Reweigh \| Redirect \| SetInstructions`, `apply` returning the inverse, `AmendmentError`, `frozendict` instructions, `deque` stacks and queue, and the failing test name). ch14/15 stub `description` lines written. Decisions recorded | - | done |
+| H1a | ch14 member, card, README; three green runs; the deletion table above, each row run in a scratch copy; `_plans/evidence/transit-delay-model.md` (the 10,000-seed mean, scrubbed) | H0 | done |
 | H1b | ch15 member, card, README; one `uv lock` after both members (sequenced); three green runs; deletion table | H1a | todo |
 | H2 | Witness results into rows 75-84 (claims audit resolves). A failed witness changes the thesis before prose. Any message differing from Planning evidence goes in "Corrections after the build" | H1b | todo |
 | H3 | Two figures, specs `diagrams/specs/14-*.py` and `15-*.py`, `_data/diagrams.yml` (single owner; `section: "Ch. 14"`/`"Ch. 15"`); figures 00-13 unchanged | H2 | todo |
@@ -536,6 +536,12 @@ Reconciliation rows (step H0). The "How to verify" column uses resolvable tokens
 | 84 | 14-15 | The "Build, run, observe" experiments behave as quoted | `run: H5` |
 
 ## Corrections after the build
+
+- Step H1a, `rng` deletion row: member mypy is silent (`random` stays imported for the annotation; an unused parameter isn't an error). Only pytest sees it: six `test_transit.py` tests fail.
+- Step H1a, `<` to `<=` row: `test_transit_delay_bounds[never-delayed]` still passes. The row's witness is `test_a_draw_equal_to_the_probability_is_not_a_delay`, which sets the probability to `Random(7).random()` so the first draw equals it exactly.
+- Step H1a, `max_days` row: the deletion hangs `[always-delayed]` (a 10 s timeout exits 124) as predicted; `test_the_day_cap_bounds_the_number_of_draws` (a counting `random.Random` subclass that raises after 100 draws) fails fast and is the named witness.
+- Step H1a: `test_every_value_in_the_model_is_frozen` collided with chapter 13's test name and is `test_every_state_and_event_is_frozen`; the orchestrator re-ran the `HandlingEvent` frozen deletion under the new name (1 failed, 39 passed). Shared case lists live in conftest fixtures, so each table test reports one id per form, not per history.
+- Row 76 carries `run: H5`, which resolves when H5 is done (not an H1a gate failure).
 
 (empty)
 

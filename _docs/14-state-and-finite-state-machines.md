@@ -4,7 +4,7 @@ order: 14
 layout: tutorial
 sectionid: docs
 part: "selecting-varying-behavior"
-description: "Draft pending: State and finite state machines."
+description: "State survives because no feature says which transitions are legal; a read-only table, frozen states with a match ending in assert_never, and a seeded transit model make the lifecycle short and checkable."
 ---
 
 ## Learning objectives
