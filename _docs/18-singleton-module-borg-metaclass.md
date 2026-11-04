@@ -32,19 +32,19 @@ Read the ladder on the left from the top. Each box has an arrow down to the next
 
 ## Three things called Singleton
 
-Gamma, Helm, Johnson and Vlissides, in *Design Patterns* (1994), give Singleton to a class that must have a single instance, reached from one well-known place. Brandon Rhodes, on the python-patterns.guide page ["The Singleton Pattern"](https://python-patterns.guide/gang-of-four/singleton/), shows that Python programmers say "singleton" for several things, and the three that matter for design are these.
+Gamma, Helm, Johnson and Vlissides, in *Design Patterns* (1994), describe Singleton as a class that guards its own construction so the whole program shares one object, fetched through an operation on the class. Brandon Rhodes, on the python-patterns.guide page ["The Singleton Pattern"](https://python-patterns.guide/gang-of-four/singleton/), shows that Python programmers say "singleton" for several things, and the three that matter for design are these.
 
-- **One object.** A module is built once and every later import returns the same object. Rhodes's page ["The Global Object Pattern"](https://python-patterns.guide/python/module-globals/) is the name for an instance assigned to a module-level name.
-- **One shared state.** Many objects whose attributes live in one place. Alex Martelli's recipe, ActiveState recipe 66531, "Singleton? We don't need no stinkin' singleton: the Borg design pattern", is where Borg comes from. The code in this chapter is written fresh and none of the recipe's text is quoted.
+- **One object.** A module is built once and every later import returns the same object. Rhodes's page ["The Global Object Pattern"](https://python-patterns.guide/python/module-globals/) names the practice of assigning an instance to a module-level name.
+- **One shared state.** Many objects whose attributes live in one place. Alex Martelli's recipe, ActiveState recipe 66531, "Singleton? We don't need no stinkin' singleton: the Borg design pattern", is where Borg comes from.
 - **One class that returns the same object.** A metaclass `__call__` or a `__new__` that returns a stored instance, so `Table()` reads like construction and isn't.
 
-The bucket is needs disambiguating, and the default answer to the force, "load this once and let everyone read it", is the first meaning: a module. [What 1994 assumed, and what Python dissolves]({{ '/docs/02-what-1994-assumed-and-python-dissolves/' | relative_url }}) shows the module shape, and [The three-way split: dissolve, survive, disambiguate]({{ '/docs/03-the-three-way-split/' | relative_url }}) places Singleton in its bucket. This chapter takes the module further, and then measures the other meanings against it.
+The bucket is needs disambiguating, and the default answer to the force, "load this once and let everyone read it", is the first meaning: a module. [What 1994 assumed, and what Python dissolves]({{ '/docs/02-what-1994-assumed-and-python-dissolves/' | relative_url }}) shows the module shape, and [The three-way split: dissolve, survive, disambiguate]({{ '/docs/03-the-three-way-split/' | relative_url }}) places Singleton in its bucket.
 
-One table of behaviour holds them all. `test_every_form_gives_each_caller_the_same_rates` runs five forms (the module, `LoadOnce`, Borg, a metaclass singleton and a cached function) and checks that two callers read equal rates and that one load happened. All five pass. The forms differ in what else they do, which the next sections measure.
+One table of behaviour holds them all. `test_every_form_gives_each_caller_the_same_rates` runs six forms (the module, `LoadOnce`, Borg, a metaclass singleton, a cached function and the `__new__` form) and checks that two callers read equal rates and how many loads happened. Five load once. The `__new__` form loads twice, because `__init__` runs on every call.
 
 ## The module, at import time or on first use
 
-`tariff_table.py` builds `TARIFF` at import time. `test_every_importer_gets_the_one_tariff_table` imports the module twice and finds one module object, one `TARIFF` and one `"tariff"` entry in the load log. The log lives in `loads.py`, apart from the module it counts, because a counter inside a module that was rebuilt would reset with it.
+`tariff_table.py` builds `TARIFF` at import time. `test_every_importer_gets_the_one_tariff_table` keeps the shape the three-way split already shows: two imports, one `TARIFF`, one load in the log that `loads.py` keeps.
 
 Python 3.15 adds a second rung. `quoting.py` reaches the table through a lazy import:
 
@@ -78,7 +78,7 @@ Two limits. The What's New page says "Lazy imports are only permitted at module 
 <string>:6: error: Module has no attribute "TARIF"; maybe "TARIFF"?  [attr-defined]
 ```
 
-Rhodes's verdict on the global object is the reason this rung is the default: a plain assignment at the top of a module is easy to read, and it leaves other instances possible. His page also warns that mutable global objects "can wind up coupling distant code". The tariff table is a frozen dataclass over a `frozendict`, so readers can't change it.
+Rhodes prefers the global object to the Singleton class for reasons that make this rung the default: a reader recognises a module-level assignment at a glance, and a test can still build a table of its own. His Global Object page also warns that mutable global objects "can wind up coupling distant code". The tariff table is a frozen dataclass over a `frozendict`, so readers can't change it.
 
 ## Pass the table in
 
@@ -86,15 +86,7 @@ A module-level table doesn't suit every caller. A test wants a table of its own,
 
 `test_quote_takes_the_table_it_is_given` prices the same consignment against two tables and gets 12.00 from one and 50.00 from the other, with the load log unchanged. Nothing is patched and no module state is touched. [ISP, DIP, and dependency injection without a framework]({{ '/docs/06-isp-dip-and-di-without-a-framework/' | relative_url }}) covers where a composition root passes such a parameter in. [Seams in Python: monkeypatch, injection, and duck typing]({{ '/docs/33-seams-in-python/' | relative_url }}) covers the alternative, patching module state, and what it costs.
 
-The failure this avoids is the cached loader. `test_isolation.py` holds a loader decorated with `functools.cache`:
-
-```python
-@functools.cache
-def _cached_tariff() -> TariffTable:
-    return TariffTable(frozendict({**STANDARD_RATES, **_OVERRIDES}))
-```
-
-`test_a_cached_loader_carries_one_tests_table_into_the_next` sets an override for Asia and loads. The next phase clears the override and asks again, and the cache returns the table with the override still in it: Asia still reads 9, where the standard table says 2.40. The test's fixture calls `cache_clear()` after each test for that reason, and `test_cache_clear_resets_the_cached_loader` shows the reset working. `cache_clear` is the repair when a cache can't be avoided. It isn't a design: a test that touches the cache has to know to call it.
+The failure this avoids is the cached loader. `test_isolation.py` holds `_cached_tariff`, decorated with `functools.cache`, which builds a `TariffTable` from the standard rates merged with a module-level `_OVERRIDES` dict. `test_a_cached_loader_carries_one_tests_table_into_the_next` sets an override for Asia and loads. The next phase clears the override and asks again, and the cache returns the table with the override still in it: Asia still reads 9, where the standard table says 2.40. The test's fixture calls `cache_clear()` after each test for that reason, and `test_cache_clear_resets_the_cached_loader` shows the reset working. `cache_clear` is the repair when a cache can't be avoided. It isn't a design: a test that touches the cache has to know to call it.
 
 The [functools documentation](https://docs.python.org/3/library/functools.html) describes `functools.cache` as a "Simple lightweight unbounded function cache". It memoises a function's results by argument. A single instance is a different requirement.
 
@@ -160,7 +152,7 @@ The marker is `NOT_LOADED`, built with the `sentinel` type that Python 3.15 adds
 
 ## Borg, the metaclass, and `__new__`
 
-Three class forms sit beside the ladder. They are fixtures in `tests/conftest.py`, they stand for code a team inherits or an assistant writes, and each has one measured cost. The forms run the same behaviour table as the module. The excerpt is the `__new__` form, the one assistants most often write:
+Three class forms sit beside the ladder. They are fixtures in `tests/conftest.py`, they stand for code a team inherits or an assistant writes, and each has one measured cost. They run the same behaviour table as the module. The excerpt is the `__new__` form:
 
 <!-- fmt:off -->
 ```python
@@ -192,7 +184,7 @@ The metaclass fixture has the opposite problem. `_SingletonMeta.__call__` builds
 
 The signature is checked on every call, and the singleton rule that makes later arguments meaningless isn't. The mechanics of `__call__` on a metaclass are the business of [Metaclasses, __init_subclass__, and registries]({{ '/docs/29-metaclasses-init-subclass-and-registries/' | relative_url }}).
 
-Borg shares state and not identity. `test_borg_instances_share_state_but_are_distinct_and_unequal` makes two instances: they aren't the same object, they compare unequal, and they share one `__dict__`, so an attribute set through one is read through the other. Martelli's recipe is the source of the idea. mypy accepts the assignment of a shared dictionary to `__dict__`, and `test_mypy_accepts_borg_state_unless_the_class_has_slots` shows that a class with `__slots__` is refused with `[misc]`, so a Borg class that declares slots is refused. Code that compares two Borg instances for equality gets "different" about objects that hold identical state.
+Borg shares state and not identity. `test_borg_instances_share_state_but_are_distinct_and_unequal` makes two instances: they aren't the same object, they compare unequal, and they share one `__dict__`, so an attribute set through one is read through the other. Martelli's recipe is the source of the idea. mypy accepts the assignment of a shared dictionary to `__dict__`, and `test_mypy_accepts_borg_state_unless_the_class_has_slots`, on a reduced model, shows that mypy refuses the assignment with `[misc]` once the class declares `__slots__`. Code that compares two Borg instances for equality gets "different" about objects that hold identical state.
 
 Borg suits code that must construct its own object and still share configuration with every other. A class form suits the case where the class itself has to be the access point, and Rhodes names it: an existing class that has become single and can't have its callers migrated. Neither is the default, and a module covers the rest.
 
@@ -223,62 +215,63 @@ cachedir: .pytest_cache
 rootdir: <repo>
 configfile: pyproject.toml
 plugins: mock-3.17.0
-collecting ... collected 28 items
+collecting ... collected 29 items
 
 tests/test_isolation.py::test_a_naive_class_loads_the_table_once_per_caller PASSED [  3%]
-tests/test_isolation.py::test_a_cached_loader_carries_one_tests_table_into_the_next PASSED [  7%]
+tests/test_isolation.py::test_a_cached_loader_carries_one_tests_table_into_the_next PASSED [  6%]
 tests/test_isolation.py::test_cache_clear_resets_the_cached_loader PASSED [ 10%]
-tests/test_module.py::test_every_importer_gets_the_one_tariff_table PASSED [ 14%]
+tests/test_module.py::test_every_importer_gets_the_one_tariff_table PASSED [ 13%]
 tests/test_module.py::test_a_lazy_import_loads_the_table_on_first_use PASSED [ 17%]
-tests/test_module.py::test_threads_racing_on_a_lazy_import_load_the_table_once PASSED [ 21%]
-tests/test_module.py::test_quote_takes_the_table_it_is_given PASSED      [ 25%]
-tests/test_module.py::test_an_unknown_zone_is_a_rating_error PASSED      [ 28%]
-tests/test_module.py::test_the_tariff_table_is_a_frozen_value PASSED     [ 32%]
-tests/test_once.py::test_functools_cache_runs_a_loader_twice_when_two_threads_arrive_together PASSED [ 35%]
-tests/test_once.py::test_load_once_runs_the_loader_once_when_two_threads_pass_the_first_check PASSED [ 39%]
-tests/test_once.py::test_a_loaded_value_is_read_without_taking_the_lock PASSED [ 42%]
-tests/test_once.py::test_load_once_keeps_a_loader_that_returns_none PASSED [ 46%]
-tests/test_once.py::test_the_not_loaded_marker_is_a_sentinel_and_not_none PASSED [ 50%]
-tests/test_once.py::test_a_failed_load_is_tried_again PASSED             [ 53%]
-tests/test_static.py::test_mypy_types_a_metaclass_singleton_call_by_init[second-call] PASSED [ 57%]
-tests/test_static.py::test_mypy_types_a_metaclass_singleton_call_by_init[missing-argument] PASSED [ 60%]
-tests/test_static.py::test_mypy_accepts_borg_state_unless_the_class_has_slots[plain] PASSED [ 64%]
-tests/test_static.py::test_mypy_accepts_borg_state_unless_the_class_has_slots[slotted] PASSED [ 67%]
-tests/test_static.py::test_mypy_still_checks_attributes_through_a_lazy_import PASSED [ 71%]
-tests/test_variants.py::test_every_form_gives_each_caller_the_same_rates[module] PASSED [ 75%]
-tests/test_variants.py::test_every_form_gives_each_caller_the_same_rates[load-once] PASSED [ 78%]
-tests/test_variants.py::test_every_form_gives_each_caller_the_same_rates[borg] PASSED [ 82%]
-tests/test_variants.py::test_every_form_gives_each_caller_the_same_rates[metaclass] PASSED [ 85%]
-tests/test_variants.py::test_every_form_gives_each_caller_the_same_rates[cache] PASSED [ 89%]
-tests/test_variants.py::test_borg_instances_share_state_but_are_distinct_and_unequal PASSED [ 92%]
+tests/test_module.py::test_threads_racing_on_a_lazy_import_load_the_table_once PASSED [ 20%]
+tests/test_module.py::test_quote_takes_the_table_it_is_given PASSED      [ 24%]
+tests/test_module.py::test_an_unknown_zone_is_a_rating_error PASSED      [ 27%]
+tests/test_module.py::test_the_tariff_table_is_a_frozen_value PASSED     [ 31%]
+tests/test_once.py::test_functools_cache_runs_a_loader_twice_when_two_threads_arrive_together PASSED [ 34%]
+tests/test_once.py::test_load_once_runs_the_loader_once_when_two_threads_pass_the_first_check PASSED [ 37%]
+tests/test_once.py::test_a_loaded_value_is_read_without_taking_the_lock PASSED [ 41%]
+tests/test_once.py::test_load_once_keeps_a_loader_that_returns_none PASSED [ 44%]
+tests/test_once.py::test_the_not_loaded_marker_is_a_sentinel_and_not_none PASSED [ 48%]
+tests/test_once.py::test_a_failed_load_is_tried_again PASSED             [ 51%]
+tests/test_static.py::test_mypy_types_a_metaclass_singleton_call_by_init[second-call] PASSED [ 55%]
+tests/test_static.py::test_mypy_types_a_metaclass_singleton_call_by_init[missing-argument] PASSED [ 58%]
+tests/test_static.py::test_mypy_accepts_borg_state_unless_the_class_has_slots[plain] PASSED [ 62%]
+tests/test_static.py::test_mypy_accepts_borg_state_unless_the_class_has_slots[slotted] PASSED [ 65%]
+tests/test_static.py::test_mypy_still_checks_attributes_through_a_lazy_import PASSED [ 68%]
+tests/test_variants.py::test_every_form_gives_each_caller_the_same_rates[module] PASSED [ 72%]
+tests/test_variants.py::test_every_form_gives_each_caller_the_same_rates[load-once] PASSED [ 75%]
+tests/test_variants.py::test_every_form_gives_each_caller_the_same_rates[borg] PASSED [ 79%]
+tests/test_variants.py::test_every_form_gives_each_caller_the_same_rates[metaclass] PASSED [ 82%]
+tests/test_variants.py::test_every_form_gives_each_caller_the_same_rates[cache] PASSED [ 86%]
+tests/test_variants.py::test_every_form_gives_each_caller_the_same_rates[new] PASSED [ 89%]
+tests/test_variants.py::test_borg_instances_share_state_but_are_distinct_and_unequal PASSED [ 93%]
 tests/test_variants.py::test_a_singleton_metaclass_ignores_the_second_calls_arguments PASSED [ 96%]
 tests/test_variants.py::test_a_new_based_singleton_reruns_init_on_every_call PASSED [100%]
 
-============================== 28 passed in 2.15s ==============================
+============================== 29 passed in 2.14s ==============================
 Success: no issues found in 12 source files
 ```
 
-The suite has 22 test functions and 28 cases. For how the tests and the mypy witnesses are built, see [Proving it works: pytest, pytest-mock, and mypy]({{ '/docs/11-testing-with-pytest-pytest-mock-and-mypy/' | relative_url }}).
+The suite has 22 test functions and 29 cases. For how the tests and the mypy witnesses are built, see [Proving it works: pytest, pytest-mock, and mypy]({{ '/docs/11-testing-with-pytest-pytest-mock-and-mypy/' | relative_url }}).
 
-**Experiment one: drop the inner check.** In a scratch copy, replace the inner `if self._value is NOT_LOADED:` and its body in `LoadOnce.__call__` with a bare `self._value = self._load()` inside the lock. Running `uv run pytest -q 2>&1 | grep -E '^(FAILED|E {7}[^ ]|tests/.*Error$|[0-9]+ (passed|failed))'` three times printed the same lines each time, apart from the duration:
+**Experiment one: drop the inner check.** In a scratch copy, replace the inner `if self._value is NOT_LOADED:` and its body in `LoadOnce.__call__` with a bare `self._value = self._load()` inside the lock. Running `uv run pytest -q 2>&1 | grep -E '^(FAILED|E {7}[^ ]|tests/.*Error$|[0-9]+ (passed|failed))'` and then `uv run mypy --strict src tests` three times printed the same lines each time, apart from the duration:
 
 ```text
 E       AssertionError: assert ['tariff', 'tariff'] == ['tariff']
 tests/test_once.py:105: AssertionError
 FAILED tests/test_once.py::test_load_once_runs_the_loader_once_when_two_threads_pass_the_first_check
-1 failed, 27 passed in 2.17s
+1 failed, 28 passed in 2.16s
 Success: no issues found in 12 source files
 ```
 
 Both threads got through the first check before either took the lock, so both loaded. mypy still reports success, because a second load is a valid program.
 
-**Experiment two: make the import eager.** In a fresh scratch copy, change `lazy from singleton import tariff_table` in `quoting.py` to `from singleton import tariff_table`. The same filtered run, three times, printed:
+**Experiment two: make the import eager.** In a fresh scratch copy, change `lazy from singleton import tariff_table` in `quoting.py` to `from singleton import tariff_table`. The same filtered run and mypy run, three times, printed:
 
 ```text
 E       AssertionError: assert {'before': ['...r': True, ...} == {'before': []...r': True, ...}
 tests/test_module.py:90: AssertionError
 FAILED tests/test_module.py::test_a_lazy_import_loads_the_table_on_first_use
-1 failed, 27 passed in 2.17s
+1 failed, 28 passed in 2.14s
 Success: no issues found in 12 source files
 ```
 
@@ -286,4 +279,4 @@ The test's fresh interpreter finds the load log already holding `"tariff"` after
 
 ## For deeper coverage
 
-*Design Patterns* (Gamma, Helm, Johnson and Vlissides) is the source for Singleton. Alex Martelli's [ActiveState recipe 66531](https://code.activestate.com/recipes/66531-singleton-we-dont-need-no-stinkin-singleton-the-bo/), "Singleton? We don't need no stinkin' singleton: the Borg design pattern", is the source for Borg. Brandon Rhodes covers the two ends of the argument at [The Singleton Pattern](https://python-patterns.guide/gang-of-four/singleton/) and [The Global Object Pattern](https://python-patterns.guide/python/module-globals/). [PEP 810](https://peps.python.org/pep-0810/) specifies `lazy import`, [PEP 661](https://peps.python.org/pep-0661/) specifies `sentinel`, and the [functools](https://docs.python.org/3/library/functools.html) and [threading](https://docs.python.org/3/library/threading.html) documentation cover `cache`, `Lock` and `Barrier`. The [bibliography page]({{ '/bibliography/' | relative_url }}) lists the books, and the hub carries the same list.
+*Design Patterns* (Gamma, Helm, Johnson and Vlissides) is the source for Singleton. Alex Martelli's [ActiveState recipe 66531](https://web.archive.org/web/20260325075452/https://code.activestate.com/recipes/66531-singleton-we-dont-need-no-stinkin-singleton-the-bo/), "Singleton? We don't need no stinkin' singleton: the Borg design pattern", is the source for Borg. Brandon Rhodes covers the two ends of the argument at [The Singleton Pattern](https://python-patterns.guide/gang-of-four/singleton/) and [The Global Object Pattern](https://python-patterns.guide/python/module-globals/). [PEP 810](https://peps.python.org/pep-0810/) specifies `lazy import`, [PEP 661](https://peps.python.org/pep-0661/) specifies `sentinel`, and the [functools](https://docs.python.org/3/library/functools.html) and [threading](https://docs.python.org/3/library/threading.html) documentation cover `cache`, `Lock` and `Barrier`. The [bibliography page]({{ '/bibliography/' | relative_url }}) lists the books, and the hub carries the same list.

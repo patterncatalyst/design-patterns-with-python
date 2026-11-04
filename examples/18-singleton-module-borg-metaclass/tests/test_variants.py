@@ -11,7 +11,7 @@ def test_every_form_gives_each_caller_the_same_rates(rates_form: RatesForm) -> N
     first = rates_form.read()
     second = rates_form.read()
     assert first == second == STANDARD_RATES
-    assert rates_form.loads() == 1
+    assert rates_form.loads() == rates_form.expected_loads
 
 
 def test_borg_instances_share_state_but_are_distinct_and_unequal(

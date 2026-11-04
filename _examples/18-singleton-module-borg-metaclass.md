@@ -26,7 +26,7 @@ behind a lock with a double check, and a test forces the interleaving with a loc
 
 ## Comparison fixtures
 
-Borg, a metaclass singleton and a `__new__` singleton run the same table of callers as the module.
+Borg, a metaclass singleton and a `__new__` singleton run the same table of callers as the module, `LoadOnce` and the cache. Five of the six forms load once and the `__new__` form loads twice.
 Borg instances are distinct and unequal, the metaclass ignores a second call's arguments, and the
 `__new__` form reruns `__init__` and rewrites the shared table.
 

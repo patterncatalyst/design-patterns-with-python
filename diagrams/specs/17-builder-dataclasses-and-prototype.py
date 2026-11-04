@@ -49,7 +49,7 @@ emit(
             "w": 240,
             "h": 84,
             "style": "ghost",
-            "lines": ["every copy path", "reruns it:", "replace, copy.replace"],
+            "lines": ["every replace", "reruns it:", "replace, copy.replace"],
         },
         {
             "x": X,

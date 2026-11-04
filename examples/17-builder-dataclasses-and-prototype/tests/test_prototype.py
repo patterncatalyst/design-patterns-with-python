@@ -100,9 +100,10 @@ def test_copy_replace_works_on_dataclasses_and_refuses_a_plain_class() -> None:
     class Plain:
         service = "standard"
 
-    express = copy.replace(TEMPLATES["rotterdam-singapore"], service="express")
+    standard = copy.replace(TEMPLATES["rotterdam-singapore"], service="standard")
 
-    assert express.service == "express"
+    assert standard.service == "standard"
+    assert TEMPLATES["rotterdam-singapore"].service == "express"
     with pytest.raises(TypeError, match="does not support"):
         copy.replace(Plain(), service="express")  # type: ignore[arg-type]
 

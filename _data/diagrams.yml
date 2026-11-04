@@ -153,7 +153,7 @@
   title: Building and copying a booking request
   caption: >-
     Building and copying a booking request. A template is copied into a
-    frozen keyword-only request whose checks run on every copy path, and
+    frozen keyword-only request whose checks rerun on every replace, and
     only an immutable field type keeps two copies from sharing one list.
 
 - name: 18-singleton-module-borg-metaclass

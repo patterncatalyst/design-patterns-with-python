@@ -106,6 +106,7 @@ class RatesForm:
 
     read: Callable[[], Mapping[str, Decimal]]
     loads: Callable[[], int]
+    expected_loads: int = 1
 
 
 @pytest.fixture
@@ -143,11 +144,12 @@ def cached_rates() -> Iterator[Callable[[], frozendict[str, Decimal]]]:
     _CACHE_LOADS.clear()
 
 
-@pytest.fixture(params=["module", "load-once", "borg", "metaclass", "cache"])
+@pytest.fixture(params=["module", "load-once", "borg", "metaclass", "cache", "new"])
 def rates_form(
     request: pytest.FixtureRequest,
     borg: type[_TariffBorg],
     meta_table: type[_MetaTariffTable],
+    new_table: type[_NewTariffTable],
     cached_rates: Callable[[], frozendict[str, Decimal]],
 ) -> RatesForm:
     """One way to give every caller the same rates, with fresh state for each test."""
@@ -172,5 +174,11 @@ def rates_form(
         return RatesForm(
             read=lambda: meta_table("standard.csv").rates,
             loads=lambda: len(meta_table.loads),
+        )
+    if name == "new":
+        return RatesForm(
+            read=lambda: new_table("standard.csv").rates,
+            loads=lambda: len(new_table.loads),
+            expected_loads=2,
         )
     return RatesForm(read=cached_rates, loads=lambda: len(_CACHE_LOADS))
