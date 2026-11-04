@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 560" font-family="'Red Hat Text', system-ui, sans-serif" role="img">
+<defs><marker id="a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#555"/></marker><marker id="am" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#b8650a"/></marker></defs>
+<rect x="190" y="30" width="440" height="56" rx="9" fill="#fff8ef" stroke="#e8870c" stroke-width="2"/>
+<text x="410.0" y="56.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">quote</text>
+<text x="410.0" y="73.0" font-size="11.5" fill="#555555" text-anchor="middle">the coordinator: one consignment in, one RateQuote out</text>
+<rect x="190" y="140" width="440" height="56" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+<text x="410.0" y="166.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">RateCalculator: BaseRate or FlatRate</text>
+<text x="410.0" y="183.0" font-size="11.5" fill="#555555" text-anchor="middle">pricing changes with the tariff</text>
+<rect x="190" y="250" width="440" height="56" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+<text x="410.0" y="276.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">TAX_RULES: percent by destination country</text>
+<text x="410.0" y="293.0" font-size="11.5" fill="#555555" text-anchor="middle">tax changes with tax law</text>
+<rect x="190" y="360" width="440" height="56" rx="9" fill="#f1f5f9" stroke="#64748b" stroke-width="2"/>
+<text x="410.0" y="386.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">RateQuote</text>
+<text x="410.0" y="403.0" font-size="11.5" fill="#555555" text-anchor="middle">net from pricing, tax computed on that net</text>
+<rect x="190" y="470" width="440" height="56" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+<text x="410.0" y="496.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">AuditSink: a callable</text>
+<text x="410.0" y="513.0" font-size="11.5" fill="#555555" text-anchor="middle">audit changes with compliance</text>
+<rect x="660" y="140" width="140" height="56" rx="9" fill="#f4f4f4" stroke="#888888" stroke-width="1.5"/>
+<text x="730.0" y="166.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">Contract suite</text>
+<text x="730.0" y="183.0" font-size="11.5" fill="#555555" text-anchor="middle">every calculator</text>
+<path d="M410,86 L410,140" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<path d="M410,196 L410,250" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<text x="426.0" y="223.0" font-size="11" fill="#ffffff" stroke="#ffffff" stroke-width="3" paint-order="stroke" text-anchor="middle">net</text>
+<text x="426.0" y="223.0" font-size="11" fill="#555" text-anchor="middle">net</text>
+<path d="M410,306 L410,360" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<text x="426.0" y="333.0" font-size="11" fill="#ffffff" stroke="#ffffff" stroke-width="3" paint-order="stroke" text-anchor="middle">tax</text>
+<text x="426.0" y="333.0" font-size="11" fill="#555" text-anchor="middle">tax</text>
+<path d="M410,416 L410,470" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<text x="460.0" y="443.0" font-size="11" fill="#ffffff" stroke="#ffffff" stroke-width="3" paint-order="stroke" text-anchor="middle">finished quote</text>
+<text x="460.0" y="443.0" font-size="11" fill="#555" text-anchor="middle">finished quote</text>
+<path d="M660,168 L630,168" fill="none" stroke="#555" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#a)"/>
+</svg>

@@ -52,7 +52,7 @@ title = "SRP, OCP, and LSP in Python"
 part = 3
 kind = "hands-on"
 has_example = true
-status = "stub"
+status = "drafted"
 
 [[chapter]]
 number = 6
@@ -61,7 +61,7 @@ title = "ISP, DIP, and dependency injection without a framework"
 part = 3
 kind = "hands-on"
 has_example = true
-status = "stub"
+status = "drafted"
 
 [[chapter]]
 number = 7
