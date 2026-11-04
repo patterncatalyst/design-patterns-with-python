@@ -54,6 +54,7 @@ The contract is stated in the reference's section on basic customization: object
 
 `Dimensions` is the case where a hand-written pair is justified. A carton may be stowed on any face, so a 120 by 80 by 100 carton and an 80 by 120 by 100 carton are the same carton. The fields keep the declared orientation, so the type doesn't normalise at construction; that would be simpler if the orientation didn't matter, and here it does. So equality compares the sorted extents, and the hash hashes the same key:
 
+<!-- fmt:off -->
 ```python
     def _extents(self) -> tuple[int, ...]:
         return tuple(sorted((self.length_cm, self.width_cm, self.height_cm)))
@@ -66,6 +67,7 @@ The contract is stated in the reference's section on basic customization: object
     def __hash__(self) -> int:
         return hash(self._extents())
 ```
+<!-- fmt:on -->
 
 `__eq__` takes `object`, not `Dimensions`, and returns `NotImplemented` for anything else. That's the signature `object.__eq__` declares, and mypy 2.4.1 holds subclasses to it. Narrowing the parameter is an `[override]` error, which the snippet in `test_mypy_rejects_an_eq_that_narrows_its_argument` produces; the first lines of the output are:
 
@@ -95,6 +97,7 @@ A foreign operand gets `NotImplemented`, which hands the decision to the other o
 
 Multiplication by a factor adds the reflected half:
 
+<!-- fmt:off -->
 ```python
     def __mul__(self, factor: Decimal | int) -> Money:
         if not isinstance(factor, Decimal | int):
@@ -104,6 +107,7 @@ Multiplication by a factor adds the reflected half:
     def __rmul__(self, factor: Decimal | int) -> Money:
         return self.__mul__(factor)
 ```
+<!-- fmt:on -->
 
 `price * Decimal("2")` needs only `__mul__`, and `__rmul__` delegates to it, since multiplication by a factor is the same either way round. `Decimal("2") * price` is the case in the figure: `Decimal.__mul__` returns `NotImplemented` for a `Money`, and the interpreter calls `price.__rmul__(factor)`. The float factor shows the end of the path: `price * 1.5` gets `NotImplemented` from `Money.__mul__` and from `float.__rmul__`, and the result is `TypeError: unsupported operand type(s) for *`. `test_a_factor_times_money_uses_the_reflected_method` covers a `Decimal` and an `int` on the left, both float orders and the cent quantisation; `test_money_multiplication_rounds_half_up` pins the rounding mode, so a half cent rounds up.
 
@@ -132,6 +136,7 @@ Across currencies `Money` raises `ValueError` from `<` and `<=`, as it does from
 
 A shipment history is a sequence of handling events, and `TrackingHistory` defines two methods to behave like one:
 
+<!-- fmt:off -->
 ```python
     def __len__(self) -> int:
         return len(self.events)
@@ -139,6 +144,7 @@ A shipment history is a sequence of handling events, and `TrackingHistory` defin
     def __iter__(self) -> Iterator[HandlingEvent]:
         return iter(self.events)
 ```
+<!-- fmt:on -->
 
 `__iter__` returns a fresh iterator on each call, which is why `list(history) == list(history)` holds in `test_history_is_sized_and_reiterable`. An object that returned itself from `__iter__` would be exhausted after one pass. Producing events lazily, with paging, is the territory of [Iterator: generators and the iterator protocol]({{ '/docs/24-iterator-generators-and-the-iterator-protocol/' | relative_url }}); here the iterator is the tuple's own.
 
@@ -150,6 +156,7 @@ Iteration doesn't give indexing. `history[0]` raises `TypeError` with `'Tracking
 
 A value has three readers. `repr` is for a developer and a log, and the dataclass supplies one: `Money(amount=Decimal('12.50'), currency='EUR')`. `str` is for a manifest line, and `Money` writes it by hand. `format` is what an f-string calls with its spec:
 
+<!-- fmt:off -->
 ```python
     def __str__(self) -> str:
         return f"{self.currency} {self.amount}"
@@ -157,6 +164,7 @@ A value has three readers. `repr` is for a developer and a log, and the dataclas
     def __format__(self, spec: str) -> str:
         return format(str(self), spec)
 ```
+<!-- fmt:on -->
 
 Delegating to `str` lets `f"{price:>12}"` align a `Money` like text, giving `   EUR 12.50`. Without `__format__`, a spec raises: `_StrOnlyMoney` has `__str__`, prints fine, and `f"{plain:>12}"` raises `TypeError` matching `unsupported format string`. All three forms are in `test_repr_str_and_format_serve_different_readers`, which asserts that they differ.
 
