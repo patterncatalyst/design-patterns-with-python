@@ -88,7 +88,7 @@ title = "Protocol, duck typing, and structural typing with mypy"
 part = 4
 kind = "hands-on"
 has_example = true
-status = "stub"
+status = "drafted"
 
 [[chapter]]
 number = 10
@@ -97,7 +97,7 @@ title = "Context managers: deterministic cleanup"
 part = 4
 kind = "hands-on"
 has_example = true
-status = "stub"
+status = "drafted"
 
 [[chapter]]
 number = 11
@@ -106,7 +106,7 @@ title = "Proving it works: pytest, pytest-mock, and mypy"
 part = 4
 kind = "hands-on"
 has_example = true
-status = "stub"
+status = "drafted"
 
 [[chapter]]
 number = 12

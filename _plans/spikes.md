@@ -185,3 +185,5 @@ event to `type TrackingEvent = ...` fails every `match` that lacks it. Runtime f
 
 State/FSM chapter: frozen dataclass states, `type State = A | B | C`, transitions by `match` ending in
 `case _: assert_never(...)`, so adding a state fails mypy until every transition handles it.
+
+2026-11-04 (r05): Python 3.15.2. The spike tests were re-run green on 3.15.2. The recorded GIL benchmark output and the S4a findings remain 3.14.10 evidence, and the GIL chapter re-measures.

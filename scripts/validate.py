@@ -5,6 +5,7 @@ Standard library only. Run from anywhere:
 
     uv run python scripts/validate.py
     uv run python scripts/validate.py --self-test
+    uv run python scripts/validate.py --claims
 
 Every violation prints as `path:line: message`; the exit status is 1 if any
 error was found. Warnings and info lines never change the exit status.
@@ -72,6 +73,19 @@ EM_DASH_ONLY = (
     "_layouts/**/*",
     "_data/diagrams.yml",
 )
+STALE_RE = re.compile(r"(?<![\d.])(?:[Pp]ython ?3\.(\d+)|3\.(\d+)\.\d+)")
+STALE_EXEMPT = ("since ", "before ", "until ", "new in ")
+STALE_WINDOW = 16
+PYTEST_MOCK_RE = re.compile(r"pytest[- ]mock[\s|=`*-]*$|\bmock-$", re.IGNORECASE)
+CLAIMS_REL = "_plans/reconciliation-plan.md"
+CLAIMS_FIRST_ENFORCED = 47
+CLAIM_ROW_RE = re.compile(r"^\|\s*(\d+)\s*\|")
+CELL_SPLIT_RE = re.compile(r"(?<!\\)\|")
+CLAIM_TEST_RE = re.compile(r"`(?:[^`\s]*::)?(test_\w+)(?:\[[^`]*\])?`")
+CLAIM_SOURCE_RE = re.compile(r"source:\s*(https?://[^\s`|)>]+)")
+CLAIM_RUN_RE = re.compile(r"run:\s*([A-Za-z0-9_][\w./-]*)")
+CLAIM_STATUS_RE = re.compile(r"\*\*(\w+)\*\*")
+TEST_DEF_RE = re.compile(r"^\s*(?:async\s+)?def\s+(test_\w+)", re.MULTILINE)
 SVG_TEXT_RE = re.compile(r"<text\b[^>]*>(.*?)</text>", re.DOTALL)
 
 
@@ -556,6 +570,191 @@ def check_pins(root: Path) -> list[Finding]:
     )
 
 
+# ------------------------------------------------------- stale versions
+
+
+def pinned_minor(python_version: str) -> str:
+    """The minor of an exact x.y.z pin, for example '15' from '3.15.2'."""
+    parts = python_version.strip().split(".")
+    return parts[1] if len(parts) >= 2 else ""
+
+
+def check_stale_versions(rel: str, text: str, minor: str) -> list[Finding]:
+    """Flag Python 3.N, python3.N and 3.N.M where N is older than the pinned minor.
+
+    A newer minor (a scheduled removal such as "in Python 3.20") is not stale.
+
+    A match preceded within 16 characters by 'since ', 'before ', 'until ' or
+    'new in ' is history, not a claim about the pin, and passes.
+    """
+    out: list[Finding] = []
+    for lineno, line in enumerate(text.split("\n"), start=1):
+        for m in STALE_RE.finditer(line):
+            found = m.group(1) or m.group(2)
+            if int(found) >= int(minor):
+                continue  # the pin itself, or a future version named by a deprecation
+            if PYTEST_MOCK_RE.search(line[: m.start()]):
+                continue  # pytest-mock 3.x is a package version, not the interpreter
+            window = line[max(0, m.start() - STALE_WINDOW) : m.start()].lower()
+            if any(word in window for word in STALE_EXEMPT):
+                continue
+            out.append(Finding(rel, lineno, f"stale version {m.group(0)!r}: the pin is 3.{minor}"))
+    return out
+
+
+# ----------------------------------------------------------- claims audit
+
+
+@dataclass(frozen=True)
+class ClaimResult:
+    row: int
+    chapter: str
+    status: str
+    evidence: tuple[str, ...]
+    unresolved: tuple[str, ...]
+    line: int
+
+    @property
+    def resolved(self) -> bool:
+        return bool(self.evidence) and not self.unresolved
+
+
+def chapter_numbers(cell: str) -> list[int]:
+    """Chapter numbers in a Ch cell: '9', '9, 10', '9-11'."""
+    nums: list[int] = []
+    for part in re.split(r"[,/&]|\band\b", cell):
+        m = re.fullmatch(r"\s*(\d+)\s*(?:-\s*(\d+))?\s*", part)
+        if m:
+            lo = int(m.group(1))
+            hi = int(m.group(2)) if m.group(2) else lo
+            nums.extend(range(lo, max(lo, hi) + 1))
+    return nums
+
+
+def test_names(root: Path) -> set[str]:
+    names: set[str] = set()
+    for path in sorted(root.glob("examples/*/tests/**/*.py")):
+        names.update(TEST_DEF_RE.findall(path.read_text(encoding="utf-8")))
+    return names
+
+
+def chapter_docs(root: Path) -> dict[int, str]:
+    docs: dict[int, str] = {}
+    for path in sorted((root / "_docs").glob("*.md")):
+        m = re.match(r"(\d+)-", path.name)
+        if m:
+            docs[int(m.group(1))] = path.read_text(encoding="utf-8")
+    return docs
+
+
+def claim_results(
+    plan_text: str,
+    tests: set[str],
+    docs: dict[int, str],
+    steps_text: str,
+    evidence_files: frozenset[str] = frozenset(),
+) -> list[ClaimResult]:
+    """Parse the reconciliation table and resolve every evidence token.
+
+    Tokens are read from the 'How to verify' and 'Status' cells: a backticked
+    test_* name (must be defined under examples/*/tests), 'source: <url>' (the
+    URL must appear in the chapter's _docs file) and 'run: <step id>' (the id
+    must be the id of a row marked done in an iteration plan's steps table,
+    '| 1c | ... | done |'), or 'run: <path>' for a
+    recorded run under _plans/evidence/ (the file must exist).
+    """
+    results: list[ClaimResult] = []
+    for lineno, line in enumerate(plan_text.split("\n"), start=1):
+        m = CLAIM_ROW_RE.match(line)
+        if not m:
+            continue
+        cells = [c.strip() for c in CELL_SPLIT_RE.split(line.strip().strip("|"))]
+        if len(cells) < 5:
+            continue
+        chapter = cells[1]
+        text = " ".join(cells[3:])
+        sm = CLAIM_STATUS_RE.search(cells[-1])
+        status = sm.group(1) if sm else cells[-1].split(" ")[0]
+        chapter_text = "\n".join(docs.get(n, "") for n in chapter_numbers(chapter))
+        evidence: list[str] = []
+        unresolved: list[str] = []
+        for name in CLAIM_TEST_RE.findall(text):
+            evidence.append(name)
+            if name not in tests:
+                unresolved.append(name)
+        for url in CLAIM_SOURCE_RE.findall(text):
+            url = url.rstrip(".,;")
+            evidence.append(f"source: {url}")
+            if url not in chapter_text:
+                unresolved.append(f"source: {url}")
+        for step in CLAIM_RUN_RE.findall(text):
+            step = step.rstrip(".,;")
+            evidence.append(f"run: {step}")
+            if "/" in step:
+                found = step in evidence_files
+            else:
+                row = rf"^\|\s*{re.escape(step)}\s*\|.*\|\s*(?:\*\*)?done(?:\*\*)?\s*\|\s*$"
+                found = re.search(row, steps_text, re.MULTILINE) is not None
+            if not found:
+                unresolved.append(f"run: {step}")
+        results.append(
+            ClaimResult(
+                int(m.group(1)), chapter, status, tuple(evidence), tuple(unresolved), lineno
+            )
+        )
+    return results
+
+
+def claim_findings(results: list[ClaimResult]) -> tuple[list[Finding], list[Finding]]:
+    """(errors, info): rows 47 and later must resolve; earlier rows are legacy."""
+    errors: list[Finding] = []
+    info: list[Finding] = []
+    for r in results:
+        if r.resolved:
+            continue
+        if r.evidence:
+            why = "unresolved evidence: " + ", ".join(r.unresolved)
+        else:
+            why = "no evidence token (test_ name, source: url or run: step)"
+        if r.row >= CLAIMS_FIRST_ENFORCED:
+            errors.append(Finding(CLAIMS_REL, r.line, f"claim {r.row}: {why}"))
+        else:
+            info.append(Finding(CLAIMS_REL, r.line, f"claim {r.row}: legacy, {why}"))
+    return errors, info
+
+
+def load_claims(root: Path) -> list[ClaimResult]:
+    plan = root / CLAIMS_REL
+    if not plan.is_file():
+        return []
+    steps = "\n".join(
+        p.read_text(encoding="utf-8") for p in sorted((root / "_plans").glob("r[0-9]*-plan.md"))
+    )
+    evidence = frozenset(
+        p.relative_to(root).as_posix() for p in (root / "_plans" / "evidence").glob("*.md")
+    )
+    return claim_results(
+        plan.read_text(encoding="utf-8"), test_names(root), chapter_docs(root), steps, evidence
+    )
+
+
+def claims_table(results: list[ClaimResult]) -> str:
+    lines = [
+        "| row | chapter | status | evidence | resolved |",
+        "| --- | --- | --- | --- | --- |",
+    ]
+    for r in results:
+        if r.resolved:
+            resolved = "yes"
+        elif r.row >= CLAIMS_FIRST_ENFORCED:
+            resolved = "no"
+        else:
+            resolved = "legacy"
+        evidence = ", ".join(f"`{e}`" for e in r.evidence) or "none"
+        lines.append(f"| {r.row} | {r.chapter} | {r.status} | {evidence} | {resolved} |")
+    return "\n".join(lines)
+
+
 # ------------------------------------------------------------ whole tree
 
 
@@ -667,6 +866,15 @@ def validate(root: Path) -> Report:
         rel = path.relative_to(root).as_posix()
         rep.errors.extend(check_em_dash(rel, path.read_text(encoding="utf-8")))
 
+    minor = pinned_minor((root / ".python-version").read_text(encoding="utf-8"))
+    for path in reader_facing(root):
+        rel = path.relative_to(root).as_posix()
+        rep.errors.extend(check_stale_versions(rel, path.read_text(encoding="utf-8"), minor))
+
+    claim_errors, claim_info = claim_findings(load_claims(root))
+    rep.errors.extend(claim_errors)
+    rep.info.extend(claim_info)
+
     rep.errors.extend(check_pins(root))
     return rep
 
@@ -762,31 +970,31 @@ def self_test() -> int:
 
     pyproject = '[dependency-groups]\ndev = [\n    "ruff==1.0.0",\n]\n'
     lock = 'name = "ruff"\nversion = "1.0.0"\n'
-    table = "| Tool | Version | Role |\n| --- | --- | --- |\n| CPython | 3.14.1 | x |\n"
+    table = "| Tool | Version | Role |\n| --- | --- | --- |\n| CPython | 3.15.1 | x |\n"
     table += "| uv | 0.1.0 | x |\n| ruff | 1.0.0 | x |\n"
     ci = '- uses: astral-sh/setup-uv@v10\n  with:\n    version: "0.1.0"\n'
-    expect("pins agree", not pin_findings(pyproject, lock, "3.14.1", table, ci))
+    expect("pins agree", not pin_findings(pyproject, lock, "3.15.1", table, ci))
     bad_row = table.replace("| ruff | 1.0.0", "| ruff | 1.0.1")
-    expect("chapter row mismatch", bool(pin_findings(pyproject, lock, "3.14.1", bad_row, ci)))
+    expect("chapter row mismatch", bool(pin_findings(pyproject, lock, "3.15.1", bad_row, ci)))
     bad_lock = lock.replace("1.0.0", "0.9.0")
-    expect("lock mismatch", bool(pin_findings(pyproject, bad_lock, "3.14.1", table, ci)))
-    expect("python mismatch", bool(pin_findings(pyproject, lock, "3.14.2", table, ci)))
+    expect("lock mismatch", bool(pin_findings(pyproject, bad_lock, "3.15.1", table, ci)))
+    expect("python mismatch", bool(pin_findings(pyproject, lock, "3.15.2", table, ci)))
     expect(
         "ci uv mismatch",
-        bool(pin_findings(pyproject, lock, "3.14.1", table, ci.replace("0.1.0", "0.2.0"))),
+        bool(pin_findings(pyproject, lock, "3.15.1", table, ci.replace("0.1.0", "0.2.0"))),
     )
 
     plan = "## Verified toolchain\n\n| Item | Version |\n| --- | --- |\n"
-    plan += "| CPython | 3.14.1 (released x) | d |\n| uv | 0.1.0 (d) | d |\n"
+    plan += "| CPython | 3.15.1 (released x) | d |\n| uv | 0.1.0 (d) | d |\n"
     plan += "| ruff | 1.0.0 | d |\n\n## Next\n\n| ruff | 9.9.9 | d |\n"
-    expect("plan agrees", not pin_findings(pyproject, lock, "3.14.1", table, ci, plan))
+    expect("plan agrees", not pin_findings(pyproject, lock, "3.15.1", table, ci, plan))
     expect(
         "plan ruff mismatch",
         bool(
             pin_findings(
                 pyproject,
                 lock,
-                "3.14.1",
+                "3.15.1",
                 table,
                 ci,
                 plan.replace("| ruff | 1.0.0", "| ruff | 1.0.2"),
@@ -796,9 +1004,93 @@ def self_test() -> int:
     expect(
         "plan python mismatch",
         bool(
-            pin_findings(pyproject, lock, "3.14.1", table, ci, plan.replace("3.14.1 (", "3.14.0 ("))
+            pin_findings(pyproject, lock, "3.15.1", table, ci, plan.replace("3.15.1 (", "3.15.0 ("))
         ),
     )
+
+    expect("pinned minor", pinned_minor("3.15.2\n") == "15")
+    stale = "Python 3.14 and python3.13 and 3.12.4 here.\n"
+    expect("stale hits", len(check_stale_versions("a.md", stale, "15")) == 3)
+    expect("stale pin passes", not check_stale_versions("a.md", "Python 3.15.2, 3.15.\n", "15"))
+    expect(
+        "stale since passes", not check_stale_versions("a.md", "Since Python 3.14 it works.", "15")
+    )
+    expect(
+        "stale new in passes",
+        not check_stale_versions("a.md", "Added (new in 3.12.1) later.", "15"),
+    )
+    expect("stale before passes", not check_stale_versions("a.md", "before Python 3.13 ran", "15"))
+    expect(
+        "stale too far fails",
+        bool(check_stale_versions("a.md", "since then, much later, Python 3.14", "15")),
+    )
+    expect(
+        "future version passes",
+        not check_stale_versions("a.md", "raises TypeError in Python 3.20.", "15"),
+    )
+    expect("stale line number", check_stale_versions("a.md", "ok\nPython 3.9\n", "15")[0].line == 2)
+    expect(
+        "stale pytest-mock passes",
+        not check_stale_versions("a.md", "| pytest-mock | 3.17.0 |\nplugins: mock-3.17.0", "15"),
+    )
+    expect("stale not in dotted", not check_stale_versions("a.md", "uv 0.13.7 and 1.3.12.1", "15"))
+
+    claims = "| # | Ch | Claim | How | Status |\n| --- | --- | --- | --- | --- |\n"
+    claims += "| 46 | 8 | old | prose only | **verified** |\n"
+    claims += "| 47 | 9 | ok | `test_alpha[x-1]` and `test_beta` | **verified** |\n"
+    claims += "| 48 | 9-10 | src | source: https://docs.python.org/x. | **verified** |\n"
+    claims += "| 49 | 10 | miss | `test_gone` | **open** |\n"
+    claims += "| 50 | 10 | bare | nothing | **open** |\n"
+    claims += "| 51 | 11 | run | run: B3 | **open** |\n| 52 | 11 | run | run: Z9 | **open** |\n"
+    claims += "| 53 | 11 | src | source: https://nope.example/y | **open** |\n"
+    claims += "| 54 | 11 | run | run: 1c | **open** |\n"
+    claims += "| 55 | 11 | rec | run: _plans/evidence/a.md | **open** |\n"
+    claims += "| 56 | 11 | rec | run: _plans/evidence/gone.md | **open** |\n"
+    claims += "| 57 | 11 | word | run: B4 | **open** |\n"
+    claims += "| 58 | 11 | self | run: 58 | **open** |\n| 59 | 11 | hdr | run: Step | **open** |\n"
+    claims += "| 60 | 11 | todo | run: T1 | **open** |\n"
+    tests = {"test_alpha", "test_beta"}
+    docs = {9: "x", 10: "see https://docs.python.org/x here", 11: "none"}
+    res = {
+        r.row: r
+        for r in claim_results(
+            claims,
+            tests,
+            docs,
+            "| Step | What | Depends | Status |\n| B3 | x | - | done |\n| 1c | x | - | **done** |\n"
+            "| T1 | x | - | todo |\nB4 appears only in prose",
+            frozenset({"_plans/evidence/a.md"}),
+        )
+    }
+    expect("claim rows parsed", sorted(res) == list(range(46, 61)))
+    expect(
+        "claim test resolved", res[47].resolved and res[47].evidence == ("test_alpha", "test_beta")
+    )
+    expect("claim source resolved", res[48].resolved and res[48].status == "verified")
+    expect("claim test unresolved", not res[49].resolved and res[49].unresolved == ("test_gone",))
+    expect("claim run", res[51].resolved and not res[52].resolved)
+    expect("claim run digit id", res[54].resolved and res[54].evidence == ("run: 1c",))
+    expect("claim run evidence file", res[55].resolved and not res[56].resolved)
+    expect("claim run needs a steps row", not res[57].resolved)
+    expect(
+        "claim run ignores claim rows, headers and unfinished steps",
+        not res[58].resolved and not res[59].resolved and not res[60].resolved,
+    )
+    expect("claim source unresolved", not res[53].resolved)
+    errs, info = claim_findings(list(res.values()))
+    expect(
+        "claim errors are 47+",
+        sorted(e.message.split(":")[0] for e in errs)
+        == [f"claim {n}" for n in (49, 50, 52, 53, 56, 57, 58, 59, 60)],
+    )
+    expect("claim legacy is info", len(info) == 1 and "legacy" in info[0].message)
+    table = claims_table(list(res.values()))
+    expect(
+        "claims table",
+        "| 46 | 8 | verified | none | legacy |" in table
+        and "| 47 | 9 | verified | `test_alpha`, `test_beta` | yes |" in table,
+    )
+    expect("claims chapter range", chapter_numbers("9-11") == [9, 10, 11])
 
     entries = parse_diagram_yaml("- name: a\n  caption: >-\n    one two\n    three\n- name: b\n")
     expect("yaml parse", len(entries) == 2 and entries[0][1]["caption"] == "one two three")
@@ -815,6 +1107,13 @@ def self_test() -> int:
 def main(argv: list[str]) -> int:
     if "--self-test" in argv:
         return self_test()
+    if "--claims" in argv:
+        results = load_claims(ROOT)
+        print(claims_table(results))
+        errors, _ = claim_findings(results)
+        for f in errors:
+            print(f"error: {f}", file=sys.stderr)
+        return 1 if errors else 0
     rep = validate(ROOT)
     for f in rep.info:
         print(f"info: {f}")

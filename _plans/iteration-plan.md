@@ -93,15 +93,15 @@ PR, squash-merge with branch deletion, an `rNN.x` tag and a notes-only release.
 | PDP-108a | Ch8 Dataclasses and value semantics: example | r04 | active |
 | PDP-108b | Ch8 Dataclasses and value semantics: figure | r04 | active |
 | PDP-108c | Ch8 Dataclasses and value semantics: prose | r04 | active |
-| PDP-109a | Ch9 Protocol and structural typing: example | r05 | todo |
-| PDP-109b | Ch9 Protocol and structural typing: figure | r05 | todo |
-| PDP-109c | Ch9 Protocol and structural typing: prose | r05 | todo |
-| PDP-110a | Ch10 Context managers: example | r05 | todo |
-| PDP-110b | Ch10 Context managers: figure | r05 | todo |
-| PDP-110c | Ch10 Context managers: prose | r05 | todo |
-| PDP-111a | Ch11 Testing with pytest, pytest-mock, and mypy: example | r05 | todo |
-| PDP-111b | Ch11 Testing with pytest, pytest-mock, and mypy: figure | r05 | todo |
-| PDP-111c | Ch11 Testing with pytest, pytest-mock, and mypy: prose | r05 | todo |
+| PDP-109a | Ch9 Protocol and structural typing: example | r05 | active |
+| PDP-109b | Ch9 Protocol and structural typing: figure | r05 | active |
+| PDP-109c | Ch9 Protocol and structural typing: prose | r05 | active |
+| PDP-110a | Ch10 Context managers: example | r05 | active |
+| PDP-110b | Ch10 Context managers: figure | r05 | active |
+| PDP-110c | Ch10 Context managers: prose | r05 | active |
+| PDP-111a | Ch11 Testing with pytest, pytest-mock, and mypy: example | r05 | active |
+| PDP-111b | Ch11 Testing with pytest, pytest-mock, and mypy: figure | r05 | active |
+| PDP-111c | Ch11 Testing with pytest, pytest-mock, and mypy: prose | r05 | active |
 | PDP-112a | Ch12 Strategy: the callable: example | r06 | todo |
 | PDP-112b | Ch12 Strategy: the callable: figure | r06 | todo |
 | PDP-112c | Ch12 Strategy: the callable: prose | r06 | todo |
@@ -198,3 +198,5 @@ PR, squash-merge with branch deletion, an `rNN.x` tag and a notes-only release.
 | PDP-150 | Deck 101 | r22 | todo |
 | PDP-151 | Deck 201 | r23 | todo |
 | PDP-152 | Deck 301 | r24 | todo |
+
+2026-11-04 (r05): Python 3.15.2. PDP-109a to PDP-111c are active for r05, and the book moves to Python 3.15.2. Earlier iterations keep their status.

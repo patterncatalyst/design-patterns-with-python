@@ -32,7 +32,7 @@ class FakeBooker:
 
 def imported_modules(module: ModuleType) -> set[str]:
     """Every absolute module name the source imports, with relative imports resolved."""
-    package = module.__package__ or ""
+    package = (module.__spec__.parent if module.__spec__ else None) or ""
     names: set[str] = set()
     for node in ast.walk(ast.parse(inspect.getsource(module))):
         if isinstance(node, ast.Import):

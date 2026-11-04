@@ -190,7 +190,7 @@ A fresh run, with the repository path shown as `<repo>`:
 
 ```text
 ============================= test session starts ==============================
-platform linux -- Python 3.14.10, pytest-9.2.0, pluggy-1.7.0 -- <repo>/.venv/bin/python
+platform linux -- Python 3.15.2, pytest-9.2.0, pluggy-1.7.0 -- <repo>/.venv/bin/python
 cachedir: .pytest_cache
 rootdir: <repo>
 configfile: pyproject.toml
@@ -217,7 +217,7 @@ tests/test_srp.py::test_each_change_moves_only_the_fields_it_feeds[audit-sink] P
 tests/test_srp.py::test_audit_receives_exactly_the_quote_returned PASSED [ 94%]
 tests/test_srp.py::test_pricing_and_tax_run_alone PASSED                 [100%]
 
-============================== 19 passed in 2.70s ==============================
+============================== 19 passed in 2.85s ==============================
 ```
 
 ```text

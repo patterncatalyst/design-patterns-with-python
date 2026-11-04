@@ -21,7 +21,7 @@ By the end of this chapter you can:
 
 Three failures share a cause. A consignment is shared by two booking requests, and a clerk reweighs it for one of them. The other request now shows the new weight, because both hold the same object. A stowage slot is a bay, a row and a tier, and a mutable `SlotId` can't key the reservation table at all: building the dict raises `TypeError`. Two stowage plans need a reservation table each: if they shared one default table, a slot reserved in one would show as taken in the other.
 
-Each is the same question answered wrongly: is this thing a value, defined by its content, or an entity, defined by its identity? A value should compare by content, be safe to share and work as a dictionary key. An entity should not. The old way to get a value was a class written out by hand. In Python 3.14 one decorator writes most of it, and the parts it doesn't write are the parts that need judgement.
+Each is the same question answered wrongly: is this thing a value, defined by its content, or an entity, defined by its identity? A value should compare by content, be safe to share and work as a dictionary key. An entity should not. The old way to get a value was a class written out by hand. In Python 3.15 one decorator writes most of it, and the parts it doesn't write are the parts that need judgement.
 
 {% include excalidraw.html name="08-dataclasses-and-value-semantics" caption="Figure 8.1: One declaration, the Value Object's structure. A frozen, slotted, ordered dataclass writes the constructor, repr, equality, hash, ordering and the assignment guard for SlotId; the invariant, immutable field types and the value-or-entity choice stay with you." %}
 
@@ -35,7 +35,7 @@ The force is four needs at once. Two values with the same content should be equa
 
 The structure that pattern calls for, written by hand, is private fields with read accessors, a constructor that checks the invariant, an `__eq__` and `__hash__` pair that must be kept in step, and methods that return a modified copy. Each piece is correct and none is interesting, and the pair that has to stay in step is the one that drifts.
 
-This pattern dissolves. A feature resolves the force without the pattern's structure: one `@dataclass(frozen=True, slots=True)` declaration produces the constructor, `repr`, equality, hash and an assignment guard, and `dataclasses.replace` is the copy-with-change method. Dataclasses arrived with [PEP 557](https://peps.python.org/pep-0557/) in Python 3.7; the [`dataclasses` documentation](https://docs.python.org/3/library/dataclasses.html) covers the current behaviour, including `slots`, `kw_only` and `weakref_slot`, added later, and is the source for the generated behaviour below. What remains is the part no decorator can supply.
+This pattern dissolves. A feature resolves the force without the pattern's structure: one `@dataclass(frozen=True, slots=True)` declaration produces the constructor, `repr`, equality, hash and an assignment guard, and `dataclasses.replace` is the copy-with-change method. Dataclasses arrived with [PEP 557](https://peps.python.org/pep-0557/), new in Python 3.7; the [`dataclasses` documentation](https://docs.python.org/3/library/dataclasses.html) covers the current behaviour, including `slots`, `kw_only` and `weakref_slot`, added later, and is the source for the generated behaviour below. What remains is the part no decorator can supply.
 
 ## One declaration: frozen and slotted
 
@@ -64,13 +64,13 @@ and gets `<string>:6: error: Property "kilograms" defined in "Weight" is read-on
 
 Frozen guards attribute assignment; it doesn't seal the object. `test_frozen_is_a_setattr_guard_not_a_seal` calls `object.__setattr__(w, "kilograms", -5.0)` and the write succeeds, past the invariant. That's why the example doesn't normalise inside `__post_init__` through that back door: a type that mutates itself in its constructor has stopped being immutable in any sense a reader can rely on. The documentation on frozen instances notes that the generated `__init__` itself writes fields through `object.__setattr__`, and the back door is a reason to normalise before construction, which a later section does.
 
-`slots=True` replaces the per-instance `__dict__` with fixed slots. A slotted class also loses the weak-reference slot. `test_slots_remove_dict_and_weakref_until_asked` shows `weakref.ref(w)` raising `TypeError` with `cannot create weak reference to 'Weight'`, and shows that `weakref_slot=True` puts the slot back. mypy says nothing about it: `test_mypy_cannot_see_value_semantics_mistakes[slots-weakref]` runs `weakref.ref(Weight(1.0))` through `--strict` and gets exit status 0 and empty output. A cache that holds weak references to values fails at run time, not at type-check time.
+`slots=True` replaces the per-instance `__dict__` with fixed slots. A slotted class also loses the weak-reference slot. `test_slots_remove_dict_and_weakref_until_asked` shows `weakref.ref(w)` raising `TypeError` with the message `cannot create weak reference to 'Weight' object`, and shows that `weakref_slot=True` puts the slot back. mypy says nothing about it: `test_mypy_cannot_see_value_semantics_mistakes[slots-weakref]` runs `weakref.ref(Weight(1.0))` through `--strict` and gets exit status 0 and empty output. A cache that holds weak references to values fails at run time, not at type-check time.
 
 ## Hashing follows from frozen
 
 A dataclass with `eq=True` generates `__eq__`. What it does about `__hash__` depends on `frozen`. With `frozen=True` it generates a hash from the fields, so equal values hash equal and `{slot: reservation}` finds its entry. With `eq=True` and no `frozen`, the class is mutable, so the decorator sets `__hash__` to `None` rather than offer a hash that changes under the key.
 
-The fixture `_MutableSlotId` in `tests/test_aliasing.py` is a `SlotId` without `frozen`. `test_a_mutable_dataclass_is_not_a_dict_key` checks that its hash is `None` and that building `{slot: "held"}` raises `TypeError`. On Python 3.14 the message names the class twice, first by its module-qualified name, for example `cannot use 'test_aliasing._MutableSlotId' as a dict key (unhashable type: '_MutableSlotId')`, so the test matches only the stable `unhashable type: '_MutableSlotId'` part. mypy doesn't flag it: `test_mypy_cannot_see_value_semantics_mistakes[mutable-dict-key]` annotates `dict[MutableSlotId, str]` and builds one, and `--strict` exits 0 with no output. The failure shows up when the code runs, which is a reason to keep a test that puts two equal values in a set.
+The fixture `_MutableSlotId` in `tests/test_aliasing.py` is a `SlotId` without `frozen`. `test_a_mutable_dataclass_is_not_a_dict_key` checks that its hash is `None` and that building `{slot: "held"}` raises `TypeError`. On Python 3.15 the message names the class twice, first by its module-qualified name, for example `cannot use 'test_aliasing._MutableSlotId' as a dict key (unhashable type: '_MutableSlotId')`, so the test matches only the stable `unhashable type: '_MutableSlotId'` part. mypy doesn't flag it: `test_mypy_cannot_see_value_semantics_mistakes[mutable-dict-key]` annotates `dict[MutableSlotId, str]` and builds one, and `--strict` exits 0 with no output. The failure shows up when the code runs, which is a reason to keep a test that puts two equal values in a set.
 
 Frozen is also shallow. `_FrozenWithList` has one field, `codes: list[str]`. `test_frozen_is_shallow` appends to that list through a frozen instance, and the value changes. Hashing it raises `TypeError` with `unhashable type: 'list'`. The class is frozen and still isn't a value, because a field is mutable. The repair is a field type that is itself immutable: `tuple[str, ...]` in place of `list[str]`, `frozenset` in place of `set`. Frozen can't check this for you.
 
@@ -185,7 +185,7 @@ A fresh run produces:
 
 ```text
 ============================= test session starts ==============================
-platform linux -- Python 3.14.10, pytest-9.2.0, pluggy-1.7.0 -- <repo>/.venv/bin/python
+platform linux -- Python 3.15.2, pytest-9.2.0, pluggy-1.7.0 -- <repo>/.venv/bin/python
 cachedir: .pytest_cache
 rootdir: <repo>
 configfile: pyproject.toml
@@ -225,7 +225,7 @@ tests/test_values.py::test_frozen_is_a_setattr_guard_not_a_seal PASSED   [ 93%]
 tests/test_values.py::test_frozen_is_shallow PASSED                      [ 96%]
 tests/test_values.py::test_slots_remove_dict_and_weakref_until_asked PASSED [100%]
 
-============================== 32 passed in 3.44s ==============================
+============================== 32 passed in 3.80s ==============================
 ```
 
 ```text
@@ -241,7 +241,7 @@ E       TypeError: cannot use 'value_semantics.values.SlotId' as a dict key (unh
 E           TypeError: unhashable type: 'SlotId'
 FAILED tests/test_generated.py::test_stowage_plan_is_an_entity - TypeError: c...
 FAILED tests/test_values.py::test_equal_values_are_interchangeable - TypeErro...
-2 failed, 30 passed in 3.44s
+2 failed, 30 passed in 3.61s
 ```
 
 The first failure is raised inside `StowagePlan.reserve`, and the second is `hash(left)` in the equality test. The dict-key test doesn't fail, because it uses its own fixture and not `SlotId`. mypy reports `Success: no issues found in 9 source files`: nothing in the type system connects `frozen` to the dictionary the plan keeps. Restore the decorator.
@@ -253,7 +253,7 @@ E       Failed: DID NOT RAISE TypeError
 E       assert 0 == 1
 FAILED tests/test_generated.py::test_order_true_would_compare_money_across_currencies
 FAILED tests/test_static.py::test_mypy_checks_the_generated_methods[money-has-no-order]
-2 failed, 30 passed in 3.47s
+2 failed, 30 passed in 3.71s
 ```
 
 The first test expected `<` on two `Money` values to raise and it now succeeds across currencies. The second expected exit status 1 from mypy and got 0. The member's own mypy run adds one error:

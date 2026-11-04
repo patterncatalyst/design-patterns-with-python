@@ -191,7 +191,7 @@ A fresh run produces:
 
 ```text
 ============================= test session starts ==============================
-platform linux -- Python 3.14.10, pytest-9.2.0, pluggy-1.7.0 -- <repo>/.venv/bin/python
+platform linux -- Python 3.15.2, pytest-9.2.0, pluggy-1.7.0 -- <repo>/.venv/bin/python
 cachedir: .pytest_cache
 rootdir: <repo>
 configfile: pyproject.toml
@@ -224,7 +224,7 @@ tests/test_static.py::test_mypy_accepts_the_protocols_the_types_define PASSED [ 
 tests/test_static.py::test_mypy_cannot_see_a_broken_hash_contract PASSED [ 96%]
 tests/test_text.py::test_repr_str_and_format_serve_different_readers PASSED [100%]
 
-============================== 25 passed in 2.21s ==============================
+============================== 25 passed in 2.31s ==============================
 ```
 
 ```text

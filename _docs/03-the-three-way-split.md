@@ -140,7 +140,7 @@ The two mechanisms are independent, and one test pins that: an audited function 
 
 Three idioms do the work a catalogue entry would have done, and they are not in the catalogue. They appear in the map because a reader looking for the pattern should be pointed at them.
 
-**Null Object.** A later addition to the pattern literature, it replaces a missing collaborator with an object that does nothing. Here `find_gateway` returns `CarrierGateway | None`, and the witness asserts `[union-attr]` from mypy on the unguarded caller and a clean pass on the guarded one:
+**Null Object.** A later addition to the pattern literature, described by Bobby Woolf in "Null Object" (*Pattern Languages of Program Design 3*, Addison-Wesley, 1998), it replaces a missing collaborator with an object that does nothing. Here `find_gateway` returns `CarrierGateway | None`, and the witness asserts `[union-attr]` from mypy on the unguarded caller and a clean pass on the guarded one:
 
 ```python
 def book_with(consignment: Consignment) -> str:
@@ -179,7 +179,7 @@ A fresh run, with the repository path shown as `<repo>`:
 
 ```text
 ============================= test session starts ==============================
-platform linux -- Python 3.14.10, pytest-9.2.0, pluggy-1.7.0 -- <repo>/.venv/bin/python
+platform linux -- Python 3.15.2, pytest-9.2.0, pluggy-1.7.0 -- <repo>/.venv/bin/python
 cachedir: .pytest_cache
 rootdir: <repo>
 configfile: pyproject.toml
@@ -206,7 +206,7 @@ tests/test_dissolve.py::test_registry_is_init_subclass PASSED            [ 89%]
 tests/test_survive.py::test_deferred_command_is_a_partial_in_a_deque PASSED [ 94%]
 tests/test_survive.py::test_undo_needs_a_command_object PASSED           [100%]
 
-============================== 19 passed in 0.94s ==============================
+============================== 19 passed in 0.97s ==============================
 ```
 
 ```text

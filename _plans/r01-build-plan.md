@@ -72,13 +72,13 @@ PDP-150..152 decks 101/201/301.
 
 | Item | Version | Date checked | Source |
 | --- | --- | --- | --- |
-| CPython | 3.14.10 (released 2026-10-25) | 2026-11-03 | endoflife.date python 3.14 |
+| CPython | 3.15.2 (released 2026-10-25) | 2026-11-04 | python.org/downloads/release/python-3152 |
 | uv | 0.13.7 (2026-11-03) | 2026-11-03 | github.com/astral-sh/uv/releases |
 | uv_build (PyPI `uv-build`) | 0.13.7, pin `>=0.13.7,<0.14` | 2026-11-03 | PyPI |
 | pytest | 9.2.0 | 2026-11-03 | PyPI |
 | pytest-mock | 3.17.0 | 2026-11-03 | PyPI |
 | ruff | 0.17.3 | 2026-11-03 | PyPI |
-| mypy | 2.4.1 (supports 3.14) | 2026-11-03 | PyPI |
+| mypy | 2.4.1 (supports 3.15) | 2026-11-04 | PyPI |
 | actions/checkout | v7 (7.0.1) | 2026-11-03 | GitHub releases |
 | astral-sh/setup-uv | v10 (10.3.3) | 2026-11-03 | GitHub releases |
 | actions/configure-pages | v6 (6.0.0) | 2026-11-03 | GitHub releases |
@@ -87,6 +87,8 @@ PDP-150..152 decks 101/201/301.
 | ruby/setup-ruby | v1 (1.336.0), ruby-version 4.0.9 | 2026-11-03 | GitHub releases |
 | ruby container (site build) | ruby:4.0.9 | 2026-11-03 | Docker Hub |
 | Jekyll + plugins | jekyll 4.4.1, seo-tag 2.9.1, sitemap 1.4.0, redirect-from 0.17.0, sass-converter 3.1.0 (all current); csv 3.3.6 -> bump to 3.3.7 | 2026-11-03 | rubygems.org |
+
+2026-11-04 (r05): Python 3.15.2. The CPython and mypy rows above are re-verified for r05; the other rows are unchanged from 2026-11-03.
 
 Bibliography (verified via O'Reilly platform 2026-11-03): Fluent Python 2nd ed (2022);
 Architecture Patterns with Python (2020); **Effective Python 3rd ed (2024)**, not 2nd;
