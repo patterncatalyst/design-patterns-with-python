@@ -153,7 +153,7 @@ A module-level object doesn't always suffice. If each test needs a clean instanc
 
 ## Absence in the type
 
-Absence raises a different force: a caller that asks for a thing which may not exist should not have to test for absence everywhere. The classic answer, the Null Object pattern from the later pattern literature, is to return a real object whose methods do nothing, so the caller proceeds without branching. The cost is that absence becomes invisible. A `NullGateway.book` that silently returns an empty string books nothing, and the caller never finds out.
+Absence raises a different force: a caller that asks for a thing which may not exist should not have to test for absence everywhere. The classic answer, the Null Object pattern from the later pattern literature (Bobby Woolf, "Null Object", in *Pattern Languages of Program Design 3*, Addison-Wesley, 1998), is to return a real object whose methods do nothing, so the caller proceeds without branching. The cost is that absence becomes invisible. A `NullGateway.book` that silently returns an empty string books nothing, and the caller never finds out.
 
 Python lets the type say so instead:
 

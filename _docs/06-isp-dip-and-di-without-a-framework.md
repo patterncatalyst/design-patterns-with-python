@@ -177,7 +177,7 @@ A fresh run produces:
 
 ```text
 ============================= test session starts ==============================
-platform linux -- Python 3.14.10, pytest-9.2.0, pluggy-1.7.0 -- <repo>/.venv/bin/python
+platform linux -- Python 3.15.2, pytest-9.2.0, pluggy-1.7.0 -- <repo>/.venv/bin/python
 cachedir: .pytest_cache
 rootdir: <repo>
 configfile: pyproject.toml
@@ -202,7 +202,7 @@ tests/test_isp.py::test_adapters_satisfy_every_role_without_naming_one[FASTLINE]
 tests/test_isp.py::test_adapters_satisfy_every_role_without_naming_one[AIRCO] PASSED [ 94%]
 tests/test_isp.py::test_a_fat_protocol_forces_fakes_to_stub_unused_methods PASSED [100%]
 
-============================== 17 passed in 3.23s ==============================
+============================== 17 passed in 3.42s ==============================
 ```
 
 ```text

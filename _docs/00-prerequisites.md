@@ -171,7 +171,7 @@ Checking local toolchain for Design Patterns with Python
 
 TOOL     STATUS DETAIL
 uv       OK     uv 0.13.7 (x86_64-unknown-linux-gnu)
-python   OK     Python 3.14.10 (<repo>/.venv/bin/python)
+python   OK     Python 3.15.2 (<repo>/.venv/bin/python)
 git      OK     git version 2.56.0
 ruff     OK     ruff 0.17.3
 mypy     OK     mypy 2.4.1 (compiled: yes)
@@ -187,7 +187,7 @@ Then run the example's tests from its directory.
 $ cd examples/00-prerequisites
 $ uv run pytest -v
 ============================= test session starts ==============================
-platform linux -- Python 3.14.10, pytest-9.2.0, pluggy-1.7.0 -- <repo>/.venv/bin/python
+platform linux -- Python 3.15.2, pytest-9.2.0, pluggy-1.7.0 -- <repo>/.venv/bin/python
 cachedir: .pytest_cache
 rootdir: <repo>
 configfile: pyproject.toml

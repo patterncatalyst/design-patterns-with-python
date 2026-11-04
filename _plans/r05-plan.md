@@ -466,12 +466,12 @@ Also `README.md` and the card (`order: 11`, eyebrow "Python substrate · Testing
 | Step | What | Depends | Status |
 | --- | --- | --- | --- |
 | A0 | This plan file; dated notes per "Plans and history"; PDP-109a..c, 110a..c, 111a..c `active`; reconciliation rows 47-64 `open`; decisions recorded | - | todo |
-| A1 | Interpreter and pins to 3.15.2, `uv lock`, members' `requires-python`, `__spec__.parent`, `filterwarnings` trial; verify.sh x3 | A0 | todo |
-| A2 | `check-prereqs.sh`; `validate.py` stale-version check, claims audit, self-test fixtures | A1 | todo |
-| A3 | Text sweep (no quoted output); CLAUDE.md findings | A1 | todo |
-| A4 | Quoted-output sweep ch0-8 (three parallel executors), experiments re-performed, re-quotes | A1, A3 | todo |
-| A5 | Woolf credit in ch2/ch3; Woolf and Okken bibliography rows (decision 2) | A3 | todo |
-| A6 | Part A gate (criteria A-1 to A-7); checkpoint commit | A2, A4, A5 | todo |
+| A1 | Interpreter and pins to 3.15.2, `uv lock`, members' `requires-python`, `__spec__.parent`, `filterwarnings` trial; verify.sh x3 | A0 | done |
+| A2 | `check-prereqs.sh`; `validate.py` stale-version check, claims audit, self-test fixtures | A1 | done |
+| A3 | Text sweep (no quoted output); CLAUDE.md findings | A1 | done |
+| A4 | Quoted-output sweep ch0-8 (three parallel executors), experiments re-performed, re-quotes | A1, A3 | done |
+| A5 | Woolf credit in ch2/ch3; Woolf and Okken bibliography rows (decision 2) | A3 | done |
+| A6 | Part A gate (criteria A-1 to A-7); checkpoint commit | A2, A4, A5 | done |
 | 0 | Domain-model rows 9-11 updated: names as in the example spec; row 9 caveat now "stated in the ISP/DIP chapter; chapter 9 doesn't repeat it; chapter 11 gives the matrix"; row 11 failing text uses the 3.15 message `missing a required positional-only argument: 'consignment'` and "mock classes subclass `Any` in typeshed"; ch9 stub description fixed | A6 | todo |
 | 1a | ch9 member, card, README; three green runs; **deletion table**: the `find_gateway` `None` return (replaced by `KeyError`), the `book_with` guard, each `carriers_to_ask` branch, the `un_number` check, `no_discount` default (replaced by `None`), `frozendict` (replaced by `dict`), `CarrierBase.reference`, `@abstractmethod`, `/` on `PricingRule`, `@override` | 0 | todo |
 | 1b | ch10 member; deletion table: both closes in `__exit__`, `replace`, `unlink`, the single-use guard, the generator's except-branch close and unlink, the else-branch replace, the `ExitStack` (replaced by a plain loop), the LOCODE check | 1a | todo |
