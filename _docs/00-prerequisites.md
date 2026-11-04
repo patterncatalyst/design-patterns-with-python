@@ -4,14 +4,14 @@ order: 0
 layout: tutorial
 sectionid: docs
 part: "orientation"
-description: "The Python 3.14, uv, ruff, mypy, and pytest toolchain this book builds against on Fedora, and the consignment smoke-test example that proves it works."
+description: "The Python 3.15, uv, ruff, mypy, and pytest toolchain this book builds against on Fedora, and the consignment smoke-test example that proves it works."
 ---
 
 ## Learning objectives
 
 By the end of this chapter you can:
 
-- Install uv and a pinned CPython 3.14 on Fedora without containers and without touching system Python.
+- Install uv and a pinned CPython 3.15 on Fedora without containers and without touching system Python.
 - Create the single locked environment for the whole repository with one `uv sync` and explain why it runs once, from the root.
 - Run `scripts/check-prereqs.sh` and read its table.
 - Name the four verification gates (ruff check, ruff format, `mypy --strict`, pytest) and run them for one example or for all of them.
@@ -30,14 +30,14 @@ Five tools on one interpreter do all the work, and uv installs or drives each of
 
 | Tool | Version | Role |
 | --- | --- | --- |
-| CPython | 3.14.10 | Interpreter, installed by uv |
+| CPython | 3.15.2 | Interpreter, installed by uv |
 | uv | 0.13.7 | Interpreter, environment, lockfile |
 | pytest | 9.2.0 | Test runner |
 | pytest-mock | 3.17.0 | `mocker` fixture over `unittest.mock` |
 | ruff | 0.17.3 | Lint and format |
 | mypy | 2.4.1 | Static types, run with `--strict` |
 
-Verified 2026-11-03; re-verified before each release. The pins live in three places. `.python-version` holds `3.14.10`, which uv reads to pick the interpreter. The root `pyproject.toml` lists the four Python packages as exact `==` pins in a single `dev` dependency group, and `uv.lock` records the full resolution with hashes. Members of the repository carry no tool configuration of their own, so the root `[tool.ruff]`, `[tool.mypy]`, and `[tool.pytest.ini_options]` tables apply to every example. Strict mode, a 100-column line, and the selected lint rules are therefore identical everywhere.
+Verified 2026-11-04; re-verified before each release. The pins live in three places. `.python-version` holds `3.15.2`, which uv reads to pick the interpreter. The root `pyproject.toml` lists the four Python packages as exact `==` pins in a single `dev` dependency group, and `uv.lock` records the full resolution with hashes. Members of the repository carry no tool configuration of their own, so the root `[tool.ruff]`, `[tool.mypy]`, and `[tool.pytest.ini_options]` tables apply to every example. Strict mode, a 100-column line, and the selected lint rules are therefore identical everywhere.
 
 {% include excalidraw.html name="00-prerequisites" caption="Figure 0.1: The local build-and-test loop. One locked environment feeds lint, format, strict type checking and tests in order; a red step returns you to the source, and the prerequisites script gates the toolchain first." %}
 
@@ -50,10 +50,10 @@ Install uv, then let uv install the interpreter. The first line uses the officia
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 # or: sudo dnf install uv
-uv python install 3.14.10
+uv python install 3.15.2
 ```
 
-uv downloads a standalone CPython build into its own directory under your home. It doesn't replace the system `python3`, which Fedora's own tools depend on, and it needs no `dnf` package or root. It does link `~/.local/bin/python3.14`, which can shadow a system `python3.14` earlier on `PATH`. Open a new shell so `~/.local/bin` is on `PATH`, then confirm with `uv --version`.
+uv downloads a standalone CPython build into its own directory under your home. It doesn't replace the system `python3`, which Fedora's own tools depend on, and it needs no `dnf` package or root. It does link `~/.local/bin/python3.15`, which can shadow a system `python3.15` earlier on `PATH`. Open a new shell so `~/.local/bin` is on `PATH`, then confirm with `uv --version`.
 
 ## Cloning and the one-time sync
 
@@ -71,7 +71,7 @@ The repository is a uv workspace. The root `pyproject.toml` is virtual, meaning 
 bash scripts/check-prereqs.sh
 ```
 
-The script installs nothing and creates no environment. It confirms that uv is on `PATH`, that a 3.14 interpreter resolves, that git exists, and that ruff, mypy and pytest run from the existing `.venv`; before the sync those three rows fail with a hint to run `uv sync --locked --all-packages`. It prints a table and exits non-zero if any row fails. If one does, it also prints the uv install command, and it always ends with the teardown command. Run it first when something behaves oddly: most environment problems show up as one failing row.
+The script installs nothing and creates no environment. It confirms that uv is on `PATH`, that a 3.15 interpreter resolves, that git exists, and that ruff, mypy and pytest run from the existing `.venv`; before the sync those three rows fail with a hint to run `uv sync --locked --all-packages`. It prints a table and exits non-zero if any row fails. If one does, it also prints the uv install command, and it always ends with the teardown command. Run it first when something behaves oddly: most environment problems show up as one failing row.
 
 ## The four gates
 
@@ -125,7 +125,7 @@ class Consignment:
         return replace(self, weight=new)
 ```
 
-`kw_only=True` forces every argument to be named at the call site. With two string fields of the same type in a row, `Consignment(id=..., origin="NLRTM", destination="SGSIN", weight=...)` can't silently swap the ports the way a positional call could. The class body also validates both port codes in its own `__post_init__`, elided here. Since the instance is frozen, a change to weight can't be an assignment. `reweigh` calls `dataclasses.replace`, which builds a new instance from the old one with one field changed. It calls `__init__` again, so `__post_init__` checks the copy (the port codes) like any new instance; the `Weight` was validated when it was built. The method annotation `-> Consignment` needs no quotes: Python 3.14 evaluates annotations lazily, so a class can name itself in its own signatures.
+`kw_only=True` forces every argument to be named at the call site. With two string fields of the same type in a row, `Consignment(id=..., origin="NLRTM", destination="SGSIN", weight=...)` can't silently swap the ports the way a positional call could. The class body also validates both port codes in its own `__post_init__`, elided here. Since the instance is frozen, a change to weight can't be an assignment. `reweigh` calls `dataclasses.replace`, which builds a new instance from the old one with one field changed. It calls `__init__` again, so `__post_init__` checks the copy (the port codes) like any new instance; the `Weight` was validated when it was built. The method annotation `-> Consignment` needs no quotes: since Python 3.14, annotations are evaluated lazily (PEP 649), so a class can name itself in its own signatures.
 
 ## What the tests prove
 
@@ -214,7 +214,7 @@ Three files are checked: the module, the package `__init__`, and the test file. 
 
 ## Teardown
 
-Everything installed lives in four places. `rm -rf .venv` removes the environment, `uv cache clean` empties uv's download and build cache, and `uv python uninstall 3.14.10` removes the interpreter if no other project of yours uses it. Removing uv itself is `rm ~/.local/bin/uv ~/.local/bin/uvx` for the installer route, or `sudo dnf remove uv` for the package. Nothing else on the system changes.
+Everything installed lives in four places. `rm -rf .venv` removes the environment, `uv cache clean` empties uv's download and build cache, and `uv python uninstall 3.15.2` removes the interpreter if no other project of yours uses it. Removing uv itself is `rm ~/.local/bin/uv ~/.local/bin/uvx` for the installer route, or `sudo dnf remove uv` for the package. Nothing else on the system changes.
 
 ## For deeper coverage
 
@@ -224,4 +224,4 @@ Everything installed lives in four places. `rm -rf .venv` removes the environmen
 - [ruff documentation](https://docs.astral.sh/ruff/): rule sets, formatter behaviour, and configuration.
 - [PEP 557, Data Classes](https://peps.python.org/pep-0557/): the original specification of `@dataclass`, including `__post_init__` and `replace`.
 - [The bibliography]({{ '/bibliography/' | relative_url }}): Luciano Ramalho's *Fluent Python* covers dataclasses and the data model in depth, and Brett Slatkin's *Effective Python* is the companion for everyday idiom.
-- [dataclasses in the standard library](https://docs.python.org/3/library/dataclasses.html): `frozen`, `slots`, and `kw_only` as they work in 3.14.
+- [dataclasses in the standard library](https://docs.python.org/3/library/dataclasses.html): `frozen`, `slots`, and `kw_only` as they work in 3.15.

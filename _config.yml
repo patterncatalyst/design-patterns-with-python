@@ -1,7 +1,7 @@
 # ── Site identity ─────────────────────────────────────────────────────────────
 title: "Design Patterns with Python"
 description: >-
-    The Gang of Four patterns and SOLID principles in idiomatic Python 3.14:
+    The Gang of Four patterns and SOLID principles in idiomatic Python 3.15:
     the patterns that dissolve into language features, the ones that survive
     as design, and the names that need disambiguating, with shipping-domain code
     tested by pytest and checked by mypy.

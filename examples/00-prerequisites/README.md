@@ -1,6 +1,6 @@
 # Prerequisites smoke test
 
-A small shipping model that exercises the whole toolchain: uv, Python 3.14, ruff,
+A small shipping model that exercises the whole toolchain: uv, Python 3.15, ruff,
 mypy in strict mode and pytest. If the commands below pass, the environment is ready
 for the other examples.
 

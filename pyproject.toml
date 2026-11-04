@@ -2,7 +2,7 @@
 [project]
 name = "design-patterns-with-python-workspace"
 version = "0.0.0"
-requires-python = ">=3.14"
+requires-python = ">=3.15"
 dependencies = []
 
 [tool.uv]
@@ -25,10 +25,11 @@ dev = [
 addopts = "--import-mode=importlib --strict-markers --strict-config"
 testpaths = ["examples", "spikes"]
 xfail_strict = true
+filterwarnings = ["error"]
 
 [tool.ruff]
 line-length = 100
-target-version = "py314"
+target-version = "py315"
 extend-exclude = ["_site", ".jekyll-cache", "vendor", ".bundle", "scripts/host_ids.py", "scripts/generate_diagram.py"]
 
 [tool.ruff.lint]
@@ -38,7 +39,7 @@ select = ["E", "F", "W", "I", "UP", "B", "SIM", "RUF", "PT", "N"]
 quote-style = "double"
 
 [tool.mypy]
-python_version = "3.14"
+python_version = "3.15"
 strict = true
 warn_unreachable = true
 warn_redundant_casts = true

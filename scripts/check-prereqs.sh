@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Usage: scripts/check-prereqs.sh
 #
-# Verify the local toolchain the examples build with: uv, CPython 3.14, git,
+# Verify the local toolchain the examples build with: uv, CPython at the `.python-version` pin, git,
 # and the locked dev tools (ruff, mypy, pytest). Prints a table and exits
 # non-zero if anything is missing. A uv or CPython version that differs from
 # the pins prints WARN (uv older than the pin is FAIL). Installs nothing and
@@ -57,7 +57,7 @@ if [ "$uv_ok" -eq 1 ]; then
             record python 2 "$py_now, .python-version pins $py_pin (uv python install $py_pin)"
         fi
     else
-        record python 1 "no Python 3.14 found (uv python install 3.14)"
+        record python 1 "no Python ${py_pin%.*} found (uv python install $py_pin)"
     fi
 else
     record python 1 "needs uv"

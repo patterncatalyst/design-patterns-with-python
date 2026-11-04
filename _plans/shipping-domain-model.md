@@ -10,7 +10,7 @@ Internal planning file, excluded from the site. Revised 2026-11-03. It mirrors t
 standard, the Notion page "Shipping Domain Model & Per-Chapter Examples", which the Java and C#
 books also use. An earlier version of this file was reconstructed without the standard and has
 been replaced. The spike-derived notes (see spikes.md) are kept and re-expressed in the standard
-names. Examples are written fresh in idiomatic Python 3.14 (`Protocol`, frozen slotted
+names. Examples are written fresh in idiomatic Python 3.15 (`Protocol`, frozen slotted
 dataclasses, plain callables, generators, `functools.singledispatch`, `match`); no C#-only or
 Java-only feature is used and nothing is ported from the sibling books.
 
@@ -134,7 +134,9 @@ assertions; the GIL chapter uses a benchmark script with recorded output.
 
 ## Cross-cutting requirements
 
-- Python 3.14 floor; type hints checked with `mypy --strict`.
+- Python 3.15 floor; type hints checked with `mypy --strict`.
 - Tests are deterministic: no `time.sleep`, no wall-clock assertions; async tests use
   `asyncio.Event` and `gather`.
 - Each example is a uv workspace member runnable from its own directory (see r01 plan).
+
+2026-11-04 (r05): Python 3.15.2. The floor and the example language move from 3.14 to 3.15; the entity names are unchanged. Rows 9 to 11 are updated at step 0.

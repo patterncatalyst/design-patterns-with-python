@@ -1,4 +1,4 @@
-"""PDP-012 evidence: singledispatch on Python 3.14."""
+"""PDP-012 evidence: singledispatch on Python 3.15."""
 
 import os
 import textwrap
@@ -64,7 +64,7 @@ def test_open_extension_from_another_module() -> None:
 
 
 def test_register_annotation_naming_later_class_fails_at_registration() -> None:
-    # Python 3.14 defers annotation evaluation (PEP 649), but register() reads
+    # Since Python 3.14 annotation evaluation is deferred (PEP 649), but register() reads
     # them immediately, so a class defined further down is still unresolved.
     source = textwrap.dedent(
         """

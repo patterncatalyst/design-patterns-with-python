@@ -21,7 +21,7 @@ The book sorts the GoF patterns three ways, and every pattern chapter says which
   versus the **`@decorator` syntax** (a function rebinding at definition time). Keep the two names
   apart in prose and code, and never let a chapter blur them.
 
-The thesis is temporal: modern Python 3.14 against the 1994 assumptions a pattern was written
+The thesis is temporal: modern Python 3.15 against the 1994 assumptions a pattern was written
 under. It is not one language against another. There is no cross-language comparison anywhere in
 reader-facing text.
 
@@ -31,7 +31,7 @@ reader-facing text.
   front end in any example or chapter.
 - **uv workspace.** One root `pyproject.toml` (virtual root, `package = false`, members
   `examples/*` and `spikes/*`), one `uv.lock`, exact `==` pins in the root `dev` group (pytest,
-  pytest-mock, ruff, mypy), `.python-version` exact 3.14.x. Members carry no `[tool.*]` tables,
+  pytest-mock, ruff, mypy), `.python-version` exact 3.15.x. Members carry no `[tool.*]` tables,
   because a member table would shadow the root's.
 - One-time setup: `uv sync --locked --all-packages`. Inside a member directory `uv run` treats the
   member as the project and does not see the root dev group; the shared root `.venv` fixes that.
@@ -46,8 +46,8 @@ reader-facing text.
   is a build tool only and never appears in reader pages. `Gemfile.lock` must come out unchanged.
 - Latest stable versions, pinned exactly, re-verified against upstream before each release
   (the dated table is in the build plan). No pre-release, nothing needing a licence key.
-- Language floor: Python 3.14. Use the 3.14 idioms where they fit (PEP 695 generics, `type`
-  aliases, `typing.override`, deferred annotations); say so when mypy lags a feature.
+- Language floor: Python 3.15. Use the 3.15 idioms where they fit (PEP 695 generics, `type`
+  aliases, `typing.override`, deferred annotations, `frozendict`, `sentinel`); say so when mypy lags a feature.
 
 ## Repo layout
 
@@ -125,9 +125,22 @@ the one AI sidebar; "For deeper coverage" citing the hub's `books.yml` and this 
 
 ## Spike findings to remember
 
-- **Mocks are `Any` to mypy.** `Mock`, `MagicMock(spec=...)` and `create_autospec(..., instance=True)`
-  are all accepted where a Protocol is expected because typeshed types them as `Any`. Only
-  autospec enforces the call signature at runtime. `@runtime_checkable` checks names only.
+- **Mocks are assignable to every type, not literally `Any`.** `Mock`, `MagicMock(spec=...)` and
+  `create_autospec(..., instance=True)` are all accepted where a Protocol is expected because the
+  mock classes subclass `Any` in typeshed (`reveal_type` shows the `MagicMock` union, not `Any`).
+  Only autospec enforces the call signature at runtime. `@runtime_checkable` checks names only.
+- **`runtime_checkable` is not inherited (3.15).** A Protocol that inherits a runtime-checkable
+  Protocol without its own decorator emits a `DeprecationWarning` on `isinstance` and will raise
+  `TypeError` in 3.20. `filterwarnings = ["error"]` turns that into a failure.
+- **An explicit Protocol subclass disagrees with itself.** mypy reports `[abstract]` on
+  instantiating it, the runtime instantiates it, and the inherited `...` body returns `None`.
+  State it as observed behaviour.
+- **contextlib changed in 3.15.** A `@contextmanager` used as a decorator on a generator function
+  now holds the context across iteration. Cite What's New, test only the 3.15 behaviour, and rest
+  any "before 3.15" sentence on the source plus the recorded 3.14.10 run.
+- **API snippets target the running interpreter, member runs target the root config.** Run a
+  `mypy.api` witness from outside the repo so the root `python_version` does not apply, and keep
+  both on 3.15.
 - Callback Protocols need positional-only `/` or parameter names must match.
 - **Pure percentage layers commute** (discount then VAT equals VAT then discount). A Decorator
   "order matters" demo must use an additive fee, a cap or rounding.
@@ -137,7 +150,7 @@ the one AI sidebar; "For deeper coverage" citing the hub's `books.yml` and this 
   `contextlib.aclosing`, and annotate as `AsyncGenerator`, not `AsyncIterator`.
 - **`functools.cache` is not call-once under threads.** For a singleton, build at import time or
   use a Lock with a double check.
-- The natural `+=` lost update did not reproduce in 600 runs on 3.14: claim it in prose only; force it
+- The natural `+=` lost update did not reproduce in 600 runs (measured on 3.14.10): claim it in prose only; force it
   with a `between=` hook plus `Barrier` for the test.
 - `sleep(0)` task order is a CPython implementation detail: say so. Never assert that work
   finishes inside a timeout; `asyncio.timeout(0)` is the deterministic cancellation test.
@@ -197,3 +210,9 @@ re-measure; defer only content that belongs to a future part.
 `lgtm-idiomatic-review` (Python idiom pass), `lgtm-host-scrub` (publishing rule),
 `lgtm-github` (branch, PR, tag, release, ruleset), `lgtm-presentation` (decks),
 `lgtm-relay` (plan, execute, validate).
+
+## Dated notes
+
+- 2026-11-04 (r05): Python 3.15.2. The book, pins and floor move from 3.14.10 to 3.15.2 (CPython 3.15.2
+  was released 2026-10-25). Measurements taken on 3.14.10 stay labelled as such; the older plans
+  (r02 to r04) and the spike findings remain as history.

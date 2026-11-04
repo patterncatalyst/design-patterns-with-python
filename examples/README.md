@@ -3,7 +3,7 @@
 Each example is a self-contained Python package with its own `pyproject.toml`,
 a `src/` layout and a `tests/` directory. All examples are members of a single uv
 workspace rooted at the repository top level, so they share one lockfile, one virtual
-environment and one set of tool versions (Python 3.14, pytest, pytest-mock, ruff, mypy).
+environment and one set of tool versions (Python 3.15, pytest, pytest-mock, ruff, mypy).
 
 ## Layout
 

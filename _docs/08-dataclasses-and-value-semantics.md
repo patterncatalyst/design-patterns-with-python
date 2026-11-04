@@ -21,7 +21,7 @@ By the end of this chapter you can:
 
 Three failures share a cause. A consignment is shared by two booking requests, and a clerk reweighs it for one of them. The other request now shows the new weight, because both hold the same object. A stowage slot is a bay, a row and a tier, and a mutable `SlotId` can't key the reservation table at all: building the dict raises `TypeError`. Two stowage plans need a reservation table each: if they shared one default table, a slot reserved in one would show as taken in the other.
 
-Each is the same question answered wrongly: is this thing a value, defined by its content, or an entity, defined by its identity? A value should compare by content, be safe to share and work as a dictionary key. An entity should not. The old way to get a value was a class written out by hand. In Python 3.14 one decorator writes most of it, and the parts it doesn't write are the parts that need judgement.
+Each is the same question answered wrongly: is this thing a value, defined by its content, or an entity, defined by its identity? A value should compare by content, be safe to share and work as a dictionary key. An entity should not. The old way to get a value was a class written out by hand. In Python 3.15 one decorator writes most of it, and the parts it doesn't write are the parts that need judgement.
 
 {% include excalidraw.html name="08-dataclasses-and-value-semantics" caption="Figure 8.1: One declaration, the Value Object's structure. A frozen, slotted, ordered dataclass writes the constructor, repr, equality, hash, ordering and the assignment guard for SlotId; the invariant, immutable field types and the value-or-entity choice stay with you." %}
 
