@@ -580,7 +580,9 @@ def pinned_minor(python_version: str) -> str:
 
 
 def check_stale_versions(rel: str, text: str, minor: str) -> list[Finding]:
-    """Flag Python 3.N, python3.N and 3.N.M where N is not the pinned minor.
+    """Flag Python 3.N, python3.N and 3.N.M where N is older than the pinned minor.
+
+    A newer minor (a scheduled removal such as "in Python 3.20") is not stale.
 
     A match preceded within 16 characters by 'since ', 'before ', 'until ' or
     'new in ' is history, not a claim about the pin, and passes.
@@ -589,8 +591,8 @@ def check_stale_versions(rel: str, text: str, minor: str) -> list[Finding]:
     for lineno, line in enumerate(text.split("\n"), start=1):
         for m in STALE_RE.finditer(line):
             found = m.group(1) or m.group(2)
-            if found == minor:
-                continue
+            if int(found) >= int(minor):
+                continue  # the pin itself, or a future version named by a deprecation
             if PYTEST_MOCK_RE.search(line[: m.start()]):
                 continue  # pytest-mock 3.x is a package version, not the interpreter
             window = line[max(0, m.start() - STALE_WINDOW) : m.start()].lower()
@@ -1005,6 +1007,10 @@ def self_test() -> int:
     expect(
         "stale too far fails",
         bool(check_stale_versions("a.md", "since then, much later, Python 3.14", "15")),
+    )
+    expect(
+        "future version passes",
+        not check_stale_versions("a.md", "raises TypeError in Python 3.20.", "15"),
     )
     expect("stale line number", check_stale_versions("a.md", "ok\nPython 3.9\n", "15")[0].line == 2)
     expect(
