@@ -95,6 +95,13 @@ def test_stowage_plan_is_an_entity(slots: tuple[SlotId, SlotId, SlotId]) -> None
         plan_a.reserve(first, ConsignmentId("CN-00000004"))
     assert plan_b.reservations == {}
     assert plan_a.occupied() == [first, second, third]
+    assert repr(plan_b) == "StowagePlan(sailing='SAILING-1', reservations={})"
+
+    shared: dict[SlotId, ConsignmentId] = {}
+    plan_c, plan_d = StowagePlan("SAILING-2", shared), StowagePlan("SAILING-2", shared)
+    plan_c.reserve(first, ConsignmentId("CN-00000005"))
+    with pytest.raises(ValueError, match="already holds CN-00000005"):
+        plan_d.reserve(first, ConsignmentId("CN-00000006"))
 
 
 def test_mutable_default_is_refused_at_class_creation() -> None:

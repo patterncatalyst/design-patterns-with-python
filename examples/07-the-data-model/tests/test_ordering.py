@@ -37,6 +37,7 @@ def test_money_refuses_to_order_across_currencies(price: Money) -> None:
         _ = dollars <= price
     with pytest.raises(TypeError):
         _ = price < 3  # type: ignore[operator]
+    assert Money(Decimal("1.00"), "USD") != Money(Decimal("1.00"), "EUR")
 
 
 def test_quotes_sort_by_total_but_not_by_themselves(quotes: list[RateQuote]) -> None:

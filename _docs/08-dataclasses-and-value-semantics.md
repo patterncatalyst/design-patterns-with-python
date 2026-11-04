@@ -25,7 +25,7 @@ Each is the same question answered wrongly: is this thing a value, defined by it
 
 {% include excalidraw.html name="08-dataclasses-and-value-semantics" caption="Figure 8.1: One declaration, the Value Object's structure. A frozen, slotted, ordered dataclass writes the constructor, repr, equality, hash, ordering and the assignment guard for SlotId; the invariant, immutable field types and the value-or-entity choice stay with you." %}
 
-Read the figure from the top. The accent box is the one line the author writes. The arrows fan out to six generated members, and a second set of arrows brings them together in the box labelled with the Value Object force. The box underneath has no arrows into it. It lists what the decorator can't write: the invariant in `__post_init__`, immutable field types, and the decision that a type is a value at all.
+Read the figure from the top. The accent box is the declaration the author writes. The arrows fan out to six generated members, and a second set of arrows brings them together in the box labelled with the Value Object force. The box underneath has no arrows into it. It lists what the decorator can't write: the invariant in `__post_init__`, immutable field types, and the decision that a type is a value at all.
 
 ## Value Object: the force and the structure
 
@@ -62,7 +62,7 @@ def reweigh(w: Weight) -> None:
 
 and gets `<string>:6: error: Property "kilograms" defined in "Weight" is read-only  [misc]`, which means the mistake is caught before a test runs.
 
-Frozen guards attribute assignment; it doesn't seal the object. `test_frozen_is_a_setattr_guard_not_a_seal` calls `object.__setattr__(w, "kilograms", -5.0)` and the write succeeds, past the invariant. That's why the example doesn't normalise inside `__post_init__` through that back door: a type that mutates itself in its constructor has stopped being immutable in any sense a reader can rely on. The workaround is documented for frozen dataclasses, and it's a reason to normalise before construction, which a later section does.
+Frozen guards attribute assignment; it doesn't seal the object. `test_frozen_is_a_setattr_guard_not_a_seal` calls `object.__setattr__(w, "kilograms", -5.0)` and the write succeeds, past the invariant. That's why the example doesn't normalise inside `__post_init__` through that back door: a type that mutates itself in its constructor has stopped being immutable in any sense a reader can rely on. The documentation on frozen instances notes that the generated `__init__` itself writes fields through `object.__setattr__`, and the back door is a reason to normalise before construction, which a later section does.
 
 `slots=True` replaces the per-instance `__dict__` with fixed slots. A slotted class also loses the weak-reference slot. `test_slots_remove_dict_and_weakref_until_asked` shows `weakref.ref(w)` raising `TypeError` with `cannot create weak reference to 'Weight'`, and shows that `weakref_slot=True` puts the slot back. mypy says nothing about it: `test_mypy_cannot_see_value_semantics_mistakes[slots-weakref]` runs `weakref.ref(Weight(1.0))` through `--strict` and gets exit status 0 and empty output. A cache that holds weak references to values fails at run time, not at type-check time.
 

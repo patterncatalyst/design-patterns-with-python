@@ -1,7 +1,15 @@
+import math
 from dataclasses import dataclass
 
 import pytest
 from data_model.cargo import Dimensions, Weight
+
+
+@dataclass(frozen=True, slots=True)
+class _UncheckedWeight:
+    """Negative fixture: Weight without the finite check."""
+
+    kilograms: float
 
 
 class _IdentityWeight:
@@ -61,6 +69,7 @@ def test_equal_weights_are_one_set_element() -> None:
     assert len({Weight(1.5), Weight(1.5)}) == 1
     assert len({_IdentityWeight(1.5), _IdentityWeight(1.5)}) == 2
     assert _IdentityWeight(1.5) != _IdentityWeight(1.5)
+    assert _UncheckedWeight(math.nan) != _UncheckedWeight(math.nan)
 
 
 def test_defining_eq_alone_makes_a_class_unhashable() -> None:

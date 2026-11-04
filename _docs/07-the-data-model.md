@@ -93,7 +93,7 @@ An operator method answers for operands it understands and returns `NotImplement
         return Money(self.amount + other.amount, self.currency)
 ```
 
-A foreign operand gets `NotImplemented`, which hands the decision to the other operand's type. One refinement from the reference: when the right operand's type is a subclass of the left operand's type and provides a different implementation of the reflected method, that method is tried first, so a subclass can override how a base class combines with it. For `price + 1` the `int` has no say either, `int.__radd__` declines too, and the result is a `TypeError` naming both types. Two amounts in different currencies are a domain error and raise `ValueError`. That is a choice, because a result in either currency would be a guess. The parameter is typed `Money`, not `object`, so mypy rejects `price + 1` at the call site. `test_mypy_rejects_operands_the_methods_do_not_accept` runs four bad operands and asserts exactly four `[operator]` errors. The guard stays in the body because annotations aren't checked at runtime and a caller without mypy still gets the `TypeError`.
+A foreign operand gets `NotImplemented`, which hands the decision to the other operand's type. One refinement from the reference: if the right operand is an instance of a subclass that overrides the reflected method, Python asks that override first, so a subclass can change how it combines with its base class. For `price + 1` the `int` has no say either, `int.__radd__` declines too, and the result is a `TypeError` naming both types. Two amounts in different currencies are a domain error and raise `ValueError`. That is a choice, because a result in either currency would be a guess. The parameter is typed `Money`, not `object`, so mypy rejects `price + 1` at the call site. `test_mypy_rejects_operands_the_methods_do_not_accept` runs four bad operands and asserts exactly four `[operator]` errors. The guard stays in the body because annotations aren't checked at runtime and a caller without mypy still gets the `TypeError`.
 
 Multiplication by a factor adds the reflected half:
 
@@ -233,7 +233,7 @@ Success: no issues found in 11 source files
 
 The classes prefixed with an underscore in the test modules are negative fixtures, kept out of the model so that each failure the chapter describes is reproducible. Two edits in a scratch copy show the tests reacting.
 
-**Experiment one: delete `Dimensions.__hash__`.** Remove the `__hash__` method and run `uv run pytest -q`. One test fails and twenty-four pass. The dataclass supplies a field hash without any signal, so the turned carton still compares equal and the failure is the hash assertion:
+**Experiment one: delete `Dimensions.__hash__`.** Remove the `__hash__` method and run `uv run pytest -q`. One test fails and twenty-four pass. The dataclass supplies a field hash without any signal, so the turned carton still compares equal and the failure is the hash assertion (the `E` and summary lines):
 
 ```text
 E       assert 1560272766170198271 == 805556732051977890
@@ -244,7 +244,7 @@ FAILED tests/test_equality.py::test_a_turned_carton_is_one_set_element - asse...
 
 `uv run mypy --strict src tests` still prints `Success: no issues found in 11 source files`. The checker sees nothing wrong with the class. Restore the method.
 
-**Experiment two: delete `Money.__rmul__`.** Run both commands. pytest reports two failures and twenty-three passes. The first is the reflected case, and the second is the mypy test; pytest prints each `E` line under its failing test, and the summary names both:
+**Experiment two: delete `Money.__rmul__`.** Run both commands. pytest reports two failures and twenty-three passes. The first is the reflected case, and the second is the mypy test; pytest prints each `E` line under its failing test, and the summary names both (the `E` and summary lines):
 
 ```text
 E       TypeError: unsupported operand type(s) for *: 'decimal.Decimal' and 'Money'
@@ -271,4 +271,4 @@ A missing hash is invisible to the checker and a missing reflected method isn't,
 
 The primary source is the Python Language Reference chapter [Data model](https://docs.python.org/3/reference/datamodel.html): the section on basic customization states the rule for `__eq__` and `__hash__`, the section on emulating numeric types covers reflected operands, and the section on special method lookup covers why the type is consulted. The [`NotImplemented` constant](https://docs.python.org/3/library/constants.html#NotImplemented) and the [`functools.total_ordering` documentation](https://docs.python.org/3/library/functools.html#functools.total_ordering) describe the other two ideas used here. [PEP 207](https://peps.python.org/pep-0207/), by Guido van Rossum and David Ascher, introduced rich comparisons and the separate comparison methods.
 
-Luciano Ramalho's *Fluent Python*, second edition, is the book this chapter leans on most. The order of the sections here, equality and hashing, the reflected scalar `__rmul__`, `__format__`, and truth through `__len__`, follows its treatment of Pythonic objects and operator overloading, and it covers all of them in greater depth. It is in the hub's list and on the [bibliography page]({{ '/bibliography/' | relative_url }}). Brett Slatkin's *Effective Python*, third edition, is a shorter companion for the idioms on the same topics.
+Luciano Ramalho's *Fluent Python*, second edition, is the book this chapter leans on most. Its treatment of the data model, Pythonic objects and operator overloading covers the topics here, equality and hashing, the reflected scalar `__rmul__`, truth through `__len__` and `__format__`, in greater depth. It is in the hub's list and on the [bibliography page]({{ '/bibliography/' | relative_url }}). Brett Slatkin's *Effective Python*, third edition, is a shorter companion for the idioms on the same topics.

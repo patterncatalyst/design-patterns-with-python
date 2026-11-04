@@ -515,7 +515,7 @@ Also `README.md` and card `_examples/08-dataclasses-and-value-semantics.md` (`or
 | 3 | Two figures, specs `diagrams/specs/07-the-data-model.py` and `08-dataclasses-and-value-semantics.py`, `_data/diagrams.yml` (single owner; `section: "Ch. 7"`/`"Ch. 8"`); figures 00-06 unchanged | 1b | **done** |
 | 4 | ch7 and ch8 `status = "drafted"` in `scripts/chapters.toml` (kind stays `hands-on`) | 3 | **done** |
 | 5 | Two prose agents in parallel. Verify attributions; run the experiments in a scratch copy; quote fresh filtered output. The ch8 agent edits `bibliography.html` (decision 3). Each lists the sources it checked | 3,4 | **done** |
-| 6 | Opus validation; up to two repair rounds | 5 | todo |
+| 6 | Opus validation; up to two repair rounds | 5 | **done** (2 rounds, final fixes by the orchestrator) |
 | 7 | PR, `ci-ok` green, ask the user before merge; tag r04.x; notes-only release; hub PR for the Evans `referenced_by` (decision 3) | 6 | todo |
 
 Reconciliation rows (step 0):
