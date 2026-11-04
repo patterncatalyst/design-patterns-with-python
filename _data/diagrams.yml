@@ -120,3 +120,21 @@
     One customs skeleton, two ways to vary it. declare_customs fixes the order
     and the invariant steps and takes hooks for the rest; CustomsDeclarer keeps
     the same skeleton final and lets a family of destinations share its schedule.
+
+- name: 14-state-and-finite-state-machines
+  section: "Ch. 14"
+  title: One consignment lifecycle, two ways to write it
+  caption: >-
+    One consignment lifecycle, two ways to write it. A read-only table maps
+    a status and an event to the next status; a match over frozen states
+    does the same with per-state data, and an injected generator drives
+    transit delays.
+
+- name: 15-command-undo-and-command-queues
+  section: "Ch. 15"
+  title: Amendments as values on two stacks
+  caption: >-
+    Amendments as values on two stacks. Queued amendments are applied first
+    in, first out, all or nothing; each application returns a new frozen
+    request and the inverse it computed, which undo and redo move between
+    the two stacks.
