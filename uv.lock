@@ -4,6 +4,7 @@ requires-python = ">=3.15"
 
 [manifest]
 members = [
+    "builder-prototype",
     "command-undo",
     "consignments",
     "context-managers",
@@ -66,6 +67,11 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/9f/6f/bafd6490fe7b355627fabe95f4417e3d02da93102c8552550eb9a0774e1e/ast_serialize-0.13.1-cp39-abi3-win_amd64.whl", hash = "sha256:ddf7cbc9c8abf70102c4a088efe154bb86bfb825b0a10e556d2b15972cf99bd7", size = 1171153, upload-time = "2026-10-17T00:04:14.362Z" },
     { url = "https://files.pythonhosted.org/packages/11/25/4235f4b375a67a37ac595bf478a5407a744eaf7b64113c1c3a5432b8d954/ast_serialize-0.13.1-cp39-abi3-win_arm64.whl", hash = "sha256:48f11d96c9ec71119612f8e79a8c55c12f2b136716d68347433c561d27a25f43", size = 1139035, upload-time = "2026-10-17T00:04:15.767Z" },
 ]
+
+[[package]]
+name = "builder-prototype"
+version = "0.1.0"
+source = { editable = "examples/17-builder-dataclasses-and-prototype" }
 
 [[package]]
 name = "colorama"
