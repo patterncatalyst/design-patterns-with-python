@@ -57,7 +57,7 @@ mypy 2.4.1 on 3.15.2:
 - `frozendict` is typed: `F["AIRCO"] = 2` is `[index]` `Unsupported target for indexed assignment`. `lazy import json` type-checks, and attribute errors on the module are still reported.
 - `Mock()`, `Mock(spec=Tracker)`, `MagicMock(spec=Tracker)`, `create_autospec(...)` and `mocker.create_autospec(...)` are all accepted where an unrelated Protocol is expected (exit 0).
 - `reveal_type(mocker.create_autospec(...))` is `unittest.mock.MagicMock | unittest.mock.AsyncMock | unittest.mock.NonCallableMagicMock`, not `Any`. The reason is typeshed's `class NonCallableMock(Base, Any)`, whose comment reads exactly: `# We subclass with "Any" because mocks are explicitly designed to stand in for other types,` / `# something that can't be expressed with our static type system.` So the book's wording becomes "assignable to every type", not "is `Any`".
-- `assert_type(x, int)` on a `str` is `[assert-type]` `Expression is of type "str", not "int"`.
+- `assert_type(x, int)` on a `str` is `[assert-type]` `Expression is of type "str", not "int"`. (The step 1c witness asserts on a literal: `Expression is of type "Literal[1]", not "str"`.)
 - `__exit__` typed `-> None`: code after a `with` whose body raises is `[unreachable]` under `--warn-unreachable`. Typed `-> bool`: no error.
 - `@contextmanager` targets type as the yielded type; `ExitStack.enter_context` returns it.
 - A fake missing `book` in a `Mapping[str, Gateway]` argument is `[dict-item]` with no member note. In an annotated assignment it is `[assignment]` with `"QuoteOnly" is missing following "Gateway" protocol member:` / `book`.
@@ -447,7 +447,7 @@ Test 6's expected close order is exactly "second writer, then first writer". The
 5. `test_book_best_books_only_the_winner`: autospec, `assert_called_once_with(consignment)`, `assert_not_called()`.
 6. `test_a_plain_mock_passes_an_assertion_on_a_misspelled_method`: `loser.bok.assert_not_called()` passes.
 7. `test_spec_rejects_unknown_names_but_not_wrong_signatures`
-8. `test_autospec_rejects_names_and_signatures`: `AttributeError` matching `has no attribute 'bok'`; `TypeError` matching `missing a required positional-only argument: 'consignment'`.
+8. `test_autospec_rejects_names_and_signatures`: `AttributeError` matching `has no attribute 'bok'`; `TypeError` matching `missing a required argument: 'consignment'` (corrected after step 1c).
 9. `test_side_effect_drives_the_timeout_branch`
 
 `test_environment.py`:
@@ -475,8 +475,8 @@ Also `README.md` and the card (`order: 11`, eyebrow "Python substrate · Testing
 | 0 | Domain-model rows 9-11 updated: names as in the example spec; row 9 caveat now "stated in the ISP/DIP chapter; chapter 9 doesn't repeat it; chapter 11 gives the matrix"; row 11 failing text uses the 3.15 message `missing a required positional-only argument: 'consignment'` and "mock classes subclass `Any` in typeshed"; ch9 stub description fixed | A6 | done |
 | 1a | ch9 member, card, README; three green runs; **deletion table**: the `find_gateway` `None` return (replaced by `KeyError`), the `book_with` guard, each `carriers_to_ask` branch, the `un_number` check, `no_discount` default (replaced by `None`), `frozendict` (replaced by `dict`), `CarrierBase.reference`, `@abstractmethod`, `/` on `PricingRule`, `@override` | 0 | done |
 | 1b | ch10 member; deletion table: both closes in `__exit__`, `replace`, `unlink`, the single-use guard, the generator's except-branch close and unlink, the else-branch replace, the `ExitStack` (replaced by a plain loop), the LOCODE check | 1a | done |
-| 1c | ch11 member; one `uv lock` after all three (sequenced); deletion table: minimum selection, the code tie-break, clock use, validity add, the timeout skip, the all-timed-out error, book winner only, the env positive-int check, the env default | 1b | todo |
-| 2 | Witness results into rows 47-64 with test names (claims audit resolves); a failed witness changes the thesis before prose | 1c | todo |
+| 1c | ch11 member; one `uv lock` after all three (sequenced); deletion table: minimum selection, the code tie-break, clock use, validity add, the timeout skip, the all-timed-out error, book winner only, the env positive-int check, the env default | 1b | done |
+| 2 | Witness results into rows 47-64 with test names (claims audit resolves); a failed witness changes the thesis before prose | 1c | done |
 | 3 | Three figures, specs `diagrams/specs/09-*.py`, `10-*.py`, `11-*.py`, `_data/diagrams.yml` (single owner; `section: "Ch. 9"`/`"Ch. 10"`/`"Ch. 11"`); figures 00-08 unchanged | 2 | todo |
 | 4 | ch9-11 `status = "drafted"` (kind stays `hands-on`) | 3 | todo |
 | 5 | Three prose agents in parallel; verify attributions; run the experiments in scratch copies; quote fresh filtered output; each hands back the sources it checked and a per-paragraph claims table (claim, then test, run or source) | 3, 4 | todo |
@@ -505,6 +505,17 @@ Reconciliation rows (step A0). The "Verified by" column uses resolvable tokens.
 | 62 | 11 | An injected clock and a code tie-break make quote tests deterministic; `monkeypatch.context` restores the environment | `test_quote_validity_comes_from_the_injected_clock`, `test_best_quote_picks_the_cheapest_carrier`, `test_validity_reads_the_environment_and_the_context_restores_it` |
 | 63 | 11 | `assert_type` is a static assertion and a runtime no-op; a typed ignore is a static regression test | `test_assert_type_is_static_only`, `run: 1c` |
 | 64 | 11 | `yield` fixture teardown runs on failure; strict markers, config and xfail refuse silence; `filterwarnings = error` fails on a deprecation | `run: 5`, `source: https://docs.pytest.org/en/stable/how-to/fixtures.html`, `source: https://docs.pytest.org/en/stable/reference/reference.html` |
+
+## Corrections after the build (2026-11-04)
+
+Real behaviour on 3.15.2 and mypy 2.4.1; the tests assert it and the prose follows the tests.
+
+- Claim 53 (step 1a): when a one-member Protocol's only member is wholly absent, mypy prints a bare `[assignment]` with no "missing following protocol member" note. The note appears when one of two members is missing; a conflicting member gets "Following member(s) ... have conflicts" (`test_mypy_explains_a_conflicting_member_but_not_a_wholly_absent_one`).
+- Claim 60 (step 1c): autospec's `TypeError` for a missing argument is `missing a required argument: 'consignment'`; the positional-only wording appears only when such a parameter is passed by keyword.
+- Claim 61 (step 1c): with the two-member `CarrierGateway`, the dict entry is a bare `[dict-item]` with no note; the assignment is `[assignment]` with the missing-member note naming `book`.
+- Claim 63 (step 1c): the `assert_type` witness prints `Expression is of type "Literal[1]", not "str"  [assert-type]`.
+- Step 1c tie-break: with sorted ask order and `min`, the planned `tie-goes-to-airco` case can't see the tie-break; `test_a_tie_is_broken_by_the_carrier_code_in_the_quote` (mapping codes differ from quote carriers) witnesses it, and `test_carriers_are_asked_in_code_order` witnesses the order.
+- Chapter 11 experiment (a): books every gateway; the failure is `loser.book.assert_not_called()` with `Expected 'book' to not have been called. Called 1 times.` Experiment (b) prints `Failed: DID NOT RAISE TypeError`.
 
 ## Acceptance criteria
 

@@ -12,6 +12,7 @@ members = [
     "isp-dip-di",
     "srp-ocp-lsp",
     "structural-typing",
+    "testing-baseline",
     "three-way-split",
     "value-semantics",
 ]
@@ -302,6 +303,11 @@ source = { editable = "examples/05-srp-ocp-lsp" }
 name = "structural-typing"
 version = "0.1.0"
 source = { editable = "examples/09-protocol-and-structural-typing" }
+
+[[package]]
+name = "testing-baseline"
+version = "0.1.0"
+source = { editable = "examples/11-testing-with-pytest-pytest-mock-and-mypy" }
 
 [[package]]
 name = "three-way-split"
