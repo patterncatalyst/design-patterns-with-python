@@ -514,8 +514,8 @@ Step ids are `H*` because `--claims` resolves `run:` tokens against every plan's
 | H1a | ch14 member, card, README; three green runs; the deletion table above, each row run in a scratch copy; `_plans/evidence/transit-delay-model.md` (the 10,000-seed mean, scrubbed) | H0 | done |
 | H1b | ch15 member, card, README; one `uv lock` after both members (sequenced); three green runs; deletion table | H1a | done |
 | H2 | Witness results into rows 75-84 (claims audit resolves). A failed witness changes the thesis before prose. Any message differing from Planning evidence goes in "Corrections after the build" | H1b | done |
-| H3 | Two figures, specs `diagrams/specs/14-*.py` and `15-*.py`, `_data/diagrams.yml` (single owner; `section: "Ch. 14"`/`"Ch. 15"`); figures 00-13 unchanged | H2 | todo |
-| H4 | ch14-15 `status = "drafted"` (`kind` stays `pattern`) | H3 | todo |
+| H3 | Two figures, specs `diagrams/specs/14-*.py` and `15-*.py`, `_data/diagrams.yml` (single owner; `section: "Ch. 14"`/`"Ch. 15"`); figures 00-13 unchanged | H2 | done |
+| H4 | ch14-15 `status = "drafted"` (`kind` stays `pattern`) | H3 | done |
 | H5 | Two prose agents in parallel. Each re-fetches its sources and quotes exactly, runs the experiments and the ruff F601 check in scratch copies, quotes fresh output filtered by `python3 scripts/host_ids.py filter`, and hands back the sources checked plus a per-paragraph claims table (claim, then test, run or source URL) | H3, H4 | todo |
 | H6 | Opus validation; up to two repair rounds | H5 | todo |
 | H7 | PR, `ci-ok` green, ask the user before merge; tag r07.x; notes-only release. No hub PR (decision 6) | H6 | todo |

@@ -133,7 +133,7 @@ title = "State and finite state machines"
 part = 5
 kind = "pattern"
 has_example = true
-status = "stub"
+status = "drafted"
 
 [[chapter]]
 number = 15
@@ -142,7 +142,7 @@ title = "Command, undo, and command queues"
 part = 5
 kind = "pattern"
 has_example = true
-status = "stub"
+status = "drafted"
 
 [[chapter]]
 number = 16
