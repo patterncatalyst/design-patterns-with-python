@@ -142,7 +142,7 @@ def write_manifests(
 ```
 <!-- fmt:on -->
 
-The [`ExitStack` documentation](https://docs.python.org/3/library/contextlib.html) says each instance "maintains a stack of registered callbacks that are called in reverse order when the instance is closed" which is the order a nest of `with` statements would unwind in: the last resource acquired is the first released. `test_exit_stack_unwinds_entered_writers_in_reverse_order` makes the opener fail on the third call. The recorded opens are the first and second partials, and the recorded closes are the second and then the first. The directory ends up empty, because each writer's `__exit__` saw the exception and discarded its partial. The writers decide what release means, and the stack decides the order.
+The [`ExitStack` documentation](https://docs.python.org/3/library/contextlib.html) says each instance "maintains a stack of registered callbacks that are called in reverse order when the instance is closed", which is the order a nest of `with` statements would unwind in: the last resource acquired is the first released. `test_exit_stack_unwinds_entered_writers_in_reverse_order` makes the opener fail on the third call. The recorded opens are the first and second partials, and the recorded closes are the second and then the first. The directory ends up empty, because each writer's `__exit__` saw the exception and discarded its partial. The writers decide what release means, and the stack decides the order.
 
 The function docstring states the contract: the manifests for a sailing are committed together or not at all. `test_exit_stack_commits_every_manifest_on_success` checks the success path: three files committed, no partials.
 

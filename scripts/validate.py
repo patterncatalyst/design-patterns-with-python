@@ -659,7 +659,8 @@ def claim_results(
     Tokens are read from the 'How to verify' and 'Status' cells: a backticked
     test_* name (must be defined under examples/*/tests), 'source: <url>' (the
     URL must appear in the chapter's _docs file) and 'run: <step id>' (the id
-    must be a row id in a plan's steps table, '| 1c | ...'), or 'run: <path>' for a
+    must be the id of a row marked done in an iteration plan's steps table,
+    '| 1c | ... | done |'), or 'run: <path>' for a
     recorded run under _plans/evidence/ (the file must exist).
     """
     results: list[ClaimResult] = []
@@ -692,7 +693,7 @@ def claim_results(
             if "/" in step:
                 found = step in evidence_files
             else:
-                row = rf"^\|\s*{re.escape(step)}\s*\|"
+                row = rf"^\|\s*{re.escape(step)}\s*\|.*\|\s*(?:\*\*)?done(?:\*\*)?\s*\|\s*$"
                 found = re.search(row, steps_text, re.MULTILINE) is not None
             if not found:
                 unresolved.append(f"run: {step}")
@@ -726,7 +727,9 @@ def load_claims(root: Path) -> list[ClaimResult]:
     plan = root / CLAIMS_REL
     if not plan.is_file():
         return []
-    steps = "\n".join(p.read_text(encoding="utf-8") for p in sorted((root / "_plans").glob("*.md")))
+    steps = "\n".join(
+        p.read_text(encoding="utf-8") for p in sorted((root / "_plans").glob("r[0-9]*-plan.md"))
+    )
     evidence = frozenset(
         p.relative_to(root).as_posix() for p in (root / "_plans" / "evidence").glob("*.md")
     )
@@ -1044,6 +1047,8 @@ def self_test() -> int:
     claims += "| 55 | 11 | rec | run: _plans/evidence/a.md | **open** |\n"
     claims += "| 56 | 11 | rec | run: _plans/evidence/gone.md | **open** |\n"
     claims += "| 57 | 11 | word | run: B4 | **open** |\n"
+    claims += "| 58 | 11 | self | run: 58 | **open** |\n| 59 | 11 | hdr | run: Step | **open** |\n"
+    claims += "| 60 | 11 | todo | run: T1 | **open** |\n"
     tests = {"test_alpha", "test_beta"}
     docs = {9: "x", 10: "see https://docs.python.org/x here", 11: "none"}
     res = {
@@ -1052,11 +1057,12 @@ def self_test() -> int:
             claims,
             tests,
             docs,
-            "| B3 | x | - | done |\n| 1c | x | - | done |\nB4 appears only in prose",
+            "| Step | What | Depends | Status |\n| B3 | x | - | done |\n| 1c | x | - | **done** |\n"
+            "| T1 | x | - | todo |\nB4 appears only in prose",
             frozenset({"_plans/evidence/a.md"}),
         )
     }
-    expect("claim rows parsed", sorted(res) == list(range(46, 58)))
+    expect("claim rows parsed", sorted(res) == list(range(46, 61)))
     expect(
         "claim test resolved", res[47].resolved and res[47].evidence == ("test_alpha", "test_beta")
     )
@@ -1066,12 +1072,16 @@ def self_test() -> int:
     expect("claim run digit id", res[54].resolved and res[54].evidence == ("run: 1c",))
     expect("claim run evidence file", res[55].resolved and not res[56].resolved)
     expect("claim run needs a steps row", not res[57].resolved)
+    expect(
+        "claim run ignores claim rows, headers and unfinished steps",
+        not res[58].resolved and not res[59].resolved and not res[60].resolved,
+    )
     expect("claim source unresolved", not res[53].resolved)
     errs, info = claim_findings(list(res.values()))
     expect(
         "claim errors are 47+",
         sorted(e.message.split(":")[0] for e in errs)
-        == [f"claim {n}" for n in (49, 50, 52, 53, 56, 57)],
+        == [f"claim {n}" for n in (49, 50, 52, 53, 56, 57, 58, 59, 60)],
     )
     expect("claim legacy is info", len(info) == 1 and "legacy" in info[0].message)
     table = claims_table(list(res.values()))

@@ -35,7 +35,7 @@ Deterministic time and process state.
 mypy as a test.
 
 - `uv run mypy --strict src tests` checks the tests too, including `assert_type`.
-- `assert_type(1, str)` fails the mypy run and doesn'thing at runtime. The test carries a typed
+- `assert_type(1, str)` fails the mypy run and does nothing at runtime. The test carries a typed
   `# type: ignore[assert-type]`, which would itself fail under `warn_unused_ignores` if mypy stopped
   reporting.
 
@@ -81,9 +81,9 @@ Tests write only under pytest's `tmp_path`. None reads the wall clock or sleeps.
 
 - `test_book_best_books_only_the_winner`: autospec doubles, `assert_called_once_with` on the winner and `assert_not_called` on the loser.
 - `test_a_plain_mock_passes_an_assertion_on_a_misspelled_method`: `loser.bok.assert_not_called()` passes after `loser.book(...)` was called.
-- `test_a_fake_rejects_unknown_names_and_wrong_signatures`: `AttributeError` for `bok` and `TypeError` for `book()`; the two `# type: ignore` codes are mypy's `[attr-defined]` and `[call-arg]`.
 - `test_spec_rejects_unknown_names_but_not_wrong_signatures`: `AttributeError` for `bok`; `book()` with no argument is accepted.
 - `test_autospec_rejects_names_and_signatures`: `AttributeError` for `bok`; `TypeError: missing a required argument: 'consignment'`.
+- `test_a_fake_rejects_unknown_names_and_wrong_signatures`: `AttributeError` for `bok` and `TypeError` for `book()`; the two `# type: ignore` codes are mypy's `[attr-defined]` and `[call-arg]`.
 - `test_side_effect_drives_the_timeout_branch`: `side_effect` raises `CarrierTimeoutError` and the engine skips that carrier.
 
 `tests/test_environment.py`

@@ -297,7 +297,7 @@ tests/test_static.py::test_assert_type_is_static_only PASSED             [100%]
 Success: no issues found in 10 source files
 ```
 
-The suite has 23 test functions and 34 cases. The experiments run in a scratch copy of the repository, never in the example itself, and each changes one thing. Filtering the pytest output to the assertion lines and the summary, with `grep -E '^(>|E  |FAILED|[0-9]+ (passed|failed))'`, gives the lines quoted for experiments one, two and six.
+The suite has 23 test functions and 34 cases. The experiments run in a scratch copy, and each changes one thing. Experiments one, two and six quote the output of `grep -E '^(>|E  |FAILED|[0-9]+ (passed|failed))'`; the other blocks drop pytest's banners and source lines.
 
 **Experiment one: book every carrier.** In `RateEngine.book_best`, replace the last line so that it books every gateway with `gateway.book(consignment)` in a dictionary comprehension over `self._gateways.items()` and then returns the entry for the winner's code.
 
@@ -330,7 +330,7 @@ FAILED tests/test_doubles.py::test_autospec_rejects_names_and_signatures - Fa...
 
 The name check still passes, since `spec` rejects `bok`, and the signature check no longer has anything to raise. Restore the line.
 
-**Experiment three: fail a test that uses a `yield` fixture.** Add `assert quote.carrier == "airco"` to `test_quote_validity_comes_from_the_injected_clock`, where the only carrier is `fastline`, and run with `-s` and `-k test_quote_validity_comes_from_the_injected_clock` so the fixture's output isn't captured:
+**Experiment three: fail a test that uses a `yield` fixture.** Add `assert quote.carrier == "airco"` to `test_quote_validity_comes_from_the_injected_clock`, where the only carrier is `fastline`, and run it alone with `-k test_quote_validity_comes_from_the_injected_clock`, adding `-s` so the fixture's output isn't captured:
 
 ```text
 tests/test_engine.py Fquote_log teardown: quotes.log

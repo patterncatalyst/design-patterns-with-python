@@ -480,7 +480,7 @@ Also `README.md` and the card (`order: 11`, eyebrow "Python substrate · Testing
 | 3 | Three figures, specs `diagrams/specs/09-*.py`, `10-*.py`, `11-*.py`, `_data/diagrams.yml` (single owner; `section: "Ch. 9"`/`"Ch. 10"`/`"Ch. 11"`); figures 00-08 unchanged | 2 | done |
 | 4 | ch9-11 `status = "drafted"` (kind stays `hands-on`) | 3 | done |
 | 5 | Three prose agents in parallel; verify attributions; run the experiments in scratch copies; quote fresh filtered output; each hands back the sources it checked and a per-paragraph claims table (claim, then test, run or source) | 3, 4 | done |
-| 6 | Opus validation; up to two repair rounds | 5 | todo |
+| 6 | Opus validation; up to two repair rounds | 5 | done |
 | 7 | PR, `ci-ok` green, ask the user before merge; tag r05.x; notes-only release; hub PR: `sites.yml` synopsis "idiomatic Python 3.15"; `books.yml` `referenced_by` for Meszaros and *The Pragmatic Programmer*; new entries for Meyer's *Object-Oriented Software Construction* (1997), Woolf/PLoPD3 and Okken 2nd ed., with `book_categories.yml` placement | 6 | todo |
 
 Reconciliation rows (step A0). The "Verified by" column uses resolvable tokens.
@@ -514,7 +514,7 @@ Real behaviour on 3.15.2 and mypy 2.4.1; the tests assert it and the prose follo
 - Claim 60 (step 1c): autospec's `TypeError` for a missing argument is `missing a required argument: 'consignment'`; the positional-only wording appears only when such a parameter is passed by keyword.
 - Claim 61 (step 1c): with the two-member `CarrierGateway`, the dict entry is a bare `[dict-item]` with no note; the assignment is `[assignment]` with the missing-member note naming `book`.
 - Claim 63 (step 1c): the `assert_type` witness prints `Expression is of type "Literal[1]", not "str"  [assert-type]`.
-- Step 1c tie-break: with sorted ask order and `min`, the planned `tie-goes-to-airco` case can't see the tie-break; `test_a_tie_is_broken_by_the_carrier_code_in_the_quote` (mapping codes differ from quote carriers) witnesses it, and `test_carriers_are_asked_in_code_order` witnesses the order.
+- Step 1c tie-break: with sorted ask order and `min`, the planned `tie-goes-to-airco` case can't see the tie-break; `test_a_tie_is_broken_by_the_carrier_code_in_the_quote` (mapping codes differ from quote carriers) witnesses it, and `test_carriers_are_asked_in_code_order` witnesses the order; the case is renamed `equal-amounts`.
 - `check_stale_versions` (step A2): flags only minors older than the pin, not every other minor, so a scheduled removal ("raises `TypeError` in Python 3.20") isn't stale.
 - `--claims` `run:` tokens (validation round 1): a step id must be a row id in a steps table (digit ids such as `1c` included), or a path to a recorded run under `_plans/evidence/`.
 - Chapter 10 fixtures (validation round 1): `opener` and `opener_failing_on` close every handle a test leaves open, so a failing test doesn't spill a `ResourceWarning` into a later test or the session-end unraisable hook. The Risks line on leaks surfacing through the unraisable hook is superseded.
