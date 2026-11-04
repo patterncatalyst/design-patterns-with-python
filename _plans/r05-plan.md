@@ -9,7 +9,7 @@ render_with_liquid: false
 
 Opus-planned 2026-11-04. Branch `release/r05`. Source of truth for r05 scope, criteria and status. Executors never edit this file; the orchestrator updates the status board. Part A (the interpreter move) is done, gated and checkpoint-committed before any chapter work starts.
 
-## Open user decisions (recommendations included)
+## User decisions (2026-11-04, confirmed by the owner: all three recommendations)
 
 1. **Chapter 11 is not a pattern chapter, and it gets one sidebar.** It has no bucket (domain row `n.a.`), stays `kind = "hands-on"`, has no `## When not to use it` heading, and carries exactly one `ai-sidebar` inside `## When a test proves less than it seems`. That matches r04 decision 1 ("one ai-sidebar per chapter"). **Recommend: yes.** The alternative is no sidebar, which breaks parity with chapters 5-8 and drops the most useful review checklist in the book.
 2. **Credit Null Object to Woolf, and add two bibliography rows.** Bobby Woolf, "Null Object", in *Pattern Languages of Program Design 3*, eds. Robert C. Martin, Dirk Riehle, Frank Buschmann (Addison-Wesley, 1998; ISBN 9780201310115). Chapter 9 leans on it, and chapters 2 and 3 already use the idea uncredited ("the later pattern literature"). Also add Brian Okken, *Python Testing with pytest*, 2nd ed. (Pragmatic Bookshelf, 2022), which chapter 11 cites. **Recommend: yes.** That means two `bibliography.html` rows, a one-clause credit retrofitted into chapters 2 and 3 (step A5), and new hub `books.yml` entries.
