@@ -516,7 +516,7 @@ Step ids are `H*` because `--claims` resolves `run:` tokens against every plan's
 | H2 | Witness results into rows 75-84 (claims audit resolves). A failed witness changes the thesis before prose. Any message differing from Planning evidence goes in "Corrections after the build" | H1b | done |
 | H3 | Two figures, specs `diagrams/specs/14-*.py` and `15-*.py`, `_data/diagrams.yml` (single owner; `section: "Ch. 14"`/`"Ch. 15"`); figures 00-13 unchanged | H2 | done |
 | H4 | ch14-15 `status = "drafted"` (`kind` stays `pattern`) | H3 | done |
-| H5 | Two prose agents in parallel. Each re-fetches its sources and quotes exactly, runs the experiments and the ruff F601 check in scratch copies, quotes fresh output filtered by `python3 scripts/host_ids.py filter`, and hands back the sources checked plus a per-paragraph claims table (claim, then test, run or source URL) | H3, H4 | todo |
+| H5 | Two prose agents in parallel. Each re-fetches its sources and quotes exactly, runs the experiments and the ruff F601 check in scratch copies, quotes fresh output filtered by `python3 scripts/host_ids.py filter`, and hands back the sources checked plus a per-paragraph claims table (claim, then test, run or source URL) | H3, H4 | done |
 | H6 | Opus validation; up to two repair rounds | H5 | todo |
 | H7 | PR, `ci-ok` green, ask the user before merge; tag r07.x; notes-only release. No hub PR (decision 6) | H6 | todo |
 
@@ -542,6 +542,9 @@ Reconciliation rows (step H0). The "How to verify" column uses resolvable tokens
 - Step H1a, `max_days` row: the deletion hangs `[always-delayed]` (a 10 s timeout exits 124) as predicted; `test_the_day_cap_bounds_the_number_of_draws` (a counting `random.Random` subclass that raises after 100 draws) fails fast and is the named witness.
 - Step H1a: `test_every_value_in_the_model_is_frozen` collided with chapter 13's test name and is `test_every_state_and_event_is_frozen`; the orchestrator re-ran the `HandlingEvent` frozen deletion under the new name (1 failed, 39 passed). Shared case lists live in conftest fixtures, so each table test reports one id per form, not per history.
 - Step H1b: the pytest built-in `request` fixture clashes with the spec's conftest name, so the fixture is `booking_request`; `apply_pending` drains a local `deque(self.pending)` with `popleft`, so a failing batch leaves `pending` and the request untouched. No planning errors in chapter 15.
+- Step H5, chapter 14 experiment (a), `Held` added to the union: pytest is not fully green as planned; `test_the_static_snippets_mirror_the_source` fails (the snippet's union no longer mirrors `states.py`), and member mypy reports `[arg-type]` naming `Held` at both `assert_never` sites. The prose says "all but one test".
+- Step H5, chapter 14 experiment (b), `(DELIVERED, BOOKED): BOOKED` added to `TRANSITIONS`: four tests fail (terminal `[table]`, the two-forms agreement, read-only table, state-object agreement), not two; mypy is clean.
+- Step H5 (both chapters): a scratch copy that carries a `.venv` can import the real source through editable installs; delete `.venv` and run `uv sync --locked --all-packages` in the copy, or set `PYTHONPATH`, and confirm `__file__` before trusting a run. Chapter 15's prose count was corrected from 23 to 20 test functions.
 - Row 76 carries `run: H5`, which resolves when H5 is done (not an H1a gate failure).
 
 (empty)
