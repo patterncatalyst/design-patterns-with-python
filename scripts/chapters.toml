@@ -151,7 +151,7 @@ title = "Factory Method and Abstract Factory"
 part = 6
 kind = "pattern"
 has_example = true
-status = "stub"
+status = "drafted"
 
 [[chapter]]
 number = 17
@@ -160,7 +160,7 @@ title = "Builder, dataclasses, and Prototype"
 part = 6
 kind = "pattern"
 has_example = true
-status = "stub"
+status = "drafted"
 
 [[chapter]]
 number = 18
@@ -169,7 +169,7 @@ title = "Singleton: module, Borg, and metaclass"
 part = 6
 kind = "pattern"
 has_example = true
-status = "stub"
+status = "drafted"
 
 [[chapter]]
 number = 19

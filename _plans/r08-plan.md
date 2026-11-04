@@ -639,8 +639,8 @@ Step ids are `I*` because `--claims` resolves `run:` tokens against every plan's
 | I1b | ch17 member, card, README; one `uv lock` after the member (sequenced); three green runs; deletion table | I1a | done |
 | I1c | ch18 member, card, README; one `uv lock` (sequenced); three green runs; deletion table; `_plans/evidence/lazy-import-threads.md` (20 subprocess runs of test 3's code, scrubbed) | I1b | done |
 | I2 | Witness results into rows 85-96 (claims audit resolves). A failed witness changes the thesis before prose. Any message differing from Planning evidence goes in "Corrections after the build" | I1c | done |
-| I3 | Three figures, specs `diagrams/specs/16-*.py`, `17-*.py`, `18-*.py`, `_data/diagrams.yml` (single owner; `section: "Ch. 16"` to `"Ch. 18"`); figures 00-15 unchanged | I2 | todo |
-| I4 | ch16-18 `status = "drafted"` (`kind` stays `pattern`) | I3 | todo |
+| I3 | Three figures, specs `diagrams/specs/16-*.py`, `17-*.py`, `18-*.py`, `_data/diagrams.yml` (single owner; `section: "Ch. 16"` to `"Ch. 18"`); figures 00-15 unchanged | I2 | done |
+| I4 | ch16-18 `status = "drafted"` (`kind` stays `pattern`) | I3 | done |
 | I5 | Three prose agents in parallel. Each re-fetches its sources and quotes exactly, runs its two experiments in scratch copies, quotes fresh output filtered by `python3 scripts/host_ids.py filter`, and hands back the sources checked plus a per-paragraph claims table (claim, then test, run or source URL) | I3, I4 | todo |
 | I6 | Opus validation; up to two repair rounds (decision 2's split applies if a third is needed) | I5 | todo |
 | I7 | PR, `ci-ok` green, ask the user before merge; tag r08.x; notes-only release. Hub PR only if I0b ran | I6 | todo |

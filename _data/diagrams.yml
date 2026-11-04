@@ -138,3 +138,28 @@
     in, first out, all or nothing; each application returns a new frozen
     request and the inverse it computed, which undo and redo move between
     the two stacks.
+
+- name: 16-factory-method-and-abstract-factory
+  section: "Ch. 16"
+  title: Factories as values
+  caption: >-
+    Factories as values. A read-only registry maps a carrier code to one kit
+    per family. The reference type ties the gateway to the label printer,
+    while the rate source stays consistent only because the whole kit is
+    chosen once.
+
+- name: 17-builder-dataclasses-and-prototype
+  section: "Ch. 17"
+  title: Building and copying a booking request
+  caption: >-
+    Building and copying a booking request. A template is copied into a
+    frozen keyword-only request whose checks run on every copy path, and
+    only an immutable field type keeps two copies from sharing one list.
+
+- name: 18-singleton-module-borg-metaclass
+  section: "Ch. 18"
+  title: Four ways to load the tariff table once
+  caption: >-
+    Four ways to load the tariff table once, in the order to reach for them.
+    A module, a lazy import and a parameter come first; the class forms
+    beside them each cost something the tests measure.
