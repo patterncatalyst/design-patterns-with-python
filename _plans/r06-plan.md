@@ -424,7 +424,7 @@ Step ids are `G*` because `--claims` resolves `run:` tokens against every plan's
 | G2 | Witness results into rows 65-74 (claims audit resolves). A failed witness changes the thesis before prose. Any message differing from Planning evidence goes in "Corrections after the build" | G1b | done |
 | G3 | Two figures, specs `diagrams/specs/12-*.py` and `13-*.py`, `_data/diagrams.yml` (single owner; `section: "Ch. 12"`/`"Ch. 13"`); figures 00-11 unchanged | G2 | done |
 | G4 | ch12-13 `status = "drafted"` (`kind` stays `pattern`) | G3 | done |
-| G5 | Two prose agents in parallel. Each re-fetches its sources and quotes exactly, runs the experiments in scratch copies, quotes fresh output filtered by `python3 scripts/host_ids.py filter`, and hands back the sources checked plus a per-paragraph claims table (claim, then test, run or source URL) | G3, G4 | todo |
+| G5 | Two prose agents in parallel. Each re-fetches its sources and quotes exactly, runs the experiments in scratch copies, quotes fresh output filtered by `python3 scripts/host_ids.py filter`, and hands back the sources checked plus a per-paragraph claims table (claim, then test, run or source URL) | G3, G4 | done |
 | G6 | Opus validation; up to two repair rounds | G5 | todo |
 | G7 | PR, `ci-ok` green, ask the user before merge; tag r06.x; notes-only release. No hub PR (decision 3) | G6 | todo |
 
