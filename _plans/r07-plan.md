@@ -9,7 +9,9 @@ render_with_liquid: false
 
 Opus-planned 2026-11-04. Branch `release/r07` (from main at b393443). This file is the source of truth for r07 scope, criteria and status. Executors never edit it; the orchestrator updates the status board. There's no toolchain work this iteration: Python 3.15.2, mypy 2.4.1, pytest 9.2.0, pytest-mock 3.17.0, ruff 0.17.3 and uv 0.13.7 are unchanged, and `uv.lock` changes only because two members are added.
 
-## User decisions (open: recommendations by the planner, for the owner to confirm)
+## User decisions (2026-11-04, confirmed by the owner)
+
+Owner answers 2026-11-04: every decision below takes the recommended option (chapter 14 table + match forms with the state-object form as a test fixture; chapter 15 frozen amendment values with the inverse computed at run time; H step ids; plain state names; inverse operations taught, snapshots one paragraph; small seeded transit-delay model; no new books, no hub PR; no Command class count).
 
 1. **Step ids are `H*`, not `G*`.** `validate.py --claims` resolves `run: <id>` against the steps table of every `_plans/r*-plan.md` (`scripts/validate.py` line 731 globs them all). r06 used `G0`-`G7` and every one is `done`, so an r07 `run: G5` would resolve against r06's row without any r07 proof. r07 uses `H0`, `H1a`, `H1b`, `H2`-`H7`, which appear in no other plan. The section structure is r06's.
 
