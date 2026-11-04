@@ -13,7 +13,7 @@ delay probability of 0.2 from its own `random.Random(seed)`, seeds 0 to 9999, wi
 The expected delay is the negative-binomial mean, 21 x 0.2 / 0.8 = 5.25. This is recorded evidence
 only and no test asserts it.
 
-```text
+```python
 import random
 from statistics import fmean
 

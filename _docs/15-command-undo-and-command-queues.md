@@ -13,7 +13,7 @@ By the end of this chapter you can:
 
 - Say which part of Command dissolves into `functools.partial` and which part survives, and name what a partial lacks.
 - Write amendments as frozen values and a single `match` that applies one and returns the amendment that reverses it.
-- Keep undo and redo as two bounded `deque` stacks, and say why the inverse is read when the amendment runs.
+- Keep undo and redo as two `deque` stacks, the undo stack bounded, and say why the inverse is read when the amendment runs.
 - Explain how two commands sharing a mutable mapping undo to the wrong text, and close the gap with a `frozendict` field.
 - Apply a queue of amendments all or nothing, with a failing amendment leaving the booking as it was.
 
@@ -25,21 +25,21 @@ Two instruction amendments are built from one dictionary that the caller keeps e
 
 An amendment records the old weight when it's queued. Two are queued while the weight is 120, one to 130 and one to 140. After both run, undoing the second restores 120 where 130 was expected, because the old value was read before the first one ran.
 
-A batch of amendments fails halfway, and the booking is left with the first two applied and the third refused. Nobody asked for a half-amended booking.
+A batch of amendments fails halfway, and the booking is left with the first two applied and the third refused.
 
-{% include excalidraw.html name="15-command-undo-and-command-queues" caption="Figure 15.1: Amendments as values on two stacks. submit queues first in, first out; apply_pending applies all or nothing; apply returns a new frozen BookingRequest and the inverse amendment, which undo and redo move between bounded stacks." %}
+{% include excalidraw.html name="15-command-undo-and-command-queues" caption="Figure 15.1: Amendments as values on two stacks. Queued amendments are applied first in, first out, all or nothing; each application returns a new frozen request and the inverse it computed, which undo and redo move between the two stacks." %}
 
 Read the figure from the top down. An accent box, `submit(amendment)`, feeds `pending`, a deque that is first in, first out. `apply_pending` follows, folding on a local request so that the batch is all or nothing, and it calls `apply(request, amendment)`, one match in one function. That box forks into two: `BookingRequest`, the new frozen value, and the inverse amendment, read at the moment of change. The inverse arrow runs down to `undo_stack`, a `deque(maxlen)` that forgets its oldest entry. Between `undo_stack` and `redo_stack` two arrows carry an inverse each way, labelled undo and redo. A dashed box above `redo_stack`, "new amendment clears redo", points into it.
 
 ## What dissolves and what survives
 
-The *Design Patterns* catalogue by Gamma, Helm, Johnson and Vlissides (1994) gives Command to a request that has to outlive the moment it was made: held, passed to something else, replayed and, with enough data, reversed. The book's wording isn't reproduced here. The force is that a change needs an identity of its own.
+The *Design Patterns* catalogue by Gamma, Helm, Johnson and Vlissides (1994) gives Command to a request that has to outlive the moment it was made: held, passed to something else, replayed and, with enough data, reversed. The force is that a change needs an identity of its own.
 
-The packaging of that force dissolves. A deferred call is a `functools.partial`, and [The three-way split: dissolve, survive, disambiguate]({{ '/docs/03-the-three-way-split/' | relative_url }}) shows a deque of partials that change nothing until called. What the partial can't do is the rest of the force. It has no inverse, and it has no value equality, so a queue of partials can't be undone, inspected or deduplicated. [Strategy: the callable]({{ '/docs/12-strategy-the-callable/' | relative_url }}) owns the partial facts, and this chapter takes them as given.
+The packaging of that force dissolves. A deferred call is a `functools.partial`, and [The three-way split: dissolve, survive, disambiguate]({{ '/docs/03-the-three-way-split/' | relative_url }}) shows a deque of partials that change nothing until called. What the partial can't do is the rest of the force. It has no inverse, and it has no value equality, so a queue of partials can't be undone or deduplicated. [Strategy: the callable]({{ '/docs/12-strategy-the-callable/' | relative_url }}) owns the partial facts.
 
 `test_amendments_compare_by_value_and_partials_do_not` shows the split in one test. Two `Reweigh(kg(130))` are equal with equal hashes, and `Redirect("MYPKG")` prints as `Redirect(destination='MYPKG')`. Two partials built from the same function and the same argument compare unequal, and a partial has no `undo` attribute.
 
-So the bucket is survives, with the deferred call dissolving. Undo, a queue and an inverse that stays correct need design. A Python shape for them is a closed set of frozen values, one function that applies a value, two bounded stacks and a deque. The classes of the original pattern, a `Command` base with `execute` and `undo`, don't appear.
+So the bucket is survives, with the deferred call dissolving. Undo, a queue and an inverse that stays correct need design. A Python shape for them is a closed set of frozen values, one function that applies a value, an undo stack with a bound, a redo stack and a queue. The classes of the original pattern, a `Command` base with `execute` and `undo`, don't appear.
 
 ## Commands as values
 
@@ -96,15 +96,15 @@ def apply(request: BookingRequest, amendment: Amendment) -> tuple[BookingRequest
 ```
 <!-- fmt:on -->
 
-`apply` returns two things, the amended request and the amendment that reverses it. The inverse of `Reweigh(130)` on a 120 kg request is `Reweigh(120)`, read from the request that was actually amended. `test_apply_returns_the_amendment_that_reverses_it` runs this for each kind: applying the inverse restores the original request, and the inverse's inverse is the amendment you started with. `dataclasses.replace`, documented in the [`dataclasses` module](https://docs.python.org/3/library/dataclasses.html), builds the new request, so the old one is untouched. `test_a_redirect_needs_a_port_code` shows `Redirect` refusing `"sgsin"` and `"SGSIN "` with an `AmendmentError` that quotes the code it was given.
+`apply` returns two things, the amended request and the amendment that reverses it. The inverse of `Reweigh(kg(130))` on a 120 kg request is `Reweigh(kg(120))`, read from the request that was amended. `test_apply_returns_the_amendment_that_reverses_it` runs this for each kind: applying the inverse restores the original request, and the inverse's inverse is the amendment you started with. `dataclasses.replace`, documented in the [`dataclasses` module](https://docs.python.org/3/library/dataclasses.html), builds the new request, so the old one is untouched. `test_a_redirect_needs_a_port_code` shows `Redirect` refusing `"sgsin"` and `"SGSIN "` with an `AmendmentError` that quotes the code it was given.
 
-The last arm is `case _: assert_never(amendment)`. A fourth kind added to the union without an arm is a type error, and the technique is the one taught in [State and finite state machines]({{ '/docs/14-state-and-finite-state-machines/' | relative_url }}), which isn't repeated. `test_mypy_reports_an_amendment_kind_missing_from_apply` runs a reduced copy of this module with an `Insure` kind added. `test_the_amendment_snippet_mirrors_the_source` holds the copy to the real classes and arms, and the run through the test's own helper prints:
+The last arm is `case _: assert_never(amendment)`. A fourth kind added to the union without an arm is a type error, and the technique is the one taught in [State and finite state machines]({{ '/docs/14-state-and-finite-state-machines/' | relative_url }}). `test_mypy_reports_an_amendment_kind_missing_from_apply` runs a reduced copy of this module with an `Insure` kind added. `test_the_amendment_snippet_mirrors_the_source` holds the copy to the real classes and arms, and the run through the test's own helper prints:
 
 ```text
 <string>:51: error: Argument 1 to "assert_never" has incompatible type "Insure"; expected "Never"  [arg-type]
 ```
 
-An obvious alternative is one `Amendment` class with an `apply` callable and an `undo` callable as fields. That's the shape that goes wrong in the next two sections. A command holding callables captures its undo data when it's built, and two commands built around partials don't compare equal, so the equality that the first test shows is gone.
+An obvious alternative is one `Amendment` class with an `apply` callable and an `undo` callable as fields. A command holding callables captures its undo data when it's built, which is the stale-inverse failure measured in the next section, and two commands built around partials don't compare equal, so the equality that the first test shows is gone.
 
 ## Undo, redo and the inverse captured at run time
 
@@ -146,7 +146,7 @@ class Booking:
 ```
 <!-- fmt:on -->
 
-The stacks hold inverses. `amend` applies an amendment and pushes what `apply` returned. `undo` pops an inverse, applies it, and pushes what that application returned onto the redo stack, which is the amendment that redoes the change. `redo` runs the same move the other way. `test_undo_and_redo_walk_the_history` amends twice, undoes twice and redoes twice, checking the request and the stack sizes at each step, and `test_two_amendments_undone_restore_the_original_request` checks that the request returns to the starting value. `test_undo_or_redo_with_nothing_recorded_is_an_amendment_error` covers both operations on an empty stack: an `AmendmentError`, with the request unchanged. 
+The stacks hold inverses. `amend` applies an amendment and pushes what `apply` returned. `undo` pops an inverse, applies it, and pushes what that application returned onto the redo stack, which is the amendment that redoes the change. `redo` runs the same move the other way. `test_undo_and_redo_walk_the_history` amends twice, undoes twice and redoes twice, checking the request and the stack sizes at each step, and `test_two_amendments_undone_restore_the_original_request` checks that the request returns to the starting value. `test_undo_or_redo_with_nothing_recorded_is_an_amendment_error` covers both operations on an empty stack: an `AmendmentError`, with the request unchanged.
 
 A new amendment clears the redo stack, which is the dashed box in the figure. Once the history has branched, the old redo entries describe a future that no longer follows from the present, and `test_a_new_amendment_clears_redo` undoes a weight change, makes a redirect and finds redo empty and refused.
 
@@ -156,7 +156,7 @@ The history is bounded. `Booking` builds `undo_stack` with `maxlen=history_limit
 
 ## Commands that share mutable data
 
-The chapter's central failure needs no unusual code. The test fixtures `_LooseSetInstructions` and `_loose_apply` are the same command as `SetInstructions` with one change in the field type:
+The failure needs no unusual code. The test fixtures `_LooseSetInstructions` and `_loose_apply` are the same command as `SetInstructions` with one change in the field type:
 
 ```python
 @dataclass(frozen=True, slots=True)
@@ -181,9 +181,9 @@ The fix is the field type. `SetInstructions.instructions` and `BookingRequest.in
 - `test_mypy_rejects_assigning_into_frozen_instructions` assigns into `request.instructions["handling"]` and gets `<string>:5: error: Unsupported target for indexed assignment ("frozendict[str, str]")  [index]`.
 - `test_instructions_cannot_be_changed_after_queueing` does the assignment at run time, behind a `# type: ignore[index]`, and gets a `TypeError` matching "does not support item assignment", with the original text intact.
 
-The caller who wants to supply a mapping writes `frozendict({"handling": "keep dry"})`, a copy that nobody else holds. mypy catches the caller who forgets, and the runtime catches the one who ignores mypy. A frozen dataclass may also default a `frozendict` field without `default_factory`: `BookingRequest` does, and `test_a_frozen_mapping_default_needs_no_factory` shows two requests sharing one default object, with a `dict` default refused as a `ValueError` that says to use `default_factory`.
+The caller who wants to supply a mapping writes `frozendict({"handling": "keep dry"})`, a mapping that nobody else holds. mypy catches the caller who forgets, and an item assignment into a `frozendict` raises at run time. A frozen dataclass may also default a `frozendict` field without `default_factory`: `BookingRequest` does, and `test_a_frozen_mapping_default_needs_no_factory` shows two requests sharing one default object, with a `dict` default refused as a `ValueError` that says to use `default_factory`.
 
-One more property comes free. Every `BookingRequest` is a frozen value, so a request kept from before a series of amendments still equals the original after them. `test_a_frozen_request_is_a_safe_snapshot` checks that. Snapshots as an undo strategy, with rollback of a whole object, belong to [Visitor, Memento, and Interpreter]({{ '/docs/25-visitor-memento-interpreter/' | relative_url }}). This chapter teaches inverses, and a snapshot is the alternative when no inverse exists.
+One more property comes free. Every `BookingRequest` is a frozen value, so a request kept from before a series of amendments still equals the original after them. `test_a_frozen_request_is_a_safe_snapshot` checks that. Snapshots as an undo strategy, with rollback of a whole object, belong to [Visitor, Memento, and Interpreter]({{ '/docs/25-visitor-memento-interpreter/' | relative_url }}). A snapshot is the alternative when no inverse exists.
 
 ## A queue that applies all or nothing
 
@@ -209,11 +209,11 @@ Queued amendments change nothing until they're applied. `submit` appends to a de
 ```
 <!-- fmt:on -->
 
-The loop works on a local deque copy of the queue and a local request, and nothing on `self` changes until the loop has finished. `test_queued_amendments_apply_in_order` submits four amendments, checks that the weight is still 120, applies the batch and finds the last weight, destination and instructions in place. Undoing then walks back through them in reverse, with one inverse per amendment. `test_a_batch_clears_redo_and_records_one_inverse_per_amendment` checks the committed history, `[Reweigh(kg(120)), Redirect("SGSIN")]`.
+The loop works on a local deque built from the queue and a local request, and nothing on `self` changes until the loop has finished. `test_queued_amendments_apply_in_order` submits four amendments, checks that the weight is still 120, applies the batch and finds the last weight, destination and instructions in place. Undoing then walks back through them in reverse, with one inverse per amendment. `test_a_batch_clears_redo_and_records_one_inverse_per_amendment` checks the committed history, `[Reweigh(kg(120)), Redirect("SGSIN")]`.
 
-The failing case is the reason for the local variable. `test_a_failing_batch_leaves_the_booking_unchanged` submits a reweigh and then `Redirect("nowhere")`. The second raises `AmendmentError`, and the test finds the request, the undo stack, the redo stack and the pending queue all equal to their values before the call, with both amendments still waiting. The first amendment's effect was computed and thrown away. A caller can fix the queue and call again.
+The failing case is the reason for the local variable. `test_a_failing_batch_leaves_the_booking_unchanged` submits a reweigh and then `Redirect("nowhere")`. The second raises `AmendmentError`, and the test finds the request, the undo stack, the redo stack and the pending queue all equal to their values before the call, with both amendments still waiting. The first amendment's effect was computed and thrown away.
 
-Harry Percival and Bob Gregory, in *Architecture Patterns with Python*, have a chapter titled "Commands and Command Handler" on commands that are queued and handled in one place. This chapter borrows the idea that a command is a message with one handler. The code and the examples are its own. For queues shared across concurrent tasks, see [asyncio and the patterns]({{ '/docs/38-asyncio-and-the-patterns/' | relative_url }}).
+Harry Percival and Bob Gregory, in *Architecture Patterns with Python*, have a chapter titled "Commands and Command Handler" on commands that are queued and handled in one place. The idea that a command is a message with one handler comes from that chapter, where the dispatcher expects one handler per command; the code and examples here are new. For queues shared across concurrent tasks, see [asyncio and the patterns]({{ '/docs/38-asyncio-and-the-patterns/' | relative_url }}).
 
 ## When not to use it
 
@@ -280,7 +280,7 @@ tests/test_undo.py::test_a_frozen_request_is_a_safe_snapshot PASSED      [100%]
 Success: no issues found in 10 source files
 ```
 
-The suite has 20 test functions and 29 cases. The tests that cover this chapter's claims are in `test_commands.py`, `test_undo.py`, `test_shared_data.py`, `test_queue.py` and `test_static.py`. For how the tests and the mypy witnesses are built, see [Proving it works: pytest, pytest-mock, and mypy]({{ '/docs/11-testing-with-pytest-pytest-mock-and-mypy/' | relative_url }}).
+The suite has 23 test functions and 29 cases. The tests that cover this chapter's claims are in `test_commands.py`, `test_undo.py`, `test_shared_data.py`, `test_queue.py` and `test_static.py`. For how the tests and the mypy witnesses are built, see [Proving it works: pytest, pytest-mock, and mypy]({{ '/docs/11-testing-with-pytest-pytest-mock-and-mypy/' | relative_url }}).
 
 **Experiment one: stop clearing redo.** In a scratch copy, delete the `self.redo_stack.clear()` line in `Booking.amend`. Running `uv run pytest -q 2>&1 | grep -E '^(FAILED|E {7}[^ ]|tests/.*Error$|[0-9]+ (passed|failed))'` and then the member's mypy run gives:
 

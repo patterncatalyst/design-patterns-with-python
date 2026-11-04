@@ -125,16 +125,16 @@
   section: "Ch. 14"
   title: One consignment lifecycle, two ways to write it
   caption: >-
-    One consignment lifecycle, two ways to write it. A read-only TRANSITIONS
-    table maps a status and an event to the next status; apply_event does the
-    same with a match over frozen states, and an injected Random drives
+    One consignment lifecycle, two ways to write it. A read-only table maps
+    a status and an event to the next status; a match over frozen states
+    does the same with per-state data, and an injected generator drives
     transit delays.
 
 - name: 15-command-undo-and-command-queues
   section: "Ch. 15"
   title: Amendments as values on two stacks
   caption: >-
-    Amendments as values on two stacks. submit queues first in, first out;
-    apply_pending applies all or nothing; apply returns a new frozen
-    BookingRequest and the inverse amendment, which undo and redo move
-    between bounded stacks.
+    Amendments as values on two stacks. Queued amendments are applied first
+    in, first out, all or nothing; each application returns a new frozen
+    request and the inverse it computed, which undo and redo move between
+    the two stacks.

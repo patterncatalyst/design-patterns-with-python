@@ -25,9 +25,9 @@ A tracking record keeps a `status` field. Nothing stops a caller setting it from
 
 Each is a lifecycle problem that the type system and the test suite can be made to see, once the lifecycle is written down as something they can read.
 
-{% include excalidraw.html name="14-state-and-finite-state-machines" caption="Figure 14.1: One consignment lifecycle, two ways to write it. A read-only TRANSITIONS table maps a status and an event to the next status; apply_event does the same with a match over frozen states, and an injected Random drives transit delays." %}
+{% include excalidraw.html name="14-state-and-finite-state-machines" caption="Figure 14.1: One consignment lifecycle, two ways to write it. A read-only table maps a status and an event to the next status; a match over frozen states does the same with per-state data, and an injected generator drives transit delays." %}
 
-Read the figure from the top. Two boxes sit above the lifecycle: `TRANSITIONS`, a read-only table keyed by status and event, on the left, and `apply_event`, a match on state ending in `assert_never`, on the right. Dashed arrows run from both into `Booked`, because both forms start there. Below them a column runs `Booked`, `Loaded`, `InTransit`, `Cleared` and `Delivered`, with the arrows labelled `LOADED`, `DEPARTED`, `CLEARED` and `DELIVERED`. `Delivered` is marked terminal. A dashed box beside `InTransit` reads "each day: delay with probability p (injected Random)" and points into it. At the bottom, a dashed arrow labelled "any other event" runs from `Delivered` to the accent box, "illegal event: TransitionError". The figure draws that arrow from `Delivered` alone. An illegal event raises from any state, and the tests below hold both forms to that.
+Read the figure from the top. Two boxes sit above the lifecycle: `TRANSITIONS`, a read-only table keyed by status and event, on the left, and `apply_event`, a match on state ending in `assert_never`, on the right. Dashed arrows run from both into `Booked`, because both forms start there. Below them a column runs `Booked`, `Loaded`, `InTransit`, `Cleared` and `Delivered`, with the arrows labelled `LOADED`, `DEPARTED`, `CLEARED` and `DELIVERED`. `Delivered` is marked terminal. A dashed box beside `InTransit` reads "each day: delay with probability p (injected Random)" and points into it. At the bottom, a dashed arrow labelled "any other event" runs from `Delivered` to the accent box, "illegal event: TransitionError". An illegal event raises from any state, not only from `Delivered`.
 
 ## The force that remains
 
@@ -37,7 +37,7 @@ The sorting question from [The three-way split: dissolve, survive, disambiguate]
 
 Two questions decide the shape. Where are the legal transitions written? And what notices a state that a piece of code forgot?
 
-One choice about events, made once. The tracking events here are a single `HandlingEvent` with a `HandlingKind` field, `BOOKED`, `LOADED`, `DEPARTED`, `CLEARED` or `DELIVERED`, and not a class per event, because the class names in this chapter belong to the states.
+The tracking events here are a single `HandlingEvent` with a `HandlingKind` field, `BOOKED`, `LOADED`, `DEPARTED`, `CLEARED` or `DELIVERED`, and not a class per event, because the class names in this chapter belong to the states.
 
 ## The transition table
 
@@ -73,11 +73,11 @@ mypy checks what the entries are made of. Swapping the halves of a key is an err
 <string>:10: error: Dict entry 1 has incompatible type "tuple[ConsignmentStatus, HandlingKind]": "HandlingKind"; expected "tuple[ConsignmentStatus, HandlingKind]": "ConsignmentStatus"  [dict-item]
 ```
 
-What mypy can't check is legality. A table with a well-typed entry from delivered back to booked passes with exit status 0 and no output in `test_mypy_checks_table_entry_types_but_not_legality[illegal-pair]`. A repeated key keeps the last value at run time (`test_a_repeated_table_key_keeps_the_last_value`), and mypy is silent about it. ruff isn't: in a scratch file with `(CLEARED, DELIVERED)` written twice with different values, `ruff check` reported `F601 Dictionary key literal repeated`, mypy reported `Success: no issues found`, and the table held one entry, the second. The graph tests and the linter cover what the type checker leaves open.
+What mypy can't check is legality. A table with a well-typed entry from delivered back to booked passes with exit status 0 and no output in `test_mypy_checks_table_entry_types_but_not_legality[illegal-pair]`. A repeated key keeps the last value at run time (`test_a_repeated_table_key_keeps_the_last_value`), and mypy is silent about it. ruff isn't: in a scratch file with `(S.CLEARED, K.DELIVERED)` written twice with different values, `ruff check` reported ``F601 Dictionary key literal `(S.CLEARED, K.DELIVERED)` repeated``, mypy reported `Success: no issues found in 1 source file`, and the table held one entry, the second. The graph tests and the linter cover what the type checker leaves open.
 
 ## States that carry data: match and assert_never
 
-Some states carry data. A consignment in transit has days sailed and days lost to delay, and a delivered one has neither. The states become frozen dataclasses, so each holds only its own fields. The ones that matter for the chapter:
+Some states carry data. A consignment in transit has days sailed and days lost to delay, and a delivered one has neither. The states become frozen dataclasses, so each holds only its own fields. Two of them, and the union:
 
 ```python
 @dataclass(frozen=True, slots=True)
@@ -165,7 +165,7 @@ class _LifecycleState(Protocol):
 ```
 <!-- fmt:on -->
 
-Five frozen classes implement it, each returning the next state object or raising. `test_state_objects_pass_the_same_lifecycle_table` runs the legal and illegal histories from the table and gets the same statuses and the same messages. The form works. What it costs shows up in two experiments with mypy, using a Protocol (see [Protocol, duck typing, and structural typing with mypy]({{ '/docs/09-protocol-and-structural-typing/' | relative_url }}) for how the matching works).
+Five frozen classes implement it, each returning the next state object or raising. `test_state_objects_pass_the_same_lifecycle_table` runs the legal and illegal histories from the shared behaviour table and gets the same statuses and the same messages. The form works. What it costs shows up in two mypy witnesses, which use a reduced Protocol, `LifecycleState`, with one method per event, `on_loaded` and `on_departed` (see [Protocol, duck typing, and structural typing with mypy]({{ '/docs/09-protocol-and-structural-typing/' | relative_url }}) for how the matching works).
 
 Adding an operation, say `amendable`, to the Protocol is reported at each return site that now hands back a state without it:
 
@@ -175,7 +175,7 @@ Adding an operation, say `amendable`, to the Protocol is reported at each return
 <string>:17: note:     amendable
 ```
 
-That's a good report, though it lands where a state is returned and not where the class is written. Adding a state gets no report at all if nothing returns it. A `Held` class that no `on_event` hands back is accepted with exit status 0 and empty output (`test_mypy_accepts_a_state_object_nothing_returns`). In the `match` form the opposite holds: a new state is reported at once, at `assert_never`.
+That's a good report, though it lands where a state is returned and not where the class is written. Adding a state gets no report at all if nothing returns it. A `Held` class that defines only `on_loaded`, and that no other state hands back, is accepted with exit status 0 and empty output (`test_mypy_accepts_a_state_object_nothing_returns`). In the `match` form the opposite holds: a new state is reported at once, at `assert_never`.
 
 So the line is about who extends the set. Where the set of states is open, each state owns several operations, and the people adding states can't edit a central `match`, objects behind a Protocol are the right form. A closed lifecycle owned by one team is a union and a `match`, with a checker that reports a forgotten state.
 
