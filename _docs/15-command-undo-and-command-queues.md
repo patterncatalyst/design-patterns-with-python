@@ -35,7 +35,7 @@ Read the figure from the top down. An accent box, `submit(amendment)`, feeds `pe
 
 The *Design Patterns* catalogue by Gamma, Helm, Johnson and Vlissides (1994) gives Command to a request that has to outlive the moment it was made: held, passed to something else, replayed and, with enough data, reversed. The force is that a change needs an identity of its own.
 
-The packaging of that force dissolves. A deferred call is a `functools.partial`, and [The three-way split: dissolve, survive, disambiguate]({{ '/docs/03-the-three-way-split/' | relative_url }}) shows a deque of partials that change nothing until called. What the partial can't do is the rest of the force. It has no inverse, and it has no value equality, so a queue of partials can't be undone or deduplicated. [Strategy: the callable]({{ '/docs/12-strategy-the-callable/' | relative_url }}) owns the partial facts.
+The packaging of that force dissolves. A deferred call is a `functools.partial`, and [The three-way split: dissolve, survive, disambiguate]({{ '/docs/03-the-three-way-split/' | relative_url }}) shows a deque of partials that change nothing until called. What the partial can't do is the rest of the force. It has no inverse, and it has no value equality, so a queue of partials can't be undone or deduplicated. [Strategy: the callable]({{ '/docs/12-strategy-the-callable/' | relative_url }}) covers `functools.partial` itself.
 
 `test_amendments_compare_by_value_and_partials_do_not` shows the split in one test. Two `Reweigh(kg(130))` are equal with equal hashes, and `Redirect("MYPKG")` prints as `Redirect(destination='MYPKG')`. Two partials built from the same function and the same argument compare unequal, and a partial has no `undo` attribute.
 

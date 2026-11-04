@@ -11,7 +11,7 @@ Commands as values.
 
 - `Reweigh`, `Redirect` and `SetInstructions` are frozen slotted dataclasses under
   `type Amendment = Reweigh | Redirect | SetInstructions`. They compare, hash and print by value.
-  Two equal partials do not compare equal and have no inverse.
+  Two partials built from the same function and argument don't compare equal, and a partial has no inverse.
 - `apply(request, amendment)` returns the amended request and the amendment that reverses it,
   computed from the request it actually amended. Applying the inverse restores the original.
 - A `Redirect` to something that is not five uppercase letters is an `AmendmentError`.

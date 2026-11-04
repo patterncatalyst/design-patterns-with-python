@@ -27,7 +27,7 @@ Each is a lifecycle problem that the type system and the test suite can be made 
 
 {% include excalidraw.html name="14-state-and-finite-state-machines" caption="Figure 14.1: One consignment lifecycle, two ways to write it. A read-only table maps a status and an event to the next status; a match over frozen states does the same with per-state data, and an injected generator drives transit delays." %}
 
-Read the figure from the top. Two boxes sit above the lifecycle: `TRANSITIONS`, a read-only table keyed by status and event, on the left, and `apply_event`, a match on state ending in `assert_never`, on the right. Dashed arrows run from both into `Booked`, because both forms start there. Below them a column runs `Booked`, `Loaded`, `InTransit`, `Cleared` and `Delivered`, with the arrows labelled `LOADED`, `DEPARTED`, `CLEARED` and `DELIVERED`. `Delivered` is marked terminal. A dashed box beside `InTransit` reads "each day: delay with probability p (injected Random)" and points into it. At the bottom, a dashed arrow labelled "any other event" runs from `Delivered` to the accent box, "illegal event: TransitionError". An illegal event raises from any state, not only from `Delivered`.
+Read the figure from the top. Two boxes sit above the lifecycle: `TRANSITIONS`, a read-only table keyed by status and event, on the left, and `apply_event`, a match on state ending in `assert_never`, on the right. Dashed arrows run from both into `Booked`, because both forms start there. Below them a column runs `Booked`, `Loaded`, `InTransit`, `Cleared` and `Delivered`, with the arrows labelled `LOADED`, `DEPARTED`, `CLEARED` and `DELIVERED`. `Delivered` is marked terminal. A dashed box beside `InTransit` reads "each day: delay with probability p (injected Random)" and points into it. At the bottom, a dashed arrow labelled "any other event" runs from `Delivered` to the accent box, "illegal event: TransitionError". An illegal event raises from any state, and the tests hold both forms to that.
 
 ## The force that remains
 
@@ -165,7 +165,7 @@ class _LifecycleState(Protocol):
 ```
 <!-- fmt:on -->
 
-Five frozen classes implement it, each returning the next state object or raising. `test_state_objects_pass_the_same_lifecycle_table` runs the legal and illegal histories from the shared behaviour table and gets the same statuses and the same messages. The form works. What it costs shows up in two mypy witnesses, which use a reduced Protocol, `LifecycleState`, with one method per event, `on_loaded` and `on_departed` (see [Protocol, duck typing, and structural typing with mypy]({{ '/docs/09-protocol-and-structural-typing/' | relative_url }}) for how the matching works).
+Five frozen classes implement it, each returning the next state object or raising. `test_state_objects_pass_the_same_lifecycle_table` runs the legal and illegal histories from the shared behaviour table and gets the same statuses and the same messages. The form works. What it costs shows up in two mypy witnesses, which use a reduced Protocol, `LifecycleState`, with two event methods, `on_loaded` and `on_departed` (see [Protocol, duck typing, and structural typing with mypy]({{ '/docs/09-protocol-and-structural-typing/' | relative_url }}) for how the matching works).
 
 Adding an operation, say `amendable`, to the Protocol is reported at each return site that now hands back a state without it:
 

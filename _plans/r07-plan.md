@@ -518,7 +518,7 @@ Step ids are `H*` because `--claims` resolves `run:` tokens against every plan's
 | H4 | ch14-15 `status = "drafted"` (`kind` stays `pattern`) | H3 | done |
 | H5 | Two prose agents in parallel. Each re-fetches its sources and quotes exactly, runs the experiments and the ruff F601 check in scratch copies, quotes fresh output filtered by `python3 scripts/host_ids.py filter`, and hands back the sources checked plus a per-paragraph claims table (claim, then test, run or source URL) | H3, H4 | done |
 | H6 | Opus validation; up to two repair rounds | H5 | done |
-| H7 | PR, `ci-ok` green, ask the user before merge; tag r07.x; notes-only release. No hub PR (decision 6) | H6 | todo |
+| H7 | PR, `ci-ok` green, ask the user before merge; tag r07.x; notes-only release. No hub PR (decision 6) | H6 | done |
 
 Reconciliation rows (step H0). The "How to verify" column uses resolvable tokens.
 
@@ -536,6 +536,8 @@ Reconciliation rows (step H0). The "How to verify" column uses resolvable tokens
 | 84 | 14-15 | The "Build, run, observe" experiments behave as quoted | `run: H5` |
 
 ## Corrections after the build
+
+- Round 2 suggested `for amendment in self.pending:` in `apply_pending`; kept the local `deque` drained with `popleft`, because the deletion table's `popleft` to `pop` row witnesses FIFO order through it.
 
 - Step H1a, `rng` deletion row: member mypy is silent (`random` stays imported for the annotation; an unused parameter isn't an error). Only pytest sees it: six `test_transit.py` tests fail.
 - Step H1a, `<` to `<=` row: `test_transit_delay_bounds[never-delayed]` still passes. The row's witness is `test_a_draw_equal_to_the_probability_is_not_a_delay`, which sets the probability to `Random(7).random()` so the first draw equals it exactly.
