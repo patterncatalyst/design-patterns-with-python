@@ -1,5 +1,5 @@
 import io
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
 from pathlib import Path
 
 import pytest
@@ -37,18 +37,31 @@ class RecordingOpener:
         self.files.append(file)
         return file
 
+    def close_all(self) -> None:
+        """Close every handle still open, so a failed test leaks nothing into the next one."""
+        for file in self.files:
+            file.close()
+
 
 @pytest.fixture
-def opener() -> RecordingOpener:
-    return RecordingOpener()
+def opener() -> Iterator[RecordingOpener]:
+    recording = RecordingOpener()
+    yield recording
+    recording.close_all()
 
 
 @pytest.fixture
-def opener_failing_on() -> Callable[[int], RecordingOpener]:
+def opener_failing_on() -> Iterator[Callable[[int], RecordingOpener]]:
+    made: list[RecordingOpener] = []
+
     def make(n: int) -> RecordingOpener:
-        return RecordingOpener(fail_on=n)
+        recording = RecordingOpener(fail_on=n)
+        made.append(recording)
+        return recording
 
-    return make
+    yield make
+    for recording in made:
+        recording.close_all()
 
 
 @pytest.fixture

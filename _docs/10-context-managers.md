@@ -31,15 +31,13 @@ Read the figure from the top. The accent box is the `with ManifestWriter(path) a
 
 "Resource acquisition" is the label this book uses for a recurring design problem, and it is descriptive, not a catalogue name. The force: a resource obtained in one place must be released on every path out of the code that uses it, and what release means is a decision. Closing a handle is one answer. Committing a staged file is another. Discarding a half-finished result is a third.
 
-[PEP 343](https://peps.python.org/pep-0343/), by Guido van Rossum and Alyssa Coghlan, added the `with` statement in Python 2.5 to take the acquire-and-release boilerplate out of call sites. The Python Language Reference describes the protocol in its section on [with statement context managers](https://docs.python.org/3/reference/datamodel.html#with-statement-context-managers): `__enter__` runs on the way in, and `__exit__` receives the exception details, or three `None` values when the block finished normally. The standard library's [`contextlib` documentation](https://docs.python.org/3/library/contextlib.html) covers the helpers used below. For the design side, Michael Kircher and Prashant Jain's *Pattern-Oriented Software Architecture, Volume 3: Patterns for Resource Management* (2004) treats acquiring and releasing resources as a design topic in its own right, and this chapter borrows that framing and none of its text.
+[PEP 343](https://peps.python.org/pep-0343/), by Guido van Rossum and Alyssa Coghlan, added the `with` statement in Python 2.5 to take the acquire-and-release boilerplate out of call sites. The Python Language Reference describes the protocol in its section on [with statement context managers](https://docs.python.org/3/reference/datamodel.html#with-statement-context-managers): `__enter__` runs on the way in, and `__exit__` receives the exception details, or three `None` values when the block finished normally. The standard library's [`contextlib` documentation](https://docs.python.org/3/library/contextlib.html) covers the helpers used below. For the design side, Michael Kircher and Prashant Jain's *Pattern-Oriented Software Architecture, Volume 3: Patterns for Resource Management* (2004) treats acquiring and releasing resources as a design topic in its own right.
 
 This pattern survives. The language removes the call-site boilerplate: nobody writes `try`/`finally` around every use any more. A feature resolves part of the force and not the rest, because three decisions remain with whoever writes the context manager:
 
 - what release means: close, commit or discard;
 - whether an exception propagates or is swallowed;
 - the order of release across several resources.
-
-Each section below takes one of them, in the manifest example.
 
 ## A class with `__enter__` and `__exit__`
 
@@ -73,7 +71,7 @@ The example is a member called `context-managers`. `ManifestWriter` writes to `<
 
 Both branches close the handle first. Success then renames the partial over the final path with `Path.replace`, which is how a reader comes to see the whole manifest or none of it. Failure deletes the partial. `test_without_with_an_exception_leaves_the_handle_open` is the control: it opens a file with no `with`, raises mid-write and asserts that the handle is still open afterwards. `test_writer_closes_and_discards_on_an_exception` runs the same failure through `ManifestWriter` and checks that the handle is closed, that neither the partial nor the final file exists, and that the `OSError` reached the caller. `test_writer_commits_only_on_success` checks the other side: inside the block the final path is absent and the partial exists, and after the block the final file holds the written line and the partial is gone.
 
-`__exit__` returns `None`, so the exception continues past the block. The Language Reference says that if the method wants to suppress the exception it should return a true value, and that otherwise the exception is processed normally. Returning nothing is the decision to let the failure be seen.
+`__exit__` returns `None`, so the exception continues past the block. The Language Reference says that if the method "wishes to suppress the exception (i.e., prevent it from being propagated), it should return a true value. Otherwise, the exception will be processed normally upon exit from this method." Returning nothing is the decision to let the failure be seen.
 
 Two guards cover misuse. `test_writer_is_single_use` enters the same writer twice and gets `RuntimeError` on the second entry, with one open in total. `test_exiting_a_writer_that_was_never_entered_is_refused` calls `__exit__` directly and gets `was not entered`. The writer takes an `opener` callable, so the tests substitute one that records opens and closes. `open_utf8` passes `encoding="utf-8"` explicitly. Python 3.15 makes UTF-8 the default text encoding ([PEP 686](https://peps.python.org/pep-0686/), listed in [What's New in Python 3.15](https://docs.python.org/3.15/whatsnew/3.15.html)), and writing it out states the intent at the call site.
 
@@ -119,7 +117,7 @@ def manifest_file(path: Path, *, opener: Opener = open_utf8) -> Iterator[TextIO]
 ```
 <!-- fmt:on -->
 
-The `contextlib` documentation says an unhandled exception in the block is reraised inside the generator at the point of the `yield`. That's why `try` isn't optional. Without it, the lines after `yield` are skipped when the block raises, and the close and the discard never run. The class form can't have this bug, since `__exit__` is called on every path by construction. The test fixture `_leaky_manifest_file` is the same generator minus the `try`, and `test_the_generator_form_needs_try` shows the result: after a mid-write `OSError` the handle is still open and the partial file is still on disk. `test_mypy_cannot_see_a_missing_try` type-checks the leaky generator under `--strict` and gets exit status 0 with empty output. The type checker has nothing to say, so a test that raises mid-write is the only guard. Both forms run through the same parametrised tests, so `test_writer_closes_and_discards_on_an_exception[class]` and `[generator]` show the contracts match.
+The `contextlib` documentation says: "If an unhandled exception occurs in the block, it is reraised inside the generator at the point where the yield occurred." That's why `try` isn't optional. Without it, the lines after `yield` are skipped when the block raises, and the close and the discard never run. The class form can't have this bug, since `__exit__` is called on every path by construction. The test fixture `_leaky_manifest_file` is the same generator minus the `try`, and `test_the_generator_form_needs_try` shows the result: after a mid-write `OSError` the handle is still open and the partial file is still on disk. `test_mypy_cannot_see_a_missing_try` type-checks a generator with the same missing `try` under `--strict` and gets exit status 0 with empty output. The type checker has nothing to say, so a test that raises mid-write is the only guard. Both forms run through the same parametrised tests, so `test_writer_closes_and_discards_on_an_exception[class]` and `[generator]` show the contracts match.
 
 The annotation is `Iterator[TextIO]`, and `as out` receives the yielded handle.
 
@@ -144,7 +142,7 @@ def write_manifests(
 ```
 <!-- fmt:on -->
 
-The [`ExitStack` documentation](https://docs.python.org/3/library/contextlib.html) says its registered callbacks are called in reverse order when the stack closes, which is the order a nest of `with` statements would unwind in: the last resource acquired is the first released. `test_exit_stack_unwinds_entered_writers_in_reverse_order` makes the opener fail on the third call. The recorded opens are the first and second partials, and the recorded closes are the second and then the first. The directory ends up empty, because each writer's `__exit__` saw the exception and discarded its partial. The writers decide what release means, and the stack decides the order.
+The [`ExitStack` documentation](https://docs.python.org/3/library/contextlib.html) says each instance "maintains a stack of registered callbacks that are called in reverse order when the instance is closed" which is the order a nest of `with` statements would unwind in: the last resource acquired is the first released. `test_exit_stack_unwinds_entered_writers_in_reverse_order` makes the opener fail on the third call. The recorded opens are the first and second partials, and the recorded closes are the second and then the first. The directory ends up empty, because each writer's `__exit__` saw the exception and discarded its partial. The writers decide what release means, and the stack decides the order.
 
 The function docstring states the contract: the manifests for a sailing are committed together or not at all. `test_exit_stack_commits_every_manifest_on_success` checks the success path: three files committed, no partials.
 
@@ -152,7 +150,7 @@ The function docstring states the contract: the manifests for a sailing are comm
 
 A truthy `__exit__` return swallows the exception, and execution continues after the `with`. `test_a_truthy_exit_swallows_the_exception` uses a fixture manager that returns `True`, raises `ValueError` inside the block and then reaches the statement after it. Nothing in the output says an error occurred.
 
-Sometimes that is the intent: a cache file that may not exist yet, a cleanup of something already cleaned. `contextlib.suppress` states it narrowly. `test_suppress_swallows_only_the_named_exception` suppresses `KeyError`, which is swallowed, and then raises `ValueError` inside the same kind of block, which propagates. The documentation for [`suppress`](https://docs.python.org/3/library/contextlib.html) says to use it only to cover very specific errors where silently continuing is the correct thing to do. Use it where the suppressed case is expected and the code after the block is valid either way. A hand-written `__exit__` that returns `True` to "keep the job going" turns every failure in the block into a success, including the ones nobody anticipated.
+Sometimes that is the intent: a cache file that may not exist yet, a cleanup of something already cleaned. `contextlib.suppress` states it narrowly. `test_suppress_swallows_only_the_named_exception` suppresses `KeyError`, which is swallowed, and then raises `ValueError` inside the same kind of block, which propagates. The documentation for [`suppress`](https://docs.python.org/3/library/contextlib.html) says it "should be used only to cover very specific errors where silently continuing with program execution is known to be the right thing to do." Use it where the suppressed case is expected and the code after the block is valid either way. A hand-written `__exit__` that returns `True` to "keep the job going" turns every failure in the block into a success, including the ones nobody anticipated.
 
 ## A context manager as a decorator
 
@@ -182,7 +180,7 @@ Calling `rows()` leaves the log empty. Iterating it produces `["enter", "row NLR
 
 ## When not to use it
 
-A resource with no release step doesn't need a manager. A value computed and returned has nothing to acquire. A manager wrapped around a single call that already closes its own resource, such as `Path.read_text`, adds a block and nothing else. Swallowing to "keep going" belongs in `suppress` with one named exception, or in an explicit `try`/`except` at the place that knows how to recover. For `async with`, see the asyncio chapter named above.
+A resource with no release step doesn't need a manager. A value computed and returned has nothing to acquire. A manager wrapped around a single call that already closes its own resource, such as `Path.read_text`, adds a block and nothing else. Swallowing to "keep going" belongs in `suppress` with one named exception, or in an explicit `try`/`except` at the place that knows how to recover.
 
 <blockquote class="ai-sidebar" markdown="1">
 
@@ -192,9 +190,10 @@ A resource with no release step doesn't need a manager. A value computed and ret
 
 ## Build, run, observe
 
-From the repository root, once, `uv sync --locked --all-packages`. Then from the example directory:
+From the repository root, once, `uv sync --locked --all-packages`. Then change into the example directory:
 
 ```bash
+cd examples/10-context-managers
 uv run pytest -v
 uv run mypy --strict src tests
 ```
@@ -236,25 +235,24 @@ tests/test_writer.py::test_writer_is_single_use PASSED                   [ 92%]
 tests/test_writer.py::test_exiting_a_writer_that_was_never_entered_is_refused PASSED [ 96%]
 tests/test_writer.py::test_the_generator_form_needs_try PASSED           [100%]
 
-============================== 25 passed in 2.55s ==============================
+============================== 25 passed in 2.53s ==============================
 ```
 
 ```text
 Success: no issues found in 7 source files
 ```
 
-The suite has 16 test functions and 25 cases. The ones that leak a handle to prove the point close it in a `finally`, and the project's pytest configuration turns warnings into errors, so a handle that escapes a test fails a test.
+The suite has 16 test functions and 25 cases. The `opener` fixture closes any handle a test leaves open, so one failing test can't spill a `ResourceWarning` into another.
 
 **Experiment one: skip the close on failure.** In a scratch copy, delete the `self._handle.close()` line from the `else` branch of `ManifestWriter.__exit__`, and run `uv run pytest -q`. Filtering to the failure lines with `uv run pytest -q | grep -E '^(FAILED|[0-9]+ (passed|failed))'` gives:
 
 ```text
 FAILED tests/test_stack.py::test_exit_stack_unwinds_entered_writers_in_reverse_order
-FAILED tests/test_static.py::test_mypy_reads_exit_return_type_for_reachability[none-exit]
 FAILED tests/test_writer.py::test_writer_closes_and_discards_on_an_exception[class]
-3 failed, 22 passed in 2.74s
+2 failed, 23 passed in 2.69s
 ```
 
-The class case fails on `assert opener.files[0].closed`, which reports `assert False`, and the stack test fails because the recorded closes are `[]` where the second and first partials were expected. The third failure is a side effect: the unclosed file is garbage-collected during whichever test runs next, and under warnings-as-errors the `ResourceWarning` fails that test. In this run it landed on the mypy reachability test, which has nothing to do with files. The generator case passes, since it has its own copy of the logic. `uv run mypy --strict src tests` prints `Success: no issues found in 7 source files`: the type checker has no view of a missing `close()`. Restore the line.
+The class case fails on `assert opener.files[0].closed`, which reports `assert False`, and the stack test fails because the recorded closes are `[]` where the second and first partials were expected. The generator case passes, since it has its own copy of the logic. `uv run mypy --strict src tests` prints `Success: no issues found in 7 source files`: the type checker has no view of a missing `close()`. No warning or traceback prints after the summary line, because the fixture closes the handle. Restore the line.
 
 **Experiment two: remove the `try` from `manifest_file`.** Replace the `try`/`except`/`else` block with `yield handle`, then `handle.close()`, then `partial.replace(path)`. One test fails:
 
@@ -263,7 +261,7 @@ FAILED tests/test_writer.py::test_writer_closes_and_discards_on_an_exception[gen
 1 failed, 24 passed in 2.74s
 ```
 
-The assertion is the same `assert opener.files[0].closed`, now against the generator, and pytest prints a `ResourceWarning` for the handle that was never closed. The class case still passes. mypy prints `Success: no issues found in 7 source files` again, which is what `test_mypy_cannot_see_a_missing_try` predicted. Restore the block.
+The assertion is the same `assert opener.files[0].closed`, now against the generator. The class case still passes. mypy prints `Success: no issues found in 7 source files` again, which is what `test_mypy_cannot_see_a_missing_try` predicted. Restore the block.
 
 ## For deeper coverage
 

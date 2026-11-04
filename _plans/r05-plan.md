@@ -515,6 +515,9 @@ Real behaviour on 3.15.2 and mypy 2.4.1; the tests assert it and the prose follo
 - Claim 61 (step 1c): with the two-member `CarrierGateway`, the dict entry is a bare `[dict-item]` with no note; the assignment is `[assignment]` with the missing-member note naming `book`.
 - Claim 63 (step 1c): the `assert_type` witness prints `Expression is of type "Literal[1]", not "str"  [assert-type]`.
 - Step 1c tie-break: with sorted ask order and `min`, the planned `tie-goes-to-airco` case can't see the tie-break; `test_a_tie_is_broken_by_the_carrier_code_in_the_quote` (mapping codes differ from quote carriers) witnesses it, and `test_carriers_are_asked_in_code_order` witnesses the order.
+- `check_stale_versions` (step A2): flags only minors older than the pin, not every other minor, so a scheduled removal ("raises `TypeError` in Python 3.20") isn't stale.
+- `--claims` `run:` tokens (validation round 1): a step id must be a row id in a steps table (digit ids such as `1c` included), or a path to a recorded run under `_plans/evidence/`.
+- Chapter 10 fixtures (validation round 1): `opener` and `opener_failing_on` close every handle a test leaves open, so a failing test doesn't spill a `ResourceWarning` into a later test or the session-end unraisable hook. The Risks line on leaks surfacing through the unraisable hook is superseded.
 - Chapter 11 experiment (a): books every gateway; the failure is `loser.book.assert_not_called()` with `Expected 'book' to not have been called. Called 1 times.` Experiment (b) prints `Failed: DID NOT RAISE TypeError`.
 
 ## Acceptance criteria

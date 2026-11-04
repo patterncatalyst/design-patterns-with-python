@@ -25,7 +25,7 @@ def _engine(gateways: dict[str, CarrierGateway], now: datetime, *, minutes: int 
     [
         pytest.param("10.00", "12.00", "fastline", id="fastline-cheaper"),
         pytest.param("12.00", "10.00", "airco", id="airco-cheaper"),
-        pytest.param("10.00", "10.00", "airco", id="tie-goes-to-airco"),
+        pytest.param("10.00", "10.00", "airco", id="equal-amounts"),
     ],
 )
 def test_best_quote_picks_the_cheapest_carrier(

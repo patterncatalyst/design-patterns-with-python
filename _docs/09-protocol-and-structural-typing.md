@@ -21,7 +21,7 @@ By the end of this chapter you can:
 
 Three failures come from the same place. A booking names a carrier that isn't in the registry, the lookup returns `None`, and the `AttributeError` surfaces three calls later, nowhere near the lookup. A test fixture stands in for the missing carrier with a gateway that returns an empty reference, and a lost booking looks like a success. A quoter written for hazmat consignments is passed to code that prices every consignment, and it fails on the first ordinary one.
 
-Each is a question about what a caller may assume about a collaborator: whether it exists, and whether its shape and its construction are right. Python's answer is spread over three mechanisms that look alike and check at different moments. This chapter separates them.
+Each is a question about what a caller may assume about a collaborator: whether it exists, and whether its shape and its construction are right. Python's answer is spread over three mechanisms that look alike and check at different moments. Telling them apart decides which mistakes the checker catches.
 
 {% include excalidraw.html name="09-protocol-and-structural-typing" caption="Figure 9.1: Three checks behind one booking call. The optional return makes absence a branch to narrow, the CarrierGateway Protocol is compared where a gateway is passed, and the CarrierBase ABC is checked at construction." %}
 
@@ -76,7 +76,7 @@ def book_with(code: str, consignment: Consignment) -> str:
     return gateway.book(consignment)
 ```
 
-The unguarded call, `find_gateway(code).book(c)`, is rejected, as the chapter titled [What 1994 assumed, and what Python dissolves]({{ '/docs/02-what-1994-assumed-and-python-dissolves/' | relative_url }}) shows. Here the interest is in what satisfies the checker. `test_mypy_requires_a_branch_for_absence` runs five snippets through `mypy --strict`: the unguarded one gets `[union-attr]`, and a walrus, a `match` with `case None`, an early return and an `assert` are all clean. The `assert` has a catch the others don't. Per the [reference for the `assert` statement](https://docs.python.org/3/reference/simple_stmts.html#the-assert-statement), the code generator emits no code for it when optimisation is requested, so under `python -O` the check disappears and the `None` reaches the attribute access. Use an explicit branch where the check must survive.
+The unguarded call, `find_gateway(code).book(c)`, is rejected, as the chapter titled [What 1994 assumed, and what Python dissolves]({{ '/docs/02-what-1994-assumed-and-python-dissolves/' | relative_url }}) shows. Here the interest is in what satisfies the checker. `test_mypy_requires_a_branch_for_absence` runs five snippets through `mypy --strict`: the unguarded one gets `[union-attr]`, and a walrus, a `match` with `case None`, an early return and an `assert` are all clean. The `assert` has a catch the others don't. The [reference for the `assert` statement](https://docs.python.org/3/reference/simple_stmts.html#the-assert-statement) says that "the current code generator emits no code for an assert statement when optimization is requested at compile time", so under `python -O` the check disappears and the `None` reaches the attribute access. Use an explicit branch where the check must survive.
 
 `test_book_with_turns_absence_into_a_booking_error` shows the guard doing its job: an unknown code raises `BookingError` with `unknown carrier 'UNKNOWN'`, at the lookup, with the code in the message.
 
@@ -100,8 +100,11 @@ Sometimes `None` is a legitimate argument. `carriers_to_ask` takes a preferred c
 
 ```python
 ACCOUNT_DEFAULT = sentinel("ACCOUNT_DEFAULT")
+```
 
+`carriers_to_ask` takes it as the default for `preferred`:
 
+```python
 def carriers_to_ask(
     preferred: str | ACCOUNT_DEFAULT | None = ACCOUNT_DEFAULT,
     *,
@@ -130,7 +133,7 @@ class Quoter[T: Consignment](Protocol):
     def quote(self, consignment: T, /) -> Money: ...
 ```
 
-The PEP has the checker infer whether `T` is invariant, covariant or contravariant from its use. Here `T` appears only as a parameter, so a quoter of the general type can stand in for a quoter of a narrower one, and the reverse can't. `test_mypy_infers_quoter_variance` passes a `HazmatQuoter` where `Quoter[Consignment]` is expected:
+The PEP says type parameters "are inferred to be invariant, covariant, or contravariant depending on how they are used." Here `T` appears only as a parameter, so a quoter of the general type can stand in for a quoter of a narrower one, and the reverse can't. `test_mypy_infers_quoter_variance` passes a `HazmatQuoter` where `Quoter[Consignment]` is expected:
 
 ```text
 <string>:5: error: Argument 1 to "price_all" has incompatible type "HazmatQuoter"; expected "Quoter[Consignment]"  [arg-type]
@@ -156,7 +159,7 @@ Choose a callback Protocol over a `Callable[[Consignment], Money]` alias when th
 
 ## Protocol or ABC: two mechanisms, one word
 
-"Interface" covers two mechanisms, and they check at different times. A Protocol is structural and is checked where the value is passed. An ABC, from the [`abc` module](https://docs.python.org/3/library/abc.html), is nominal: a class declares that it inherits, the abstract methods must be filled in, and the check happens when an instance is built. An ABC can also carry shared code.
+"Interface" needs disambiguating: the word covers two mechanisms, and they check at different times. A Protocol is structural and is checked where the value is passed. An ABC, from the [`abc` module](https://docs.python.org/3/library/abc.html), is nominal: a class declares that it inherits, the abstract methods must be filled in, and the check happens when an instance is built. An ABC can also carry shared code.
 
 ```python
 class CarrierBase(ABC):
@@ -181,11 +184,11 @@ class AircoGateway(CarrierBase):
         return self.reference(consignment)
 ```
 
-The ABC refuses an incomplete subclass at construction, in both worlds. `test_abc_refuses_an_incomplete_subclass_at_construction` builds a subclass without `book` and gets a `TypeError` naming the missing method; mypy reports `Cannot instantiate abstract class "Half" with abstract attribute "book"  [abstract]` on the same line. The Protocol check is the assignment error shown earlier.
+The ABC refuses an incomplete subclass at construction, in both worlds. `test_abc_refuses_an_incomplete_subclass_at_construction` builds a subclass without `book` and gets a `TypeError` naming the missing method; mypy reports `Cannot instantiate abstract class "Half" with abstract attribute "book"  [abstract]` on the instantiation line. The Protocol check is the assignment error shown earlier.
 
 The two don't compete. `test_both_carriers_satisfy_the_protocol_one_by_inheritance` puts a `FastlineGateway` and an `AircoGateway` in one `list[CarrierGateway]` and books through both. Only the second is a `CarrierBase`, and it reuses `reference()` from there. The caller sees the shape; the implementer chooses whether to inherit.
 
-Subclassing a Protocol explicitly is a third thing. It makes the class nominal, and the three tools disagree about it. `test_explicit_protocol_subclass_is_nominal_and_still_instantiable` builds a class that inherits `CarrierGateway` and implements nothing. mypy says `Cannot instantiate abstract class "Declared" with abstract attribute "book"  [abstract]` (`[declared-protocol]` case of the static test), yet the runtime builds it, and the inherited `...` body returns `None`. A `str` annotation over a `None` result is the kind of lie that survives review. Implement a Protocol by shape and leave it out of the bases.
+Subclassing a Protocol explicitly is a third thing. It makes the class nominal, and mypy and the runtime disagree about it. `test_explicit_protocol_subclass_is_nominal_and_still_instantiable` builds a class that inherits `CarrierGateway` and implements nothing. mypy says `Cannot instantiate abstract class "Declared" with abstract attribute "book"  [abstract]` (`[declared-protocol]` case of the static test), yet the runtime builds it, and the inherited `...` body returns `None`. A `str` annotation over a `None` result is the kind of lie that survives review. Implement a Protocol by shape and leave it out of the bases.
 
 `typing.override` ([PEP 698](https://peps.python.org/pep-0698/)) guards the ABC side. `AircoGateway.book` is marked, and `test_airco_marks_its_book_as_an_override` checks the `__override__` marker is set. A misspelled name is reported: in the `[override-typo]` case, `boook` gets `Method "boook" is marked as an override, but no base method was found with this name  [misc]`.
 
@@ -315,7 +318,7 @@ The failing assertion is the clean-run check on the `PricingRule` snippet, which
 
 ## For deeper coverage
 
-Bobby Woolf's "Null Object", in *Pattern Languages of Program Design 3* (Addison-Wesley, 1998), is the source for the pattern, and it's on the [bibliography page]({{ '/bibliography/' | relative_url }}) with the hub's list.
+Bobby Woolf's "Null Object", in *Pattern Languages of Program Design 3* (Addison-Wesley, 1998), is the source for the pattern, and it's on the [bibliography page]({{ '/bibliography/' | relative_url }}).
 
 The sources for the language features are [PEP 544](https://peps.python.org/pep-0544/) for Protocols, the [typing specification](https://typing.python.org/en/latest/spec/protocol.html) and the [mypy protocols documentation](https://mypy.readthedocs.io/en/stable/protocols.html) for the rules, [PEP 695](https://peps.python.org/pep-0695/) for variance inference, [PEP 698](https://peps.python.org/pep-0698/) for `override`, [PEP 661](https://peps.python.org/pep-0661/) for `sentinel`, [PEP 814](https://peps.python.org/pep-0814/) for `frozendict`, and [What's New in Python 3.15](https://docs.python.org/3/whatsnew/3.15.html) for the `runtime_checkable` deprecation.
 

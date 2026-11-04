@@ -1,11 +1,15 @@
 from datetime import datetime, timedelta
 from decimal import Decimal
+from typing import TYPE_CHECKING
 
 import pytest
 from pytest_mock import MockerFixture
 from testing_baseline.carriers import CarrierGateway, CarrierQuote, CarrierTimeoutError
 from testing_baseline.domain import Consignment, Money
 from testing_baseline.engine import RateEngine
+
+if TYPE_CHECKING:
+    from conftest import FakeFactory
 
 
 def _usd(amount: str) -> Money:
@@ -60,6 +64,16 @@ def test_autospec_rejects_names_and_signatures(mocker: MockerFixture) -> None:
 
     with pytest.raises(TypeError, match="missing a required argument: 'consignment'"):
         gateway.book()
+
+
+def test_a_fake_rejects_unknown_names_and_wrong_signatures(make_fake: FakeFactory) -> None:
+    fake = make_fake("fastline", _usd("10.00"))
+
+    with pytest.raises(AttributeError, match="has no attribute 'bok'"):
+        _ = fake.bok  # type: ignore[attr-defined]
+
+    with pytest.raises(TypeError, match="missing 1 required positional argument: 'consignment'"):
+        fake.book()  # type: ignore[call-arg]
 
 
 def test_side_effect_drives_the_timeout_branch(

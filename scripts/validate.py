@@ -83,7 +83,7 @@ CLAIM_ROW_RE = re.compile(r"^\|\s*(\d+)\s*\|")
 CELL_SPLIT_RE = re.compile(r"(?<!\\)\|")
 CLAIM_TEST_RE = re.compile(r"`(?:[^`\s]*::)?(test_\w+)(?:\[[^`]*\])?`")
 CLAIM_SOURCE_RE = re.compile(r"source:\s*(https?://[^\s`|)>]+)")
-CLAIM_RUN_RE = re.compile(r"run:\s*([A-Za-z][\w.-]*)")
+CLAIM_RUN_RE = re.compile(r"run:\s*([A-Za-z0-9_][\w./-]*)")
 CLAIM_STATUS_RE = re.compile(r"\*\*(\w+)\*\*")
 TEST_DEF_RE = re.compile(r"^\s*(?:async\s+)?def\s+(test_\w+)", re.MULTILINE)
 SVG_TEXT_RE = re.compile(r"<text\b[^>]*>(.*?)</text>", re.DOTALL)
@@ -648,14 +648,19 @@ def chapter_docs(root: Path) -> dict[int, str]:
 
 
 def claim_results(
-    plan_text: str, tests: set[str], docs: dict[int, str], steps_text: str
+    plan_text: str,
+    tests: set[str],
+    docs: dict[int, str],
+    steps_text: str,
+    evidence_files: frozenset[str] = frozenset(),
 ) -> list[ClaimResult]:
     """Parse the reconciliation table and resolve every evidence token.
 
     Tokens are read from the 'How to verify' and 'Status' cells: a backticked
     test_* name (must be defined under examples/*/tests), 'source: <url>' (the
     URL must appear in the chapter's _docs file) and 'run: <step id>' (the id
-    must appear as a word in the plan files).
+    must be a row id in a plan's steps table, '| 1c | ...'), or 'run: <path>' for a
+    recorded run under _plans/evidence/ (the file must exist).
     """
     results: list[ClaimResult] = []
     for lineno, line in enumerate(plan_text.split("\n"), start=1):
@@ -682,9 +687,14 @@ def claim_results(
             if url not in chapter_text:
                 unresolved.append(f"source: {url}")
         for step in CLAIM_RUN_RE.findall(text):
-            step = step.rstrip(".")
+            step = step.rstrip(".,;")
             evidence.append(f"run: {step}")
-            if not re.search(rf"\b{re.escape(step)}\b", steps_text):
+            if "/" in step:
+                found = step in evidence_files
+            else:
+                row = rf"^\|\s*{re.escape(step)}\s*\|"
+                found = re.search(row, steps_text, re.MULTILINE) is not None
+            if not found:
                 unresolved.append(f"run: {step}")
         results.append(
             ClaimResult(
@@ -717,8 +727,11 @@ def load_claims(root: Path) -> list[ClaimResult]:
     if not plan.is_file():
         return []
     steps = "\n".join(p.read_text(encoding="utf-8") for p in sorted((root / "_plans").glob("*.md")))
+    evidence = frozenset(
+        p.relative_to(root).as_posix() for p in (root / "_plans" / "evidence").glob("*.md")
+    )
     return claim_results(
-        plan.read_text(encoding="utf-8"), test_names(root), chapter_docs(root), steps
+        plan.read_text(encoding="utf-8"), test_names(root), chapter_docs(root), steps, evidence
     )
 
 
@@ -1027,21 +1040,38 @@ def self_test() -> int:
     claims += "| 50 | 10 | bare | nothing | **open** |\n"
     claims += "| 51 | 11 | run | run: B3 | **open** |\n| 52 | 11 | run | run: Z9 | **open** |\n"
     claims += "| 53 | 11 | src | source: https://nope.example/y | **open** |\n"
+    claims += "| 54 | 11 | run | run: 1c | **open** |\n"
+    claims += "| 55 | 11 | rec | run: _plans/evidence/a.md | **open** |\n"
+    claims += "| 56 | 11 | rec | run: _plans/evidence/gone.md | **open** |\n"
+    claims += "| 57 | 11 | word | run: B4 | **open** |\n"
     tests = {"test_alpha", "test_beta"}
     docs = {9: "x", 10: "see https://docs.python.org/x here", 11: "none"}
-    res = {r.row: r for r in claim_results(claims, tests, docs, "step B3 done")}
-    expect("claim rows parsed", sorted(res) == [46, 47, 48, 49, 50, 51, 52, 53])
+    res = {
+        r.row: r
+        for r in claim_results(
+            claims,
+            tests,
+            docs,
+            "| B3 | x | - | done |\n| 1c | x | - | done |\nB4 appears only in prose",
+            frozenset({"_plans/evidence/a.md"}),
+        )
+    }
+    expect("claim rows parsed", sorted(res) == list(range(46, 58)))
     expect(
         "claim test resolved", res[47].resolved and res[47].evidence == ("test_alpha", "test_beta")
     )
     expect("claim source resolved", res[48].resolved and res[48].status == "verified")
     expect("claim test unresolved", not res[49].resolved and res[49].unresolved == ("test_gone",))
     expect("claim run", res[51].resolved and not res[52].resolved)
+    expect("claim run digit id", res[54].resolved and res[54].evidence == ("run: 1c",))
+    expect("claim run evidence file", res[55].resolved and not res[56].resolved)
+    expect("claim run needs a steps row", not res[57].resolved)
     expect("claim source unresolved", not res[53].resolved)
     errs, info = claim_findings(list(res.values()))
     expect(
         "claim errors are 47+",
-        sorted(e.message.split(":")[0] for e in errs) == [f"claim {n}" for n in (49, 50, 52, 53)],
+        sorted(e.message.split(":")[0] for e in errs)
+        == [f"claim {n}" for n in (49, 50, 52, 53, 56, 57)],
     )
     expect("claim legacy is info", len(info) == 1 and "legacy" in info[0].message)
     table = claims_table(list(res.values()))

@@ -30,11 +30,11 @@ Read the figure from the top. The accent box holds the claim, "the engine books 
 
 ## A claim, a witness, and a test you've seen fail
 
-The examples in this book follow one method, and it can be stated once. A test is named as a claim: `test_book_best_books_only_the_winner` says what the engine does, so a failure reads as a broken sentence. Each claim has a witness, the test that asserts it. A negative fixture is a wrong object, written to be wrong,, kept in `tests/` with an underscore prefix and a docstring that starts "Negative fixture:", which shows the failure the claim rules out. A check that was never seen to fail is a guess, so each check is deleted in a scratch copy, and the table of deletions records which named test failed. Every experiment at the end of a chapter changes one thing and quotes the result.
+The examples in this book follow one method, and it can be stated once. A test is named as a claim: `test_book_best_books_only_the_winner` says what the engine does, so a failure reads as a broken sentence. Each claim has a witness, the test that asserts it. A negative fixture is a wrong object, written to be wrong, kept in `tests/` with an underscore prefix and a docstring that starts "Negative fixture:", which shows the failure the claim rules out. A check that was never seen to fail is a guess, so each check is deleted in a scratch copy, and the table of deletions records which named test failed. Every experiment at the end of a chapter changes one thing and quotes the result.
 
-The practice of planting a fault to see whether the suite notices has a name in the testing literature, and you'll find it under mutation testing. Here it's done by hand, one check at a time, which is enough for a suite this size and leaves nothing to configure.
+Here a fault is planted by hand, one check at a time, to see whether the suite notices, which is enough for a suite this size and leaves nothing to configure.
 
-In this chapter's example the negative fixture for the engine's claim is a plain `Mock`. The next sections show how an assertion shaped like the witness can pass for the wrong reason, and what the witness uses instead.
+Here a plain `Mock`, built inline, plays the negative fixture for the engine's claim. The next sections show how an assertion shaped like the witness can pass for the wrong reason, and what the witness uses instead.
 
 ## Fixtures and parametrize
 
@@ -62,7 +62,7 @@ The fixtures how-to describes teardown as running after the test finishes, in th
 
 ## Fakes and mocks: what each one checks
 
-Gerard Meszaros's *xUnit Test Patterns* (Addison-Wesley, 2007) supplies the vocabulary this chapter uses: *test double* for any stand-in for a collaborator, and the names fake, stub, spy and mock for the kinds. A fake is a working, simplified implementation. A mock, in his sense, is an object that checks the calls it receives. The chapter titled [xUnit test patterns (Meszaros)]({{ '/docs/44-appendix-d-xunit-test-patterns/' | relative_url }}) covers the taxonomy. This chapter needs only the names.
+Gerard Meszaros's *xUnit Test Patterns* (Addison-Wesley, 2007) supplies the vocabulary this chapter uses: *test double* for any stand-in for a collaborator, and the names dummy, fake, stub, spy and mock for the kinds. A fake is a working, simplified implementation. A mock, in his sense, is an object that checks the calls it receives. The chapter titled [xUnit test patterns (Meszaros)]({{ '/docs/44-appendix-d-xunit-test-patterns/' | relative_url }}) covers the taxonomy. This chapter needs only the names.
 
 Python's `unittest.mock` blurs the lines, because one `Mock` object stands in for all of them. What matters in practice is what each kind of double refuses. Four doubles, each handed a gateway name that doesn't exist and a call with the wrong shape:
 
@@ -73,7 +73,7 @@ Python's `unittest.mock` blurs the lines, because one `Mock` object stands in fo
 | `Mock(spec=CarrierGateway)` | `AttributeError` | accepted | accepted |
 | `create_autospec(CarrierGateway, instance=True)` | `AttributeError` | `TypeError` | accepted |
 
-The plain `Mock` row is the opening failure. `test_a_plain_mock_passes_an_assertion_on_a_misspelled_method` builds it:
+The `FakeGateway` row is witnessed by `test_a_fake_rejects_unknown_names_and_wrong_signatures`, whose two `# type: ignore` comments name the codes mypy reports. The plain `Mock` row is the opening failure. `test_a_plain_mock_passes_an_assertion_on_a_misspelled_method` builds it:
 
 ```python
 def test_a_plain_mock_passes_an_assertion_on_a_misspelled_method(
@@ -154,7 +154,7 @@ Assigned to a variable annotated `CarrierGateway`, the same class gets the expla
 <string>:17: note:     book
 ```
 
-mypy reports the missing member in both, and names it in the second. The practical rule: a fake earns a static check and an autospec earns a runtime check, and a plain mock earns neither.
+mypy rejects the fake in both, and names the missing member only in the second. The practical rule: a fake earns a static check and an autospec earns a runtime check, and a plain mock earns neither.
 
 ## Time, environment, and other process state
 
@@ -210,13 +210,13 @@ The `_run` helper in `test_static.py` is the same idea turned into a function. I
 
 ## Configuration that refuses silence
 
-Four lines of the workspace's root `pyproject.toml` turn quiet failures into loud ones, and the [pytest reference](https://docs.pytest.org/en/stable/reference/reference.html) documents each:
+Three lines of the workspace's root `pyproject.toml` turn quiet failures into loud ones, and the [pytest reference](https://docs.pytest.org/en/stable/reference/reference.html) documents each:
 
 - `--strict-markers` raises an error for a marker that isn't registered. `--strict-config` does the same for a configuration warning.
 - `xfail_strict = true` makes a test marked `xfail` that passes fail the run. In pytest 9 the option is named `strict_xfail`, and `xfail_strict` remains an alias.
 - `filterwarnings = ["error"]` turns every warning into an exception. The [capture warnings how-to](https://docs.pytest.org/en/stable/how-to/capture-warnings.html) shows the default, a summary at the end of the run that is easy to scroll past.
 
-Without `error`, a Python 3.15 deprecation scrolls past. A Protocol that inherits a `@runtime_checkable` Protocol without its own decorator gets a `DeprecationWarning` on `isinstance` and will raise `TypeError` in Python 3.20. With the filter, that is a failing test today. The experiments reproduce all four.
+Without `error`, a Python 3.15 deprecation scrolls past. A Protocol that inherits a `@runtime_checkable` Protocol without its own decorator gets a `DeprecationWarning` on `isinstance` and will raise `TypeError` in Python 3.20. With the filter, that is a failing test today. The experiments reproduce all but `--strict-config`.
 
 The `--import-mode=importlib` option in the same line is explained in the chapter titled [Prerequisites and the toolchain]({{ '/docs/00-prerequisites/' | relative_url }}).
 
@@ -253,54 +253,55 @@ cachedir: .pytest_cache
 rootdir: <repo>
 configfile: pyproject.toml
 plugins: mock-3.17.0
-collecting ... collected 33 items
+collecting ... collected 34 items
 
-tests/test_domain.py::test_weight_rejects_a_mass_that_is_not_positive_and_finite[zero] PASSED [  3%]
-tests/test_domain.py::test_weight_rejects_a_mass_that_is_not_positive_and_finite[negative] PASSED [  6%]
-tests/test_domain.py::test_weight_rejects_a_mass_that_is_not_positive_and_finite[nan] PASSED [  9%]
-tests/test_domain.py::test_weight_rejects_a_mass_that_is_not_positive_and_finite[infinite] PASSED [ 12%]
-tests/test_domain.py::test_money_orders_by_amount_within_one_currency PASSED [ 15%]
-tests/test_domain.py::test_money_refuses_to_order_across_currencies PASSED [ 18%]
-tests/test_doubles.py::test_book_best_books_only_the_winner PASSED       [ 21%]
-tests/test_doubles.py::test_a_plain_mock_passes_an_assertion_on_a_misspelled_method PASSED [ 24%]
-tests/test_doubles.py::test_spec_rejects_unknown_names_but_not_wrong_signatures PASSED [ 27%]
-tests/test_doubles.py::test_autospec_rejects_names_and_signatures PASSED [ 30%]
-tests/test_doubles.py::test_side_effect_drives_the_timeout_branch PASSED [ 33%]
-tests/test_engine.py::test_best_quote_picks_the_cheapest_carrier[fastline-cheaper] PASSED [ 36%]
-tests/test_engine.py::test_best_quote_picks_the_cheapest_carrier[airco-cheaper] PASSED [ 39%]
-tests/test_engine.py::test_best_quote_picks_the_cheapest_carrier[tie-goes-to-airco] PASSED [ 42%]
-tests/test_engine.py::test_a_tie_is_broken_by_the_carrier_code_in_the_quote PASSED [ 45%]
-tests/test_engine.py::test_quote_validity_comes_from_the_injected_clock PASSED [ 48%]
-tests/test_engine.py::test_a_timed_out_carrier_is_skipped PASSED         [ 51%]
-tests/test_engine.py::test_carriers_are_asked_in_code_order PASSED       [ 54%]
-tests/test_engine.py::test_every_carrier_timing_out_is_a_rating_error PASSED [ 57%]
-tests/test_engine.py::test_book_best_books_the_winner_and_returns_its_reference PASSED [ 60%]
-tests/test_environment.py::test_validity_reads_the_environment_and_the_context_restores_it PASSED [ 63%]
-tests/test_environment.py::test_validity_defaults_to_thirty_minutes_when_unset PASSED [ 66%]
-tests/test_environment.py::test_validity_accepts_a_positive_int PASSED   [ 69%]
-tests/test_environment.py::test_validity_rejects_a_value_that_is_not_a_positive_int[zero] PASSED [ 72%]
-tests/test_environment.py::test_validity_rejects_a_value_that_is_not_a_positive_int[negative] PASSED [ 75%]
-tests/test_environment.py::test_validity_rejects_a_value_that_is_not_a_positive_int[text] PASSED [ 78%]
-tests/test_static.py::test_mypy_accepts_every_mock_where_a_gateway_is_expected[Mock] PASSED [ 81%]
-tests/test_static.py::test_mypy_accepts_every_mock_where_a_gateway_is_expected[Mock-spec] PASSED [ 84%]
-tests/test_static.py::test_mypy_accepts_every_mock_where_a_gateway_is_expected[MagicMock-spec] PASSED [ 87%]
-tests/test_static.py::test_mypy_accepts_every_mock_where_a_gateway_is_expected[autospec] PASSED [ 90%]
-tests/test_static.py::test_mypy_checks_a_hand_written_fake[dict-entry] PASSED [ 93%]
-tests/test_static.py::test_mypy_checks_a_hand_written_fake[assignment] PASSED [ 96%]
+tests/test_domain.py::test_weight_rejects_a_mass_that_is_not_positive_and_finite[zero] PASSED [  2%]
+tests/test_domain.py::test_weight_rejects_a_mass_that_is_not_positive_and_finite[negative] PASSED [  5%]
+tests/test_domain.py::test_weight_rejects_a_mass_that_is_not_positive_and_finite[nan] PASSED [  8%]
+tests/test_domain.py::test_weight_rejects_a_mass_that_is_not_positive_and_finite[infinite] PASSED [ 11%]
+tests/test_domain.py::test_money_orders_by_amount_within_one_currency PASSED [ 14%]
+tests/test_domain.py::test_money_refuses_to_order_across_currencies PASSED [ 17%]
+tests/test_doubles.py::test_book_best_books_only_the_winner PASSED       [ 20%]
+tests/test_doubles.py::test_a_plain_mock_passes_an_assertion_on_a_misspelled_method PASSED [ 23%]
+tests/test_doubles.py::test_spec_rejects_unknown_names_but_not_wrong_signatures PASSED [ 26%]
+tests/test_doubles.py::test_autospec_rejects_names_and_signatures PASSED [ 29%]
+tests/test_doubles.py::test_a_fake_rejects_unknown_names_and_wrong_signatures PASSED [ 32%]
+tests/test_doubles.py::test_side_effect_drives_the_timeout_branch PASSED [ 35%]
+tests/test_engine.py::test_best_quote_picks_the_cheapest_carrier[fastline-cheaper] PASSED [ 38%]
+tests/test_engine.py::test_best_quote_picks_the_cheapest_carrier[airco-cheaper] PASSED [ 41%]
+tests/test_engine.py::test_best_quote_picks_the_cheapest_carrier[equal-amounts] PASSED [ 44%]
+tests/test_engine.py::test_a_tie_is_broken_by_the_carrier_code_in_the_quote PASSED [ 47%]
+tests/test_engine.py::test_quote_validity_comes_from_the_injected_clock PASSED [ 50%]
+tests/test_engine.py::test_a_timed_out_carrier_is_skipped PASSED         [ 52%]
+tests/test_engine.py::test_carriers_are_asked_in_code_order PASSED       [ 55%]
+tests/test_engine.py::test_every_carrier_timing_out_is_a_rating_error PASSED [ 58%]
+tests/test_engine.py::test_book_best_books_the_winner_and_returns_its_reference PASSED [ 61%]
+tests/test_environment.py::test_validity_reads_the_environment_and_the_context_restores_it PASSED [ 64%]
+tests/test_environment.py::test_validity_defaults_to_thirty_minutes_when_unset PASSED [ 67%]
+tests/test_environment.py::test_validity_accepts_a_positive_int PASSED   [ 70%]
+tests/test_environment.py::test_validity_rejects_a_value_that_is_not_a_positive_int[zero] PASSED [ 73%]
+tests/test_environment.py::test_validity_rejects_a_value_that_is_not_a_positive_int[negative] PASSED [ 76%]
+tests/test_environment.py::test_validity_rejects_a_value_that_is_not_a_positive_int[text] PASSED [ 79%]
+tests/test_static.py::test_mypy_accepts_every_mock_where_a_gateway_is_expected[Mock] PASSED [ 82%]
+tests/test_static.py::test_mypy_accepts_every_mock_where_a_gateway_is_expected[Mock-spec] PASSED [ 85%]
+tests/test_static.py::test_mypy_accepts_every_mock_where_a_gateway_is_expected[MagicMock-spec] PASSED [ 88%]
+tests/test_static.py::test_mypy_accepts_every_mock_where_a_gateway_is_expected[autospec] PASSED [ 91%]
+tests/test_static.py::test_mypy_checks_a_hand_written_fake[dict-entry] PASSED [ 94%]
+tests/test_static.py::test_mypy_checks_a_hand_written_fake[assignment] PASSED [ 97%]
 tests/test_static.py::test_assert_type_is_static_only PASSED             [100%]
 
-============================== 33 passed in 4.30s ==============================
+============================== 34 passed in 4.13s ==============================
 ```
 
 ```text
 Success: no issues found in 10 source files
 ```
 
-The suite has 22 test functions and 33 cases. The experiments run in a scratch copy of the repository, never in the example itself, and each changes one thing. Filtering the pytest output to the assertion lines and the summary, with `grep -E '^(>|E  |FAILED|[0-9]+ (passed|failed))'`, gives the lines quoted below.
+The suite has 23 test functions and 34 cases. The experiments run in a scratch copy of the repository, never in the example itself, and each changes one thing. Filtering the pytest output to the assertion lines and the summary, with `grep -E '^(>|E  |FAILED|[0-9]+ (passed|failed))'`, gives the lines quoted for experiments one, two and six.
 
 **Experiment one: book every carrier.** In `RateEngine.book_best`, replace the last line so that it books every gateway with `gateway.book(consignment)` in a dictionary comprehension over `self._gateways.items()` and then returns the entry for the winner's code.
 
-The engine still returns the winner's reference, so the return-value assertion passes. Two tests fail and 31 pass:
+The engine still returns the winner's reference, so the return-value assertion passes. Two tests fail and 32 pass:
 
 ```text
 >       loser.book.assert_not_called()
@@ -313,7 +314,7 @@ E         Left contains one more item: Consignment(id='CN-00000001', weight=Weig
 E         Use -v to get more diff
 FAILED tests/test_doubles.py::test_book_best_books_only_the_winner - Assertio...
 FAILED tests/test_engine.py::test_book_best_books_the_winner_and_returns_its_reference
-2 failed, 31 passed in 4.36s
+2 failed, 32 passed in 4.17s
 ```
 
 The witness fails on `loser.book.assert_not_called()`, and the fake-based test fails on the loser's record. The member's mypy run still says `Success: no issues found in 10 source files`, since no type changed. Restore the line.
@@ -324,12 +325,12 @@ The witness fails on `loser.book.assert_not_called()`, and the fake-based test f
 >       with pytest.raises(TypeError, match="missing a required argument: 'consignment'"):
 E       Failed: DID NOT RAISE TypeError
 FAILED tests/test_doubles.py::test_autospec_rejects_names_and_signatures - Fa...
-1 failed, 32 passed in 4.21s
+1 failed, 33 passed in 4.12s
 ```
 
 The name check still passes, since `spec` rejects `bok`, and the signature check no longer has anything to raise. Restore the line.
 
-**Experiment three: fail a test that uses a `yield` fixture.** Add `assert quote.carrier == "airco"` to `test_quote_validity_comes_from_the_injected_clock`, where the only carrier is `fastline`, and run with `-s` so the fixture's output isn't captured:
+**Experiment three: fail a test that uses a `yield` fixture.** Add `assert quote.carrier == "airco"` to `test_quote_validity_comes_from_the_injected_clock`, where the only carrier is `fastline`, and run with `-s` and `-k test_quote_validity_comes_from_the_injected_clock` so the fixture's output isn't captured:
 
 ```text
 tests/test_engine.py Fquote_log teardown: quotes.log
@@ -340,23 +341,23 @@ E         - airco
 E         + fastline
 tests/test_engine.py:79: AssertionError
 FAILED tests/test_engine.py::test_quote_validity_comes_from_the_injected_clock
-======================= 1 failed, 32 deselected in 0.04s =======================
+======================= 1 failed, 33 deselected in 0.05s =======================
 ```
 
 The `F` is the failing test, and the teardown line follows it before pytest prints the failure report. The code after `yield` ran for a failed test. Remove the line.
 
-**Experiment four: an unregistered marker.** Add `@pytest.mark.slow` above `test_money_orders_by_amount_within_one_currency`. With `--strict-markers` from the root configuration, collection fails and no test runs:
+**Experiment four: an unregistered marker.** Add `@pytest.mark.slow` above `test_money_orders_by_amount_within_one_currency`. With `--strict-markers` from the root configuration, `uv run pytest -q tests/test_domain.py` fails at collection and no test runs:
 
 ```text
 'slow' not found in `markers` configuration option
 ERROR tests/test_domain.py - Failed: 'slow' not found in `markers` configurat...
-!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!
-1 error in 0.06s
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+1 error in 0.05s
 ```
 
 With `-o addopts="--import-mode=importlib" -o filterwarnings=default`, which drops the strict option and the warning filter, the same file passes with a `PytestUnknownMarkWarning` and the line `6 passed, 1 warning in 0.01s`. A typo in a marker name would otherwise deselect nothing and say so only in a summary.
 
-**Experiment five: a test that passes but is marked `xfail`.** Add `@pytest.mark.xfail(reason="known gap")` above the same test. With `xfail_strict = true`:
+**Experiment five: a test that passes but is marked `xfail`.** Add `@pytest.mark.xfail(reason="known gap")` above the same test. With `xfail_strict = true`, `uv run pytest -q tests/test_domain.py` gives:
 
 ```text
 [XPASS(strict)] known gap
