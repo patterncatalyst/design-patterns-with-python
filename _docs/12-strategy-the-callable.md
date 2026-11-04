@@ -4,7 +4,7 @@ order: 12
 layout: tutorial
 sectionid: docs
 part: "selecting-varying-behavior"
-description: "Draft pending: Strategy: the callable."
+description: "Strategy's force survives while its structure dissolves into a callable type, a read-only mapping and a call, which leaves selection, configuration and what a quote records about the rule that priced it."
 ---
 
 ## Learning objectives

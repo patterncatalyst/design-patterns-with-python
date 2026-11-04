@@ -11,6 +11,7 @@ members = [
     "feature-spikes",
     "isp-dip-di",
     "srp-ocp-lsp",
+    "strategy-callable",
     "structural-typing",
     "testing-baseline",
     "three-way-split",
@@ -298,6 +299,11 @@ wheels = [
 name = "srp-ocp-lsp"
 version = "0.1.0"
 source = { editable = "examples/05-srp-ocp-lsp" }
+
+[[package]]
+name = "strategy-callable"
+version = "0.1.0"
+source = { editable = "examples/12-strategy-the-callable" }
 
 [[package]]
 name = "structural-typing"

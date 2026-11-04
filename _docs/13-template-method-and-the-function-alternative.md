@@ -4,7 +4,7 @@ order: 13
 layout: tutorial
 sectionid: docs
 part: "selecting-varying-behavior"
-description: "Draft pending: Template Method and the function alternative."
+description: "Template Method straddles: the hook structure dissolves into a function that takes hooks, and the inheritance form survives where a family of variants shares state and code across steps."
 ---
 
 ## Learning objectives
