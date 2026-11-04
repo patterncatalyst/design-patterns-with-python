@@ -420,7 +420,7 @@ Step ids are `G*` because `--claims` resolves `run:` tokens against every plan's
 | --- | --- | --- | --- |
 | G0 | This plan file. PDP-112a-c and 113a-c `active` in `iteration-plan.md` (dated note). Reconciliation rows 65-74 `open`, and a row 1 note "counts witnessed by row 65 (r06)". Domain-model rows 12-13 updated with the example-spec names (row 12: `Mapping[str, PricingRule]` over a 3.15 `frozendict`, `ZoneRate`, and the failing test as decision 1 settles it; row 13: `CustomsHooks`, `declare_customs`, `CustomsDeclarer` with `@final declare`, Protocol defaults as a test fixture). ch12/13 stub `description` lines written. Decisions recorded | - | done |
 | G1a | ch12 member, card, README; three green runs; the deletion table above, each row run in a scratch copy | G0 | done |
-| G1b | ch13 member, card, README; one `uv lock` after both members (sequenced); three green runs; deletion table | G1a | todo |
+| G1b | ch13 member, card, README; one `uv lock` after both members (sequenced); three green runs; deletion table | G1a | done |
 | G2 | Witness results into rows 65-74 (claims audit resolves). A failed witness changes the thesis before prose. Any message differing from Planning evidence goes in "Corrections after the build" | G1b | todo |
 | G3 | Two figures, specs `diagrams/specs/12-*.py` and `13-*.py`, `_data/diagrams.yml` (single owner; `section: "Ch. 12"`/`"Ch. 13"`); figures 00-11 unchanged | G2 | todo |
 | G4 | ch12-13 `status = "drafted"` (`kind` stays `pattern`) | G3 | todo |
@@ -446,6 +446,7 @@ Reconciliation rows (step G0). The "How to verify" column uses resolvable tokens
 ## Corrections after the build
 
 - Row 68 (step G1a, confirmed by the orchestrator with a mypy 2.4.1 run): a partial that binds nothing is accepted only where it is assigned to the typed `PricingRule` slot, as a registry entry is; calling it directly, `partial(per_kg)(c)`, is `Missing named argument "rate" for "per_kg"  [call-arg]`. The claim and prose say "accepted in a typed slot".
+- Step G1b, `extra_documents` default: deleting it makes the module-level `SINGAPORE = CustomsHooks(...)` raise `TypeError` at import, so the run fails at collection before any test id, and the member mypy run reports `Missing named argument "extra_documents" for "CustomsHooks"  [call-arg]`. Both count as the deletion being seen.
 - Step G1a added deletion rows for the `ZoneRate` quantise, both `from None` clauses and `frozen=True` on `Tariff`; the per-kg half-up case is 0.1875 kg at 1.20 (0.225 rounds to 0.23 half up, 0.22 half even).
 
 (Left empty for the orchestrator.)

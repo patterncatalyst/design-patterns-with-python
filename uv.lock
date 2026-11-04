@@ -13,6 +13,7 @@ members = [
     "srp-ocp-lsp",
     "strategy-callable",
     "structural-typing",
+    "template-method",
     "testing-baseline",
     "three-way-split",
     "value-semantics",
@@ -309,6 +310,11 @@ source = { editable = "examples/12-strategy-the-callable" }
 name = "structural-typing"
 version = "0.1.0"
 source = { editable = "examples/09-protocol-and-structural-typing" }
+
+[[package]]
+name = "template-method"
+version = "0.1.0"
+source = { editable = "examples/13-template-method-and-the-function-alternative" }
 
 [[package]]
 name = "testing-baseline"
