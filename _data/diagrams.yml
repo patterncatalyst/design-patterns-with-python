@@ -50,9 +50,9 @@
   title: One quote, three responsibilities
   caption: >-
     One quote, three responsibilities. Pricing sits behind the RateCalculator
-    Protocol and hands its net to tax rules keyed by destination country, then
-    the finished quote goes to an audit callable, so each changes for its own
-    reason while one contract suite checks every calculator.
+    Protocol and hands its net to tax rules keyed by destination country; the
+    finished quote goes to an audit callable. Each changes for its own reason,
+    and one contract suite checks every calculator.
 
 - name: 06-isp-dip-and-di-without-a-framework
   section: "Ch. 6"

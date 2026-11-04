@@ -373,8 +373,8 @@ Also `README.md` and card `_examples/06-isp-dip-and-di-without-a-framework.md` (
 | 1a | ch5 member, card, README; gates; handback with test names and scrubbed output | 0 | **done** |
 | 1b | ch6 member, card, README; one `uv lock` after both exist (sequenced after 1a); gates; handback | 1a | **done** |
 | 2 | Witness results into reconciliation rows 29-36; a failed witness changes the thesis before prose | 1b | **done** |
-| 3 | Two figures, specs, `_data/diagrams.yml` (single owner); figures 00-04 unchanged | 1b | todo |
-| 4 | ch5 and ch6 `status = "drafted"` | 3 | todo |
+| 3 | Two figures, specs, `_data/diagrams.yml` (single owner); figures 00-04 unchanged | 1b | **done** |
+| 4 | ch5 and ch6 `status = "drafted"` | 3 | **done** |
 | 5 | Two prose agents in parallel; verify attributions; run experiments in a scratch copy; quote fresh filtered output | 3,4 | todo |
 | 6 | Opus validation; up to two repair rounds | 5 | todo |
 | 7 | PR, `ci-ok` green, ask the user before merge; tag r03.x; notes-only release; PRD build log | 6 | todo |
