@@ -102,12 +102,12 @@ PR, squash-merge with branch deletion, an `rNN.x` tag and a notes-only release.
 | PDP-111a | Ch11 Testing with pytest, pytest-mock, and mypy: example | r05 | active |
 | PDP-111b | Ch11 Testing with pytest, pytest-mock, and mypy: figure | r05 | active |
 | PDP-111c | Ch11 Testing with pytest, pytest-mock, and mypy: prose | r05 | active |
-| PDP-112a | Ch12 Strategy: the callable: example | r06 | todo |
-| PDP-112b | Ch12 Strategy: the callable: figure | r06 | todo |
-| PDP-112c | Ch12 Strategy: the callable: prose | r06 | todo |
-| PDP-113a | Ch13 Template Method and the function alternative: example | r06 | todo |
-| PDP-113b | Ch13 Template Method and the function alternative: figure | r06 | todo |
-| PDP-113c | Ch13 Template Method and the function alternative: prose | r06 | todo |
+| PDP-112a | Ch12 Strategy: the callable: example | r06 | active |
+| PDP-112b | Ch12 Strategy: the callable: figure | r06 | active |
+| PDP-112c | Ch12 Strategy: the callable: prose | r06 | active |
+| PDP-113a | Ch13 Template Method and the function alternative: example | r06 | active |
+| PDP-113b | Ch13 Template Method and the function alternative: figure | r06 | active |
+| PDP-113c | Ch13 Template Method and the function alternative: prose | r06 | active |
 | PDP-114a | Ch14 State and finite state machines: example | r07 | todo |
 | PDP-114b | Ch14 State and finite state machines: figure | r07 | todo |
 | PDP-114c | Ch14 State and finite state machines: prose | r07 | todo |
@@ -200,3 +200,5 @@ PR, squash-merge with branch deletion, an `rNN.x` tag and a notes-only release.
 | PDP-152 | Deck 301 | r24 | todo |
 
 2026-11-04 (r05): Python 3.15.2. PDP-109a to PDP-111c are active for r05, and the book moves to Python 3.15.2. Earlier iterations keep their status.
+
+2026-11-04 (r06): PDP-112a to PDP-113c are active for r06 (chapters 12 and 13, Part 5). Earlier iterations keep their status.

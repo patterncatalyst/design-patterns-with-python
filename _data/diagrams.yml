@@ -104,3 +104,19 @@
     How a claim becomes evidence. A claim gets a witness test named after it,
     a negative fixture shows the failure it rules out, the test is seen failing
     when its check is deleted, and only a fresh, scrubbed run is quoted.
+
+- name: 12-strategy-the-callable
+  section: "Ch. 12"
+  title: One quote, three rules in a slot
+  caption: >-
+    One quote, three rules in a slot. The caller names a rule, the read-only
+    RATE_RULES registry returns a callable, and quote records the name with
+    the price, whether the rule is a function, a partial or a frozen dataclass.
+
+- name: 13-template-method-and-the-function-alternative
+  section: "Ch. 13"
+  title: One customs skeleton, two ways to vary it
+  caption: >-
+    One customs skeleton, two ways to vary it. declare_customs fixes the order
+    and the invariant steps and takes hooks for the rest; CustomsDeclarer keeps
+    the same skeleton final and lets a family of destinations share its schedule.
