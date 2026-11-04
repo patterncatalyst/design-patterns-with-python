@@ -45,6 +45,14 @@ Status values: open, verified, adjusted, dropped.
 | 26 | 14 | A probabilistic state machine is reproducible with an injected seeded RNG | Seeded run equality test | open |
 | 27 | 9 | `Optional` plus mypy makes Null Object unnecessary in most cases | mypy strict run on missing-carrier code, recorded output | open |
 | 28 | 31 | EAFP beats LBYL for shared mutable state and costs little when the key is present | Race-free witness test; speed note only in a benchmark script | open |
+| 29 | 5 | Replacing one collaborator changes only its own output | `test_each_change_moves_only_its_own_field` | open |
+| 30 | 5 | A new tax rule arrives from outside the package without editing `quote`; the default is read-only | `test_a_new_tax_rule_is_added_without_editing_quote`, `test_default_tax_table_is_read_only` | open |
+| 31 | 5 | mypy checks override signatures (narrowed argument with the LSP note, widened return, `@override` misspelling) and Protocol conformance at the use site; accepts a widened argument | ch5 tests 10-12 | open |
+| 32 | 5 | mypy cannot see a strengthened precondition or weakened postcondition; the contract suite catches both | ch5 tests 8, 9, 13 | open |
+| 33 | 6 | A track-only fake satisfies the narrow Protocol and fails the fat one under mypy | ch6 test 2 | open |
+| 34 | 6 | Policy modules import no adapters; adapters import neither policy nor Protocols | ch6 tests 4-5 | open |
+| 35 | 6 | An autospec mock is `Any` to mypy even for the wrong Protocol, but enforces the shape at runtime | ch6 tests 6-7 | open |
+| 36 | 6 | mypy 2.4.1 checks a partial's bound argument and calls, not its assignment to a `Callable` annotation | ch6 test 8 | open |
 
 ## Process
 

@@ -369,7 +369,7 @@ Also `README.md` and card `_examples/06-isp-dip-and-di-without-a-framework.md` (
 
 | Step | What | Depends | Status |
 | --- | --- | --- | --- |
-| 0 | Plan file; PDP-105a..c and 106a..c active; domain-model ch5/ch6 rows (bucket `n.a. (principle)`, new ch5 failure demo, ch5 names drop `Surcharge` and add `BaseRate`, `FlatRate`, `TAX_RULES`, `percent`, `TaxRule`, `AuditSink`, `RatingError`; ch6 adds `BookingGateway`, `TrackingGateway`, `BookingService`, `tracking_history`, `App`, `HandlingKind`); reconciliation rows 29-36 `open` | - | in progress |
+| 0 | Plan file; PDP-105a..c and 106a..c active; domain-model ch5/ch6 rows (bucket `n.a. (principle)`, new ch5 failure demo, ch5 names drop `Surcharge` and add `BaseRate`, `FlatRate`, `TAX_RULES`, `percent`, `TaxRule`, `AuditSink`, `RatingError`; ch6 adds `BookingGateway`, `TrackingGateway`, `BookingService`, `tracking_history`, `App`, `HandlingKind`); reconciliation rows 29-36 `open` | - | **done** |
 | 1a | ch5 member, card, README; gates; handback with test names and scrubbed output | 0 | todo |
 | 1b | ch6 member, card, README; one `uv lock` after both exist (sequenced after 1a); gates; handback | 1a | todo |
 | 2 | Witness results into reconciliation rows 29-36; a failed witness changes the thesis before prose | 1b | todo |

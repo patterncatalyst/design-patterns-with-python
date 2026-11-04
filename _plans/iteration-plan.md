@@ -81,12 +81,12 @@ PR, squash-merge with branch deletion, an `rNN.x` tag and a notes-only release.
 | PDP-104a | Ch4 Naming patterns for teams and AI: example | r02 | n.a. (argument chapter) |
 | PDP-104b | Ch4 Naming patterns for teams and AI: figure | r02 | todo |
 | PDP-104c | Ch4 Naming patterns for teams and AI: prose | r02 | todo |
-| PDP-105a | Ch5 SRP, OCP, and LSP: example | r03 | todo |
-| PDP-105b | Ch5 SRP, OCP, and LSP: figure | r03 | todo |
-| PDP-105c | Ch5 SRP, OCP, and LSP: prose | r03 | todo |
-| PDP-106a | Ch6 ISP, DIP, and DI without a framework: example | r03 | todo |
-| PDP-106b | Ch6 ISP, DIP, and DI without a framework: figure | r03 | todo |
-| PDP-106c | Ch6 ISP, DIP, and DI without a framework: prose | r03 | todo |
+| PDP-105a | Ch5 SRP, OCP, and LSP: example | r03 | active |
+| PDP-105b | Ch5 SRP, OCP, and LSP: figure | r03 | active |
+| PDP-105c | Ch5 SRP, OCP, and LSP: prose | r03 | active |
+| PDP-106a | Ch6 ISP, DIP, and DI without a framework: example | r03 | active |
+| PDP-106b | Ch6 ISP, DIP, and DI without a framework: figure | r03 | active |
+| PDP-106c | Ch6 ISP, DIP, and DI without a framework: prose | r03 | active |
 | PDP-107a | Ch7 The data model: example | r04 | todo |
 | PDP-107b | Ch7 The data model: figure | r04 | todo |
 | PDP-107c | Ch7 The data model: prose | r04 | todo |
