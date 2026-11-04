@@ -30,10 +30,19 @@ Planning evidence (read-only `mypy 2.4.1 --strict --cache-dir /dev/null -c`, Pyt
 
 ## User decisions (2026-11-03)
 
-1. ai-sidebar in chapters 5-6: _pending_ (recommended: none).
-2. LSP violators as negative fixtures in `tests/`: _pending_ (recommended: accept).
-3. Citations outside `bibliography.html`: _pending_ (recommended: inline in "For deeper
-   coverage", bibliography unchanged in r03).
+1. **ai-sidebar: one per chapter** (user chose series parity over the recommendation). Exactly
+   one `<blockquote class="ai-sidebar" markdown="1">` ... `</blockquote>` per chapter, placed in
+   `## When the principle costs more than it buys`, framed as review practice: what to check when
+   an assistant proposes a split, an extension point or a Protocol (ch5: an interface per class,
+   a subclass that narrows the contract; ch6: a DI container or a fat gateway Protocol for one
+   consumer). No empirical claims about LLM behaviour ("may", review checklist wording).
+2. **LSP violators as negative fixtures in `tests/`: accepted.**
+3. **Bibliography: add Meyer.** Add *Object-Oriented Software Construction*, Bertrand Meyer,
+   2nd ed. (Prentice Hall, 1997, ISBN 9780136291558) as a row in `bibliography.html`, matching the
+   existing rows' markup, topic "Open-closed principle, Design by Contract". Prose says the
+   principle first appeared in the 1988 first edition. Papers and articles (Liskov 1987/1988,
+   Liskov and Wing 1994, Fowler 2004, Seemann 2011) stay inline in "For deeper coverage". The ch5
+   prose agent owns the `bibliography.html` edit.
 
 ## Approach
 
@@ -56,8 +65,8 @@ Planning evidence (read-only `mypy 2.4.1 --strict --cache-dir /dev/null -c`, Pyt
   `mypy.api.run(["--strict","--cache-dir",os.devnull,"--no-error-summary","-c",SNIPPET])`;
   assert exit status and the exact code set (`set(re.findall(r"\[([a-z-]+)\]", stdout))`) plus
   one or two key substrings.
-- **No ai-sidebar and no `## When not to use it`** (decision 1); each chapter has
-  `## When the principle costs more than it buys`.
+- **One ai-sidebar per chapter and no `## When not to use it`** (decision 1); each chapter has
+  `## When the principle costs more than it buys`, which holds the sidebar.
 - **No global-state mutation:** module tables are `types.MappingProxyType`; substitutes arrive as
   arguments; no `monkeypatch`, no `mock.patch`.
 
@@ -145,7 +154,7 @@ Citations (verify each before writing; bracketed fallback if not verifiable):
 - PEP 544, PEP 698, the typing spec's Protocols chapter, mypy docs "Incompatible overrides";
   Lott & Phillips 5th ed by topic; `{{ '/bibliography/' | relative_url }}`.
 
-ai-sidebar: none (decision 1).
+ai-sidebar: one, inside `## When the principle costs more than it buys` (decision 1).
 
 ### Chapter 6: ISP, DIP, and dependency injection without a framework (hands-on, has_example = true)
 
@@ -212,7 +221,7 @@ Percival & Gregory, *Architecture Patterns with Python* by topic; PEP 544, `func
 docs, `unittest.mock` autospeccing docs; bibliography link. No platform-specific titles, no
 cross-language comparison.
 
-ai-sidebar: none (decision 1).
+ai-sidebar: one, inside `## When the principle costs more than it buys` (decision 1).
 
 ## Example spec
 
@@ -393,7 +402,8 @@ Reconciliation rows (step 0):
    in ch5 `tests/test_lsp.py`, at least 3 across ch6 `test_isp.py` and `test_dip.py`.
 4. `validate.py` and `--self-test` exit 0; ch5 and ch6 drafted, one figure each, captions 20-45
    words, 1,900-2,500 prose words (target about 2,200).
-5. `grep -c '<blockquote class="ai-sidebar"'` is 0 for ch5 and ch6 (per decision 1);
+5. `grep -c '<blockquote class="ai-sidebar"'` is 1 for ch5 and ch6 (decision 1), and the
+   kramdown form `{: .ai-sidebar}` appears nowhere;
    `grep -c "^## When the principle costs more than it buys"` is 1 each; `^## How it works` is 0.
 6. Voice `scan.sh --tier ban --fail` exits 0 over ch5, ch6, both READMEs, both cards and both
    SVGs; `--stats` reviewed; `only`, `never`, `always`, `every` checked against the code.
@@ -403,7 +413,7 @@ Reconciliation rows (step 0):
    prints nothing.
 10. Every code excerpt matches its source byte for byte; every quoted run matches a fresh run
     apart from scrubbing and duration.
-11. Attribution: ch5 names Meyer for OCP's origin, Liskov (1987/1988) and Liskov and Wing (1994)
+11. `bibliography.html` has the Meyer row (decision 3). Attribution: ch5 names Meyer for OCP's origin, Liskov (1987/1988) and Liskov and Wing (1994)
     for LSP, credits Martin with the formulations; ch6 credits Fowler (2004) for "dependency
     injection"; no SOLID coiner named; bracketed fallbacks applied where unverified (prose agent
     lists checked sources).
