@@ -21,23 +21,23 @@ By the end of this chapter you can:
 
 A rate quote has three owners. The carrier contract sets the tariff, and it changes when the contract is renegotiated. Tax law sets what a destination country adds, on its own calendar. Compliance decides what must be recorded about a finished quote. When one function does all three, a change to the tax rate for one country is a change to the function that prices every consignment, and the pricing tests have to be rerun and believed again. The cost is not the edit. It is the review and the retest that follow an edit in a place that had no reason to change.
 
-The three principles in this chapter are the old answers to that cost, and the force behind each is still present in modern Python. What changes is the mechanism: a `Protocol` instead of an interface hierarchy, a mapping of callables instead of a subclass per variant, and a contract suite for the part of the Liskov principle that no signature can express. The example is one rate quote, and its eighteen tests witness each claim below.
+The three principles in this chapter are the old answers to that cost, and the force behind each is still present in modern Python. What changes is the mechanism: a `Protocol` instead of an interface hierarchy, a mapping of callables instead of a subclass per variant, and a contract suite for the part of the Liskov principle that no signature can express. The example is one rate quote, and its thirteen test functions, eighteen cases in all, witness each claim below.
 
 {% include excalidraw.html name="05-srp-ocp-lsp" caption="Figure 5.1: One quote, three responsibilities. Pricing sits behind the RateCalculator Protocol and hands its net to tax rules keyed by destination country; the finished quote goes to an audit callable. Each changes for its own reason, and one contract suite checks every calculator." %}
 
-The figure reads top to bottom. The coordinator asks the calculator for a net price, passes that net to the tax rule chosen by the destination country, builds the quote and hands it to the audit callable. The contract suite stands beside the calculator because it is the only collaborator with more than one implementation.
+The figure reads top to bottom. The coordinator asks the calculator for a net price, passes that net to the tax rule chosen by the destination country, builds the quote and hands it to the audit callable. The contract suite stands beside the calculator because pricing is the collaborator whose contract has clauses no signature states.
 
 ## Three reasons to change in one rate calculation
 
 Picture a single `price` function that looks up the zone rate, multiplies by weight, adds destination tax and appends the result to an audit log. It's short and it works. Then three requests arrive in the same quarter. The carrier moves the Asia zone to a new per-kilogram rate. A destination country revises its tax rate. Compliance asks that every quote also record who requested it.
 
-Each request has a different author, a different deadline and a different test that ought to move. The tariff change should alter prices and nothing about audit. The tax change should alter tax and nothing about pricing. The audit change should alter no number on the quote. In the single function, a reader cannot see that from the signature, and a reviewer has to read the whole body to check it.
+Each request has a different author and a different test that ought to move. The tariff change should alter prices and nothing about audit. The tax change should alter tax and nothing about pricing. The audit change should alter no number on the quote. In the single function, a reader can't see that from the signature, and a reviewer has to read the whole body to check it.
 
-This is the situation the single responsibility principle describes. Robert C. Martin states it as "a class should have only one reason to change" in *Agile Software Development: Principles, Patterns, and Practices* (2002). The useful reading is attribution: a reason to change is a person or a process that will ask for the edit. Pricing, tax and audit have three, so the code that serves them belongs in three places. The principle separates the reasons to change in the code. It does not say the data flows separately, and in this example it does not, as the next section shows.
+This is the situation the single responsibility principle describes. Robert C. Martin states it as "a class should have only one reason to change" in *Agile Software Development: Principles, Patterns, and Practices* (2002). The useful reading is about people: a reason to change is a person or a process that will ask for the edit. Pricing, tax and audit have three, so the code that serves them belongs in three places. The principle separates the reasons to change in the code. It doesn't say the data flows separately, and in this example it doesn't, as the next section shows.
 
 ## Single responsibility: three collaborators and a coordinator
 
-Pricing sits behind a `Protocol`, because the quote needs a behaviour and does not care which class supplies it:
+Pricing sits behind a `Protocol`, because the quote needs a behaviour and doesn't care which class supplies it:
 
 ```python
 class RateCalculator(Protocol):
@@ -78,13 +78,13 @@ def quote(
 
 `quote` chooses nothing about how a price is computed, how a tax is figured or where a record goes. It looks up the rule by the first two letters of the destination code, calls the three collaborators in order and returns what it built.
 
-The witness is `test_each_change_moves_only_the_fields_it_feeds`. It quotes an Asia consignment as a baseline, replaces one collaborator at a time and compares the fields of the two `RateQuote` values. Replacing the tariff changes `net` and `tax`. Replacing the `"SG"` tax rule changes `tax` alone. Replacing the audit sink changes no field, and the new sink receives the quote while the old one does not. The first row looks like a violation until you recall that tax is a percentage of the net: a new tariff reaches the tax through the data. The code that computes the tax is untouched. That is the sense of the principle in this chapter, and the test states the expected set for each case so that a collaborator that started reaching into another's output would fail it.
+The witness is `test_each_change_moves_only_the_fields_it_feeds`. It quotes an Asia consignment as a baseline, replaces one collaborator at a time and compares the fields of the two `RateQuote` values. Replacing the tariff changes `net` and `tax`. Replacing the `"SG"` tax rule changes `tax` alone. Replacing the audit sink changes no field, and the new sink receives the quote while the old one does not. The first row looks like a violation until you recall that tax is a percentage of the net: a new tariff reaches the tax through the data. The code that computes the tax is untouched. That's the sense of the principle in this chapter, and the test states the expected set for each case so that a collaborator that started reaching into another's output would fail it.
 
 Two more tests check the edges of the split. `test_audit_receives_exactly_the_quote_returned` checks that the sink gets the same object `quote` returns, once. `test_pricing_and_tax_run_alone` builds a `BaseRate` and a `percent` rule with no sink and no rule table, and checks exact amounts: pricing and tax can be exercised without constructing the rest.
 
 ## Open for extension: a new tax rule is data
 
-Bertrand Meyer introduced the open-closed principle in *Object-Oriented Software Construction*, whose first edition appeared in 1988. His version rested on inheritance: a module stays closed once it is in use, and a new variant is a subclass that extends it. Martin restated the principle in 2002 on abstraction instead, so that a module depends on an abstract contract and new behaviour arrives behind it. In both, the aim is to take a change you have already seen, a new destination in this case, without reopening code that is tested and in service.
+Bertrand Meyer introduced the open-closed principle in *Object-Oriented Software Construction*, whose first edition appeared in 1988. His version rested on inheritance: a module stays closed once it is in use, and a new variant is a subclass that extends it. Martin's restatement, collected in his 2002 book, rests on abstraction instead, so that a module depends on an abstract contract and new behaviour arrives behind it. In both, the aim is to take a change you have already seen, a new destination in this case, without reopening code that is tested and in service.
 
 In Python the extension point is often a callable in a mapping that the caller passes in. The rule constructor and the default table are short:
 
@@ -108,7 +108,7 @@ TAX_RULES: Mapping[str, TaxRule] = MappingProxyType(
 )
 ```
 
-The rates are invented for the example and say nothing about any country's law. What matters is the shape: `percent` is a closure that fixes a rate, and `TAX_RULES` is a read-only view over a dict, so no module can add to it by assignment. `test_default_tax_table_is_read_only` asserts that `TAX_RULES["HK"] = exempt` raises `TypeError`. The assertion line needs one `# type: ignore[index]`, because `Mapping` has no `__setitem__` and mypy rejects the assignment before the test can run it.
+The rates are invented for the example and say nothing about any country's law. What matters is the shape: `percent` is a closure that fixes a rate, and `TAX_RULES` is a read-only view over a dict, so no module can add to it by assignment. `test_default_tax_table_is_read_only` asserts that `TAX_RULES["HK"] = exempt` raises `TypeError`. The assertion line needs one `# type: ignore[index]`, because `Mapping` has no `__setitem__`, so mypy reports `[index]` on the line.
 
 A new rule arrives as data. `test_a_new_tax_rule_is_added_without_editing_quote` passes `{**TAX_RULES, "HK": exempt}` to `quote`, where `exempt` is a function defined in the test module that returns zero. A Hong Kong consignment is taxed at `0.00`, and afterwards `"HK"` is still not in `TAX_RULES`. The new rule lives in the caller's mapping, `quote` is unchanged, and the shared default is untouched.
 
@@ -121,22 +121,27 @@ Barbara Liskov introduced the idea in her OOPSLA '87 keynote, "Data Abstraction 
 Half of that rule is a type signature, and mypy checks it. Each snippet below is a string in `tests/test_lsp.py`, run through `mypy --strict` with the package importable, and the output is as the run printed it. A subclass of `BaseRate` that narrows the argument:
 
 ```python
+class SeaConsignment(Consignment):
+    pass
+
+
 class Narrowed(BaseRate):
     @override
-    def price(self, consignment_id: ConsignmentId, /) -> Money:
+    def price(self, consignment: SeaConsignment, /) -> Money:
         return Money(Decimal("0.00"), "EUR")
 ```
 
 ```text
-<string>:11: error: Argument 1 of "price" is incompatible with supertype "srp_ocp_lsp.pricing.BaseRate"; supertype defines the argument type as "Consignment"  [override]
-<string>:11: note: This violates the Liskov substitution principle
+<string>:15: error: Argument 1 of "price" is incompatible with supertype "srp_ocp_lsp.pricing.BaseRate"; supertype defines the argument type as "Consignment"  [override]
+<string>:15: note: This violates the Liskov substitution principle
+<string>:15: note: See https://mypy.readthedocs.io/en/stable/common_issues.html#incompatible-overrides
 ```
 
-mypy names the principle, because a narrowed parameter is a stronger precondition: a caller holding a `BaseRate` may pass any `Consignment`. Widening the return type to `Money | None` gives `[override]` with `Return type "Money | None" of "price" incompatible with return type "Money" in supertype`, and no note, since this is a weaker postcondition. Spelling the method `prcie` under `@override` gives `[misc]`: `Method "prcie" is marked as an override, but no base method was found with this name`. The decorator, `typing.override` from PEP 698, turns a silent new method into an error. The opposite direction is accepted: a `price` that takes `Consignment | None` passes `mypy --strict` with no output, which is the weaker precondition that the rule allows.
+mypy names the principle, because a narrowed parameter, one that accepts only a subtype, is a stronger precondition: a caller holding a `BaseRate` may pass any `Consignment`. Widening the return type to `Money | None` gives `[override]` with `Return type "Money | None" of "price" incompatible with return type "Money" in supertype`. That is a weaker postcondition, and mypy prints the Liskov note only for argument errors, not for return types. Spelling the method `prcie` under `@override` gives `[misc]`: `Method "prcie" is marked as an override, but no base method was found with this name`. `@override`, from PEP 698, turns a silent new method into an error. The opposite direction is accepted: a `price` that takes `Consignment | None` passes `mypy --strict` with no output, which is the weaker precondition that the rule allows.
 
 A Protocol moves the check to the place of use. A class with `price(...) -> Decimal` that is not declared a `RateCalculator` is accepted until it is passed as `calculator=` to `quote`, where mypy reports `[arg-type]` with the expected and actual signatures under `Following member(s) of "DecimalRate" have conflicts`.
 
-The other half is behaviour, and no signature carries it. A calculator that refuses a zone the contract accepts, or that prices in dollars, has the right types. The contract helper in the test module checks the docstring above: every zone at 0.5 kg and at 1200 kg, EUR, non-negative, quantised to cents, the heavier consignment never cheaper. Two negative fixtures live in the test module and are not model code. One strengthens a precondition:
+The other half is behaviour, and no signature carries it. A calculator that refuses a zone the contract accepts, or that prices in dollars, has the right types. The contract helper in the test module checks the docstring above: every zone at 0.5 kg and at 1200 kg, EUR, non-negative, quantised to cents, the heavier consignment never cheaper, and a zone outside `ZONES` raising `RatingError`. Two negative fixtures live in the test module and aren't model code. One strengthens a precondition:
 
 ```python
 class AsiaOnlyRate(BaseRate):
@@ -148,21 +153,21 @@ class AsiaOnlyRate(BaseRate):
         return super().price(consignment)
 ```
 
-The other, `DollarRate`, is a structural class that returns `Money(Decimal("10.00"), "USD")` and so weakens a postcondition. `test_mypy_cannot_see_a_behavioural_violation` passes both to `quote` and gets exit status 0 with empty output. The contract suite is what fails: `rejected zone EU` for the first, `priced in USD` for the second. The suite runs against `BaseRate` and `FlatRate` as well, and any calculator added later joins the same parametrised test.
+The other, `DollarRate`, is a structural class that returns `Money(Decimal("10.00"), "USD")` and so weakens a postcondition. `test_mypy_cannot_see_a_behavioural_violation` passes copies of both to `quote` and gets exit status 0 with empty output. The contract suite is what fails: `rejected zone EU` for the first, `priced in USD` for the second. The suite runs against `BaseRate` and `FlatRate` as well, a calculator added later joins it with one more entry in the parametrize list.
 
 ## Where Python changes how the principles apply
 
 The forces are the ones the principles name. Three Python features change how much structure it takes to honour them.
 
-Structural typing means a substitutable implementation does not need to inherit. `FlatRate` isn't a subclass of anything and satisfies `RateCalculator` by having the right `price`. That removes the requirement to build a hierarchy, and it leaves the contract in place: a class that matches by shape still has to keep the promises in the docstring, which is why the contract suite takes any `RateCalculator` and not any `BaseRate`. The shape-versus-promise distinction is developed in [Protocol, duck typing, and structural typing with mypy]({{ '/docs/09-protocol-and-structural-typing/' | relative_url }}).
+Structural typing means a substitutable implementation doesn't need to inherit. `FlatRate` isn't a subclass of anything and satisfies `RateCalculator` by having the right `price`. That removes the requirement to build a hierarchy, and it leaves the contract in place: a class that matches by shape still has to keep the promises in the docstring, which is why the contract suite takes any `RateCalculator` and not any `BaseRate`. The shape-versus-promise distinction is developed in [Protocol, duck typing, and structural typing with mypy]({{ '/docs/09-protocol-and-structural-typing/' | relative_url }}).
 
 The narrowest abstraction is a callable. Tax and audit have one operation each and no state to share, so `type` aliases over `Callable` express them, and a lambda, a closure, a bound method such as `records.append` or a `functools.partial` all fit. Pricing has a contract with several clauses, so it keeps a named `Protocol`.
 
-The extension point is data. A dict of callables replaces what a subclass-per-variant hierarchy would have needed. The next chapter takes up how such collaborators reach the coordinator.
+The extension point is data. A dict of callables replaces what a subclass-per-variant hierarchy would have needed.
 
 ## When the principle costs more than it buys
 
-A tax rule that never varies does not need a mapping. If the book shipped to one country and the rate were a constant, a function that multiplies by it would be the right size, and the table would be indirection that a reader has to learn and the tests have to cover. The same goes for the split itself: pulling audit out of `price` before a second reason to change exists adds a parameter and a name for a single caller. The test for a split is a request you have actually received that would touch two things at once.
+A tax rule that never varies doesn't need a mapping. If the book shipped to one country and the rate were a constant, a function that multiplies by it would be the right size, and the table would be indirection that a reader has to learn and the tests have to cover. The same goes for the split itself: pulling audit out of `price` before a second reason to change exists adds a parameter and a name for a single caller. The test for a split is a request you have actually received that would touch two things at once.
 
 A contract suite pays off when two implementations exist. With one calculator, the contract is a docstring and the calculator's own tests. With two, the suite is the only place where the second is held to the first's promises.
 
@@ -211,7 +216,7 @@ tests/test_srp.py::test_each_change_moves_only_the_fields_it_feeds[audit-sink] P
 tests/test_srp.py::test_audit_receives_exactly_the_quote_returned PASSED [ 94%]
 tests/test_srp.py::test_pricing_and_tax_run_alone PASSED                 [100%]
 
-============================== 18 passed in 2.64s ==============================
+============================== 18 passed in 2.69s ==============================
 ```
 
 ```text

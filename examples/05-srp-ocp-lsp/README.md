@@ -1,6 +1,6 @@
 # SRP, OCP and LSP
 
-One rate quote, thirteen tests. Each test witnesses a claim about the single-responsibility,
+One rate quote, thirteen test functions. Each test witnesses a claim about the single-responsibility,
 open-closed and Liskov substitution principles in modern Python. The tax rates are illustrative
 values for the example and are not statutory rates.
 
@@ -23,8 +23,8 @@ Open-closed: a new tax rule is data.
 Liskov substitution: the contract the type does not state.
 
 - One contract helper checks every `RateCalculator`: all zones accepted, EUR, non-negative,
-  quantised to cents, heavier never cheaper.
-- `mypy --strict` rejects an override that narrows an argument, widens a return type or
+  quantised to cents, heavier never cheaper, an unknown zone rejected.
+- `mypy --strict` rejects an override that narrows the argument to a subtype, widens a return type or
   misspells a method marked `@override`, and accepts one that widens an argument.
 - On a `Protocol`, mypy checks conformance where the object is used.
 - A subclass that rejects zones the base accepts, or a structural class that prices in USD,

@@ -5,7 +5,7 @@ from decimal import Decimal
 import pytest
 from srp_ocp_lsp.audit import AuditSink
 from srp_ocp_lsp.domain import Consignment, Money, RateQuote, Tariff
-from srp_ocp_lsp.pricing import FLAT_BY_ZONE, TARIFF, BaseRate
+from srp_ocp_lsp.pricing import TARIFF, BaseRate
 from srp_ocp_lsp.rating import quote
 from srp_ocp_lsp.tax import TAX_RULES, TaxRule, percent
 
@@ -80,4 +80,3 @@ def test_pricing_and_tax_run_alone(asia_consignment: Consignment) -> None:
 
     assert net == Money(Decimal("408.00"), "EUR")
     assert tax_rule(Money(Decimal("408.00"), "EUR")) == Money(Decimal("36.72"), "EUR")
-    assert FLAT_BY_ZONE["ASIA"] == Money(Decimal("60.00"), "EUR")

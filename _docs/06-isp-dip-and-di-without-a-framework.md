@@ -19,13 +19,13 @@ By the end of this chapter you can:
 
 ## Why this matters
 
-A booking service that constructs its own carrier client cannot run in a test suite that has no carrier. The usual repair is a fake, and the repair goes wrong in a predictable way: the carrier interface has grown to offer booking, cancellation and tracking, so every fake must implement all three even when the test exercises one. Each unused method is code to maintain that no assertion reads, and each new method on the interface breaks the fakes that predate it.
+A booking service that constructs its own carrier client can't run in a test suite that has no carrier. The usual repair is a fake, and the repair goes wrong in a predictable way: the carrier interface has grown to offer booking, cancellation and tracking, so every fake must implement all three even when the test exercises one. Each unused method is code to maintain that no assertion reads, and each new method on the interface breaks the fakes that predate it.
 
 Two principles name the pressure. Robert C. Martin's interface segregation principle says a client should not be forced to depend on methods it does not use. His dependency inversion principle says high-level policy should not depend on low-level detail, and that both should depend on abstractions. In a language where an interface is a base class, honouring them costs a hierarchy. In Python 3.14 both forces remain and the mechanism is smaller: a `Protocol` the consumer declares, an adapter that satisfies it without importing it, and a function that hands the adapter over. The example for this chapter is one booking service and one tracking function, with tests that witness each claim.
 
 {% include excalidraw.html name="06-isp-dip-and-di-without-a-framework" caption="Figure 6.1: Dependency injection without a framework. The composition root builds one carrier adapter and passes it to each consumer, which names only the small Protocol it needs; the adapter satisfies both Protocols structurally and imports neither." %}
 
-Read the figure from the top. The root is the only box that names an adapter. The two consumers sit below it, each above the Protocol it owns, and the dashed arrows run from the adapter to those Protocols without the adapter importing either.
+Read the figure from the top. The root builds one adapter, and the two arrows out of the adapter show that same object reaching both consumers. Each consumer names only the Protocol below it, and the dashed arrows lead to the point of the design: the adapter satisfies both Protocols structurally and imports neither.
 
 ## A gateway with three methods and consumers that use one
 
@@ -55,25 +55,25 @@ class BookingGateway(Protocol):
     def cancel(self, reference: str, /) -> None: ...
 ```
 
-Tracking asks for one, `track(self, consignment_id: ConsignmentId, /) -> tuple[HandlingEvent, ...]`, in `TrackingGateway`. The positional-only `/` matters: a Protocol member with named parameters would force an implementer to use the same names, which couples the adapter to the consumer's spelling.
+Tracking asks for one, `track(self, consignment_id: ConsignmentId, /) -> tuple[HandlingEvent, ...]`, in `TrackingGateway`. The positional-only `/` matters: without it the parameter name is part of the member's signature, because a caller may pass it by keyword, and the typing specification then requires an implementer to use the same name. mypy 2.4.1 doesn't enforce that for a method member, so the `/` states the intent where the checker would not.
 
-The adapters name none of this. `FastlineGateway` and `AircoGateway` are plain classes with `book`, `track` and `cancel`, no base class and no import of either policy module. The test `test_adapters_satisfy_every_role_without_naming_one` assigns each adapter to a variable annotated `BookingGateway`, one annotated `TrackingGateway` and one annotated `CarrierGateway`, and checks that none of those Protocols appears in the adapter's method resolution order. The annotated assignments are the static witness, and pytest does not run them. The member's `mypy --strict` run does, so a green pytest run alone does not cover that half of the claim. A Protocol is structural, so an adapter satisfies it by having the right members, as the Protocol chapter develops.
+The adapters name none of this. `FastlineGateway` and `AircoGateway` are plain classes with `book`, `track` and `cancel`, no base class and no import of either policy module. The test `test_adapters_satisfy_every_role_without_naming_one` assigns each adapter to a variable annotated `BookingGateway`, one annotated `TrackingGateway` and one annotated `CarrierGateway`, and checks that none of those Protocols appears in the adapter's method resolution order. The annotated assignments are the static witness: pytest executes them but doesn't check the annotations, and the member's `mypy --strict` run does, so a green pytest run alone doesn't cover that half of the claim. A Protocol is structural, so an adapter satisfies it by having the right members, as [Protocol, duck typing, and structural typing with mypy]({{ '/docs/09-protocol-and-structural-typing/' | relative_url }}) develops.
 
 Splitting a Protocol therefore costs implementers nothing. An adapter that already satisfied one wide Protocol satisfies its halves, and a new consumer can declare a third small Protocol without touching an adapter.
 
-The benefit appears in the fakes. Pass a class that implements only `track` where `CarrierGateway` is required, and mypy refuses it. The check below ran against the example with `mypy --strict`:
+The benefit appears in the fakes. Pass a class that implements only `track` where `CarrierGateway` is required, and mypy refuses it. The snippet in `test_a_fat_protocol_forces_fakes_to_stub_unused_methods`, run through `mypy --strict`, prints:
 
 ```text
-snip.py:13: error: Argument 1 to "needs_a_whole_carrier" has incompatible type "TrackOnly"; expected "CarrierGateway"  [arg-type]
-snip.py:13: note: "TrackOnly" is missing following "CarrierGateway" protocol members:
-snip.py:13: note:     book, cancel
+<string>:18: error: Argument 1 to "needs_a_whole_carrier" has incompatible type "TrackOnly"; expected "CarrierGateway"  [arg-type]
+<string>:18: note: "TrackOnly" is missing following "CarrierGateway" protocol members:
+<string>:18: note:     book, cancel
 ```
 
 The same class passed to `tracking_history`, which asks only for a `TrackingGateway`, type-checks cleanly. The test `test_a_fat_protocol_forces_fakes_to_stub_unused_methods` asserts both outcomes: exit status 1 with exactly the `arg-type` code and the names `book, cancel` for the wide parameter, and exit status 0 with no output for the narrow one. `FakeTracker`, defined in that test module, has one method because its consumer calls one.
 
 ## Dependency inversion: the policy names the abstraction
 
-Martin states the dependency inversion principle in two clauses. High-level modules should not depend on low-level modules, and both should depend on abstractions. Abstractions should not depend on details, and details should depend on abstractions. The second clause is the one a Protocol makes cheap. The abstraction is declared by the policy that needs it, in the same module, so the dependency arrow points from the adapter side toward the policy side, and in Python the adapter doesn't even draw that arrow, because structural typing needs no import.
+Martin states the dependency inversion principle in two clauses. High-level modules should not depend on low-level modules, and both should depend on abstractions. Abstractions should not depend on details, and details should depend on abstractions. The second clause is the one a Protocol makes cheap. The abstraction is declared by the policy that needs it, in the same module, so the adapter depends on the policy's abstraction, and in Python it does so without an import, because structural typing needs none.
 
 `BookingService` is the policy. It is a frozen dataclass with two collaborators, and it knows no carrier:
 
@@ -97,15 +97,15 @@ class BookingService:
 
 `AuditSink` is a type alias for `Callable[[str], None]`, so the service asks for a function and any function with that shape is a sink. The test passes `records.append`.
 
-Three tests witness the inversion. `test_booking_service_runs_against_an_injected_fake` builds the service around `FakeBooker`, books, and checks that the reference, the recorded request and the audit record all came from the fake and the service, with no adapter built. `test_policy_modules_do_not_import_the_adapters` parses the source of `booking` and `tracking` with `ast` and asserts that neither imports `isp_dip_di.carriers` or `isp_dip_di.app`. `test_adapters_import_neither_policy_nor_protocols` parses `carriers` and asserts that it imports none of `booking`, `tracking` or `app`. Both import directions are checked, so the check is symmetric: policy does not reach down to the adapter, and the adapter does not reach up to the policy.
+Three tests witness the inversion. `test_booking_service_runs_against_an_injected_fake` builds the service around `FakeBooker`, books, and checks that the reference, the recorded request and the audit record all came from the fake and the service, with no adapter built. `test_policy_modules_do_not_import_the_adapters` parses the source of `booking` and `tracking` with `ast` and asserts that neither imports `isp_dip_di.carriers` or `isp_dip_di.app`. `test_adapters_import_neither_policy_nor_protocols` parses `carriers` and asserts that it imports none of `booking`, `tracking` or `app`. Both import directions are checked, so the check is symmetric: policy doesn't reach down to the adapter, and the adapter doesn't reach up to the policy.
 
-Reading imports with `ast` finds names written as import statements. It would miss a module loaded by a string passed to `importlib`, and the example uses none.
+Reading imports with `ast` finds names written as import statements. It would miss a module loaded by a string passed to `importlib`, and the example uses none. It also checks direct imports only, which is enough here because `domain` imports nothing from the package.
 
 ## Injection without a container
 
 The word "injection" for handing a collaborator to the code that uses it comes from Martin Fowler's January 2004 article on inversion of control containers and the dependency injection pattern. Strip away the container and the idea is plain. Something other than the consumer decides which collaborator it gets.
 
-For a class, constructor injection is a dataclass field. `BookingService(gateway, audit)` is the whole mechanism, and a frozen dataclass makes the collaborators immutable once wired.
+For a class, constructor injection is a dataclass field. `BookingService(gateway, audit)` is the whole mechanism, and a frozen dataclass fixes the wiring: neither field can be reassigned after construction.
 
 For a function, the collaborator can be bound ahead of time with `functools.partial`. The tracking policy is a function whose signature is `def tracking_history(consignment_id: ConsignmentId, *, gateway: TrackingGateway) -> TrackingHistory:`, and the root binds the gateway:
 
@@ -115,7 +115,7 @@ For a function, the collaborator can be bound ahead of time with `functools.part
 
 The result is a callable that takes only a consignment id. A closure over `gateway` does the same job and reads equally well. The `partial` is the one the tests can inspect: `test_partial_injects_a_collaborator_into_a_function` checks that `app.track.func` is `tracking_history` and that the bound keyword reaches the function, so the tracking function shows the booking made through the service.
 
-There is a gap in what mypy checks here, and it is a limitation of mypy 2.4.1, not a rule of the language. mypy checks the argument bound into the `partial` and the call through it. `partial(tracking_history, gateway=42)` is an `[arg-type]` error, and so is calling the result with an `int`. mypy does not check the assignment of a `partial` to a mismatched `Callable` annotation: `wrong: Callable[[int], TrackingHistory] = partial(tracking_history, gateway=gateway)` type-checks with no output. The test `test_mypy_checks_a_partial_at_binding_and_call_but_not_at_assignment` records all three results, and it will start to fail if a later mypy closes the gap, which is the signal to revise this paragraph. A closure's signature is fully checked, so if the annotation at the assignment matters, the closure is the safer spelling.
+There is a gap in what mypy checks here, and it is a limitation of mypy 2.4.1, not a rule of the language. mypy checks the argument bound into the `partial` and the call through it. `partial(tracking_history, gateway=42)` is an `[arg-type]` error, and so is calling the result with an `int`. mypy doesn't check the assignment of a `partial` to a mismatched `Callable` annotation: `wrong: Callable[[int], TrackingHistory] = partial(tracking_history, gateway=gateway)` type-checks with no output. The test `test_mypy_checks_a_partial_at_binding_and_call_but_not_at_assignment` records all three results, and it will start to fail if a later mypy closes the gap, which is the signal to revise this paragraph. A closure's signature is fully checked, so if the annotation at the assignment matters, the closure is the safer spelling.
 
 ## The composition root
 
@@ -152,15 +152,15 @@ The autospec still enforces the shape at runtime, only later. `test_autospec_enf
 
 ## When the principle costs more than it buys
 
-A Protocol with one implementation and no test double adds a name, not a seam. If nothing substitutes for the adapter and nothing is likely to, the class itself is the contract and the extra declaration is reading cost. The same holds for a split: two Protocols for a consumer that needs both methods describe a boundary that does not exist.
+A Protocol with one implementation and no test double adds a name without adding a seam. If nothing substitutes for the adapter and nothing is likely to, the class itself is the contract and the extra declaration is reading cost. The same holds for a split: two Protocols for a consumer that needs both methods describe a boundary that doesn't exist.
 
 Don't inject the standard library. A function that needs the current directory can call `pathlib.Path.cwd()`. Wrapping `json` or `os` behind a Protocol adds indirection around something a test can already use directly. Inject what varies between environments or what a test must control: a carrier, a clock the test must fix, a message sink.
 
-Wiring by hand eventually isn't short. When dozens of services have lifetimes, scopes and ordered start-up, writing the root as a function becomes the problem, and a container library is a reasonable tool for that problem. The signal is the size of the wiring, not the presence of injection.
+Hand wiring stops being short at some size. When dozens of services have lifetimes, scopes and ordered start-up, writing the root as a function becomes the problem, and a container library is a reasonable tool for that problem. The signal is the size of the wiring, not the presence of injection.
 
 <blockquote class="ai-sidebar" markdown="1">
 
-**Review checklist for assistant-proposed seams.** An assistant may propose a dependency injection container, a base class for each adapter, or one large gateway Protocol shared by every consumer. Check three things before accepting. First, does each consumer import a Protocol that names only the methods it calls, or does one wide Protocol force fakes to stub methods no test reads? Second, does an import check such as the ones above confirm that policy modules do not import adapters? Third, is the wiring large enough to justify a container, or would a function that builds one gateway and passes it to two consumers do the same job in a dozen lines?
+**Review checklist for assistant-proposed seams.** An assistant may propose a dependency injection container, a base class for each adapter, or one large gateway Protocol shared by every consumer. Check three things before accepting. First, does each consumer import a Protocol that names only the methods it calls, or does one wide Protocol force fakes to stub methods no test reads? Second, does an import check such as the ones above confirm that policy modules don't import adapters? Third, is the wiring large enough to justify a container, or would a function that builds one gateway and passes it to two consumers do the same job in a dozen lines?
 
 </blockquote>
 
@@ -221,7 +221,7 @@ tests/test_dip.py:74: note: "FakeBooker" is missing following "BookingGateway" p
 tests/test_dip.py:74: note:     cancel
 ```
 
-A passing pytest run does not prove a fake still satisfies the Protocol it stands in for. Restore the method.
+A passing pytest run doesn't prove a fake still satisfies the Protocol it stands in for. Restore the method.
 
 ## For deeper coverage
 

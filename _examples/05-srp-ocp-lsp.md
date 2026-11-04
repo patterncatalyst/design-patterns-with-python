@@ -5,7 +5,7 @@ title: "SRP, OCP and LSP: thirteen witnesses"
 description: One rate quote whose tests show three reasons to change kept apart, a tax rule added as data, and a contract suite for what no type states.
 github_path: examples/05-srp-ocp-lsp
 card_eyebrow: "Principles: SOLID · SRP, OCP, LSP"
-card_title: "Thirteen tests for three principles"
+card_title: "Thirteen test functions for three principles"
 card_blurb: "A rate quote split into pricing, tax and audit, extended with a new tax rule as data, and checked by a contract suite that catches the substitution failures mypy cannot see."
 ---
 
@@ -28,8 +28,8 @@ The default `TAX_RULES` table is read-only, and a destination without a rule is 
 ## Liskov substitution
 
 - One contract helper checks every `RateCalculator`: all zones accepted, EUR, non-negative,
-  quantised to cents, heavier never cheaper.
-- `mypy --strict` rejects a narrowed argument and a widened return, flags a misspelled
+  quantised to cents, heavier never cheaper, unknown zone rejected.
+- `mypy --strict` rejects an override that narrows the argument to a subtype and one that widens the return, flags a misspelled
   `@override`, accepts a widened argument, and checks a structural calculator where it is used.
 - A subclass that rejects zones the base accepts, and a class that prices in USD, pass mypy and
   fail the contract.

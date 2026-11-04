@@ -385,7 +385,7 @@ Reconciliation rows (step 0):
 | --- | --- | --- | --- |
 | 29 | 5 | Replacing one collaborator changes only the outputs it feeds (a tariff moves net and, through it, tax; a tax rule moves only tax; a sink moves nothing) | `test_each_change_moves_only_the_fields_it_feeds` |
 | 30 | 5 | A new tax rule arrives from outside the package without editing `quote`; the default is read-only | `test_a_new_tax_rule_is_added_without_editing_quote`, `test_default_tax_table_is_read_only` |
-| 31 | 5 | mypy checks override signatures (narrowed argument with the LSP note, widened return, `@override` misspelling) and Protocol conformance at the use site; accepts a widened argument | tests 10-12 |
+| 31 | 5 | mypy checks override signatures (an argument narrowed to a subtype, with the LSP note, widened return, `@override` misspelling) and Protocol conformance at the use site; accepts a widened argument | tests 10-12 |
 | 32 | 5 | mypy cannot see a strengthened precondition or weakened postcondition; the contract suite catches both | tests 8, 9, 13 |
 | 33 | 6 | A track-only fake satisfies the narrow Protocol and fails the fat one under mypy | ch6 test 2 |
 | 34 | 6 | Policy modules import no adapters; adapters import neither policy nor Protocols | ch6 tests 4-5 |

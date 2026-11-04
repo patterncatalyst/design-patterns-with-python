@@ -32,6 +32,14 @@ def assert_rate_contract(calculator: RateCalculator, *, currency: str = "EUR") -
             assert price.amount == price.amount.quantize(Decimal("0.01"))
             prices.append(price)
         assert prices[0].amount <= prices[1].amount
+    outside = Consignment(
+        id=ConsignmentId("CN-CONTRACT"), weight=Weight(1.0), zone="POLAR", destination="NLRTM"
+    )
+    try:
+        calculator.price(outside)
+    except RatingError:
+        return
+    raise AssertionError("accepted zone POLAR that the contract rejects")
 
 
 class AsiaOnlyRate(BaseRate):
@@ -94,7 +102,7 @@ _HEADER = """
 from decimal import Decimal
 from typing import override
 
-from srp_ocp_lsp.domain import Consignment, ConsignmentId, Money
+from srp_ocp_lsp.domain import Consignment, Money
 from srp_ocp_lsp.pricing import BaseRate
 """
 
@@ -102,9 +110,13 @@ _NARROWED_ARGUMENT = (
     _HEADER
     + """
 
+class SeaConsignment(Consignment):
+    pass
+
+
 class Narrowed(BaseRate):
     @override
-    def price(self, consignment_id: ConsignmentId, /) -> Money:
+    def price(self, consignment: SeaConsignment, /) -> Money:
         return Money(Decimal("0.00"), "EUR")
 """
 )

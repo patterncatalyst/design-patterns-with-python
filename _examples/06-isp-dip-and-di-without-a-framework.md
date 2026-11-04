@@ -5,7 +5,7 @@ title: "ISP, DIP and DI without a framework: thirteen witnesses"
 description: One booking service and one tracking function whose tests show small consumer-owned Protocols, policy that imports no adapter, and a plain composition root.
 github_path: examples/06-isp-dip-and-di-without-a-framework
 card_eyebrow: "Principles: SOLID · ISP, DIP, DI"
-card_title: "Thirteen tests for two principles and a wiring function"
+card_title: "Thirteen test functions for two principles and a wiring function"
 card_blurb: "Booking and tracking each depend on the smallest Protocol they use, carrier adapters satisfy them without naming them, and one plain function wires the whole application."
 ---
 
@@ -28,7 +28,7 @@ satisfy both. A fake that implements only `track` is rejected where the combined
 
 ## The composition root
 
-`build_app` is the only module that names a concrete adapter. It builds one gateway and gives
+`app.py`, home of `build_app`, is the only module that names a concrete adapter. It builds one gateway and gives
 it to `BookingService` as a field and to `tracking_history` through `functools.partial`. mypy
 checks the bound argument and the call through the partial, but not its assignment to a
 `Callable` annotation. A substitute mapping replaces the adapters without patching, and an
