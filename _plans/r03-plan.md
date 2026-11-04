@@ -96,7 +96,7 @@ Sections (spine headings exact; about 2,200 prose words):
    (carrier contract or tariff; destination tax rule; audit requirement). SRP with attribution.
 5. `## Single responsibility: three collaborators and a coordinator` (~350): excerpts
    `RateCalculator` Protocol with its contract docstring, `type TaxRule`, `type AuditSink`,
-   `quote`; what `test_each_change_moves_only_its_own_field` shows.
+   `quote`; what `test_each_change_moves_only_the_fields_it_feeds` shows.
 6. `## Open for extension: a new tax rule is data` (~300): excerpts `percent`, `TAX_RULES`.
    Meyer's original framing rested on inheritance; Martin restated it on abstraction. In Python
    the extension point is often a callable in a mapping passed in; the default table is
@@ -255,9 +255,9 @@ package name.
 `records: list[RateQuote]` sink.
 
 `test_srp.py`:
-1. `test_each_change_moves_only_its_own_field[tariff|tax-rule|audit-sink]`: baseline quote, then
+1. `test_each_change_moves_only_the_fields_it_feeds[tariff|tax-rule|audit-sink]`: baseline quote, then
    replace one collaborator (a different `Tariff`; a different `"SG"` rule; a different sink);
-   changed `dataclasses.fields(RateQuote)` set is exactly `{"net"}`, `{"tax"}`, `set()`; in the
+   changed `dataclasses.fields(RateQuote)` set is exactly `{"net", "tax"}` (tax is computed from net, so a tariff change reaches tax through the data, not the code), `{"tax"}`, `set()`; in the
    sink case the new sink got the quote and the old did not.
 2. `test_audit_receives_exactly_the_quote_returned`: `records == [q]`, `records[0] is q`.
 3. `test_pricing_and_tax_run_alone`: `BaseRate(TARIFF).price(c)` and
@@ -370,9 +370,9 @@ Also `README.md` and card `_examples/06-isp-dip-and-di-without-a-framework.md` (
 | Step | What | Depends | Status |
 | --- | --- | --- | --- |
 | 0 | Plan file; PDP-105a..c and 106a..c active; domain-model ch5/ch6 rows (bucket `n.a. (principle)`, new ch5 failure demo, ch5 names drop `Surcharge` and add `BaseRate`, `FlatRate`, `TAX_RULES`, `percent`, `TaxRule`, `AuditSink`, `RatingError`; ch6 adds `BookingGateway`, `TrackingGateway`, `BookingService`, `tracking_history`, `App`, `HandlingKind`); reconciliation rows 29-36 `open` | - | **done** |
-| 1a | ch5 member, card, README; gates; handback with test names and scrubbed output | 0 | todo |
-| 1b | ch6 member, card, README; one `uv lock` after both exist (sequenced after 1a); gates; handback | 1a | todo |
-| 2 | Witness results into reconciliation rows 29-36; a failed witness changes the thesis before prose | 1b | todo |
+| 1a | ch5 member, card, README; gates; handback with test names and scrubbed output | 0 | **done** |
+| 1b | ch6 member, card, README; one `uv lock` after both exist (sequenced after 1a); gates; handback | 1a | **done** |
+| 2 | Witness results into reconciliation rows 29-36; a failed witness changes the thesis before prose | 1b | **done** |
 | 3 | Two figures, specs, `_data/diagrams.yml` (single owner); figures 00-04 unchanged | 1b | todo |
 | 4 | ch5 and ch6 `status = "drafted"` | 3 | todo |
 | 5 | Two prose agents in parallel; verify attributions; run experiments in a scratch copy; quote fresh filtered output | 3,4 | todo |
@@ -383,7 +383,7 @@ Reconciliation rows (step 0):
 
 | # | Ch | Claim | Verified by |
 | --- | --- | --- | --- |
-| 29 | 5 | Replacing one collaborator changes only its own output | `test_each_change_moves_only_its_own_field` |
+| 29 | 5 | Replacing one collaborator changes only the outputs it feeds (a tariff moves net and, through it, tax; a tax rule moves only tax; a sink moves nothing) | `test_each_change_moves_only_the_fields_it_feeds` |
 | 30 | 5 | A new tax rule arrives from outside the package without editing `quote`; the default is read-only | `test_a_new_tax_rule_is_added_without_editing_quote`, `test_default_tax_table_is_read_only` |
 | 31 | 5 | mypy checks override signatures (narrowed argument with the LSP note, widened return, `@override` misspelling) and Protocol conformance at the use site; accepts a widened argument | tests 10-12 |
 | 32 | 5 | mypy cannot see a strengthened precondition or weakened postcondition; the contract suite catches both | tests 8, 9, 13 |
