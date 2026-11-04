@@ -114,15 +114,15 @@ PR, squash-merge with branch deletion, an `rNN.x` tag and a notes-only release.
 | PDP-115a | Ch15 Command, undo, and command queues: example | r07 | active |
 | PDP-115b | Ch15 Command, undo, and command queues: figure | r07 | active |
 | PDP-115c | Ch15 Command, undo, and command queues: prose | r07 | active |
-| PDP-116a | Ch16 Factory Method and Abstract Factory: example | r08 | todo |
-| PDP-116b | Ch16 Factory Method and Abstract Factory: figure | r08 | todo |
-| PDP-116c | Ch16 Factory Method and Abstract Factory: prose | r08 | todo |
-| PDP-117a | Ch17 Builder, dataclasses, and Prototype: example | r08 | todo |
-| PDP-117b | Ch17 Builder, dataclasses, and Prototype: figure | r08 | todo |
-| PDP-117c | Ch17 Builder, dataclasses, and Prototype: prose | r08 | todo |
-| PDP-118a | Ch18 Singleton: module, Borg, metaclass: example | r08 | todo |
-| PDP-118b | Ch18 Singleton: module, Borg, metaclass: figure | r08 | todo |
-| PDP-118c | Ch18 Singleton: module, Borg, metaclass: prose | r08 | todo |
+| PDP-116a | Ch16 Factory Method and Abstract Factory: example | r08 | active |
+| PDP-116b | Ch16 Factory Method and Abstract Factory: figure | r08 | active |
+| PDP-116c | Ch16 Factory Method and Abstract Factory: prose | r08 | active |
+| PDP-117a | Ch17 Builder, dataclasses, and Prototype: example | r08 | active |
+| PDP-117b | Ch17 Builder, dataclasses, and Prototype: figure | r08 | active |
+| PDP-117c | Ch17 Builder, dataclasses, and Prototype: prose | r08 | active |
+| PDP-118a | Ch18 Singleton: module, Borg, metaclass: example | r08 | active |
+| PDP-118b | Ch18 Singleton: module, Borg, metaclass: figure | r08 | active |
+| PDP-118c | Ch18 Singleton: module, Borg, metaclass: prose | r08 | active |
 | PDP-119a | Ch19 Adapter, Facade, Bridge: example | r09 | todo |
 | PDP-119b | Ch19 Adapter, Facade, Bridge: figure | r09 | todo |
 | PDP-119c | Ch19 Adapter, Facade, Bridge: prose | r09 | todo |
@@ -204,3 +204,5 @@ PR, squash-merge with branch deletion, an `rNN.x` tag and a notes-only release.
 2026-11-04 (r06): PDP-112a to PDP-113c are active for r06 (chapters 12 and 13, Part 5). Earlier iterations keep their status.
 
 2026-11-04 (r07): PDP-114a to PDP-115c are active for r07 (chapters 14 and 15, Part 5). Earlier iterations keep their status.
+
+2026-11-04 (r08): PDP-116a to PDP-118c are active for r08 (chapters 16 to 18, Part 6). Earlier iterations keep their status.

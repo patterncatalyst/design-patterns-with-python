@@ -1,0 +1,1 @@
+"""builder-prototype example package."""
