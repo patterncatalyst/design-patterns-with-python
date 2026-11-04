@@ -44,3 +44,21 @@
     name for the same contract; naming the Python mechanism as well, a callable
     type alias rather than a class hierarchy, keeps both readers on the
     idiomatic shape.
+
+- name: 05-srp-ocp-lsp
+  section: "Ch. 5"
+  title: One quote, three responsibilities
+  caption: >-
+    One quote, three responsibilities. Pricing sits behind the RateCalculator
+    Protocol and hands its net to tax rules keyed by destination country, then
+    the finished quote goes to an audit callable, so each changes for its own
+    reason while one contract suite checks every calculator.
+
+- name: 06-isp-dip-and-di-without-a-framework
+  section: "Ch. 6"
+  title: Dependency injection without a framework
+  caption: >-
+    Dependency injection without a framework. The composition root builds one
+    carrier adapter and passes it to each consumer, which names only the small
+    Protocol it needs; the adapter satisfies both Protocols structurally and
+    imports neither.
