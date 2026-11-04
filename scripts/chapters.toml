@@ -115,7 +115,7 @@ title = "Strategy: the callable"
 part = 5
 kind = "pattern"
 has_example = true
-status = "stub"
+status = "drafted"
 
 [[chapter]]
 number = 13
@@ -124,7 +124,7 @@ title = "Template Method and the function alternative"
 part = 5
 kind = "pattern"
 has_example = true
-status = "stub"
+status = "drafted"
 
 [[chapter]]
 number = 14

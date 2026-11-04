@@ -421,9 +421,9 @@ Step ids are `G*` because `--claims` resolves `run:` tokens against every plan's
 | G0 | This plan file. PDP-112a-c and 113a-c `active` in `iteration-plan.md` (dated note). Reconciliation rows 65-74 `open`, and a row 1 note "counts witnessed by row 65 (r06)". Domain-model rows 12-13 updated with the example-spec names (row 12: `Mapping[str, PricingRule]` over a 3.15 `frozendict`, `ZoneRate`, and the failing test as decision 1 settles it; row 13: `CustomsHooks`, `declare_customs`, `CustomsDeclarer` with `@final declare`, Protocol defaults as a test fixture). ch12/13 stub `description` lines written. Decisions recorded | - | done |
 | G1a | ch12 member, card, README; three green runs; the deletion table above, each row run in a scratch copy | G0 | done |
 | G1b | ch13 member, card, README; one `uv lock` after both members (sequenced); three green runs; deletion table | G1a | done |
-| G2 | Witness results into rows 65-74 (claims audit resolves). A failed witness changes the thesis before prose. Any message differing from Planning evidence goes in "Corrections after the build" | G1b | todo |
-| G3 | Two figures, specs `diagrams/specs/12-*.py` and `13-*.py`, `_data/diagrams.yml` (single owner; `section: "Ch. 12"`/`"Ch. 13"`); figures 00-11 unchanged | G2 | todo |
-| G4 | ch12-13 `status = "drafted"` (`kind` stays `pattern`) | G3 | todo |
+| G2 | Witness results into rows 65-74 (claims audit resolves). A failed witness changes the thesis before prose. Any message differing from Planning evidence goes in "Corrections after the build" | G1b | done |
+| G3 | Two figures, specs `diagrams/specs/12-*.py` and `13-*.py`, `_data/diagrams.yml` (single owner; `section: "Ch. 12"`/`"Ch. 13"`); figures 00-11 unchanged | G2 | done |
+| G4 | ch12-13 `status = "drafted"` (`kind` stays `pattern`) | G3 | done |
 | G5 | Two prose agents in parallel. Each re-fetches its sources and quotes exactly, runs the experiments in scratch copies, quotes fresh output filtered by `python3 scripts/host_ids.py filter`, and hands back the sources checked plus a per-paragraph claims table (claim, then test, run or source URL) | G3, G4 | todo |
 | G6 | Opus validation; up to two repair rounds | G5 | todo |
 | G7 | PR, `ci-ok` green, ask the user before merge; tag r06.x; notes-only release. No hub PR (decision 3) | G6 | todo |
