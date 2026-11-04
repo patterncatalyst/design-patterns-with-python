@@ -4,7 +4,7 @@ order: 18
 layout: tutorial
 sectionid: docs
 part: "creating-objects-under-control"
-description: "Draft pending: Singleton: module, Borg, and metaclass."
+description: "Singleton needs disambiguating: the default is a module built at import time or on first use, with a parameter for tests and a double-checked lock for loads that need run-time input."
 ---
 
 ## Learning objectives

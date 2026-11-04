@@ -11,7 +11,7 @@ Opus-planned 2026-11-04. Branch `release/r08` (from main at 2506655). This file 
 
 ## User decisions (2026-11-04, confirmed by the owner)
 
-Owner answers 2026-11-04: every decision below takes the recommended option (all three chapters in r08, built in sequence, Singleton splitting to r08b only if a third repair round is needed; chapter 18 owns the cache-under-threads trap, `LoadOnce` with an injected lock, and PEP 810 `lazy import`; I step ids; generic `CarrierKit[R]`; the listed supporting names; the GoF creator hierarchy count; both chapter 17 comparison fixtures; Borg, metaclass and `__new__` as test fixtures; *Python Cookbook* 1st ed. added with a hub PR at I0b; domain rows 16-18 updated at I0).
+Owner answers 2026-11-04: every decision below takes the recommended option (all three chapters in r08, built in sequence, Singleton splitting to r08b only if a third repair round is needed; chapter 18 owns the cache-under-threads trap, `LoadOnce` with an injected lock, and PEP 810 `lazy import`; I step ids; generic `CarrierKit[R]`; the listed supporting names; the GoF creator hierarchy count; both chapter 17 comparison fixtures; Borg, metaclass and `__new__` as test fixtures; *Python Cookbook* 1st ed. added with a hub PR at I0b (superseded the same day, see below); domain rows 16-18 updated at I0).
 
 Each decision carries a recommendation. Nothing below is built until the owner answers.
 
@@ -633,9 +633,9 @@ Step ids are `I*` because `--claims` resolves `run:` tokens against every plan's
 
 | Step | What | Depends | Status |
 | --- | --- | --- | --- |
-| I0 | This plan file. PDP-116a-c, 117a-c and 118a-c `active` in `iteration-plan.md` (dated note). Reconciliation rows 85-96 `open`, and the row 1 note (decision 5). Domain-model rows 16-18 updated (decisions 4 and 11). ch16-18 stub `description` lines written. Decisions recorded | - | todo |
-| I0b | Only if decision 10 adds *Python Cookbook*: verify the edition, recipe title and year on the publisher page; add the `bibliography.html` row and the hub `books.yml` entry (`referenced_by: design-patterns-with-python`, `review_note`) on a hub branch | I0 | todo |
-| I1a | ch16 member, card, README; three green runs; the deletion table, each row in a fresh scratch copy with its `.venv` removed and re-synced (confirm `__file__`) | I0 | todo |
+| I0 | This plan file. PDP-116a-c, 117a-c and 118a-c `active` in `iteration-plan.md` (dated note). Reconciliation rows 85-96 `open`, and the row 1 note (decision 5). Domain-model rows 16-18 updated (decisions 4 and 11). ch16-18 stub `description` lines written. Decisions recorded | - | done |
+| I0b | Only if decision 10 adds *Python Cookbook*: verify the edition, recipe title and year on the publisher page; add the `bibliography.html` row and the hub `books.yml` entry (`referenced_by: design-patterns-with-python`, `review_note`) on a hub branch | I0 | dropped (decision 10 revised) |
+| I1a | ch16 member, card, README; three green runs; the deletion table, each row in a fresh scratch copy with its `.venv` removed and re-synced (confirm `__file__`) | I0 | done |
 | I1b | ch17 member, card, README; one `uv lock` after the member (sequenced); three green runs; deletion table | I1a | todo |
 | I1c | ch18 member, card, README; one `uv lock` (sequenced); three green runs; deletion table; `_plans/evidence/lazy-import-threads.md` (20 subprocess runs of test 3's code, scrubbed) | I1b | todo |
 | I2 | Witness results into rows 85-96 (claims audit resolves). A failed witness changes the thesis before prose. Any message differing from Planning evidence goes in "Corrections after the build" | I1c | todo |
@@ -663,6 +663,11 @@ Reconciliation rows (step I0). The "How to verify" column uses resolvable tokens
 | 96 | 16-18 | The "Build, run, observe" experiments behave as quoted | `run: I5` |
 
 ## Corrections after the build
+
+- Decision 10 revised by the owner 2026-11-04: the book isn't added. Step I0b could not verify that *Python Cookbook* 1st ed. prints the Borg recipe (the O'Reilly recipe page is walled; the catalogue lists the book without contents). Chapter 18 credits Alex Martelli by name and ActiveState recipe 66531 only. No bibliography row, no hub PR.
+- Step I1a: the r07 `_codes` regex `\[([a-z-]+)\]` also matched `[str]` inside generic types in mypy messages; it is anchored to the line end, `re.findall(r"\[([a-z-]+)\]$", stdout, re.MULTILINE)`. Later members that quote generics use the anchored form.
+- Step I1a: `FastlineGateway.from_settings` returning `FastlineGateway(...)` instead of `cls(...)` was seen by mypy only, so the test subclasses both gateways; `CarrierKit[R: str]` is bound (Shipment.reference is `str`), and deleting the bound is mypy-only; `FastlineGateway.endpoint` defaults to the live endpoint so the zero-argument callable-slot witness holds; one added test, `test_a_sandbox_setting_selects_the_sandbox_endpoint`. Totals 17 functions, 28 cases.
+- Criterion 2's `\babc\b` grep also matches `from collections.abc import`; the intent (no `abc` module or `ABC` in src) holds, so the grep is read as `^\s*(from abc|import abc)|\bABC\b`.
 
 (empty)
 

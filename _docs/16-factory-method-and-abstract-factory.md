@@ -4,7 +4,7 @@ order: 16
 layout: tutorial
 sectionid: docs
 part: "creating-objects-under-control"
-description: "Draft pending: Factory Method and Abstract Factory."
+description: "Factory Method dissolves into a class or a Self classmethod in a Callable slot, while Abstract Factory survives as one frozen kit per carrier family, with mypy tying only the products that pass values to each other."
 ---
 
 ## Learning objectives

@@ -9,6 +9,7 @@ members = [
     "context-managers",
     "data-model",
     "design-patterns-with-python-workspace",
+    "factories",
     "feature-spikes",
     "isp-dip-di",
     "srp-ocp-lsp",
@@ -117,6 +118,11 @@ dev = [
     { name = "pytest-mock", specifier = "==3.17.0" },
     { name = "ruff", specifier = "==0.17.3" },
 ]
+
+[[package]]
+name = "factories"
+version = "0.1.0"
+source = { editable = "examples/16-factory-method-and-abstract-factory" }
 
 [[package]]
 name = "feature-spikes"

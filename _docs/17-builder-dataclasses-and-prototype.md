@@ -4,7 +4,7 @@ order: 17
 layout: tutorial
 sectionid: docs
 part: "creating-objects-under-control"
-description: "Draft pending: Builder, dataclasses, and Prototype."
+description: "Builder and Prototype dissolve into a frozen keyword-only dataclass that validates once and replace for copies, with the field types deciding what a shallow copy shares."
 ---
 
 ## Learning objectives
