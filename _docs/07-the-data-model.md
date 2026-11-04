@@ -21,7 +21,7 @@ By the end of this chapter you can:
 
 Three failures in a shipping system look unrelated and have one cause. Two cartons with the same extents, one stowed on a different face, are booked twice because a set holds both. A report multiplies a rate by a factor and raises a `TypeError` three calls away from the type that should have answered. A list of rate quotes won't sort, and the error names neither a field nor a rule.
 
-Each is a missing or wrong method. Python doesn't implement `==`, `*` or `sorted` for your types. The interpreter calls a named method on the type, and a type takes part in the language's own conventions by defining it. That is why the fix belongs on the type, next to the data, and not in the code that happened to trip over it. The Python Language Reference calls this surface the data model, and the example for this chapter is one small model with twenty-two test functions, twenty-five cases in all, that witnesses each claim below.
+Each is a missing or wrong method. Python doesn't implement `==`, `*` or `sorted` for your types. The interpreter calls a named method on the type, and a type takes part in the language's own conventions by defining it. That is why the fix belongs on the type, next to the data, and not in the code that happened to trip over it. The Python Language Reference calls this surface the data model. Luciano Ramalho's *Fluent Python* (2nd ed., 2022) opens on the same idea: the data model is the interface a type implements so that the language's syntax and builtins work on it. The example for this chapter is one small model with twenty-two test functions, twenty-five cases in all, that witnesses each claim below.
 
 {% include excalidraw.html name="07-the-data-model" caption="Figure 7.1: How Python evaluates factor times price. The interpreter asks the left operand's type first; Decimal returns NotImplemented for Money, so Money's reflected method answers, and only when both decline does the expression raise TypeError." %}
 
@@ -44,13 +44,13 @@ Each operator and builtin in the table below is a spelling for a method call. Th
 | `x in h` | `__contains__`, then `__iter__` | `TypeError` |
 | `repr(a)`, `str(a)`, `format(a, spec)` | `__repr__`, `__str__`, `__format__` | the default `repr`, a `str` that uses it, a `TypeError` for a non-empty spec |
 
-The lookup is on the type. The Python Language Reference, in the section on special method lookup, says that implicit invocations of special methods are guaranteed to work correctly only if the method is defined on the object's type, not in its instance dictionary. The test `test_special_methods_are_looked_up_on_the_type` shows the consequence. It builds a plain class instance, sets an attribute named `__len__` on that instance, and calls it directly, which works. `len(obj)` still raises `TypeError` with `has no len`, because the type defines none.
+The lookup is on the type. The Python Language Reference, in the section on special method lookup, puts it directly: "implicit invocations of special methods are only guaranteed to work correctly if defined on an object's type, not in the object's instance dictionary." The test `test_special_methods_are_looked_up_on_the_type` shows the consequence. It builds a plain class instance, sets an attribute named `__len__` on that instance, and calls it directly, which works. `len(obj)` still raises `TypeError` with `has no len`, because the type defines none.
 
 ## Equality and hashing: one contract
 
-Two weights of 1.5 kilograms should be one value. The default `__eq__` compares identity, so a plain class gives two set elements for two equal weights, and the example keeps such a class as a negative fixture, `_IdentityWeight`, to show it. The `Weight` in the model declares its fields as a frozen dataclass and gets a value `__eq__` and a matching `__hash__` from the declaration; what the declaration writes is the subject of [Dataclasses and value semantics]({{ '/docs/08-dataclasses-and-value-semantics/' | relative_url }}). `Weight` also rejects a weight that isn't finite and positive in `__post_init__`, which matters here for one reason: `nan` isn't equal to itself, and a value unequal to itself breaks the equality half of the contract.
+Two weights of 1.5 kilograms should be one value. The default `__eq__` compares identity, so a plain class gives two set elements for two equal weights, and the example keeps such a class as a negative fixture, `_IdentityWeight`, to show it. The `Weight` in the model declares its fields as a frozen dataclass and gets a value `__eq__` and a matching `__hash__` from the declaration; what the declaration writes is the subject of [Dataclasses and value semantics]({{ '/docs/08-dataclasses-and-value-semantics/' | relative_url }}). `Weight` also rejects a weight that isn't finite and positive in `__post_init__`, which matters here for one reason: two weights built from `nan` compare unequal, and a value that fails to equal its own copy breaks the equality half of the contract.
 
-The contract is stated in the reference's section on basic customization: objects that compare equal must have the same hash. Python enforces part of it by default. A class that defines `__eq__` and not `__hash__` has its `__hash__` set to `None`, and an instance can't go in a set or serve as a dict key. `test_defining_eq_alone_makes_a_class_unhashable` checks that `vars(_EqOnlyWeight)["__hash__"]` is `None` and that building a set raises `TypeError` matching `unhashable type`.
+The reference's section on basic customization sets the contract: equal values must hash alike. Python enforces part of it by default. A class that defines `__eq__` and not `__hash__` has its `__hash__` set to `None`, and an instance can't go in a set or serve as a dict key. `test_defining_eq_alone_makes_a_class_unhashable` checks that `vars(_EqOnlyWeight)["__hash__"]` is `None` and that building a set raises `TypeError` matching `unhashable type`.
 
 `Dimensions` is the case where a hand-written pair is justified. A carton may be stowed on any face, so a 120 by 80 by 100 carton and an 80 by 120 by 100 carton are the same carton. The fields keep the declared orientation, so the type doesn't normalise at construction; that would be simpler if the orientation didn't matter, and here it does. So equality compares the sorted extents, and the hash hashes the same key:
 
@@ -82,7 +82,7 @@ The trap is in the hash. A frozen dataclass with a hand-written `__eq__` and no 
 
 ## Arithmetic and the NotImplemented handshake
 
-An operator method answers for operands it understands and returns `NotImplemented` for the rest. `NotImplemented` isn't an exception; the reference describes it as the value a binary special method returns when it doesn't support the operation for the operands given, after which the interpreter tries the reflected operation. `Money` adds within one currency:
+An operator method answers for operands it understands and returns `NotImplemented` for the rest. `NotImplemented` isn't an exception. It is a value a binary special method returns to say it can't handle that pair of operands, and the interpreter then tries the reflected operation. `Money` adds within one currency:
 
 ```python
     def __add__(self, other: Money) -> Money:
@@ -93,7 +93,7 @@ An operator method answers for operands it understands and returns `NotImplement
         return Money(self.amount + other.amount, self.currency)
 ```
 
-A foreign operand gets `NotImplemented`, which hands the decision to the other operand's type. One refinement from the reference: when the right operand's type is a subclass of the left operand's type, its reflected method is tried first, so a subclass can override how a base class combines with it. For `price + 1` the `int` has no say either, `int.__radd__` declines too, and the result is a `TypeError` naming both types. Two amounts in different currencies are a domain error and raise `ValueError`. That is a choice, because a result in either currency would be a guess. The parameter is typed `Money`, not `object`, so mypy rejects `price + 1` at the call site. `test_mypy_rejects_operands_the_methods_do_not_accept` runs four bad operands and asserts exactly four `[operator]` errors. The guard stays in the body because annotations aren't checked at runtime and a caller without mypy still gets the `TypeError`.
+A foreign operand gets `NotImplemented`, which hands the decision to the other operand's type. One refinement from the reference: when the right operand's type is a subclass of the left operand's type and provides a different implementation of the reflected method, that method is tried first, so a subclass can override how a base class combines with it. For `price + 1` the `int` has no say either, `int.__radd__` declines too, and the result is a `TypeError` naming both types. Two amounts in different currencies are a domain error and raise `ValueError`. That is a choice, because a result in either currency would be a guess. The parameter is typed `Money`, not `object`, so mypy rejects `price + 1` at the call site. `test_mypy_rejects_operands_the_methods_do_not_accept` runs four bad operands and asserts exactly four `[operator]` errors. The guard stays in the body because annotations aren't checked at runtime and a caller without mypy still gets the `TypeError`.
 
 Multiplication by a factor adds the reflected half:
 
@@ -126,7 +126,7 @@ Sorting needs `<`, and `Money` answers it in one method:
         return self.amount < other.amount
 ```
 
-A class with only `__lt__` is half ordered. In `test_total_ordering_derives_the_other_comparisons` the fixture `_LtOnlyMoney` shows both halves: `high > low` works, because `object` supplies no `__gt__` and Python reflects the comparison to `low.__lt__(high)`, while `low <= high` raises `TypeError` with `'<=' not supported`. `functools.total_ordering` closes the gap. Its documentation says the decorated class must define at least one of `__lt__`, `__le__`, `__gt__` or `__ge__`, and should supply `__eq__`; it fills in the rest. `Money` carries `@functools.total_ordering` above `@dataclass(frozen=True, slots=True)`, outermost, so the decorator sees the class the dataclass returns, and the test asserts that `__le__` appears in `vars(Money)`.
+A class with only `__lt__` is half ordered. In `test_total_ordering_derives_the_other_comparisons` the fixture `_LtOnlyMoney` shows both halves: `high > low` works, because the inherited `object.__gt__` returns `NotImplemented` and Python tries the reflection `low.__lt__(high)`, while `low <= high` raises `TypeError` with `'<=' not supported`. `functools.total_ordering` closes the gap. Its documentation asks for one ordering method on the decorated class and an `__eq__` alongside it; the decorator fills in the rest. `Money` carries `@functools.total_ordering` above `@dataclass(frozen=True, slots=True)`, outermost, so the decorator sees the class the dataclass returns, and the test asserts that `__le__` appears in `vars(Money)`.
 
 Ordering stops where the domain stops. Two quotes can't be ranked unless the caller says by what, so `RateQuote` defines no order. `sorted(quotes)` raises `TypeError` with `'<' not supported between instances of 'RateQuote' and 'RateQuote'`, and `sorted(quotes, key=lambda q: q.total)` orders the fixture quotes by total, cheapest first. The fixture nets are chosen so net order and total order differ, which makes the test fail if `total` stops adding tax. mypy sees the same boundary. The `[type-var]` ignore on the unkeyed call in that test would turn into an `unused-ignore` error under `--strict` if mypy stopped reporting it, and the unordered-`Money` snippet in `test_mypy_accepts_the_protocols_the_types_define` shows a keyed sort failing with `[arg-type]` and `[return-value]` when the key's type has no `__lt__`.
 
@@ -236,22 +236,24 @@ The classes prefixed with an underscore in the test modules are negative fixture
 **Experiment one: delete `Dimensions.__hash__`.** Remove the `__hash__` method and run `uv run pytest -q`. One test fails and twenty-four pass. The dataclass supplies a field hash without any signal, so the turned carton still compares equal and the failure is the hash assertion:
 
 ```text
-FAILED tests/test_equality.py::test_a_turned_carton_is_one_set_element
 E       assert 1560272766170198271 == 805556732051977890
 E        +  where 1560272766170198271 = hash(Dimensions(length_cm=120, width_cm=80, height_cm=100))
 E        +  and   805556732051977890 = hash(Dimensions(length_cm=80, width_cm=120, height_cm=100))
+FAILED tests/test_equality.py::test_a_turned_carton_is_one_set_element - asse...
 ```
 
 `uv run mypy --strict src tests` still prints `Success: no issues found in 11 source files`. The checker sees nothing wrong with the class. Restore the method.
 
-**Experiment two: delete `Money.__rmul__`.** Run both commands. pytest reports two failures and twenty-three passes. The first is the reflected case:
+**Experiment two: delete `Money.__rmul__`.** Run both commands. pytest reports two failures and twenty-three passes. The first is the reflected case, and the second is the mypy test; pytest prints each `E` line under its failing test, and the summary names both:
 
 ```text
-FAILED tests/test_arithmetic.py::test_a_factor_times_money_uses_the_reflected_method
 E       TypeError: unsupported operand type(s) for *: 'decimal.Decimal' and 'Money'
+E       assert 1 == 0
+FAILED tests/test_arithmetic.py::test_a_factor_times_money_uses_the_reflected_method
+FAILED tests/test_static.py::test_mypy_accepts_the_protocols_the_types_define
 ```
 
-The second, `tests/test_static.py::test_mypy_accepts_the_protocols_the_types_define`, fails on `assert 1 == 0`, because its snippet multiplies a `Decimal` by a `Money`. This time mypy objects as well:
+The mypy test fails because its snippet multiplies a `Decimal` by a `Money`. This time mypy objects as well:
 
 ```text
 tests/test_arithmetic.py:18: error: Unsupported operand types for * ("Decimal" and "Money")  [operator]
@@ -269,4 +271,4 @@ A missing hash is invisible to the checker and a missing reflected method isn't,
 
 The primary source is the Python Language Reference chapter [Data model](https://docs.python.org/3/reference/datamodel.html): the section on basic customization states the rule for `__eq__` and `__hash__`, the section on emulating numeric types covers reflected operands, and the section on special method lookup covers why the type is consulted. The [`NotImplemented` constant](https://docs.python.org/3/library/constants.html#NotImplemented) and the [`functools.total_ordering` documentation](https://docs.python.org/3/library/functools.html#functools.total_ordering) describe the other two ideas used here. [PEP 207](https://peps.python.org/pep-0207/), by Guido van Rossum and David Ascher, introduced rich comparisons and the separate comparison methods.
 
-Luciano Ramalho's *Fluent Python*, second edition, treats the data model, building a Pythonic object and operator overloading in depth; it is in the hub's list and on the [bibliography page]({{ '/bibliography/' | relative_url }}). Brett Slatkin's *Effective Python*, third edition, is a shorter companion for the idioms on the same topics.
+Luciano Ramalho's *Fluent Python*, second edition, is the book this chapter leans on most. The order of the sections here, equality and hashing, the reflected scalar `__rmul__`, `__format__`, and truth through `__len__`, follows its treatment of Pythonic objects and operator overloading, and it covers all of them in greater depth. It is in the hub's list and on the [bibliography page]({{ '/bibliography/' | relative_url }}). Brett Slatkin's *Effective Python*, third edition, is a shorter companion for the idioms on the same topics.

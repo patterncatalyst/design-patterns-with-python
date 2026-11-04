@@ -19,7 +19,7 @@ By the end of this chapter you can:
 
 ## Why this matters
 
-Three failures share a cause. A consignment is shared by two booking requests, and a clerk reweighs it for one of them. The other request now shows the new weight, because both hold the same object. A stowage slot is a bay, a row and a tier, and a lookup of the reservation for slot 1-0-1 finds nothing, because the two `SlotId` objects that spell it are different objects. A stowage plan is copied for a what-if and the copy books a slot the original also holds, because the two plans share one reservation table.
+Three failures share a cause. A consignment is shared by two booking requests, and a clerk reweighs it for one of them. The other request now shows the new weight, because both hold the same object. A stowage slot is a bay, a row and a tier, and a mutable `SlotId` can't key the reservation table at all: building the dict raises `TypeError`. Two stowage plans need a reservation table each: if they shared one default table, a slot reserved in one would show as taken in the other.
 
 Each is the same question answered wrongly: is this thing a value, defined by its content, or an entity, defined by its identity? A value should compare by content, be safe to share and work as a dictionary key. An entity should not. The old way to get a value was a class written out by hand. In Python 3.14 one decorator writes most of it, and the parts it doesn't write are the parts that need judgement.
 
@@ -29,13 +29,13 @@ Read the figure from the top. The accent box is the one line the author writes. 
 
 ## Value Object: the force and the structure
 
-Martin Fowler's *Patterns of Enterprise Application Architecture* (2002) catalogues Value Object as a small object, such as money or a date range, whose equality rests on its fields and not on identity. Eric Evans's *Domain-Driven Design* (2003) draws the same line from the modelling side: an entity is tracked by who it is, and a value object is described by what it is. Both treat it as a design decision about the domain, and neither is a Gang of Four catalogue entry.
+Martin Fowler's *Patterns of Enterprise Application Architecture* (2002) catalogues Value Object as "a small simple object, like money or a date range, whose equality isn't based on identity." Eric Evans's *Domain-Driven Design* (2003) draws the same line from the modelling side: an entity is tracked by who it is, and a value object is described by what it is. Both treat it as a design decision about the domain, and it isn't a Gang of Four catalogue entry.
 
 The force is four needs at once. Two values with the same content should be equal. A value should be shareable without defensive copies. It should work as a dictionary key or set member. An invariant, such as a positive weight, should hold for as long as the value exists.
 
 The structure that pattern calls for, written by hand, is private fields with read accessors, a constructor that checks the invariant, an `__eq__` and `__hash__` pair that must be kept in step, and methods that return a modified copy. Each piece is correct and none is interesting, and the pair that has to stay in step is the one that drifts.
 
-This pattern dissolves. A feature resolves the force without the pattern's structure: one `@dataclass(frozen=True, slots=True)` declaration produces the constructor, `repr`, equality, hash and an assignment guard, and `dataclasses.replace` is the copy-with-change method. Python 3.14's dataclasses are specified in [PEP 557](https://peps.python.org/pep-0557/) and the [`dataclasses` documentation](https://docs.python.org/3/library/dataclasses.html), which are the sources for the generated behaviour below. What remains is the part no decorator can supply.
+This pattern dissolves. A feature resolves the force without the pattern's structure: one `@dataclass(frozen=True, slots=True)` declaration produces the constructor, `repr`, equality, hash and an assignment guard, and `dataclasses.replace` is the copy-with-change method. Dataclasses arrived with [PEP 557](https://peps.python.org/pep-0557/) in Python 3.7; the [`dataclasses` documentation](https://docs.python.org/3/library/dataclasses.html) covers the current behaviour, including `slots`, `kw_only` and `weakref_slot`, added later, and is the source for the generated behaviour below. What remains is the part no decorator can supply.
 
 ## One declaration: frozen and slotted
 
@@ -49,11 +49,11 @@ class Weight:
     kilograms: float
 
     def __post_init__(self) -> None:
-        if not self.kilograms > 0:
+        if not (math.isfinite(self.kilograms) and self.kilograms > 0):
             raise ValueError(f"kilograms must be positive, got {self.kilograms}")
 ```
 
-The decorator writes `__init__`, `__repr__`, `__eq__`, `__hash__` and the ordering methods, and with `frozen=True` it writes a `__setattr__` and `__delattr__` that raise `FrozenInstanceError`. `test_a_frozen_value_refuses_assignment` assigns to `kilograms` and matches the message `cannot assign to field 'kilograms'`. The same assignment is a static error. `test_mypy_checks_the_generated_methods[frozen-assignment]` runs this through `mypy --strict`:
+The check rejects zero, negative, infinite and NaN weights, since `inf > 0` is true and would otherwise pass. The decorator writes `__init__`, `__repr__`, `__eq__`, `__hash__` and the ordering methods, and with `frozen=True` it writes a `__setattr__` and `__delattr__` that raise `FrozenInstanceError`. `test_a_frozen_value_refuses_assignment` assigns to `kilograms` and matches the message `cannot assign to field 'kilograms'`. The same assignment is a static error. `test_mypy_checks_the_generated_methods[frozen-assignment]` runs this through `mypy --strict`:
 
 ```python
 def reweigh(w: Weight) -> None:
@@ -62,7 +62,7 @@ def reweigh(w: Weight) -> None:
 
 and gets `<string>:6: error: Property "kilograms" defined in "Weight" is read-only  [misc]`, which means the mistake is caught before a test runs.
 
-Frozen is a guard on attribute assignment and nothing more. `test_frozen_is_a_setattr_guard_not_a_seal` calls `object.__setattr__(w, "kilograms", -5.0)` and the write succeeds, past the invariant. That's why the example doesn't normalise inside `__post_init__` through that back door: a type that mutates itself in its constructor has stopped being immutable in any sense a reader can rely on. The workaround is documented for frozen dataclasses, and it's a reason to normalise before construction, which a later section does.
+Frozen guards attribute assignment; it doesn't seal the object. `test_frozen_is_a_setattr_guard_not_a_seal` calls `object.__setattr__(w, "kilograms", -5.0)` and the write succeeds, past the invariant. That's why the example doesn't normalise inside `__post_init__` through that back door: a type that mutates itself in its constructor has stopped being immutable in any sense a reader can rely on. The workaround is documented for frozen dataclasses, and it's a reason to normalise before construction, which a later section does.
 
 `slots=True` replaces the per-instance `__dict__` with fixed slots. A slotted class also loses the weak-reference slot. `test_slots_remove_dict_and_weakref_until_asked` shows `weakref.ref(w)` raising `TypeError` with `cannot create weak reference to 'Weight'`, and shows that `weakref_slot=True` puts the slot back. mypy says nothing about it: `test_mypy_cannot_see_value_semantics_mistakes[slots-weakref]` runs `weakref.ref(Weight(1.0))` through `--strict` and gets exit status 0 and empty output. A cache that holds weak references to values fails at run time, not at type-check time.
 
@@ -70,7 +70,7 @@ Frozen is a guard on attribute assignment and nothing more. `test_frozen_is_a_se
 
 A dataclass with `eq=True` generates `__eq__`. What it does about `__hash__` depends on `frozen`. With `frozen=True` it generates a hash from the fields, so equal values hash equal and `{slot: reservation}` finds its entry. With `eq=True` and no `frozen`, the class is mutable, so the decorator sets `__hash__` to `None` rather than offer a hash that changes under the key.
 
-The fixture `_MutableSlotId` in `tests/test_aliasing.py` is a `SlotId` without `frozen`. `test_a_mutable_dataclass_is_not_a_dict_key` checks that its hash is `None` and that building `{slot: "held"}` raises `TypeError`. On Python 3.14.10 the message reads `cannot use '_MutableSlotId' as a dict key (unhashable type: '_MutableSlotId')`. Under pytest's importlib mode the first name is module-qualified, so the test matches only the stable `unhashable type: '_MutableSlotId'` part. mypy doesn't flag it: `test_mypy_cannot_see_value_semantics_mistakes[mutable-dict-key]` annotates `dict[MutableSlotId, str]` and builds one, and `--strict` exits 0 with no output. The failure shows up when the code runs, which is a reason to keep a test that puts two equal values in a set.
+The fixture `_MutableSlotId` in `tests/test_aliasing.py` is a `SlotId` without `frozen`. `test_a_mutable_dataclass_is_not_a_dict_key` checks that its hash is `None` and that building `{slot: "held"}` raises `TypeError`. On Python 3.14 the message names the class twice, first by its module-qualified name, for example `cannot use 'test_aliasing._MutableSlotId' as a dict key (unhashable type: '_MutableSlotId')`, so the test matches only the stable `unhashable type: '_MutableSlotId'` part. mypy doesn't flag it: `test_mypy_cannot_see_value_semantics_mistakes[mutable-dict-key]` annotates `dict[MutableSlotId, str]` and builds one, and `--strict` exits 0 with no output. The failure shows up when the code runs, which is a reason to keep a test that puts two equal values in a set.
 
 Frozen is also shallow. `_FrozenWithList` has one field, `codes: list[str]`. `test_frozen_is_shallow` appends to that list through a frozen instance, and the value changes. Hashing it raises `TypeError` with `unhashable type: 'list'`. The class is frozen and still isn't a value, because a field is mutable. The repair is a field type that is itself immutable: `tuple[str, ...]` in place of `list[str]`, `frozenset` in place of `set`. Frozen can't check this for you.
 
@@ -190,62 +190,70 @@ cachedir: .pytest_cache
 rootdir: <repo>
 configfile: pyproject.toml
 plugins: mock-3.17.0
-collecting ... collected 27 items
+collecting ... collected 32 items
 
 tests/test_aliasing.py::test_a_mutable_consignment_aliased_between_bookings_changes_both PASSED [  3%]
-tests/test_aliasing.py::test_an_amendment_is_a_new_value_and_the_other_booking_keeps_the_old PASSED [  7%]
-tests/test_aliasing.py::test_replace_runs_post_init PASSED               [ 11%]
-tests/test_aliasing.py::test_a_mutable_dataclass_is_not_a_dict_key PASSED [ 14%]
-tests/test_generated.py::test_order_true_sorts_by_field_order PASSED     [ 18%]
-tests/test_generated.py::test_order_true_would_compare_money_across_currencies PASSED [ 22%]
-tests/test_generated.py::test_order_true_refuses_a_hand_written_lt PASSED [ 25%]
-tests/test_generated.py::test_compare_false_keeps_remarks_out_of_equality PASSED [ 29%]
-tests/test_generated.py::test_kw_only_rejects_positional_arguments PASSED [ 33%]
-tests/test_generated.py::test_money_validates_and_of_normalises PASSED   [ 37%]
-tests/test_generated.py::test_slot_id_validates_each_coordinate PASSED   [ 40%]
-tests/test_generated.py::test_money_addition_needs_one_currency PASSED   [ 44%]
-tests/test_generated.py::test_stowage_plan_is_an_entity PASSED           [ 48%]
-tests/test_generated.py::test_mutable_default_is_refused_at_class_creation PASSED [ 51%]
-tests/test_static.py::test_mypy_checks_the_generated_methods[frozen-assignment] PASSED [ 55%]
-tests/test_static.py::test_mypy_checks_the_generated_methods[kw-only-positional] PASSED [ 59%]
-tests/test_static.py::test_mypy_checks_the_generated_methods[replace-unknown-field] PASSED [ 62%]
-tests/test_static.py::test_mypy_checks_the_generated_methods[money-has-no-order] PASSED [ 66%]
-tests/test_static.py::test_mypy_cannot_see_value_semantics_mistakes[mutable-dict-key] PASSED [ 70%]
-tests/test_static.py::test_mypy_cannot_see_value_semantics_mistakes[mutable-default] PASSED [ 74%]
-tests/test_static.py::test_mypy_cannot_see_value_semantics_mistakes[slots-weakref] PASSED [ 77%]
-tests/test_static.py::test_mypy_accepts_the_correct_use_of_the_same_values PASSED [ 81%]
-tests/test_values.py::test_equal_values_are_interchangeable PASSED       [ 85%]
-tests/test_values.py::test_a_frozen_value_refuses_assignment PASSED      [ 88%]
-tests/test_values.py::test_frozen_is_a_setattr_guard_not_a_seal PASSED   [ 92%]
+tests/test_aliasing.py::test_an_amendment_is_a_new_value_and_the_other_booking_keeps_the_old PASSED [  6%]
+tests/test_aliasing.py::test_replace_runs_post_init PASSED               [  9%]
+tests/test_aliasing.py::test_a_mutable_dataclass_is_not_a_dict_key PASSED [ 12%]
+tests/test_generated.py::test_order_true_sorts_by_field_order PASSED     [ 15%]
+tests/test_generated.py::test_order_true_would_compare_money_across_currencies PASSED [ 18%]
+tests/test_generated.py::test_order_true_refuses_a_hand_written_lt PASSED [ 21%]
+tests/test_generated.py::test_compare_false_keeps_remarks_out_of_equality PASSED [ 25%]
+tests/test_generated.py::test_kw_only_rejects_positional_arguments PASSED [ 28%]
+tests/test_generated.py::test_money_validates_and_of_normalises PASSED   [ 31%]
+tests/test_generated.py::test_slot_id_validates_each_coordinate PASSED   [ 34%]
+tests/test_generated.py::test_money_addition_needs_one_currency PASSED   [ 37%]
+tests/test_generated.py::test_stowage_plan_is_an_entity PASSED           [ 40%]
+tests/test_generated.py::test_mutable_default_is_refused_at_class_creation PASSED [ 43%]
+tests/test_static.py::test_mypy_checks_the_generated_methods[frozen-assignment] PASSED [ 46%]
+tests/test_static.py::test_mypy_checks_the_generated_methods[kw-only-positional] PASSED [ 50%]
+tests/test_static.py::test_mypy_checks_the_generated_methods[replace-unknown-field] PASSED [ 53%]
+tests/test_static.py::test_mypy_checks_the_generated_methods[money-has-no-order] PASSED [ 56%]
+tests/test_static.py::test_mypy_cannot_see_value_semantics_mistakes[mutable-dict-key] PASSED [ 59%]
+tests/test_static.py::test_mypy_cannot_see_value_semantics_mistakes[mutable-default] PASSED [ 62%]
+tests/test_static.py::test_mypy_cannot_see_value_semantics_mistakes[slots-weakref] PASSED [ 65%]
+tests/test_static.py::test_mypy_accepts_the_correct_use_of_the_same_values PASSED [ 68%]
+tests/test_values.py::test_equal_values_are_interchangeable PASSED       [ 71%]
+tests/test_values.py::test_weight_must_be_positive_and_finite[0.0] PASSED [ 75%]
+tests/test_values.py::test_weight_must_be_positive_and_finite[-1.0] PASSED [ 78%]
+tests/test_values.py::test_weight_must_be_positive_and_finite[inf] PASSED [ 81%]
+tests/test_values.py::test_weight_must_be_positive_and_finite[-inf] PASSED [ 84%]
+tests/test_values.py::test_weight_must_be_positive_and_finite[nan] PASSED [ 87%]
+tests/test_values.py::test_a_frozen_value_refuses_assignment PASSED      [ 90%]
+tests/test_values.py::test_frozen_is_a_setattr_guard_not_a_seal PASSED   [ 93%]
 tests/test_values.py::test_frozen_is_shallow PASSED                      [ 96%]
 tests/test_values.py::test_slots_remove_dict_and_weakref_until_asked PASSED [100%]
 
-============================== 27 passed in 3.47s ==============================
+============================== 32 passed in 3.44s ==============================
 ```
 
 ```text
 Success: no issues found in 9 source files
 ```
 
-The suite has 22 test functions and 27 cases, because the static module parametrises two of its three functions.
+The suite has 23 test functions and 32 cases, because the static module parametrises two of its three functions and the weight test runs five values.
 
-**Experiment one: remove `frozen=True` from `SlotId`.** In a scratch copy, change the decorator on `SlotId` to `@dataclass(slots=True, order=True)` and run `uv run pytest -q`. Two tests fail and 25 pass:
+**Experiment one: remove `frozen=True` from `SlotId`.** In a scratch copy, change the decorator on `SlotId` to `@dataclass(slots=True, order=True)` and run `uv run pytest -q`. Two tests fail and 30 pass. Filtering the output to the assertion lines and the summary, with `uv run pytest -q | grep -E '^(E  |FAILED|[0-9]+ (passed|failed))'`, gives:
 
 ```text
+E       TypeError: cannot use 'value_semantics.values.SlotId' as a dict key (unhashable type: 'SlotId')
+E           TypeError: unhashable type: 'SlotId'
 FAILED tests/test_generated.py::test_stowage_plan_is_an_entity - TypeError: c...
-FAILED tests/test_values.py::test_equal_values_are_interchangeable - TypeError: unhashable type: 'SlotId'
-2 failed, 25 passed in 3.57s
+FAILED tests/test_values.py::test_equal_values_are_interchangeable - TypeErro...
+2 failed, 30 passed in 3.44s
 ```
 
-The first failure is raised inside `StowagePlan.reserve`: `TypeError: cannot use 'value_semantics.values.SlotId' as a dict key (unhashable type: 'SlotId')`. The second is `hash(left)` in the equality test. The dict-key test doesn't fail, because it uses its own fixture and not `SlotId`. mypy reports `Success: no issues found in 9 source files`: nothing in the type system connects `frozen` to the dictionary the plan keeps. Restore the decorator.
+The first failure is raised inside `StowagePlan.reserve`, and the second is `hash(left)` in the equality test. The dict-key test doesn't fail, because it uses its own fixture and not `SlotId`. mypy reports `Success: no issues found in 9 source files`: nothing in the type system connects `frozen` to the dictionary the plan keeps. Restore the decorator.
 
-**Experiment two: add `order=True` to `Money`.** Change its decorator to `@dataclass(frozen=True, slots=True, order=True)` and run both commands. pytest reports two failures:
+**Experiment two: add `order=True` to `Money`.** Change its decorator to `@dataclass(frozen=True, slots=True, order=True)` and run both commands. pytest reports two failures, shown with the same filter:
 
 ```text
 E       Failed: DID NOT RAISE TypeError
+E       assert 0 == 1
 FAILED tests/test_generated.py::test_order_true_would_compare_money_across_currencies
 FAILED tests/test_static.py::test_mypy_checks_the_generated_methods[money-has-no-order]
-2 failed, 25 passed in 3.57s
+2 failed, 30 passed in 3.47s
 ```
 
 The first test expected `<` on two `Money` values to raise and it now succeeds across currencies. The second expected exit status 1 from mypy and got 0. The member's own mypy run adds one error:
@@ -254,7 +262,7 @@ The first test expected `<` on two `Money` values to raise and it now succeeds a
 tests/test_generated.py:27: error: Unused "type: ignore" comment  [unused-ignore]
 ```
 
-The `# type: ignore[operator]` that suppressed the comparison error has nothing left to suppress, so strict mode reports the line. Three signals, one cause. Restore the decorator.
+The `# type: ignore[operator]` that suppressed the comparison error has nothing left to suppress, so strict mode reports the line. Restore the decorator.
 
 ## For deeper coverage
 

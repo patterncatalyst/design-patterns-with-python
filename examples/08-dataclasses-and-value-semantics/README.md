@@ -64,6 +64,8 @@ uv run mypy --strict src tests
 
 - `test_equal_values_are_interchangeable`: equal `Weight`, `Money` and `SlotId` values are
   equal, hash equal and find the same dict entry.
+- `test_weight_must_be_positive_and_finite`: zero, negative, infinite and NaN weights raise
+  `ValueError`.
 - `test_a_frozen_value_refuses_assignment`: assigning to a field raises `FrozenInstanceError`
   naming the field.
 - `test_frozen_is_a_setattr_guard_not_a_seal`: `object.__setattr__` writes an invalid weight.
@@ -89,7 +91,8 @@ uv run mypy --strict src tests
 - `test_order_true_refuses_a_hand_written_lt`: the class cannot be created.
 - `test_compare_false_keeps_remarks_out_of_equality`: two requests that differ only in remarks
   are one dict key.
-- `test_kw_only_rejects_positional_arguments`: positional `Consignment` raises `TypeError`.
+- `test_kw_only_rejects_positional_arguments`: positional `Consignment` and `BookingRequest`
+  raise `TypeError`.
 - `test_money_validates_and_of_normalises`: `Money.of` rounds half up, and the constructor
   rejects a third decimal place and a lower-case code.
 - `test_slot_id_validates_each_coordinate`: bay, row and tier each raise `ValueError`.

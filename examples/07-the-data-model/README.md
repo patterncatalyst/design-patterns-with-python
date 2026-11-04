@@ -21,7 +21,8 @@ Arithmetic and reflected operands: `NotImplemented` hands the operation to the o
 - `Money + Money` works within one currency and raises `ValueError` across currencies.
 - `Decimal("2") * price` and `2 * price` reach `Money.__rmul__`; foreign operands raise
   `TypeError`; `sum()` needs a `Money` start value.
-- mypy checks operand types because the parameters are annotated with the class.
+- mypy checks operand types because the parameters are annotated: `__add__` and `__lt__` take
+  `Money`, and `__mul__` takes `Decimal | int`.
 
 Ordering: `functools.total_ordering` derives the other comparisons from `__lt__`.
 
@@ -32,7 +33,7 @@ Ordering: `functools.total_ordering` derives the other comparisons from `__lt__`
 Containers and text:
 
 - `TrackingHistory` defines `__len__` and `__iter__`; truthiness and `in` follow from them. An
-  iterable without `__len__` is truthy when empty, and an iterable is not subscriptable.
+  iterable without `__len__` is truthy when empty, and iteration doesn't make a type subscriptable.
 - `repr`, `str` and `format` serve different readers, and a class with `__str__` alone rejects a
   format spec.
 

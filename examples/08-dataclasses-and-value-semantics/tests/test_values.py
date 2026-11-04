@@ -1,3 +1,4 @@
+import math
 import weakref
 from dataclasses import FrozenInstanceError, dataclass
 from decimal import Decimal
@@ -31,6 +32,12 @@ def test_equal_values_are_interchangeable() -> None:
         assert left is not right
         assert hash(left) == hash(right)
         assert {left: "held"}[right] == "held"
+
+
+@pytest.mark.parametrize("kilograms", [0.0, -1.0, math.inf, -math.inf, math.nan])
+def test_weight_must_be_positive_and_finite(kilograms: float) -> None:
+    with pytest.raises(ValueError, match="kilograms must be positive"):
+        Weight(kilograms)
 
 
 def test_a_frozen_value_refuses_assignment() -> None:

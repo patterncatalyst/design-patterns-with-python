@@ -48,7 +48,9 @@ def test_compare_false_keeps_remarks_out_of_equality(consignment: Consignment) -
     assert "gate code 4411" in repr(retry)
 
 
-def test_kw_only_rejects_positional_arguments() -> None:
+def test_kw_only_rejects_positional_arguments(consignment: Consignment) -> None:
+    with pytest.raises(TypeError, match="positional argument"):
+        BookingRequest(consignment)  # type: ignore[call-arg]
     with pytest.raises(TypeError, match="positional argument"):
         Consignment(ConsignmentId("CN-00000009"), Weight(1.0), "SGSIN")  # type: ignore[call-arg]
 
@@ -75,7 +77,7 @@ def test_money_addition_needs_one_currency() -> None:
     with pytest.raises(ValueError, match="cannot add USD to EUR"):
         Money.of("1.00", "EUR") + Money.of("1.00", "USD")
     with pytest.raises(TypeError):
-        Money.of("1.00", "EUR") + 1
+        Money.of("1.00", "EUR") + 1  # type: ignore[operator]
 
 
 def test_stowage_plan_is_an_entity(slots: tuple[SlotId, SlotId, SlotId]) -> None:

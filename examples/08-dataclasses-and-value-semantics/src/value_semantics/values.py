@@ -1,5 +1,6 @@
 """Value types: compared by content, safe to share, usable as keys."""
 
+import math
 import re
 from dataclasses import dataclass
 from decimal import ROUND_HALF_UP, Decimal
@@ -18,7 +19,7 @@ class Weight:
     kilograms: float
 
     def __post_init__(self) -> None:
-        if not self.kilograms > 0:
+        if not (math.isfinite(self.kilograms) and self.kilograms > 0):
             raise ValueError(f"kilograms must be positive, got {self.kilograms}")
 
 
@@ -40,7 +41,7 @@ class Money:
         """Quantise to cents before construction, so validation only has to read."""
         return cls(Decimal(amount).quantize(_CENT, rounding=ROUND_HALF_UP), currency)
 
-    def __add__(self, other: object) -> Money:
+    def __add__(self, other: Money) -> Money:
         if not isinstance(other, Money):
             return NotImplemented
         if other.currency != self.currency:
