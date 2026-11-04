@@ -465,7 +465,7 @@ Also `README.md` and the card (`order: 11`, eyebrow "Python substrate · Testing
 
 | Step | What | Depends | Status |
 | --- | --- | --- | --- |
-| A0 | This plan file; dated notes per "Plans and history"; PDP-109a..c, 110a..c, 111a..c `active`; reconciliation rows 47-64 `open`; decisions recorded | - | todo |
+| A0 | This plan file; dated notes per "Plans and history"; PDP-109a..c, 110a..c, 111a..c `active`; reconciliation rows 47-64 `open`; decisions recorded | - | done |
 | A1 | Interpreter and pins to 3.15.2, `uv lock`, members' `requires-python`, `__spec__.parent`, `filterwarnings` trial; verify.sh x3 | A0 | done |
 | A2 | `check-prereqs.sh`; `validate.py` stale-version check, claims audit, self-test fixtures | A1 | done |
 | A3 | Text sweep (no quoted output); CLAUDE.md findings | A1 | done |
