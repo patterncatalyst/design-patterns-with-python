@@ -118,7 +118,7 @@ The failure mode is the missing rule. A destination with no entry is a `RatingEr
 
 Barbara Liskov introduced the idea in her OOPSLA '87 keynote, "Data Abstraction and Hierarchy", published in *SIGPLAN Notices* 23(5) in 1988. Liskov and Wing gave the behavioural definition in "A Behavioral Notion of Subtyping" (*ACM TOPLAS* 16(6), 1994): properties that can be proved of the supertype's objects have to hold for the subtype's objects. Martin's 2002 book lists it among the principles of object-oriented design. In practice, a subtype may accept more than its supertype and promise more, and it may not accept less or promise less.
 
-Half of that rule is a type signature, and mypy checks it. Each snippet below is a string in `tests/test_lsp.py`, run through `mypy --strict` with the package importable, and the output is as the run printed it. A subclass of `BaseRate` that narrows the argument:
+Half of that rule is a type signature, and mypy checks it. Each snippet below is a string in `tests/test_lsp.py`, run through `mypy --strict` with the package importable, and the output is as the run printed it. A subtype of `Consignment`, and a subclass of `BaseRate` whose `price` accepts only that subtype:
 
 ```python
 class SeaConsignment(Consignment):
@@ -153,7 +153,7 @@ class AsiaOnlyRate(BaseRate):
         return super().price(consignment)
 ```
 
-The other, `DollarRate`, is a structural class that returns `Money(Decimal("10.00"), "USD")` and so weakens a postcondition. `test_mypy_cannot_see_a_behavioural_violation` passes copies of both to `quote` and gets exit status 0 with empty output. The contract suite is what fails: `rejected zone EU` for the first, `priced in USD` for the second. The suite runs against `BaseRate` and `FlatRate` as well, a calculator added later joins it with one more entry in the parametrize list.
+The other, `DollarRate`, is a structural class that returns `Money(Decimal("10.00"), "USD")` and so weakens a postcondition. `test_mypy_cannot_see_a_behavioural_violation` passes copies of both to `quote` and gets exit status 0 with empty output. The contract suite is what fails: `rejected zone EU` for the first, `priced in USD` for the second. The suite runs against `BaseRate` and `FlatRate` as well, and a calculator added later joins it with one more entry in the parametrize list.
 
 ## Where Python changes how the principles apply
 

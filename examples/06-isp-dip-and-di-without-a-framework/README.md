@@ -1,6 +1,6 @@
 # ISP, DIP and dependency injection without a framework
 
-One booking service and one tracking function, thirteen tests. Each test witnesses a claim about
+One booking service and one tracking function, thirteen test functions. Each test witnesses a claim about
 the interface-segregation and dependency-inversion principles and about wiring collaborators
 without a container. The carriers are in-memory adapters for the fictional codes `FASTLINE` and
 `AIRCO`.

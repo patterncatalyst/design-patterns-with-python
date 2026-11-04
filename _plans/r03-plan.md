@@ -376,7 +376,7 @@ Also `README.md` and card `_examples/06-isp-dip-and-di-without-a-framework.md` (
 | 3 | Two figures, specs, `_data/diagrams.yml` (single owner); figures 00-04 unchanged | 1b | **done** |
 | 4 | ch5 and ch6 `status = "drafted"` | 3 | **done** |
 | 5 | Two prose agents in parallel; verify attributions; run experiments in a scratch copy; quote fresh filtered output | 3,4 | **done** |
-| 6 | Opus validation; up to two repair rounds | 5 | todo |
+| 6 | Opus validation; up to two repair rounds | 5 | **done** (2 rounds) |
 | 7 | PR, `ci-ok` green, ask the user before merge; tag r03.x; notes-only release; PRD build log | 6 | todo |
 
 Reconciliation rows (step 0):
