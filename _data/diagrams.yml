@@ -80,3 +80,27 @@
     dataclass writes the constructor, repr, equality, hash, ordering and the
     assignment guard for SlotId; the invariant, immutable field types and the
     value-or-entity choice stay with you.
+
+- name: 09-protocol-and-structural-typing
+  section: "Ch. 9"
+  title: Three checks behind one booking call
+  caption: >-
+    Three checks behind one booking call. The optional return makes absence a
+    branch to narrow, the CarrierGateway Protocol is compared where a gateway
+    is passed, and the CarrierBase ABC is checked at construction.
+
+- name: 10-context-managers
+  section: "Ch. 10"
+  title: Both ways out of a manifest write
+  caption: >-
+    Both ways out of a manifest write. After __enter__ opens path.partial, the
+    body writes lines; __exit__ then replaces the partial with path on success,
+    or unlinks it and lets the exception propagate.
+
+- name: 11-testing-with-pytest-pytest-mock-and-mypy
+  section: "Ch. 11"
+  title: How a claim becomes evidence
+  caption: >-
+    How a claim becomes evidence. A claim gets a witness test named after it,
+    a negative fixture shows the failure it rules out, the test is seen failing
+    when its check is deleted, and only a fresh, scrubbed run is quoted.

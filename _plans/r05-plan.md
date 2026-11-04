@@ -477,8 +477,8 @@ Also `README.md` and the card (`order: 11`, eyebrow "Python substrate · Testing
 | 1b | ch10 member; deletion table: both closes in `__exit__`, `replace`, `unlink`, the single-use guard, the generator's except-branch close and unlink, the else-branch replace, the `ExitStack` (replaced by a plain loop), the LOCODE check | 1a | done |
 | 1c | ch11 member; one `uv lock` after all three (sequenced); deletion table: minimum selection, the code tie-break, clock use, validity add, the timeout skip, the all-timed-out error, book winner only, the env positive-int check, the env default | 1b | done |
 | 2 | Witness results into rows 47-64 with test names (claims audit resolves); a failed witness changes the thesis before prose | 1c | done |
-| 3 | Three figures, specs `diagrams/specs/09-*.py`, `10-*.py`, `11-*.py`, `_data/diagrams.yml` (single owner; `section: "Ch. 9"`/`"Ch. 10"`/`"Ch. 11"`); figures 00-08 unchanged | 2 | todo |
-| 4 | ch9-11 `status = "drafted"` (kind stays `hands-on`) | 3 | todo |
+| 3 | Three figures, specs `diagrams/specs/09-*.py`, `10-*.py`, `11-*.py`, `_data/diagrams.yml` (single owner; `section: "Ch. 9"`/`"Ch. 10"`/`"Ch. 11"`); figures 00-08 unchanged | 2 | done |
+| 4 | ch9-11 `status = "drafted"` (kind stays `hands-on`) | 3 | done |
 | 5 | Three prose agents in parallel; verify attributions; run the experiments in scratch copies; quote fresh filtered output; each hands back the sources it checked and a per-paragraph claims table (claim, then test, run or source) | 3, 4 | todo |
 | 6 | Opus validation; up to two repair rounds | 5 | todo |
 | 7 | PR, `ci-ok` green, ask the user before merge; tag r05.x; notes-only release; hub PR: `sites.yml` synopsis "idiomatic Python 3.15"; `books.yml` `referenced_by` for Meszaros and *The Pragmatic Programmer*; new entries for Meyer's *Object-Oriented Software Construction* (1997), Woolf/PLoPD3 and Okken 2nd ed., with `book_categories.yml` placement | 6 | todo |
