@@ -31,11 +31,11 @@ Read the figure from the top down, in the order `declare_customs` runs. Two arro
 
 ## An order variants can't change
 
-*Design Patterns* by Gamma, Helm, Johnson and Vlissides (1994) catalogues Template Method: one operation fixes the order of an algorithm's steps and leaves some of them to subclasses. The force is the one above, a sequence that has to hold across variants that differ in a few steps.
+*Design Patterns* by Gamma, Helm, Johnson and Vlissides (1994) catalogues Template Method for a procedure whose order a base class fixes while subclasses supply the steps that vary. The force is the one above, a sequence that has to hold across variants that differ in a few steps.
 
 The pattern straddles two buckets. The hook structure dissolves: a function that takes the varying steps as arguments fixes the order as well as a base class does, with nothing to inherit from. The inheritance form survives where a family of variants shares state and code across several steps. Where that line falls is the question [The three-way split: dissolve, survive, disambiguate]({{ '/docs/03-the-three-way-split/' | relative_url }}) left open for this pattern, and the sections below answer it.
 
-Each hook here is a strategy in the sense of [Strategy: the callable]({{ '/docs/12-strategy-the-callable/' | relative_url }}), a plain function chosen by the caller. That chapter teaches callables, so this one spends its words on what a hook shares with its neighbours: a fixed order and invariant steps around it. A skeleton like this has three kinds of step, and the design is mostly deciding which kind each one is. An invariant step sits outside every hook and no variant can touch it. A required hook has no default, so a variant that forgets it fails at construction. An optional hook has a default, so omitting it is a decision the variant made. Putting a step in the wrong kind is the usual mistake: an invariant left inside an overridable method, or a required hook given a default because it was convenient.
+Each hook here is a strategy in the sense of [Strategy: the callable]({{ '/docs/12-strategy-the-callable/' | relative_url }}), a plain function chosen by the caller. What a hook shares with its neighbours is a fixed order and the invariant steps around it. A skeleton like this has three kinds of step, and the design is mostly deciding which kind each one is. An invariant step sits outside every hook and no variant can touch it. A required hook has no default, so a variant that forgets it fails at construction. An optional hook has a default, so omitting it is a decision the variant made. The mistake to look for is a step in the wrong kind: an invariant left inside an overridable method, or a required hook given a default because it was convenient.
 
 The tariff codes and duty rates in the example are illustrative and make no claim about any destination's rules.
 
@@ -115,7 +115,7 @@ class _StructuralHooks:
         return "0000.00"
 ```
 
-`test_protocol_defaults_reach_only_explicit_subclasses` calls `extra_documents` on both. The explicit subclass returns `()`. The structural one raises `AttributeError` with `has no attribute 'extra_documents'`. The type checker agrees that the structural class doesn't match: `test_mypy_requires_every_protocol_member_for_a_structural_match` assigns one to a `DestinationRules` variable and reports
+`test_protocol_defaults_reach_only_explicit_subclasses` calls `extra_documents` on both. The explicit subclass returns `()`. The structural one raises `AttributeError` with `has no attribute 'extra_documents'`. The type checker agrees that the structural class doesn't match: `test_mypy_requires_every_protocol_member_for_a_structural_match` assigns one to a `DestinationRules` variable and reports:
 
 ```text
 <string>:19: error: Incompatible types in assignment (expression has type "Structural", variable has type "DestinationRules")  [assignment]
@@ -167,13 +167,13 @@ The class holds two pieces of state that the function form has to thread through
 
 `NetherlandsDeclarer` and `GermanyDeclarer` set `country` and implement `extra_documents`. `test_two_destinations_share_the_schedule_and_differ_in_documents` gives equal lines and equal duty and different documents, with the two instances sharing one classification object. `test_the_template_and_the_hooks_give_the_same_declaration` shows the class form and the function form produce an equal declaration for the Netherlands. The shared invariant tests run on both forms through a fixture with two parameters, `hooks` and `template`, so each of those checks runs against both.
 
-The `country` attribute is a class variable, so each subclass states its destination once and `declare` reads it when it builds the hooks. `@override` on each `extra_documents` asks the checker to confirm that the method really replaces a base method.
+The `country` attribute is a class variable, so each subclass states its destination once and `declare` reads it when it builds the hooks.
 
-The line follows from that. One destination, or steps that share nothing, means hooks. A family whose steps read the same state and share code means a class. Whoever chooses the class is paying for inheritance, and the payment buys the shared state and the shared steps.
+The line follows from that. One destination, or steps that share nothing, means hooks. A family whose steps read the same state and share code means a class.
 
 ## Keeping the skeleton fixed
 
-The classic failure is an invariant that lives in an overridable step. The test fixtures show it in a template with a `check` method:
+The failure to guard against is an invariant that lives in an overridable step. The test fixtures show it in a template with a `check` method:
 
 <!-- fmt:off -->
 ```python
@@ -198,16 +198,12 @@ class _ForgetfulDeclarer(_OpenDeclarer):
     @override
     def check(self, consignment: Consignment) -> None:
         return None
-
-
-class _OverridingDeclarer(NetherlandsDeclarer):
-    @override  # type: ignore[misc]
 ```
 <!-- fmt:on -->
 
 `test_a_subclass_that_skips_the_base_check_declares_nothing` runs an empty consignment through both. `_OpenDeclarer` raises `no commodities to declare`. `_ForgetfulDeclarer` returns a declaration whose `lines` is `()`. The override didn't call the base version, so the guard is gone, and nothing in the signature said it had to be called. `test_mypy_accepts_an_override_that_skips_the_base_step` runs the same shape through mypy, and the run exits 0 with empty output.
 
-`typing.final` on `declare` is the way to close that gap: the invariant lives in a method nobody overrides. The [`typing` documentation](https://docs.python.org/3/library/typing.html) says that decorating a method with `@final` "indicates to a type checker that the method cannot be overridden in a subclass", and adds: "There is no runtime checking of these properties." [PEP 591](https://peps.python.org/pep-0591/) specifies the feature. Both halves are in the example. mypy rejects an override:
+`typing.final` on `declare` is the way to close that gap: the invariant lives in a method the checker refuses to let a subclass override. The [`typing` documentation](https://docs.python.org/3/library/typing.html) says that decorating a method with `@final` "indicates to a type checker that the method cannot be overridden in a subclass", and adds: "There is no runtime checking of these properties." [PEP 591](https://peps.python.org/pep-0591/) specifies the feature. Both halves are in the example. mypy rejects an override:
 
 ```text
 <string>:7: error: Cannot override final attribute "declare" (previously declared in base class "CustomsDeclarer")  [misc]
@@ -217,7 +213,7 @@ The runtime doesn't. `test_final_marks_the_template_without_enforcing_it` shows 
 
 ## When not to use it
 
-Write a function when there is one variant. A template with a single subclass is a function with extra steps.
+Write a function when there is one variant.
 
 If every hook is optional, nothing is fixed. That's a pipeline of strategies, and a list of callables says it more directly than a skeleton. If the order itself changes by destination, the thing to model is a list of stages; [Mediator and Chain of Responsibility]({{ '/docs/23-mediator-and-chain-of-responsibility/' | relative_url }}) is the place for clearance stages that can stop a consignment.
 
@@ -283,9 +279,10 @@ Success: no issues found in 9 source files
 
 The suite has 21 test functions and 28 cases. Seventeen of those cases are in the hooks module's tests, and the rest cover the class form, the `Protocol` fixture and the static witnesses.
 
-**Experiment one: remove `@final`.** In a scratch copy, delete the `@final` line above `declare` in `CustomsDeclarer`. Running `uv run pytest -q`, filtered to the failure lines, and then the member's mypy run gives:
+**Experiment one: remove `@final`.** In a scratch copy, delete the `@final` line above `declare` in `CustomsDeclarer`. Running `uv run pytest -q 2>&1 | grep -E '^(FAILED|E {7}[^ ]|tests/.*Error$|[0-9]+ (passed|failed))'` and then the member's mypy run gives:
 
 ```text
+E       assert 0 == 1
 tests/test_static.py:47: AssertionError
 E       AssertionError: assert False is True
 tests/test_template.py:74: AssertionError

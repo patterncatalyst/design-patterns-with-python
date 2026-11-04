@@ -449,7 +449,6 @@ Reconciliation rows (step G0). The "How to verify" column uses resolvable tokens
 - Step G1b, `extra_documents` default: deleting it makes the module-level `SINGAPORE = CustomsHooks(...)` raise `TypeError` at import, so the run fails at collection before any test id, and the member mypy run reports `Missing named argument "extra_documents" for "CustomsHooks"  [call-arg]`. Both count as the deletion being seen.
 - Step G1a added deletion rows for the `ZoneRate` quantise, both `from None` clauses and `frozen=True` on `Tariff`; the per-kg half-up case is 0.1875 kg at 1.20 (0.225 rounds to 0.23 half up, 0.22 half even).
 
-(Left empty for the orchestrator.)
 
 ## Acceptance criteria
 

@@ -14,14 +14,14 @@ By the end of this chapter you can:
 - Say which part of Strategy survives in Python, and which part dissolves into a callable type, a mapping and a call.
 - Select a rule by name from a read-only registry, raise an unknown name as a domain error, and record the key on the quote.
 - Choose between a function, a `partial`, a closure and a frozen dataclass with `__call__` for a configured rule, and say what each lets an audit recover.
-- Read what mypy checks on each registry entry, and name the one configuration mistake it accepts.
+- Read what mypy checks on each registry entry, and name a configuration mistake it accepts.
 - Recognise the point where a strategy has to be an object, and the review checks that catch assistant-written over-structure.
 
 ## Why this matters
 
 Three failures come from treating a rule as something other than a value in a slot. A quote records `rule.__name__` so that a disputed invoice can name its rule, and it crashes on the first rule built with `partial`. A registry holds the class `ZoneRate` where an instance belongs, and every zone quote comes back priced as a `ZoneRate` object. A pull request adds an abstract `PricingStrategy`, three subclasses and a factory to do what a mapping of three callables does, and the reviewer has no test that says the extra structure buys anything.
 
-Each is a question about what a caller can rely on once it holds a rule: that it is callable, that it can be named, that a second quote from the same rule is the same quote. Python answers with the language's own pieces, and the work that remains is choosing among them.
+Each is a question about what a caller can rely on once it holds a rule: whether it can be named, and whether a second quote from it matches the first.
 
 {% include excalidraw.html name="12-strategy-the-callable" caption="Figure 12.1: One quote, three rules in a slot. The caller names a rule, the read-only RATE_RULES registry returns a callable, and quote records the name with the price, whether the rule is a function, a partial or a frozen dataclass." %}
 
@@ -29,11 +29,11 @@ Read the figure from the top. The accent box is the call, `quote(consignment, "z
 
 ## The force that remains
 
-*Design Patterns*, by Erich Gamma, Richard Helm, Ralph Johnson and John Vlissides, catalogues Strategy as a family of interchangeable algorithms, each encapsulated, so that a client can pick one at run time without knowing which it holds. The catalogue's solution is a strategy interface, a concrete class per algorithm, and a context that holds one. Luciano Ramalho's *Fluent Python*, second edition, in the chapter titled "Design Patterns with First-Class Functions", works through the same pattern with functions where the one-method classes were, and this chapter starts from that treatment.
+*Design Patterns*, by Erich Gamma, Richard Helm, Ralph Johnson and John Vlissides, catalogues Strategy for the case where a caller must choose among several ways of computing one result without depending on which one it holds. The catalogue's solution is a strategy interface, a concrete class per algorithm, and a context that holds one. Luciano Ramalho's *Fluent Python*, second edition, in the chapter titled "Design Patterns with First-Class Functions", works through the same pattern with functions where the one-method classes were, and this chapter starts from that treatment.
 
 The force is intact: a caller chooses an algorithm at run time and must not depend on which one it got. The structure is what goes. This pattern dissolves, because a feature resolves the force without the pattern's structure. A callable type is the interface, a function is the concrete strategy, and the call is the context's only job. The chapter titled [What 1994 assumed, and what Python dissolves]({{ '/docs/02-what-1994-assumed-and-python-dissolves/' | relative_url }}) shows the `PricingRule` alias and the slot that a `def`, a `lambda` and a `partial` fill, and this chapter doesn't repeat it.
 
-What the earlier chapter doesn't measure is the cost of the structure. The example keeps a class-per-strategy design as a test fixture: an abstract `_PricingStrategy`, a subclass per rule and a registry of instances. Beside the callables it looks like this:
+What the earlier chapter doesn't measure is the cost of the structure. The example keeps a class-per-strategy design as a test fixture: an abstract `_PricingStrategy`, a subclass per rule and a registry of instances. Two of its four classes, beside the callables:
 
 <!-- fmt:off -->
 ```python
@@ -49,7 +49,7 @@ class _PerKgStrategy(_PricingStrategy):
 ```
 <!-- fmt:on -->
 
-It isn't wrong. `test_a_class_per_strategy_passes_the_same_table` runs it against the same behaviour table as `test_each_registered_rule_prices_the_behaviour_table`, and both pass for the flat, per-kilogram and zone rows. The difference is declaration: `test_the_class_design_declares_four_strategy_classes_where_the_rules_declare_one` parses both modules with `ast` and counts the classes that define `__call__` or `price`. The rules module has one, `ZoneRate`. The fixture has four. The count is of declarations, not lines, because line counts move with formatting. The one class that remains is justified below: it holds a configuration in a form that an audit can compare, which a function can't.
+It isn't wrong. `test_a_class_per_strategy_passes_the_same_table` runs it against the same behaviour table as `test_each_registered_rule_prices_the_behaviour_table`, and both pass for the flat, per-kilogram and zone rows. The difference is declaration: `test_the_class_design_declares_four_strategy_classes_where_the_rules_declare_one` parses both modules with `ast` and counts the classes that define `__call__` or `price`. The rules module has one, `ZoneRate`. The fixture has four. The count is of declarations, not lines, because line counts move with formatting. The one class that remains is justified below: it holds a configuration in a form that an audit can compare, which a function can't. Why the slot is called `PricingRule` and not `RateStrategy` is argued in [Naming patterns for teams and AI assistants]({{ '/docs/04-naming-patterns-for-teams-and-ai/' | relative_url }}).
 
 ## Choosing a rule by name
 
@@ -114,7 +114,7 @@ The `functools` documentation on [partial objects](https://docs.python.org/3/lib
 
 Equality splits the same way. `test_a_partial_has_no_value_equality` builds two partials of `per_kg` with the same rate and finds them unequal, while their `func` and `keywords` attributes are equal. `test_a_rule_object_compares_and_hashes_by_value` builds a second `ZoneRate` from an equal tariff and finds the two equal, with equal hashes and a repr that starts `ZoneRate(tariff=Tariff(`. The repr of a partial carries the address of the function it wraps, so no test asserts it, and the table's last column rests on the run, not on an assertion.
 
-Two consequences follow. Record the registry key, as `quote` does, because the key survives where a name can't. And use a rule object when two quotes have to be compared by the rule that priced them: two quotes priced by equal `ZoneRate` instances were priced by the same configuration, and no such test is possible for two partials. For injecting a `partial` where a collaborator is expected, see [ISP, DIP, and dependency injection without a framework]({{ '/docs/06-isp-dip-and-di-without-a-framework/' | relative_url }}).
+Two consequences follow. Record the registry key, as `quote` does, because the key survives where a name can't. And use a rule object when two quotes have to be compared by the rule that priced them: two quotes priced by equal `ZoneRate` instances were priced by the same configuration, and two partials can be compared only attribute by attribute, through `func` and `keywords`. For injecting a `partial` where a collaborator is expected, see [ISP, DIP, and dependency injection without a framework]({{ '/docs/06-isp-dip-and-di-without-a-framework/' | relative_url }}).
 
 Both configured rules round half up to the cent. `test_rules_round_half_up_to_cents` picks cases that sit on a half cent: 0.1875 kg at 1.20 is 0.225, which rounds to 0.23 half up and 0.22 half even, and 28.85 kg at 0.50 is 14.425, which gives 14.43 and 14.42. The test computes both modes and asserts the rules return the half-up cent.
 
@@ -269,7 +269,7 @@ FAILED tests/test_selection.py::test_a_quote_records_the_rule_that_priced_it[zon
 6 failed, 25 passed in 3.13s
 ```
 
-The class takes the consignment as its `tariff` field, so calling it builds a `ZoneRate` holding a consignment and returns that. Nothing raises, and the price is the wrong type. `test_each_registered_rule_prices_the_behaviour_table[zone]` fails on the comparison with `Money`. `test_partials_and_rule_objects_have_no_name` fails because asking the registered class for `__name__` no longer raises. The quote test fails in all three cases, because it also asserts the zone price. mypy has named the entry before any of them run.
+The class takes the consignment as its `tariff` field, so calling it builds a `ZoneRate` holding a consignment and returns that. Nothing raises, and the price is the wrong type. `test_each_registered_rule_prices_the_behaviour_table[zone]` fails on the comparison with `Money`. `test_partials_and_rule_objects_have_no_name` fails because asking the registered class for `__name__` no longer raises. The quote test fails in all three cases, because it also asserts the zone price. mypy has named the entry before any of them run. The rounding test fails on its zone case for the same reason.
 
 **Experiment two: bind nothing.** Revert, then replace `partial(per_kg, rate=Decimal("1.20"))` with `partial(per_kg)`. `uv run mypy --strict src tests` reports `Success: no issues found in 9 source files`, and the same filtered pytest run gives:
 

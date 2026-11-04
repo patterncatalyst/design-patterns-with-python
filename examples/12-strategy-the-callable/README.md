@@ -10,7 +10,7 @@ dissolves into a callable type, a mapping and a call.
 
 Selection by name.
 
-- `RATE_RULES` is a `Mapping[str, PricingRule]` over a 3.15 `frozendict`: it is not a `dict` and
+- `RATE_RULES` is a `Mapping[str, PricingRule]` over a 3.15 `frozendict`: it isn't a `dict` and
   item assignment raises.
 - `quote` records the key it was given. An unknown key is a `RatingError`, not a bare `KeyError`.
 
@@ -91,5 +91,5 @@ uv run mypy --strict src tests
 - `test_mypy_checks_each_registry_entry`: clean for a valid registry, `[dict-item]` for four bad entries.
 - `test_mypy_checks_partial_keywords_but_not_a_missing_binding`: clean for a partial binding nothing, `[call-arg]` for a misspelt keyword.
 
-Classes named with a leading underscore in the test modules are test fixtures and are not part of
+Classes named with a leading underscore in the test modules are test fixtures and aren't part of
 the model code.

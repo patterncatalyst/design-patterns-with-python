@@ -101,5 +101,5 @@ uv run mypy --strict src tests
 - `test_mypy_checks_hooks_at_construction`: `[call-arg]` for a missing required hook, `[arg-type]` for a wrong signature.
 - `test_mypy_requires_every_protocol_member_for_a_structural_match`: `[assignment]` naming the missing member.
 
-Classes named with a leading underscore in the test modules are test fixtures and are not part of
+Classes named with a leading underscore in the test modules are test fixtures and aren't part of
 the model code.

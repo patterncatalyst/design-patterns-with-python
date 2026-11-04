@@ -46,3 +46,20 @@ closure name= rule eq= False hashable= True samehash= False repr_has_addr= True 
 partial name= AttributeError eq= False hashable= True samehash= False repr_has_addr= True repr_equal= True
 rule object name= AttributeError eq= True hashable= True samehash= True repr_has_addr= False repr_equal= True
 ```
+
+# A partial that binds nothing, called directly
+
+Recorded 2026-11-04 (r06) on Python 3.15.2 and mypy 2.4.1, from `examples/12-strategy-the-callable`,
+through the test module's own `_run` (`tests/test_static.py`), with `_REGISTRY_HEAD` followed by:
+
+```python
+def f(c: Consignment) -> Money:
+    return partial(per_kg)(c)
+```
+
+Output (exit status 1):
+
+```text
+<string>:9: error: Missing named argument "rate" for "per_kg"  [call-arg]
+<string>:9: note: "per_kg" defined in "strategy_callable.rules"
+```

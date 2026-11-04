@@ -22,7 +22,7 @@ rule up by name, records the name and raises `RatingError` for an unknown one.
 A function, a `partial` and a frozen dataclass with `__call__` all fill the `PricingRule` slot.
 They differ in what an audit can recover: a `partial` and a rule object have no `__name__`, a
 `partial` has no value equality, and a rule object compares, hashes and prints by value. A rule
-that counts its calls is not reproducible.
+that counts its calls isn't reproducible.
 
 ## The class-per-strategy comparison
 
