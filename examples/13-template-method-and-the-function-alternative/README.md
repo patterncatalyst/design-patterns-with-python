@@ -33,7 +33,7 @@ The class form.
   bound methods to `declare_customs`, so the skeleton exists once.
 - The class form and the function form give the same declaration. `NetherlandsDeclarer` and
   `GermanyDeclarer` share the schedule and the lines and differ in their documents. A declarer
-  without its documents cannot be built.
+  without its documents can't be built.
 
 Keeping the skeleton fixed.
 

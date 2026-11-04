@@ -425,7 +425,7 @@ Step ids are `G*` because `--claims` resolves `run:` tokens against every plan's
 | G3 | Two figures, specs `diagrams/specs/12-*.py` and `13-*.py`, `_data/diagrams.yml` (single owner; `section: "Ch. 12"`/`"Ch. 13"`); figures 00-11 unchanged | G2 | done |
 | G4 | ch12-13 `status = "drafted"` (`kind` stays `pattern`) | G3 | done |
 | G5 | Two prose agents in parallel. Each re-fetches its sources and quotes exactly, runs the experiments in scratch copies, quotes fresh output filtered by `python3 scripts/host_ids.py filter`, and hands back the sources checked plus a per-paragraph claims table (claim, then test, run or source URL) | G3, G4 | done |
-| G6 | Opus validation; up to two repair rounds | G5 | todo |
+| G6 | Opus validation; up to two repair rounds | G5 | done |
 | G7 | PR, `ci-ok` green, ask the user before merge; tag r06.x; notes-only release. No hub PR (decision 3) | G6 | todo |
 
 Reconciliation rows (step G0). The "How to verify" column uses resolvable tokens.
@@ -448,7 +448,6 @@ Reconciliation rows (step G0). The "How to verify" column uses resolvable tokens
 - Row 68 (step G1a, confirmed by the orchestrator with a mypy 2.4.1 run): a partial that binds nothing is accepted only where it is assigned to the typed `PricingRule` slot, as a registry entry is; calling it directly, `partial(per_kg)(c)`, is `Missing named argument "rate" for "per_kg"  [call-arg]`. The claim and prose say "accepted in a typed slot".
 - Step G1b, `extra_documents` default: deleting it makes the module-level `SINGAPORE = CustomsHooks(...)` raise `TypeError` at import, so the run fails at collection before any test id, and the member mypy run reports `Missing named argument "extra_documents" for "CustomsHooks"  [call-arg]`. Both count as the deletion being seen.
 - Step G1a added deletion rows for the `ZoneRate` quantise, both `from None` clauses and `frozen=True` on `Tariff`; the per-kg half-up case is 0.1875 kg at 1.20 (0.225 rounds to 0.23 half up, 0.22 half even).
-
 
 ## Acceptance criteria
 

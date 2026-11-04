@@ -34,7 +34,7 @@ What mypy checks.
 - Each registry entry is checked against `PricingRule`: the return type, an extra required
   parameter, a lambda's body and a class registered where an instance belongs.
 - A `partial` with a misspelt keyword is rejected. A `partial` that binds nothing is accepted and
-  fails when it is called.
+  fails when it's called.
 
 ## Layout
 
@@ -76,7 +76,7 @@ uv run mypy --strict src tests
 
 - `test_a_quote_records_the_rule_that_priced_it`: the quote carries the key, the consignment id and the price.
 - `test_an_unknown_rule_name_is_a_rating_error`: `RatingError` naming the rule, with the `KeyError` suppressed.
-- `test_the_rule_registry_is_read_only`: item assignment raises and the registry is not a `dict`.
+- `test_the_rule_registry_is_read_only`: item assignment raises and the registry isn't a `dict`.
 
 `tests/test_configured.py`
 

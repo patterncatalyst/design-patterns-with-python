@@ -50,7 +50,7 @@ rule object name= AttributeError eq= True hashable= True samehash= True repr_has
 # A partial that binds nothing, called directly
 
 Recorded 2026-11-04 (r06) on Python 3.15.2 and mypy 2.4.1, from `examples/12-strategy-the-callable`,
-through the test module's own `_run` (`tests/test_static.py`), with `_REGISTRY_HEAD` followed by:
+through the test module's own `_run` (`tests/test_static.py`), with `_REGISTRY_HEAD` immediately followed (no blank line) by:
 
 ```python
 def f(c: Consignment) -> Money:

@@ -127,7 +127,7 @@ A default that should apply to every caller belongs where every caller reaches i
 
 ## When steps share state: the ABC form
 
-Singapore's hooks are separate functions that share no state. The Netherlands and Germany are a different shape. Both classify with the same EU table and assess duty from the same EU schedule, and they differ in country and documents. Written as hooks, that is the same schedule bound into a hook for each destination. The repetition is the sign that the family has become one thing, and a class says so:
+Singapore's hooks are separate functions that share no state. The Netherlands and Germany are a different shape. Both classify with the same EU table and assess duty from the same EU schedule, and they differ in country and documents. Written as hooks, that's the same schedule bound into a hook for each destination. The repetition is the sign that the family has become one thing, and a class says so:
 
 <!-- fmt:off -->
 ```python
@@ -169,7 +169,7 @@ The class holds two pieces of state that the function form has to thread through
 
 The `country` attribute is a class variable, so each subclass states its destination once and `declare` reads it when it builds the hooks.
 
-The line follows from that. One destination, or steps that share nothing, means hooks. A family whose steps read the same state and share code means a class.
+The line between the two forms follows from the shared state. One destination, or steps that share nothing, means hooks. A family whose steps read the same state and share code means a class.
 
 ## Keeping the skeleton fixed
 
@@ -209,7 +209,7 @@ class _ForgetfulDeclarer(_OpenDeclarer):
 <string>:7: error: Cannot override final attribute "declare" (previously declared in base class "CustomsDeclarer")  [misc]
 ```
 
-The runtime doesn't. `test_final_marks_the_template_without_enforcing_it` shows `CustomsDeclarer.declare.__final__` is `True`, and that a subclass overriding `declare` runs its override and returns its own declaration. The decorator marks the method for the checker, and the check happens only where the checker runs. A skeleton that's a plain function has no such gap, because there is nothing to override.
+The runtime doesn't. `test_final_marks_the_template_without_enforcing_it` shows `CustomsDeclarer.declare.__final__` is `True`, and that a subclass overriding `declare` runs its override and returns its own declaration. The decorator marks the method for the checker, and the check happens only where the checker runs. A skeleton that's a plain function has no such gap, because there's nothing to override.
 
 ## When not to use it
 
@@ -293,9 +293,9 @@ tests/test_template.py:41: error: Unused "type: ignore" comment  [unused-ignore]
 Found 1 error in 1 file (checked 9 source files)
 ```
 
-The runtime test fails because `__final__` is no longer set. The static test fails because the override snippet is now accepted. The member's own mypy run reports the unused `type: ignore` on the `_OverridingDeclarer` fixture, because the ignore no longer has an error to cover. Three signals see one deletion.
+The runtime test fails because `__final__` is no longer set. The static test fails because the override snippet is now accepted. The member's own mypy run reports the unused `type: ignore` on the `_OverridingDeclarer` fixture, the subclass that overrides `declare` in the runtime test, because the ignore no longer has an error to cover. Three signals see one deletion.
 
-**Experiment two: remove the no-commodities guard.** In a fresh scratch copy, delete the two-line `if not consignment.commodities:` block in `declare_customs`. The same filtered run gives:
+**Experiment two: remove the no-commodities guard.** In a fresh scratch copy, delete the two-line `if not consignment.commodities:` block in `declare_customs`. The same filtered run, then the member's mypy run, gives:
 
 ```text
 E       IndexError: list index out of range

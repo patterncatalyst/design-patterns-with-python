@@ -21,7 +21,7 @@ By the end of this chapter you can:
 
 Three failures come from treating a rule as something other than a value in a slot. A quote records `rule.__name__` so that a disputed invoice can name its rule, and it crashes on the first rule built with `partial`. A registry holds the class `ZoneRate` where an instance belongs, and every zone quote comes back priced as a `ZoneRate` object. A pull request adds an abstract `PricingStrategy`, three subclasses and a factory to do what a mapping of three callables does, and the reviewer has no test that says the extra structure buys anything.
 
-Each is a question about what a caller can rely on once it holds a rule: whether it can be named, and whether a second quote from it matches the first.
+All three come from misjudging what a caller can rely on once it holds a rule, and the slot's answer is short: it can call the rule with a consignment and get money back.
 
 {% include excalidraw.html name="12-strategy-the-callable" caption="Figure 12.1: One quote, three rules in a slot. The caller names a rule, the read-only RATE_RULES registry returns a callable, and quote records the name with the price, whether the rule is a function, a partial or a frozen dataclass." %}
 
@@ -31,9 +31,9 @@ Read the figure from the top. The accent box is the call, `quote(consignment, "z
 
 *Design Patterns*, by Erich Gamma, Richard Helm, Ralph Johnson and John Vlissides, catalogues Strategy for the case where a caller must choose among several ways of computing one result without depending on which one it holds. The catalogue's solution is a strategy interface, a concrete class per algorithm, and a context that holds one. Luciano Ramalho's *Fluent Python*, second edition, in the chapter titled "Design Patterns with First-Class Functions", works through the same pattern with functions where the one-method classes were, and this chapter starts from that treatment.
 
-The force is intact: a caller chooses an algorithm at run time and must not depend on which one it got. The structure is what goes. This pattern dissolves, because a feature resolves the force without the pattern's structure. A callable type is the interface, a function is the concrete strategy, and the call is the context's only job. The chapter titled [What 1994 assumed, and what Python dissolves]({{ '/docs/02-what-1994-assumed-and-python-dissolves/' | relative_url }}) shows the `PricingRule` alias and the slot that a `def`, a `lambda` and a `partial` fill, and this chapter doesn't repeat it.
+The force is intact and the structure is what goes. This pattern dissolves, because a feature resolves the force without the pattern's structure. A callable type is the interface, a function is the concrete strategy, and the call is the context's only job. The chapter titled [What 1994 assumed, and what Python dissolves]({{ '/docs/02-what-1994-assumed-and-python-dissolves/' | relative_url }}) shows the `PricingRule` alias and the slot that a `def`, a `lambda` and a `partial` fill, and this chapter doesn't repeat it.
 
-What the earlier chapter doesn't measure is the cost of the structure. The example keeps a class-per-strategy design as a test fixture: an abstract `_PricingStrategy`, a subclass per rule and a registry of instances. Two of its four classes, beside the callables:
+What the earlier chapter doesn't measure is the cost of the structure. The example keeps a class-per-strategy design as a test fixture: an abstract `_PricingStrategy`, a subclass per rule and a registry of instances. The base class and one of its three subclasses:
 
 <!-- fmt:off -->
 ```python
@@ -154,7 +154,7 @@ A configured rule is checked less well. `partial(per_kg, rat=Decimal("1.20"))` i
 <string>:9: note: "per_kg" defined in "strategy_callable.rules"
 ```
 
-A `partial` that binds nothing is accepted where it is assigned to the typed `PricingRule` slot, as a registry entry is. The same test asserts exit 0 and empty output for `partial(per_kg)`, and `test_an_unbound_partial_fails_only_when_called` shows the runtime end of it: `TypeError`, "missing 1 required keyword-only argument: 'rate'". The check does apply when the partial is called directly. A snippet that returns `partial(per_kg)(c)` from a function reports `Missing named argument "rate" for "per_kg"  [call-arg]`. The gap is in the assignment, which is the one the chapter titled [ISP, DIP, and dependency injection without a framework]({{ '/docs/06-isp-dip-and-di-without-a-framework/' | relative_url }}) documents. Read a registry's `partial` entries by eye.
+A `partial` that binds nothing is accepted where it's assigned to the typed `PricingRule` slot, as a registry entry is. The same test asserts exit 0 and empty output for `partial(per_kg)`, and `test_an_unbound_partial_fails_only_when_called` shows the runtime end of it: `TypeError`, "missing 1 required keyword-only argument: 'rate'". The check does apply when the partial is called directly. A snippet that returns `partial(per_kg)(c)` from a function reports `Missing named argument "rate" for "per_kg"  [call-arg]`. The gap is in the assignment, which is the one the chapter titled [ISP, DIP, and dependency injection without a framework]({{ '/docs/06-isp-dip-and-di-without-a-framework/' | relative_url }}) documents. Read a registry's `partial` entries by eye.
 
 When a rule needs keyword parameters, overloads or attributes the callable type can't express, the callback Protocol with a positional-only `/` is the form to use. The chapter titled [Protocol, duck typing, and structural typing with mypy]({{ '/docs/09-protocol-and-structural-typing/' | relative_url }}) covers it.
 
@@ -269,7 +269,7 @@ FAILED tests/test_selection.py::test_a_quote_records_the_rule_that_priced_it[zon
 6 failed, 25 passed in 3.13s
 ```
 
-The class takes the consignment as its `tariff` field, so calling it builds a `ZoneRate` holding a consignment and returns that. Nothing raises, and the price is the wrong type. `test_each_registered_rule_prices_the_behaviour_table[zone]` fails on the comparison with `Money`. `test_partials_and_rule_objects_have_no_name` fails because asking the registered class for `__name__` no longer raises. The quote test fails in all three cases, because it also asserts the zone price. mypy has named the entry before any of them run. The rounding test fails on its zone case for the same reason.
+The class takes the consignment as its `tariff` field, so calling it builds a `ZoneRate` holding a consignment and returns that. Nothing raises, and the price is the wrong type. `test_each_registered_rule_prices_the_behaviour_table[zone]` fails on the comparison with `Money`. `test_partials_and_rule_objects_have_no_name` fails because asking the registered class for `__name__` no longer raises. The quote test fails in all three cases, because it also asserts the zone price. The rounding test fails on its zone case because the price is a `ZoneRate`, not `Money`. mypy has named the entry before any of them run.
 
 **Experiment two: bind nothing.** Revert, then replace `partial(per_kg, rate=Decimal("1.20"))` with `partial(per_kg)`. `uv run mypy --strict src tests` reports `Success: no issues found in 9 source files`, and the same filtered pytest run gives:
 
