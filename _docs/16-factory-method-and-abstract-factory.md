@@ -248,7 +248,7 @@ Success: no issues found in 10 source files
 
 The suite has 17 test functions and 28 cases.
 
-**Experiment one: give the Airco kit the Fastline label printer.** In a scratch copy, change `label_printer=AircoLabelPrinter` to `label_printer=FastlineLabelPrinter` in `AIRCO_KIT`. Running `uv run pytest -q 2>&1 | grep -E '^(FAILED|E {7}[^ ]|tests/.*Error$|[0-9]+ (passed|failed))'` and then the member's mypy run gives:
+**Experiment one: give the Airco kit the Fastline label printer.** In a fresh scratch copy, change `label_printer=AircoLabelPrinter` to `label_printer=FastlineLabelPrinter` in `AIRCO_KIT`. Running `uv run pytest -q 2>&1 | grep -E '^(FAILED|E {7}[^ ]|tests/.*Error$|[0-9]+ (passed|failed))'` and then the member's mypy run gives:
 
 ```text
 E       AssertionError: assert 'AIRCO AC-ACC-7-CN-1' == 'FASTLINE AC-ACC-7-CN-1'
@@ -279,4 +279,4 @@ The tie is gone. `AIRCO_KIT` still builds without a complaint, and the mixed kit
 
 ## For deeper coverage
 
-*Design Patterns: Elements of Reusable Object-Oriented Software* (Gamma, Helm, Johnson and Vlissides) is the source for Factory Method and Abstract Factory. Brandon Rhodes's [Factory Method](https://python-patterns.guide/gang-of-four/factory-method/) and [Abstract Factory](https://python-patterns.guide/gang-of-four/abstract-factory/) pages read both through Python. The [`typing` documentation](https://docs.python.org/3/library/typing.html#typing.Self) covers `Self`, and [PEP 544](https://peps.python.org/pep-0544/) specifies Protocols. [PEP 814](https://peps.python.org/pep-0814/) covers `frozendict`, which backs both registries. The next chapter, [Builder, dataclasses, and Prototype]({{ '/docs/17-builder-dataclasses-and-prototype/' | relative_url }}), takes the other creational patterns. The [bibliography page]({{ '/bibliography/' | relative_url }}) lists the books, and the hub carries the same list.
+*Design Patterns: Elements of Reusable Object-Oriented Software* (Gamma, Helm, Johnson and Vlissides) is the source for Factory Method and Abstract Factory. Brandon Rhodes's [Factory Method](https://python-patterns.guide/gang-of-four/factory-method/) and [Abstract Factory](https://python-patterns.guide/gang-of-four/abstract-factory/) pages read both through Python. The [`typing` documentation](https://docs.python.org/3/library/typing.html#typing.Self) covers `Self`, and [PEP 544](https://peps.python.org/pep-0544/) specifies Protocols. [PEP 814](https://peps.python.org/pep-0814/) covers `frozendict`, which backs both registries. [Builder, dataclasses, and Prototype]({{ '/docs/17-builder-dataclasses-and-prototype/' | relative_url }}) takes the other creational patterns. The [bibliography page]({{ '/bibliography/' | relative_url }}) lists the books, and the hub carries the same list.

@@ -28,9 +28,10 @@ Isolation and threads.
 Comparison fixtures (test only).
 
 - Borg, a metaclass singleton and a `__new__` singleton run the same "every caller reads the same
-  rates" table as the module, `LoadOnce` and the cache; five load once and the `__new__` form twice. Borg instances are distinct and unequal, the
-  metaclass ignores a second call's arguments and mypy types the call by `__init__`, the `__new__`
-  form reruns `__init__` and rewrites the shared table, and slots refuse Borg.
+  rates" table as the module, `LoadOnce` and the cache; five load once and the `__new__` form twice.
+  Borg instances are distinct and unequal, the metaclass ignores a second call's arguments and mypy
+  types the call by `__init__`, the `__new__` form reruns `__init__` and rewrites the shared table,
+  and slots refuse Borg.
 
 ## Layout
 

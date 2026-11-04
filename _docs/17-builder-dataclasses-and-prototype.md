@@ -29,7 +29,7 @@ A team keeps a template booking and copies it for each new consignment. The temp
 
 {% include excalidraw.html name="17-builder-dataclasses-and-prototype" caption="Figure 17.1: Building and copying a booking request. A template is copied into a frozen keyword-only request whose checks rerun on every replace, and only an immutable field type keeps two copies from sharing one list." %}
 
-Read the figure from the top down. `TEMPLATES`, "read-only: name to template request", feeds `from_template`, "replace(template, ...)", which feeds `BookingRequest(...)`, "keyword-only, frozen". An arrow runs on to `__post_init__`, "cross-field checks: insured, dangerous goods, ports". Two dashed arrows leave that box. One runs right to a dashed box, "every replace reruns it: replace, copy.replace". The other runs down to the accent box at the bottom, "a list field is shared by copy and replace; a tuple field cannot be".
+Read the figure from the top down. `TEMPLATES`, "read-only: name to template request", feeds `from_template`, "replace(template, ...)", which feeds `BookingRequest(...)`, "keyword-only, frozen". An arrow runs on to `__post_init__`, "cross-field checks: insured, dangerous goods, ports". Two dashed arrows leave that box. One runs right to a dashed box, "both replace functions rerun it: replace, copy.replace". The other runs down to the accent box at the bottom, "a list field is shared by copy and replace; a tuple field cannot be".
 
 ## The construction problem
 
@@ -73,7 +73,7 @@ So a type system finds the swaps that cross types, and two arguments of one type
 
 ## A keyword-only dataclass is the builder
 
-Here is the whole model, with its three rules:
+The model, with its three rules:
 
 <!-- fmt:off -->
 ```python
@@ -272,7 +272,7 @@ Success: no issues found in 8 source files
 
 The suite has 21 test functions and 42 cases: 7 functions in `test_builder.py`, 8 in `test_prototype.py` and 6 in `test_static.py`. For how the tests and the mypy witnesses are built, see [Proving it works: pytest, pytest-mock, and mypy]({{ '/docs/11-testing-with-pytest-pytest-mock-and-mypy/' | relative_url }}).
 
-**Experiment one: delete a rule.** In a scratch copy, delete the two lines in `BookingRequest.__post_init__` that raise for an insured booking without a declared value. Running `uv run pytest -q 2>&1 | grep -E '^(FAILED|E {7}[^ ]|tests/.*Error$|[0-9]+ (passed|failed))'` and then `uv run mypy --strict src tests | tail -1` prints:
+**Experiment one: delete a rule.** In a fresh scratch copy, delete the two lines in `BookingRequest.__post_init__` that raise for an insured booking without a declared value. Running `uv run pytest -q 2>&1 | grep -E '^(FAILED|E {7}[^ ]|tests/.*Error$|[0-9]+ (passed|failed))'` and then `uv run mypy --strict src tests | tail -1` prints:
 
 ```text
 E       Failed: DID NOT RAISE BookingError

@@ -152,7 +152,7 @@ The marker is `NOT_LOADED`, built with the `sentinel` type that Python 3.15 adds
 
 ## Borg, the metaclass, and `__new__`
 
-Three class forms sit beside the ladder. They are fixtures in `tests/conftest.py`, they stand for code a team inherits or an assistant writes, and each has one measured cost. They run the same behaviour table as the module. The excerpt is the `__new__` form:
+Three class forms sit beside the ladder. They are fixtures in `tests/conftest.py`, they stand for code a team inherits or an assistant writes, and each has one measured cost. They run the same behaviour table as the module. The `__new__` form:
 
 <!-- fmt:off -->
 ```python
@@ -253,7 +253,7 @@ Success: no issues found in 12 source files
 
 The suite has 22 test functions and 29 cases. For how the tests and the mypy witnesses are built, see [Proving it works: pytest, pytest-mock, and mypy]({{ '/docs/11-testing-with-pytest-pytest-mock-and-mypy/' | relative_url }}).
 
-**Experiment one: drop the inner check.** In a scratch copy, replace the inner `if self._value is NOT_LOADED:` and its body in `LoadOnce.__call__` with a bare `self._value = self._load()` inside the lock. Running `uv run pytest -q 2>&1 | grep -E '^(FAILED|E {7}[^ ]|tests/.*Error$|[0-9]+ (passed|failed))'` and then `uv run mypy --strict src tests` three times printed the same lines each time, apart from the duration:
+**Experiment one: drop the inner check.** In a fresh scratch copy, replace the inner `if self._value is NOT_LOADED:` and its body in `LoadOnce.__call__` with a bare `self._value = self._load()` inside the lock. Running `uv run pytest -q 2>&1 | grep -E '^(FAILED|E {7}[^ ]|tests/.*Error$|[0-9]+ (passed|failed))'` and then `uv run mypy --strict src tests` three times printed the same lines each time, apart from the duration:
 
 ```text
 E       AssertionError: assert ['tariff', 'tariff'] == ['tariff']
