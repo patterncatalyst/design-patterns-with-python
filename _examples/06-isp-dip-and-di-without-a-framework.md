@@ -1,11 +1,11 @@
 ---
 layout: example
 order: 6
-title: "ISP, DIP and DI without a framework: thirteen witnesses"
+title: "ISP, DIP and DI without a framework: consumer-owned Protocols and a composition root"
 description: One booking service and one tracking function whose tests show small consumer-owned Protocols, policy that imports no adapter, and a plain composition root.
 github_path: examples/06-isp-dip-and-di-without-a-framework
 card_eyebrow: "Principles: SOLID · ISP, DIP, DI"
-card_title: "Thirteen test functions for two principles and a wiring function"
+card_title: "Small Protocols owned by consumers and one plain wiring function"
 card_blurb: "Booking and tracking each depend on the smallest Protocol they use, carrier adapters satisfy them without naming them, and one plain function wires the whole application."
 ---
 

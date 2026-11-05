@@ -41,7 +41,7 @@ This pattern survives. The language removes the call-site boilerplate: nobody wr
 
 ## A class with `__enter__` and `__exit__`
 
-The example is a member called `context-managers`. `ManifestWriter` writes to `<name>.partial` and commits to `<name>` only if the block succeeds:
+A manifest should appear whole or not at all, so `ManifestWriter` writes to `<name>.partial` and commits to `<name>` only if the block succeeds:
 
 <!-- fmt:off -->
 ```python
@@ -69,7 +69,7 @@ The example is a member called `context-managers`. `ManifestWriter` writes to `<
 ```
 <!-- fmt:on -->
 
-Both branches close the handle first. Success then renames the partial over the final path with `Path.replace`, which is how a reader comes to see the whole manifest or none of it. Failure deletes the partial. `test_without_with_an_exception_leaves_the_handle_open` is the control: it opens a file with no `with`, raises mid-write and asserts that the handle is still open afterwards. `test_writer_closes_and_discards_on_an_exception` runs the same failure through `ManifestWriter` and checks that the handle is closed, that neither the partial nor the final file exists, and that the `OSError` reached the caller. `test_writer_commits_only_on_success` checks the other side: inside the block the final path is absent and the partial exists, and after the block the final file holds the written line and the partial is gone.
+`Path.replace` is how a reader comes to see the whole manifest or none of it. `test_without_with_an_exception_leaves_the_handle_open` is the control: it opens a file with no `with`, raises mid-write and asserts that the handle is still open afterwards. `test_writer_closes_and_discards_on_an_exception` runs the same failure through `ManifestWriter` and checks that the handle is closed, that neither the partial nor the final file exists, and that the `OSError` reached the caller. `test_writer_commits_only_on_success` checks the other side: inside the block the final path is absent and the partial exists, and after the block the final file holds the written line and the partial is gone.
 
 `__exit__` returns `None`, so the exception continues past the block. The Language Reference says that if the method "wishes to suppress the exception (i.e., prevent it from being propagated), it should return a true value. Otherwise, the exception will be processed normally upon exit from this method." Returning nothing is the decision to let the failure be seen.
 
@@ -92,7 +92,7 @@ With `--strict --warn-unreachable` and `__exit__` annotated `-> None`, mypy 2.4.
 <string>:10: error: Statement is unreachable  [unreachable]
 ```
 
-The same function over a manager whose `__exit__` is annotated `-> bool` exits 0 with no output, because that manager might swallow the exception and execution might reach the `return`. So an annotation is a claim about behaviour. `test_mypy_types_the_with_target` adds that `out` is a `TextIO` for the class, the generator form and an `ExitStack`.
+The same function over a manager whose `__exit__` is annotated `-> bool` exits 0 with no output, because that manager might swallow the exception and execution might reach the `return`. `test_mypy_types_the_with_target` adds that `out` is a `TextIO` for the class, the generator form and an `ExitStack`.
 
 ## The generator form
 
@@ -183,9 +183,11 @@ Calling `rows()` leaves the log empty. Iterating it produces `["enter", "row NLR
 A resource with no release step doesn't need a manager. A value computed and returned has nothing to acquire. A manager wrapped around a single call that already closes its own resource, such as `Path.read_text`, adds a block and nothing else. Swallowing to "keep going" belongs in `suppress` with one named exception, or in an explicit `try`/`except` at the place that knows how to recover.
 
 <blockquote class="ai-sidebar" markdown="1">
+**Reviewing assistant-written cleanup.** An assistant may open a file without `with`, write a `@contextmanager` with no `try`, return `True` from `__exit__`, or write straight to the final path. Paste a prompt that states the contract:
 
-**Reviewing assistant-written cleanup.** An assistant may open a file without `with`, write a `@contextmanager` with no `try`, return `True` from `__exit__`, or write directly to the final path. Check: is every acquisition inside a `with`; does the generator form use `try`; does `__exit__` return `None` unless swallowing is the documented intent; is a failed write discarded rather than left for a reader; does a test raise mid-write and assert the handle is closed.
+> Write `ManifestWriter` to write `<name>.partial`, close on every path, replace the final path only on success and delete the partial on failure, with `__exit__` returning `None`. In the `@contextmanager` form, wrap the `yield` in `try`/`except`/`else`. Open several writers on an `ExitStack`. Swallow only a named exception, with `contextlib.suppress`. Add a test that raises mid-write and asserts the handle is closed.
 
+If the generator form has no `try`, ask for that test run against it.
 </blockquote>
 
 ## Build, run, observe
@@ -262,6 +264,14 @@ FAILED tests/test_writer.py::test_writer_closes_and_discards_on_an_exception[gen
 ```
 
 The assertion is the same `assert opener.files[0].closed`, now against the generator. The class case still passes. mypy prints `Success: no issues found in 7 source files` again, which is what `test_mypy_cannot_see_a_missing_try` predicted. Restore the block.
+
+## What you can do now
+
+- Say what `with` guarantees and what it leaves to you: `ManifestWriter` closes on every path and commits only on success, shown by `test_writer_commits_only_on_success` and `test_writer_closes_and_discards_on_an_exception`.
+- Write both forms: `manifest_file` is the generator version, and `test_the_generator_form_needs_try` shows the handle it leaves open without a `try`.
+- Combine resources: `write_manifests` enters its writers on an `ExitStack`, and `test_exit_stack_unwinds_entered_writers_in_reverse_order` shows the unwind.
+- Say what a truthy `__exit__` does: `test_a_truthy_exit_swallows_the_exception` shows the swallow, `contextlib.suppress` narrows it, and `test_mypy_reads_exit_return_type_for_reachability` shows mypy reading `-> None` against `-> bool`.
+- Say how the decorator use changed: `test_a_context_manager_decorating_a_generator_spans_iteration` witnesses the 3.15 behaviour for a decorated generator function.
 
 ## For deeper coverage
 

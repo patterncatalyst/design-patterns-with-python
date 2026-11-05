@@ -30,11 +30,11 @@ The first is the Decorator pattern, the second the `@decorator` syntax and the t
 
 {% include excalidraw.html name="20-decorator-pattern-vs-decorator-syntax-and-proxy" caption="Figure 20.1: Two things called Decorator, and a proxy. Layers are chosen per consignment and stacked as a value while the program runs; the @ form rebinds a name once at definition; the proxy keeps the interface and controls access." %}
 
-On the left, "Decorator pattern: while the program runs", `layers_for(consignment)` leads to `compose(base, layers)` ("the last layer ends up outermost"), which leads to nested frames, `Tax` around `Surcharge` around `BaseRate`, labelled "a value: chosen per consignment". On the right, "@decorator syntax: at definition time", `@retry(attempts=..., on=...)` ("a factory returns what @ applies") leads to `def quote_carrier`, which leads to `quote_carrier` ("name rebound once, when the module loads"). A dashed note between the columns reads "same word, unrelated mechanisms". At the bottom, `CarrierGatewayProxy` ("Proxy: same interface, controls access (caches quote)") sits beside a muted dashed box, "forwarding with __getattr__" and "mypy sees Any".
+On the left, "Decorator pattern: while the program runs": `layers_for(consignment)` leads to `compose(base, layers)`, then to nested frames, `Tax` around `Surcharge` around `BaseRate`, "a value: chosen per consignment". On the right, "@decorator syntax: at definition time": `@retry(attempts=..., on=...)` leads to `def quote_carrier`, then to `quote_carrier`. A dashed note between them reads "same word, unrelated mechanisms". At the bottom, `CarrierGatewayProxy` ("Proxy: same interface, controls access (caches quote)") sits beside a muted dashed box, "forwarding with __getattr__" and "mypy sees Any".
 
 ## Two things called Decorator
 
-Here are the two, side by side. The pattern builds a value: `Tax(Surcharge(BaseRate(...), fee), percent)`. The syntax rebinds a name: `quote_carrier = retry(...)(quote_carrier)`, which the `@` line above a `def` spells in one step.
+The pattern builds a value: `Tax(Surcharge(BaseRate(...), fee), percent)`. The syntax rebinds a name: `quote_carrier = retry(...)(quote_carrier)`, which the `@` line above a `def` spells in one step.
 
 *Design Patterns*, by Gamma, Helm, Johnson and Vlissides, gives the name Decorator to a wrapper object that holds another object and presents the same interface, with behaviour added around the calls it passes on. Because a wrapper looks like the thing it wraps, wrappers nest, and the nesting can differ from one request to the next. Brandon Rhodes's page "The Decorator Pattern" at python-patterns.guide separates the pattern from the `@` syntax and warns about the clash of names.
 
@@ -44,7 +44,7 @@ In this chapter, "Decorator" alone is the pattern. The syntax is "the `@decorato
 
 ## The pattern: a stack of layers
 
-A rate calculator is anything with a `price` method, and each layer is a frozen dataclass that holds another calculator and satisfies the same Protocol. One layer, the type of a layer, and the function that composes a stack:
+Adjustments chosen per consignment need wrappers that nest. A rate calculator is anything with a `price` method, and each layer is a frozen dataclass that holds another calculator and satisfies the same Protocol. One layer, the type of a layer, and the function that composes a stack:
 
 <!-- fmt:off -->
 ```python
@@ -71,11 +71,11 @@ def compose(base: RateCalculator, layers: Sequence[Layer]) -> RateCalculator:
 ```
 <!-- fmt:on -->
 
-A layer wraps and doesn't change what it wraps. `test_a_layer_wraps_a_calculator_and_leaves_it_unchanged` shows that `layered.inner` is the base object, that the base still prices 120.00 for 100 kg at 1.20 per kilogram, and that it still equals a freshly built `BaseRate`. `test_compose_wraps_the_last_layer_outermost` composes a surcharge, a tax and a discount and reads the types from the outside in: `Discount`, `Tax`, `Surcharge`, `BaseRate`. Rates and fees here are illustrative.
+`test_a_layer_wraps_a_calculator_and_leaves_it_unchanged` shows that `layered.inner` is the base object, that the base still prices 120.00 for 100 kg at 1.20 per kilogram, and that it still equals a freshly built `BaseRate`. `test_compose_wraps_the_last_layer_outermost` composes a surcharge, a tax and a discount and reads the types from the outside in: `Discount`, `Tax`, `Surcharge`, `BaseRate`. Rates and fees here are illustrative.
 
 Order matters once a layer adds a fixed amount. For 100 kg at 1.20, with a 15.00 fee, `test_layer_order_changes_the_price_when_a_fee_is_added` has four stacks and four prices. Tax outside the fee gives 163.35, and the fee outside the tax gives 160.20. A 10 percent discount outside the fee gives 121.50, and the fee outside the discount gives 123.00. The fee isn't a scale, so moving it changes what the percentages apply to.
 
-Two percentage layers are different. In exact arithmetic a 10 percent discount and a 21 percent tax both multiply by a constant, so either order gives the same price. With rounding to cents after each layer they can split. `test_two_percentage_layers_agree_before_rounding_and_can_split_by_a_cent` prices a 120.00 base both ways and gets 130.68 each time. At 0.05 per kilogram for one kilogram, discount then tax gives 0.06 and tax then discount gives 0.05. The recorded sweep in `_plans/evidence/percentage-layer-rounding.md` covers every per-kilogram price from 0.01 to 200.00 at one kilogram: "6940 of 20000 differ", every one by exactly one cent. A second run of 20,000 seeded draws, with weights from 1 to 1000 kg, gave 6,726 differing, again by one cent. A heavier consignment doesn't widen the gap, because each layer rounds its own total once. Percentage layers commute in exact arithmetic and can fail to commute in code that rounds.
+Two percentage layers are different. In exact arithmetic a 10 percent discount and a 21 percent tax both multiply by a constant, so either order gives the same price. With rounding to cents after each layer they can split. `test_two_percentage_layers_agree_before_rounding_and_can_split_by_a_cent` prices a 120.00 base both ways and gets 130.68 each time. At 0.05 per kilogram for one kilogram, discount then tax gives 0.06 and tax then discount gives 0.05. A recorded sweep covers every per-kilogram price from 0.01 to 200.00 at one kilogram: "6940 of 20000 differ", every one by exactly one cent. A second run of 20,000 seeded draws, with weights from 1 to 1000 kg, gave 6,726 differing, again by one cent. A heavier consignment doesn't widen the gap, because each layer rounds its own total once.
 
 The stack is a value, and `layers_for` chooses it:
 
@@ -114,15 +114,15 @@ def quote_carrier(gateway: CarrierGateway, consignment: Consignment) -> CarrierQ
 
 `test_the_at_sign_rebinds_the_name_once_at_definition_time` uses an `@` function of its own that records each function it's applied to. It has run once when the `def` finishes, and it hasn't run again after two calls. The name `quote` is bound to the wrapper, and its `__wrapped__` is a different object. The same check on `quote_carrier` gives the same result.
 
-`retry` calls again after an error in its `on` tuple and stops after the last attempt: with a gateway that times out twice, `quote_carrier` makes three calls and returns the quote, and with one that times out three times it makes three calls and raises (`test_retry_calls_again_on_a_listed_error_and_gives_up_after_the_last_attempt`). An error outside the tuple goes straight through after one call, and fewer than one attempt is a `ValueError`. There's no delay parameter, because backoff is out of scope. `audited(sink)` reports each call's function name to a sink it's given, so the module holds no log, and `src` applies only `@retry`.
+`retry` calls again after an error in its `on` tuple and stops after the last attempt: with a gateway that times out twice, `quote_carrier` makes three calls and returns the quote, and with one that times out three times it makes three calls and raises (`test_retry_calls_again_on_a_listed_error_and_gives_up_after_the_last_attempt`). An error outside the tuple goes straight through after one call, and fewer than one attempt is a `ValueError`. `audited(sink)` reports each call's function name to a sink it's given, so the module holds no log, and `src` applies only `@retry`.
 
-Stacking order is fixed when the module loads. `test_syntax_stacking_order_decides_whether_each_attempt_is_audited` defines two functions over a gateway that times out twice. With `@audited` above `@retry`, the sink has one record. With `@retry` above `@audited`, it has three. Nothing at run time reorders them, unlike a layer stack, where `layers_for` picks the order per consignment. Rebound functions don't compare by value either: two calls of `retry(...)` on the same function give two unequal wrappers (`test_rebound_functions_do_not_compare_by_value`), where two layer stacks built the same way are equal.
+Stacking order is fixed when the module loads. `test_syntax_stacking_order_decides_whether_each_attempt_is_audited` defines two functions over a gateway that times out twice. With `@audited` above `@retry`, the sink has one record. With `@retry` above `@audited`, it has three. Rebound functions don't compare by value: two calls of `retry(...)` on the same function give two unequal wrappers (`test_rebound_functions_do_not_compare_by_value`), where two layer stacks built the same way are equal.
 
-Neither mechanism has the other's attributes. A rebound function has no `price`, and a layer has no `__wrapped__`. The overlap case is a factory that returns an object that isn't a function. `functools.cache` does, and the returned value has `cache_info` and fails `inspect.isfunction` (`test_a_decorator_may_return_an_object_that_is_not_a_function`). It's still the syntax, because the rebinding happened at definition. Both factories use [`functools.wraps`](https://docs.python.org/3/library/functools.html#functools.wraps), without which, its documentation says, "the name of the example function would have been 'wrapper'", and a PEP 695 `ParamSpec`. The witness here is that mypy keeps `quote_carrier`'s signature through `retry`: a `5` for the consignment is `[arg-type]` and `retries=2` is `[call-arg]` (`test_mypy_keeps_the_call_signature_through_retry`). How both work is the subject of [Decorators done right]({{ '/docs/26-decorators-done-right/' | relative_url }}).
+A rebound function has no `price`, and a layer has no `__wrapped__`. The overlap case is a factory that returns an object that isn't a function. `functools.cache` does, and the returned value has `cache_info` and fails `inspect.isfunction` (`test_a_decorator_may_return_an_object_that_is_not_a_function`). That use is still `@decorator` syntax, rebound at definition. Both factories use [`functools.wraps`](https://docs.python.org/3/library/functools.html#functools.wraps), without which, its documentation says, "the name of the example function would have been 'wrapper'", and a PEP 695 `ParamSpec`. The witness here is that mypy keeps `quote_carrier`'s signature through `retry`: a `5` for the consignment is `[arg-type]` and `retries=2` is `[call-arg]` (`test_mypy_keeps_the_call_signature_through_retry`). How both work is the subject of [Decorators done right]({{ '/docs/26-decorators-done-right/' | relative_url }}).
 
 ## Proxy: the same interface, controlling access
 
-*Design Patterns* gives Proxy to a stand-in that sits in front of another object and decides whether, when and how the real one is reached. A Decorator adds behaviour to what its wrapped object returns, and a proxy returns what the subject returns. The tax layer changes a price. A proxy that caches a quote leaves it alone, and `test_a_proxy_returns_what_the_gateway_returns_where_a_layer_changes_the_price` sets the two side by side: the proxy's quote equals the gateway's, and a `Tax` over the same figure doesn't. Where an Adapter changes the interface, a proxy keeps it. For the Adapter, see [Adapter, Facade, and Bridge]({{ '/docs/19-adapter-facade-bridge/' | relative_url }}).
+*Design Patterns* gives Proxy to a stand-in that sits in front of another object and decides whether, when and how the real one is reached. A layer in the Decorator pattern adds behaviour to what its wrapped object returns, and a proxy returns what the subject returns. The tax layer changes a price. A proxy that caches a quote leaves it alone, and `test_a_proxy_returns_what_the_gateway_returns_where_a_layer_changes_the_price` sets the two side by side: the proxy's quote equals the gateway's, and a `Tax` over the same figure doesn't. Where an Adapter changes the interface, a proxy keeps it. For the Adapter, see [Adapter, Facade, and Bridge]({{ '/docs/19-adapter-facade-bridge/' | relative_url }}).
 
 The proxy here guards the call to a carrier. `CarrierGateway` is a two-member Protocol, and the proxy implements both members itself:
 
@@ -200,7 +200,11 @@ The data model documents when `__getattr__` runs: it's "Called when the default 
 Skip the layer stack when the adjustment is one fixed step: a function does it, as in [Strategy: the callable]({{ '/docs/12-strategy-the-callable/' | relative_url }}). Skip it when the layers don't vary per consignment, because one calculator reads better. Don't put `@retry` around an operation that isn't safe to repeat, such as a booking without an idempotency key, since a repeat can book twice. Don't put a caching proxy over data that must be fresh, and write the proxy explicitly where a forwarding one would do.
 
 <blockquote class="ai-sidebar" markdown="1">
-**Reviewing assistant-written wrappers and proxies.** Asked for "a decorator", an assistant may propose an `@` function where a stack chosen at run time was needed, or a wrapper class where a definition-time `@retry` would do, and call either one "the Decorator pattern". It may also put an audit beneath a retry, or write a proxy whose `__getattr__` returns `Any`. Check whether the choice is made per consignment (a layer stack) or once at definition (the `@` form); whether fixed fees sit inside the tax layer; whether the audit is above the retry; whether the proxy defines each member of the Protocol it promises; and whether "Decorator" in the description names the pattern.
+**Reviewing assistant-written wrappers and proxies.** Asked for "a decorator", an assistant may write an `@` function where a stack chosen per consignment was needed, or a wrapper class where `@retry` would do, call either "the Decorator pattern", and put the audit beneath the retry. Paste a prompt that states the form:
+
+> For price adjustments, write frozen layers that hold a `RateCalculator` and satisfy the same Protocol, composed per consignment by `layers_for`, with fixed fees inside the tax layer. For call behaviour, write `@` factories with `functools.wraps` and a `ParamSpec`, `@audited` above `@retry`. Write the proxy as a class that defines every member of `CarrierGateway`, with no `__getattr__` forwarding. Say "Decorator" only for the layer stack.
+
+If the proxy forwards through `__getattr__`, ask what mypy reports for a typo.
 </blockquote>
 
 ## Build, run, observe
@@ -320,6 +324,13 @@ Found 2 errors in 1 file (checked 10 source files)
 ```
 
 The explicit proxy fails at run time with `AttributeError`, and `test_the_proxy_forwards_every_booking[forwarding]` still passes, because the forwarding form hands the missing call to the gateway. mypy reports the missing member wherever the proxy is typed as a `CarrierGateway`, here in the fixtures. The other two failures are the runtime check on the explicit proxy and the witness that expects a clean assignment.
+
+## What you can do now
+
+- Say which mechanism "decorator" names: a layer stack built while the program runs, or a name rebound at definition, the mismatch PEP 318 records.
+- Build a stack of layers as a value: `layers_for` chooses it, `compose(base, layers)` wraps it, and the fee-order and rounding tests show which orders matter.
+- Say what a proxy keeps and changes: `CarrierGatewayProxy` returns the gateway's quote where `Tax` changes the price, and the explicit-proxy mypy report names the missing `book`.
+- Name the four costs of a `__getattr__` forwarding proxy: accepted typos, an `object` return, `runtime_checkable` and the wrong class in the error.
 
 ## For deeper coverage
 

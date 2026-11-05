@@ -1,11 +1,11 @@
 ---
 layout: example
 order: 3
-title: "The three-way split: nineteen witnesses"
+title: "The three-way split: dissolve, survive, disambiguate"
 description: One shipping model whose tests show which classic patterns Python dissolves, which remain design, and which share a name with something else.
 github_path: examples/03-three-way-split
 card_eyebrow: "Why Python is different · Three-way split"
-card_title: "Nineteen tests that sort the patterns"
+card_title: "Patterns sorted into dissolve, survive and disambiguate"
 card_blurb: "A shipping model where each test proves one claim: Strategy as a callable, Iterator as a generator, Visitor as singledispatch, Null Object checked by mypy, Command with undo, and the Decorator pattern kept apart from the @ syntax."
 ---
 
@@ -40,7 +40,7 @@ needs a command object that remembers what it replaced, and `Amendment` is that 
 - A module is the Singleton: `tariff_table` builds `TARIFF` once, and a separate log
   records the single load.
 - `functools.cached_property` gives lazy initialisation without a proxy, and
-  `CarrierGatewayProxy` forwards only the attributes it does not define.
+  `CarrierGatewayProxy` forwards only the attributes it doesn't define.
 - A `Protocol` is structural, while an abstract base class is nominal.
 
 ## Build, run, observe

@@ -1,11 +1,11 @@
 ---
 layout: example
 order: 7
-title: "The data model: twenty-two witnesses"
+title: "The data model: special methods as calls on the type"
 description: One small shipping model whose tests show equality and hashing, reflected operators, total ordering, containers and text as calls the interpreter makes on the type.
 github_path: examples/07-the-data-model
 card_eyebrow: "Python substrate · The data model"
-card_title: "Twenty-two test functions for the special methods"
+card_title: "Special methods the interpreter calls on the type"
 card_blurb: "Cartons that hash equal when turned, money that multiplies from either side and refuses to mix currencies, and a history that is sized and iterable, checked at runtime and under mypy."
 ---
 
@@ -34,8 +34,8 @@ without `__len__` is truthy when empty. `repr`, `str` and `format` serve differe
 
 ## Under mypy
 
-`mypy --strict` requires `__eq__` to accept `object`, rejects operands the methods do not
-accept and sorting a type with no ordering, and cannot see a broken hash contract.
+`mypy --strict` requires `__eq__` to accept `object`, rejects operands the methods don't
+accept and sorting a type with no ordering, and can't see a broken hash contract.
 
 ## Build, run, observe
 

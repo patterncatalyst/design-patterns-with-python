@@ -15,7 +15,7 @@ By the end of this chapter you can:
 - Select a rule by name from a read-only registry, raise an unknown name as a domain error, and record the key on the quote.
 - Choose between a function, a `partial`, a closure and a frozen dataclass with `__call__` for a configured rule, and say what each lets an audit recover.
 - Read what mypy checks on each registry entry, and name a configuration mistake it accepts.
-- Recognise the point where a strategy has to be an object, and the review checks that catch assistant-written over-structure.
+- Recognise the point where a strategy has to be an object, and the prompt that keeps assistant-written code from over-structuring it.
 
 ## Why this matters
 
@@ -31,7 +31,7 @@ Read the figure from the top. The accent box is the call, `quote(consignment, "z
 
 *Design Patterns*, by Erich Gamma, Richard Helm, Ralph Johnson and John Vlissides, catalogues Strategy for the case where a caller must choose among several ways of computing one result without depending on which one it holds. The catalogue's solution is a strategy interface, a concrete class per algorithm, and a context that holds one. Luciano Ramalho's *Fluent Python*, second edition, in the chapter titled "Design Patterns with First-Class Functions", works through the same pattern with functions where the one-method classes were, and this chapter starts from that treatment.
 
-The force is intact and the structure is what goes. This pattern dissolves, because a feature resolves the force without the pattern's structure. A callable type is the interface, a function is the concrete strategy, and the call is the context's only job. The chapter titled [What 1994 assumed, and what Python dissolves]({{ '/docs/02-what-1994-assumed-and-python-dissolves/' | relative_url }}) shows the `PricingRule` alias and the slot that a `def`, a `lambda` and a `partial` fill, and this chapter doesn't repeat it.
+The force is intact and the structure is what goes. This pattern dissolves, because a feature resolves the force without the pattern's structure. A callable type is the interface, a function is the concrete strategy, and the call is the context's only job. The chapter titled [What 1994 assumed, and what Python dissolves]({{ '/docs/02-what-1994-assumed-and-python-dissolves/' | relative_url }}) shows the `PricingRule` alias and the slot that a `def`, a `lambda` and a `partial` fill.
 
 What the earlier chapter doesn't measure is the cost of the structure. The example keeps a class-per-strategy design as a test fixture: an abstract `_PricingStrategy`, a subclass per rule and a registry of instances. The base class and one of its three subclasses:
 
@@ -49,7 +49,7 @@ class _PerKgStrategy(_PricingStrategy):
 ```
 <!-- fmt:on -->
 
-It isn't wrong. `test_a_class_per_strategy_passes_the_same_table` runs it against the same behaviour table as `test_each_registered_rule_prices_the_behaviour_table`, and both pass for the flat, per-kilogram and zone rows. The difference is declaration: `test_the_class_design_declares_four_strategy_classes_where_the_rules_declare_one` parses both modules with `ast` and counts the classes that define `__call__` or `price`. The rules module has one, `ZoneRate`. The fixture has four. The count is of declarations, not lines, because line counts move with formatting. The one class that remains is justified below: it holds a configuration in a form that an audit can compare, which a function can't. Why the slot is called `PricingRule` and not `RateStrategy` is argued in [Naming patterns for teams and AI assistants]({{ '/docs/04-naming-patterns-for-teams-and-ai/' | relative_url }}).
+It isn't wrong. `test_a_class_per_strategy_passes_the_same_table` runs it against the same behaviour table as `test_each_registered_rule_prices_the_behaviour_table`, and both pass for the flat, per-kilogram and zone rows. The difference is declaration: `test_the_class_design_declares_four_strategy_classes_where_the_rules_declare_one` parses both modules with `ast` and counts the classes that define `__call__` or `price`. The rules module has one, `ZoneRate`. The fixture has four. The count is of declarations, not lines, because line counts move with formatting. The one class that remains holds a configuration in a form that an audit can compare, which a function can't. Why the slot is called `PricingRule` and not `RateStrategy` is argued in [Naming patterns for teams and AI assistants]({{ '/docs/04-naming-patterns-for-teams-and-ai/' | relative_url }}).
 
 ## Choosing a rule by name
 
@@ -185,7 +185,11 @@ A single rule called from one place is a function, with no registry. A registry 
 
 <blockquote class="ai-sidebar" markdown="1">
 
-**Reviewing assistant-written strategies.** An assistant asked for "the Strategy pattern" may propose an abstract `PricingStrategy` with a subclass per rule and a factory, record `rule.__name__` in a quote, register a class where an instance belongs, or keep a running counter inside a rule. Check that each rule fills a `PricingRule` slot as a callable and that no hierarchy stands in for it, that the registry is read-only and an unknown key is raised as a domain error, that the quote records the key rather than an introspected name, that every `partial` binds what its rule needs, and that a rule's result depends only on its argument.
+**Reviewing assistant-written strategies.** Asked for "the Strategy pattern", an assistant may write an abstract `PricingStrategy`, a subclass per rule and a factory, or record `rule.__name__` on the quote. Paste a prompt that states the form:
+
+> Type the slot as `type PricingRule = Callable[[Consignment], Money]`. Register rules in a read-only `frozendict` typed `Mapping[str, PricingRule]`: a function, a `partial` that binds every parameter its rule needs, or a frozen dataclass with `__call__` when the configuration must compare by value. Raise an unknown name as `RatingError`. Record the registry key on `RateQuote`, not `__name__`. A rule's result depends only on its argument. No base class.
+
+If a `partial` entry binds nothing, ask for the call that fails.
 
 </blockquote>
 
@@ -281,6 +285,14 @@ FAILED tests/test_selection.py::test_a_quote_records_the_rule_that_priced_it[per
 ```
 
 The checker passed the registry, and the failure shows up at call time, in the per-kilogram rows, as the `TypeError` that `test_an_unbound_partial_fails_only_when_called` predicts.
+
+## What you can do now
+
+- Say what survives of Strategy: the `PricingRule` slot, and `test_the_class_design_declares_four_strategy_classes_where_the_rules_declare_one` for what dissolves.
+- Select a rule by name: `RATE_RULES`, the `RatingError` for an unknown name, and the key recorded on the quote.
+- Choose the form of a configured rule: the five-form table, with `partial` for `per_kg` and a frozen `ZoneRate` where an audit must compare values.
+- Read the registry cases: the mypy errors for a registered class, and `test_an_unbound_partial_fails_only_when_called` for the one mistake mypy accepts.
+- Recognise when a strategy must be an object: `_make_loyalty_discount` returns different money on a second call, a rule with several operations needs the `RateCalculator` Protocol, and the prompt keeps assistants from adding structure.
 
 ## For deeper coverage
 

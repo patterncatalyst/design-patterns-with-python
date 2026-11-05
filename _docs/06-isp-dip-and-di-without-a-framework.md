@@ -25,7 +25,7 @@ Two principles name the pressure. Robert C. Martin's interface segregation princ
 
 {% include excalidraw.html name="06-isp-dip-and-di-without-a-framework" caption="Figure 6.1: Dependency injection without a framework. The composition root builds one carrier adapter and passes it to each consumer, which names only the small Protocol it needs; the adapter satisfies both Protocols structurally and imports neither." %}
 
-Read the figure from the top. The root builds one adapter, and the two arrows out of the adapter show that same object reaching both consumers. Each consumer names only the Protocol below it, and the dashed arrows lead to the point of the design: the adapter satisfies both Protocols structurally and imports neither.
+Read the figure from the top. The root builds one adapter, and the two arrows out of the adapter show that same object reaching both consumers. Each consumer names only the Protocol below it, and the dashed arrows show that the adapter satisfies both Protocols structurally and imports neither.
 
 ## A gateway with three methods and consumers that use one
 
@@ -138,7 +138,7 @@ def build_app(
     return App(BookingService(gateway, audit), partial(tracking_history, gateway=gateway))
 ```
 
-`GATEWAYS` is a read-only mapping from carrier code to a class, and `app` is the one module in the source tree that imports `carriers`. The function builds one gateway and gives that same object to both consumers; `test_build_app_shares_one_gateway_between_booking_and_tracking` checks the identity. Choosing a carrier is an argument to `build_app`, and `test_swapping_the_carrier_changes_no_consumer` shows that `FASTLINE` and `AIRCO` produce references prefixed with their code through the same `BookingService` and the same `tracking_history`.
+`app` is the one module in the source tree that imports `carriers`, and `test_build_app_shares_one_gateway_between_booking_and_tracking` checks that both consumers get the same gateway object. Choosing a carrier is an argument to `build_app`, and `test_swapping_the_carrier_changes_no_consumer` shows that `FASTLINE` and `AIRCO` produce references prefixed with their code through the same `BookingService` and the same `tracking_history`.
 
 An unknown code fails at start-up, where the mistake is cheap to find. `build_app("NOSUCH", ...)` raises `ValueError: unknown carrier 'NOSUCH', expected one of ['AIRCO', 'FASTLINE']`, and `test_unknown_carrier_fails_at_the_composition_root` matches on the code. Tests that need a different adapter pass a substitute `gateways=` mapping. `test_composition_root_accepts_a_substitute_without_patching` wires `FakeCarrier` that way and checks that `GATEWAYS` is unchanged afterwards, so no test needs to patch module state.
 
@@ -146,7 +146,7 @@ An unknown code fails at start-up, where the mistake is cheap to find. `build_ap
 
 A hand-written fake is ordinary typed code. `FakeBooker` in `tests/test_dip.py` has `book` and `cancel`, records the requests it receives, and is checked structurally against `BookingGateway` at the point it is passed in. Interface segregation keeps it small: it needs two methods because booking uses two. `FakeTracker` needs one, and `FakeCarrier` in `tests/test_composition_root.py` has all three because the root's mapping promises a `CarrierGateway`.
 
-When a test asserts on interactions, `mocker.create_autospec` from pytest-mock builds a mock that copies the signatures of a real class. It's a convenient tool with one property to keep in view: to mypy, a mock is `Any`. An autospec of the wrong Protocol type-checks where a gateway is expected. `test_autospec_bypasses_mypy` passes `create_autospec(TrackingGateway, instance=True)` as the booking gateway and gets exit status 0 and empty output.
+When a test asserts on interactions, `mocker.create_autospec` from pytest-mock builds a mock that copies the signatures of a real class. It's a convenient tool with one property to keep in view: a mock is assignable to every type, so mypy checks nothing at the call site. An autospec of the wrong Protocol type-checks where a gateway is expected. `test_autospec_bypasses_mypy` passes `create_autospec(TrackingGateway, instance=True)` as the booking gateway and gets exit status 0 and empty output.
 
 The autospec still enforces the shape at runtime, only later. `test_autospec_enforces_the_protocol_shape_at_runtime` shows the wrong autospec reaching the missing method through `BookingService.cancel`, which raises `AttributeError`, and `wrong.track()` raises `TypeError` for the missing argument. With an autospec of `BookingGateway`, `service.cancel("FASTLINE:CN-1")` records the call and `assert_called_once_with` confirms it. The practical rule is that a hand-written fake gets a static check and an autospec gets a runtime one. The testing chapter, [Proving it works: pytest, pytest-mock, and mypy]({{ '/docs/11-testing-with-pytest-pytest-mock-and-mypy/' | relative_url }}), covers the fixtures and the mock tools in full.
 
@@ -159,9 +159,11 @@ Don't inject the standard library. A function that needs the current directory c
 Hand wiring stops being short at some size. When dozens of services have lifetimes, scopes and ordered start-up, writing the root as a function becomes the problem, and a container library is a reasonable tool for that problem. The signal is the size of the wiring, not the presence of injection.
 
 <blockquote class="ai-sidebar" markdown="1">
+**Reviewing assistant-proposed seams.** Asked to make booking testable, an assistant may reach for a container library, a base class per adapter, or one wide gateway Protocol every consumer shares. Paste a prompt that states the form:
 
-**Review checklist for assistant-proposed seams.** An assistant may propose a dependency injection container, a base class for each adapter, or one large gateway Protocol shared by every consumer. Check three things before accepting. First, does each consumer import a Protocol that names only the methods it calls, or does one wide Protocol force fakes to stub methods no test reads? Second, does an import check such as the ones above confirm that policy modules don't import adapters? Third, is the wiring large enough to justify a container, or would a function that builds one gateway and passes it to two consumers do the same job in a dozen lines?
+> Have each policy module declare a Protocol with only the methods it calls: `BookingGateway` with `book` and `cancel`, `TrackingGateway` with `track`, parameters positional-only. Adapters inherit nothing and import no policy module. Inject through a frozen dataclass field or `functools.partial`. Choose the adapter in one `build_app` function, in the only module that imports `carriers`. No container library for wiring this small. Add an `ast` test that policy modules don't import adapters.
 
+If a fake has to stub a method its consumer never calls, ask for the narrower Protocol.
 </blockquote>
 
 ## Build, run, observe
@@ -209,7 +211,7 @@ tests/test_isp.py::test_a_fat_protocol_forces_fakes_to_stub_unused_methods PASSE
 Success: no issues found in 10 source files
 ```
 
-The test names are the claims in short form. Two edits make the checks visible: one that breaks the import direction, and one that shrinks a fake.
+Two edits make the checks visible: one that breaks the import direction, and one that shrinks a fake.
 
 **Experiment one: let policy import an adapter.** In a scratch copy, add `from isp_dip_di.carriers import FastlineGateway` to `src/isp_dip_di/booking.py`, just above the `domain` import, and run `uv run pytest`. The result is one failure and sixteen passes: `tests/test_dip.py::test_policy_modules_do_not_import_the_adapters[booking]` fails on the line `assert not imports & {"isp_dip_di.carriers", "isp_dip_di.app"}`, and the assertion message lists `isp_dip_di.carriers` and `isp_dip_di.carriers.FastlineGateway` among the collected imports. The `tracking` case still passes, and mypy stays clean. `ruff check` reports the new line as `F401`, an unused import, so a linter alone would catch this edit only because the name is unused. Had `booking.py` used `FastlineGateway`, the import test would still be the one to notice. Revert the line.
 
@@ -222,6 +224,14 @@ tests/test_dip.py:74: note:     cancel
 ```
 
 A passing pytest run doesn't prove a fake still satisfies the Protocol it stands in for. Restore the method.
+
+## What you can do now
+
+- Split a wide gateway: `BookingGateway` and `TrackingGateway` replace `CarrierGateway` as the consumers' types, and `test_a_fat_protocol_forces_fakes_to_stub_unused_methods` shows a one-method fake refused by the wide one and accepted by the narrow one.
+- Show the dependency direction: `test_policy_modules_do_not_import_the_adapters` and `test_adapters_import_neither_policy_nor_protocols` read the imports with `ast` in both directions.
+- Inject without a container: `BookingService` takes its gateway as a field, and `functools.partial` binds it into `tracking_history`.
+- Write a composition root: `build_app` is the one function that chooses an adapter, and `test_build_app_shares_one_gateway_between_booking_and_tracking` checks the result.
+- Say what mypy checks: `test_mypy_checks_a_partial_at_binding_and_call_but_not_at_assignment` marks the `partial` gap, and `test_autospec_bypasses_mypy` shows where a mock skips the check.
 
 ## For deeper coverage
 

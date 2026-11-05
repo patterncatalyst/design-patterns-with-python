@@ -18,8 +18,8 @@ The Decorator pattern.
 - Order matters once there is an additive fee: for 100 kg at 1.20 with a 15.00 fee, tax outside
   gives 163.35, fee outside 160.20, discount outside 121.50 and fee outside the discount 123.00.
   Two percentage layers agree before rounding (130.68 both ways at 120.00) and split by a cent
-  after it (0.06 against 0.05 at 0.05 per kilogram). The sweep is in
-  `_plans/evidence/percentage-layer-rounding.md`.
+  after it (0.06 against 0.05 at 0.05 per kilogram). The chapter quotes
+  a recorded sweep over 20,000 prices.
 - `compose(base, layers)` puts the last layer outermost, and `layers_for(consignment)` chooses the
   layers while the program runs: heavy and dangerous-goods surcharges first, destination tax last,
   and an unknown country is a `RatingError`. A stack compares and hashes by value.

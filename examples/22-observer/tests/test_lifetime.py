@@ -1,5 +1,5 @@
 """Every test builds its subscriber in a helper or deletes every name that refers to it, then
-collects deliberately before asserting. CPython usually frees an object at its last reference, but
+collects explicitly before asserting. CPython usually frees an object at its last reference, but
 the language promises no immediate finalisation, and a reference cycle waits for the collector."""
 
 import gc

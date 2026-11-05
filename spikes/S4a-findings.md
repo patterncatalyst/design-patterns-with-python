@@ -57,7 +57,7 @@ All from `examples/zz-a` with config only in the root `pyproject.toml`:
 - pytest: `rootdir: <repo>`, `configfile: pyproject.toml` (the root file; members have no
   `[tool.pytest.ini_options]`, so pytest walks up to the first file that has it).
 - ruff: `Settings path: "<repo>/pyproject.toml"`, `line_width = 100`, `target_version = 3.14`;
-  a deliberately bad file produced `I001` and a format difference.
+  a file with lint and format errors produced `I001` and a format difference.
 - mypy 2.4.1: `LOG: Config File: <repo>/pyproject.toml`; an untyped function yielded
   `[no-untyped-def]` with no `--strict` flag, so the root `[tool.mypy]` strict settings apply.
 

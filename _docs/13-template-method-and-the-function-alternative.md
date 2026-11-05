@@ -74,7 +74,7 @@ def declare_customs(consignment: Consignment, *, hooks: CustomsHooks) -> Customs
 
 Two of the lookups raise on a miss rather than guess. `lookup_tariff_code` and `schedule_duty` turn a missing table entry into a `CustomsError` that names the commodity or the tariff code, with the original `KeyError` suppressed, and `test_an_unclassified_commodity_is_refused` and `test_a_tariff_code_without_a_duty_rate_is_refused` check both on both forms. Duty rounds half up to the cent: `test_duty_rounds_half_up_to_cents` uses 28.50 at 5%, where half up gives 1.43 and half even would give 1.42.
 
-The order is the one in the figure. The guard comes first, then one classification per commodity, then the total, then duty, then the document list with the invoice ahead of whatever the hook returns. A hook can't remove the guard or drop the invoice, because neither is a hook. `test_declare_customs_runs_its_steps_in_order` hands in recording hooks and sees `classify` for each commodity, then `duty`, then `extra_documents`. `test_a_declaration_in_two_currencies_is_refused` shows the total step refusing mixed currencies, because `Money` adds only within one currency, and the invoice-first test checks `documents[0]` on both forms.
+A hook can't remove the empty-consignment guard or drop the invoice, because neither is a hook. `test_declare_customs_runs_its_steps_in_order` hands in recording hooks and sees `classify` for each commodity, then `duty`, then `extra_documents`. `test_a_declaration_in_two_currencies_is_refused` shows the total step refusing mixed currencies, because `Money` adds only within one currency, and the invoice-first test checks `documents[0]` on both forms.
 
 Leaving out a hook with no default is a `TypeError` at construction, and `test_a_required_hook_cannot_be_left_out` matches `missing 1 required keyword-only argument: 'classify'`. mypy sees the same mistake before the code runs. The test that runs the snippet through the test module's own helper reports:
 
@@ -163,11 +163,9 @@ class CustomsDeclarer(ABC):
 ```
 <!-- fmt:on -->
 
-The class holds two pieces of state that the function form has to thread through hooks: the classification table and the duty schedule. The constructor takes the classification and the schedule once. `classify` and `duty` are concrete steps that read them. `extra_documents` is abstract, so a subclass without it can't be built: `test_a_declarer_without_its_documents_cannot_be_built` expects a `TypeError` naming the abstract method, and the `abc` module's [documentation](https://docs.python.org/3/library/abc.html) describes the mechanism. `declare` is final and hands the declarer's own bound methods to `declare_customs`, so the skeleton exists once and the class adds no second copy of the order.
+The class holds two pieces of state that the function form has to thread through hooks: the classification table and the duty schedule. `extra_documents` is abstract, so a subclass without it can't be built: `test_a_declarer_without_its_documents_cannot_be_built` expects a `TypeError` naming the abstract method, and the `abc` module's [documentation](https://docs.python.org/3/library/abc.html) describes the mechanism. `declare` is final and hands the declarer's own bound methods to `declare_customs`, so the skeleton exists once and the class adds no second copy of the order.
 
-`NetherlandsDeclarer` and `GermanyDeclarer` set `country` and implement `extra_documents`. `test_two_destinations_share_the_schedule_and_differ_in_documents` gives equal lines and equal duty and different documents, with the two instances sharing one classification object. `test_the_template_and_the_hooks_give_the_same_declaration` shows the class form and the function form produce an equal declaration for the Netherlands. The shared invariant tests run on both forms through a fixture with two parameters, `hooks` and `template`, so each of those checks runs against both.
-
-The `country` attribute is a class variable, so each subclass states its destination once and `declare` reads it when it builds the hooks.
+`test_two_destinations_share_the_schedule_and_differ_in_documents` gives equal lines and equal duty and different documents, with the two instances sharing one classification object. `test_the_template_and_the_hooks_give_the_same_declaration` shows the class form and the function form produce an equal declaration for the Netherlands. The shared invariant tests run on both forms through a fixture with two parameters, `hooks` and `template`, so each of those checks runs against both.
 
 The line between the two forms follows from the shared state. One destination, or steps that share nothing, means hooks. A family whose steps read the same state and share code means a class.
 
@@ -220,7 +218,13 @@ If every hook is optional, nothing is fixed. That's a pipeline of strategies, an
 A class is the wrong tool when the steps share nothing. Binding unrelated functions into a class to get an overridable method adds inheritance and buys no shared state.
 
 <blockquote class="ai-sidebar" markdown="1">
-**Reviewing assistant-written templates.** An assistant may write an abstract base class whose subclasses must remember to call `super()`, put an invariant inside an overridable step, give a `Protocol` default bodies and expect matching classes to inherit them, or leave the template method open to override. Check: is the skeleton a function or a `@final` method; does every invariant sit outside the hooks; does each required hook lack a default, so construction fails without it; is a `Protocol` default reached only through an explicit subclass; does a test fail when a variant skips a step.
+
+**Reviewing assistant-written templates.** Asked for "a template method", an assistant may write an abstract base class whose subclasses must remember to call the parent, put an invariant inside an overridable step, or give a `Protocol` default bodies and expect matching classes to inherit them. Paste a prompt that states the form:
+
+> Write `declare_customs` as a function that fixes the order and the invariant steps (refuse an empty consignment, total in one currency, invoice first) and takes `CustomsHooks`, a frozen keyword-only dataclass with `classify` and `duty` undefaulted and `extra_documents` defaulted. Use an ABC only when destinations share a table and a schedule, and mark its `declare` with `typing.final`. No default bodies in a `Protocol`.
+
+If an invariant sits inside a hook, ask for the test where a variant skips it.
+
 </blockquote>
 
 ## Build, run, observe
@@ -293,7 +297,7 @@ tests/test_template.py:41: error: Unused "type: ignore" comment  [unused-ignore]
 Found 1 error in 1 file (checked 9 source files)
 ```
 
-The runtime test fails because `__final__` is no longer set. The static test fails because the override snippet is now accepted. The member's own mypy run reports the unused `type: ignore` on the `_OverridingDeclarer` fixture, the subclass that overrides `declare` in the runtime test, because the ignore no longer has an error to cover. Three signals see one deletion.
+The runtime test fails because `__final__` is no longer set. The static test fails because the override snippet is now accepted. The member's own mypy run reports the unused `type: ignore` on the `_OverridingDeclarer` fixture, the subclass that overrides `declare` in the runtime test, because the ignore no longer has an error to cover.
 
 **Experiment two: remove the no-commodities guard.** In a fresh scratch copy, delete the two-line `if not consignment.commodities:` block in `declare_customs`. The same filtered run, then the member's mypy run, gives:
 
@@ -309,6 +313,14 @@ Success: no issues found in 9 source files
 ```
 
 Both cases of `test_a_declaration_needs_at_least_one_commodity` fail, and so does the Netherlands check at the end of `test_a_subclass_that_skips_the_base_check_declares_nothing`. The next step in the function, taking the first of the values, hits an empty list. Without the guard the failure is an `IndexError` from a later line and not a refusal that names the consignment. mypy stays green, because nothing in a type says a consignment must have a commodity.
+
+## What you can do now
+
+- Say what dissolves and what survives: `declare_customs` takes `CustomsHooks`, and the ABC form survives where steps share state.
+- Write the skeleton: `test_a_required_hook_cannot_be_left_out` and `test_a_hook_left_out_takes_its_default`, with the guard and the invoice outside every hook.
+- Place a default where it is reached: `test_protocol_defaults_reach_only_explicit_subclasses` against a dataclass default.
+- Read `typing.final`: a type-check error on an override, and a runtime `__final__` attribute that stops nothing.
+- Choose between hooks and the ABC form: `CustomsDeclarer` and `test_two_destinations_share_the_schedule_and_differ_in_documents` share a schedule and state, so the ABC form fits.
 
 ## For deeper coverage
 

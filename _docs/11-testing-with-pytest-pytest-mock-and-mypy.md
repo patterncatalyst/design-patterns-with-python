@@ -26,15 +26,11 @@ The rating engine in this chapter asks carriers for a price, skips the ones that
 
 {% include excalidraw.html name="11-testing-with-pytest-pytest-mock-and-mypy" caption="Figure 11.1: How a claim becomes evidence. A claim gets a witness test named after it, a negative fixture shows the failure it rules out, the test is seen failing when its check is deleted, and only a fresh, scrubbed run is quoted." %}
 
-Read the figure from the top. The accent box holds the claim, "the engine books only the winner", and an arrow runs down to the witness test, `test_book_best_books_only_the_winner`. A second box on the right, the negative fixture, has an arrow pointing left into the witness test, and its label says it shows the failure the claim rules out. Below the witness test, an arrow leads to "seen failing", a deletion in a scratch copy, and a last arrow leads to the quoted output, a fresh, scrubbed run.
+Read the figure from the top. The accent box holds the claim, "the engine books only the winner", with an arrow down to the witness test, `test_book_best_books_only_the_winner`. The negative fixture points into the witness, and below the witness sit "seen failing" and the quoted, scrubbed run.
 
 ## A claim, a witness, and a test you've seen fail
 
-The examples in this book follow one method, and it can be stated once. A test is named as a claim: `test_book_best_books_only_the_winner` says what the engine does, so a failure reads as a broken sentence. Each claim has a witness, the test that asserts it. A negative fixture is a wrong object, written to be wrong, kept in `tests/` with an underscore prefix and a docstring that starts "Negative fixture:", which shows the failure the claim rules out. A check that was never seen to fail is a guess, so each check is deleted in a scratch copy, and the table of deletions records which named test failed. Every experiment at the end of a chapter changes one thing and quotes the result.
-
-Here a fault is planted by hand, one check at a time, to see whether the suite notices, which is enough for a suite this size and leaves nothing to configure.
-
-Here a plain `Mock`, built inline, plays the negative fixture for the engine's claim. The next sections show how an assertion shaped like the witness can pass for the wrong reason, and what the witness uses instead.
+The examples in this book follow one method. A test is named as a claim: `test_book_best_books_only_the_winner` says what the engine does, so a failure reads as a broken sentence. Each claim has a witness, the test that asserts it. A negative fixture is a wrong object, written to be wrong, kept in `tests/` with an underscore prefix and a docstring that starts "Negative fixture:", which shows the failure the claim rules out. A check that was never seen to fail is a guess, so each check is deleted in a scratch copy, and the table of deletions records which named test failed. Every experiment at the end of a chapter changes one thing and quotes the result.
 
 ## Fixtures and parametrize
 
@@ -64,7 +60,7 @@ The fixtures how-to describes teardown as running after the test finishes, in th
 
 Gerard Meszaros's *xUnit Test Patterns* (Addison-Wesley, 2007) supplies the vocabulary this chapter uses: *test double* for any stand-in for a collaborator, and the names dummy, fake, stub, spy and mock for the kinds. A fake is a working, simplified implementation. A mock, in his sense, is an object that checks the calls it receives. The chapter titled [xUnit test patterns (Meszaros)]({{ '/docs/44-appendix-d-xunit-test-patterns/' | relative_url }}) covers the taxonomy. This chapter needs only the names.
 
-Python's `unittest.mock` blurs the lines, because one `Mock` object stands in for all of them. What matters in practice is what each kind of double refuses. Four doubles, each handed a gateway name that doesn't exist and a call with the wrong shape:
+Python's `unittest.mock` blurs the lines, because one `Mock` object stands in for all of them. Each kind of double refuses something different. Four doubles, each handed a gateway name that doesn't exist and a call with the wrong shape:
 
 | Double | Unknown name, `bok` | Call with no consignment | mypy |
 | --- | --- | --- | --- |
@@ -73,7 +69,7 @@ Python's `unittest.mock` blurs the lines, because one `Mock` object stands in fo
 | `Mock(spec=CarrierGateway)` | `AttributeError` | accepted | accepted |
 | `create_autospec(CarrierGateway, instance=True)` | `AttributeError` | `TypeError` | accepted |
 
-The `FakeGateway` row is witnessed by `test_a_fake_rejects_unknown_names_and_wrong_signatures`, whose two `# type: ignore` comments name the codes mypy reports. The plain `Mock` row is the opening failure. `test_a_plain_mock_passes_an_assertion_on_a_misspelled_method` builds it:
+The `FakeGateway` row is witnessed by `test_a_fake_rejects_unknown_names_and_wrong_signatures`, whose two `# type: ignore` comments name the codes mypy reports. The plain `Mock` row, built inline, plays the negative fixture for the engine's claim. `test_a_plain_mock_passes_an_assertion_on_a_misspelled_method` builds it:
 
 ```python
 def test_a_plain_mock_passes_an_assertion_on_a_misspelled_method(
@@ -88,7 +84,7 @@ def test_a_plain_mock_passes_an_assertion_on_a_misspelled_method(
         loser.book.assert_not_called()
 ```
 
-The consignment was booked, and `loser.bok.assert_not_called()` passes anyway, because `bok` is a fresh attribute that nobody called. The assertion on the correct name fails, as it should. An assertion that can't fail tells you nothing.
+The consignment was booked, and `loser.bok.assert_not_called()` passes anyway, because `bok` is a fresh attribute that nobody called.
 
 `Mock(spec=CarrierGateway)` closes the first gap and not the second. `test_spec_rejects_unknown_names_but_not_wrong_signatures` shows `gateway.bok` raising `AttributeError` with `has no attribute 'bok'`, and `gateway.book()` with no argument going through and being recorded. Only `create_autospec` copies the signatures, so the witness for the engine's claim uses it:
 
@@ -126,7 +122,7 @@ def test_autospec_rejects_names_and_signatures(mocker: MockerFixture) -> None:
 
 `side_effect` is how a double drives a branch the happy path never reaches. `test_side_effect_drives_the_timeout_branch` gives one autospec a `CarrierTimeoutError` to raise from `quote`, and asserts that the engine skips that carrier and reports it in `skipped`. The first demonstration of autospec, with an autospec of the wrong Protocol, is in the chapter titled [ISP, DIP, and dependency injection without a framework]({{ '/docs/06-isp-dip-and-di-without-a-framework/' | relative_url }}). The chapter titled [Mocking reference: unittest.mock and pytest-mock]({{ '/docs/43-appendix-c-mocking/' | relative_url }}) lists the rest of the mock API, and the standard library's [autospeccing](https://docs.python.org/3/library/unittest.mock.html#autospeccing) section is the source for what `create_autospec` copies.
 
-The last column is the surprise. mypy accepts every one of the mocks where a `CarrierGateway` is expected. `test_mypy_accepts_every_mock_where_a_gateway_is_expected` passes `Mock()`, `Mock(spec=...)`, `MagicMock(spec=...)` and an autospec to a function that takes a `CarrierGateway`, and each run exits 0 with empty output. The reason is in typeshed's [`unittest/mock.pyi`](https://github.com/python/typeshed/blob/main/stdlib/unittest/mock.pyi), where `NonCallableMock`, the base of `Mock` and `MagicMock`, is declared as `class NonCallableMock(Base, Any)`, under this comment:
+mypy accepts every one of the mocks where a `CarrierGateway` is expected. `test_mypy_accepts_every_mock_where_a_gateway_is_expected` passes `Mock()`, `Mock(spec=...)`, `MagicMock(spec=...)` and an autospec to a function that takes a `CarrierGateway`, and each run exits 0 with empty output. The reason is in typeshed's [`unittest/mock.pyi`](https://github.com/python/typeshed/blob/main/stdlib/unittest/mock.pyi), where `NonCallableMock`, the base of `Mock` and `MagicMock`, is declared as `class NonCallableMock(Base, Any)`, under this comment:
 
 > We subclass with "Any" because mocks are explicitly designed to stand in for other types, something that can't be expressed with our static type system.
 
@@ -206,7 +202,7 @@ tests/test_static.py:142: error: Unused "type: ignore" comment  [unused-ignore]
 
 So the ignore is a regression test: it holds for as long as mypy reports the thing the test is about.
 
-The `_run` helper in `test_static.py` is the same idea turned into a function. It writes a `mypy.ini`, calls `mypy.api.run` with `--strict` and no cache, and returns the output and exit status. Each test asserts the status and an exact set of error codes, then one or two substrings of the message. A snippet is checked against the interpreter that runs the test, so the checks are about the Python the suite uses. A mock-versus-fake claim like the ones above is only as good as the assertion on the code set.
+The `_run` helper in `test_static.py` is the same idea turned into a function. It writes a `mypy.ini`, calls `mypy.api.run` with `--strict` and no cache, and returns the output and exit status. Each test asserts the status and an exact set of error codes, then one or two substrings of the message. A snippet is checked against the interpreter that runs the test, so the checks are about the Python the suite uses.
 
 ## Configuration that refuses silence
 
@@ -217,8 +213,6 @@ Three lines of the workspace's root `pyproject.toml` turn quiet failures into lo
 - `filterwarnings = ["error"]` turns every warning into an exception. The [capture warnings how-to](https://docs.pytest.org/en/stable/how-to/capture-warnings.html) shows the default, a summary at the end of the run that is easy to scroll past.
 
 Without `error`, a Python 3.15 deprecation scrolls past. A Protocol that inherits a `@runtime_checkable` Protocol without its own decorator gets a `DeprecationWarning` on `isinstance` and will raise `TypeError` in Python 3.20. With the filter, that is a failing test today. The experiments reproduce all but `--strict-config`.
-
-The `--import-mode=importlib` option in the same line is explained in the chapter titled [Prerequisites and the toolchain]({{ '/docs/00-prerequisites/' | relative_url }}).
 
 ## When a test proves less than it seems
 
@@ -231,7 +225,11 @@ Four habits make a green run mean less than it appears to.
 
 <blockquote class="ai-sidebar" markdown="1">
 
-**Reviewing assistant-written tests.** An assistant may use a plain `Mock` for a typed collaborator, assert only that a method was called, patch a module global instead of injecting it, or read the clock inside the code under test. Check that each mock is built with `create_autospec`, that the test asserts an outcome a reader cares about, that the dependency is passed in, that time is injected, and that the test has been seen to fail with its check deleted.
+**Reviewing assistant-written tests.** An assistant may use a plain `Mock` for a typed collaborator, assert only that a method was called, patch a module global, or read the clock inside the code under test. Paste a prompt that states the form:
+
+> Name each test after the claim it witnesses. Build doubles for `CarrierGateway` with `mocker.create_autospec(CarrierGateway, instance=True)` or a hand-written fake, never a plain `Mock`. Assert the returned reference before the calls. Inject the clock and the environment mapping instead of patching, and use `monkeypatch.context()` for the one real-environment test. Keep `--strict-markers`, `xfail_strict` and `filterwarnings = ["error"]`.
+
+If a test has never been seen failing, delete its check in a scratch copy and confirm it fails.
 
 </blockquote>
 
@@ -376,6 +374,15 @@ FAILED tests/test_scratch_warning.py::test_isinstance_against_a_protocol_that_in
 ```
 
 With `-o filterwarnings=default`, the same test prints `1 passed, 1 warning in 0.01s`. The warning exists in both runs, and only the configured one stops the suite.
+
+## What you can do now
+
+- Name a test after its claim and show it counts: `test_book_best_books_only_the_winner` fails when experiment one books every carrier.
+- Supply dependencies by name: the `quote_log` fixture cleans up after a failing test (experiment three), and `make_fake` builds each `FakeGateway`.
+- Say what each double checks: the table of four doubles, and `test_mypy_accepts_every_mock_where_a_gateway_is_expected` for the mypy column.
+- Make time and the environment deterministic: the injected clock, and the one test that restores `os.environ` inside `monkeypatch.context()`.
+- Use static tests: `assert_type(quote.total, Money)` and the unused-ignore regression in `test_assert_type_is_static_only`.
+- Make silence loud: `--strict-markers`, `xfail_strict` and `filterwarnings = ["error"]`, with experiments four to six.
 
 ## For deeper coverage
 

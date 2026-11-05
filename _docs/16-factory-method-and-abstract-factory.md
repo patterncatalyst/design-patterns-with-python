@@ -35,7 +35,7 @@ Read the figure from the top down. An accent box, `ship(code, ...)`, feeds `KITS
 
 The *Design Patterns* catalogue by Gamma, Helm, Johnson and Vlissides (1994) introduces Factory Method for code that has to create an object without naming the class it creates. In the book's design, the creating code calls a method it leaves abstract, and a subclass supplies that method and, with it, the concrete gateway. The force is real: the caller wants a gateway for a carrier and shouldn't know which gateway class that is.
 
-Python meets the force with what it already has. A class is a callable, so `FastlineGateway(...)` is a factory. When construction needs a different shape of input, a classmethod is the named constructor, and a classmethod annotated `-> Self` builds whatever class it was called on. The creator subclass becomes a value in a slot. Brandon Rhodes, on [python-patterns.guide](https://python-patterns.guide/gang-of-four/factory-method/), reaches the same verdict from the other direction: the pattern exists for languages in which a class or a function isn't a value that code can hand around, and in Python any callable, a classmethod among them, can be the thing a caller supplies. [The three-way split: dissolve, survive, disambiguate]({{ '/docs/03-the-three-way-split/' | relative_url }}) teaches the class-in-a-dict move, and [ISP, DIP, and dependency injection without a framework]({{ '/docs/06-isp-dip-and-di-without-a-framework/' | relative_url }}) covers where the registry is built.
+Python meets the force with what it already has. A class is a callable, so `FastlineGateway(...)` is a factory. When construction needs a different shape of input, a classmethod is the named constructor, and a classmethod annotated `-> Self` builds whatever class it was called on. The creator subclass becomes a value in a slot. Brandon Rhodes, on [python-patterns.guide](https://python-patterns.guide/gang-of-four/factory-method/), reaches the same verdict from the other direction: the pattern exists for languages in which a class or a function isn't a value that code can hand around, and in Python any callable, a classmethod among them, can be the thing a caller supplies. [The three-way split: dissolve, survive, disambiguate]({{ '/docs/03-the-three-way-split/' | relative_url }}) shows the class-in-a-dict move, and [ISP, DIP, and dependency injection without a framework]({{ '/docs/06-isp-dip-and-di-without-a-framework/' | relative_url }}) covers where the registry is built.
 
 <!-- fmt:off -->
 ```python
@@ -50,7 +50,7 @@ GATEWAYS: Mapping[str, GatewayFactory] = frozendict(
 ```
 <!-- fmt:on -->
 
-`GATEWAYS` maps a carrier code to a constructor that takes the settings and returns a gateway. Each entry is a classmethod:
+Each entry in `GATEWAYS` is a classmethod:
 
 <!-- fmt:off -->
 ```python
@@ -103,7 +103,7 @@ A slot typed `Callable[[], CarrierGateway[str]]` asks for something callable wit
 <string>:8: error: Dict entry 1 has incompatible type "str": "type[AircoGateway]"; expected "str": "Callable[[], CarrierGateway[str]]"  [dict-item]
 ```
 
-That's the check you want. The same holds for a classmethod with another signature. A `from_env(cls, env: Mapping[str, str])` placed in the `GatewayFactory` slot gives:
+The same holds for a classmethod with another signature. A `from_env(cls, env: Mapping[str, str])` placed in the `GatewayFactory` slot gives:
 
 ```text
 <string>:15: error: Dict entry 0 has incompatible type "str": "Callable[[Mapping[str, str]], EnvAircoGateway]"; expected "str": "Callable[[CarrierSettings], CarrierGateway[str]]"  [dict-item]
@@ -125,7 +125,7 @@ mypy has nothing to say while the code is a `str`. The reduced model in `test_my
 <string>:12: error: Argument 1 to "assert_never" has incompatible type "Literal['AIRCO']"; expected "Never"  [arg-type]
 ```
 
-[State and finite state machines]({{ '/docs/14-state-and-finite-state-machines/' | relative_url }}) teaches `assert_never`. It would catch the missing arm in each of three places, and the family would still have no single home. Both snippets are reduced models of the fixture.
+[State and finite state machines]({{ '/docs/14-state-and-finite-state-machines/' | relative_url }}) covers `assert_never`. It would catch the missing arm in each of three places, and the family would still have no single home. Both snippets are reduced models of the fixture.
 
 Ask whether a feature resolves the force without the pattern's structure. For Factory Method one did: a callable in a slot. For this force none does. The force is that products must come from the same family, and a language that stores callables doesn't choose the family. The GoF catalogue calls this Abstract Factory: products that only work in matching sets, made through one object so the set stays matched. The bucket is survives.
 
@@ -147,7 +147,7 @@ class CarrierKit[R: str]:
 ```
 <!-- fmt:on -->
 
-Each field is a constructor in a `Callable` slot, as in the registry. `R` is the reference type: the gateway returns an `R` from `book`, and the label printer takes an `R` in `label`. A kit has two instances:
+`R` is the reference type: the gateway returns an `R` from `book`, and the label printer takes an `R` in `label`. A kit has two instances:
 
 <!-- fmt:off -->
 ```python
@@ -189,7 +189,11 @@ A new carrier is one kit value and one registry entry, plus the product classes 
 With one product, a registry of constructors in a `Callable` slot is enough. With one carrier, call the class. If the products don't have to match, pass them separately. If the choice is a configuration value, such as sandbox or live, it belongs in a settings value, and `test_a_sandbox_setting_selects_the_sandbox_endpoint` shows `from_settings` choosing the endpoint from one.
 
 <blockquote class="ai-sidebar" markdown="1">
-**Reviewing assistant-written factories.** An assistant asked for "a factory" may write a `GatewayFactory` class with a `create` method per carrier, an if-chain on the carrier code repeated in each module that needs a product, a registry typed `type[CarrierGateway]`, or a classmethod that returns the base class by name. Check: is the factory a class or a `Self` classmethod in a `Callable` slot; is each family one value chosen in one place; do products that exchange values share a type that mypy can tie; is the registry read-only; does an unknown code fail with a domain error.
+**Reviewing assistant-written factories.** Asked for "a factory", an assistant may write a factory class with a method per carrier, repeat an if-chain on the carrier code, or type a registry `type[CarrierGateway]`. Paste a prompt that states the form:
+
+> Register constructors in a read-only `frozendict` of `GatewayFactory`, each a `from_settings` classmethod returning `Self`, and raise an unknown code as `UnknownCarrierError`. Put each carrier's gateway, label printer and rate source in one frozen `CarrierKit[R]`, choose the kit once by carrier code, and tie the gateway to the label printer through the reference type `R`. No `type[...]` slot and no if-chain.
+
+If two modules branch on the carrier code, ask for the kit.
 </blockquote>
 
 ## Build, run, observe
@@ -276,6 +280,14 @@ Found 1 error in 1 file (checked 10 source files)
 ```
 
 The tie is gone. `AIRCO_KIT` still builds without a complaint, and the mixed kit in the hand-mixed test now type-checks, so mypy's sole report is that the `# type: ignore[misc]` is unused. The one failing test is the witness that expects mypy to reject the mixed kit. Nothing in `src` reports the loss, and the shipping tests still pass. The tie lasts as long as the printer's parameter keeps the reference type.
+
+## What you can do now
+
+- Say why Factory Method dissolves: `GATEWAYS` holds `from_settings` classmethods in a read-only registry, and the subclass test shows each returns the class it is called on.
+- Choose the slot: a `Callable` slot makes mypy check each entry, and a `type` slot accepts a class that fails at run time.
+- Explain why Abstract Factory survives: the if-chain fixture quotes an Airco consignment at 12.00 where 48.00 was due.
+- Write one frozen kit per family: `CarrierKit[R]` is chosen once, and `test_mypy_rejects_a_kit_that_mixes_reference_types` shows the tie holding.
+- State what the tie leaves out: `test_mypy_accepts_kits_that_mix_untied_products` exits 0 for a mixed rate source and a plain printer.
 
 ## For deeper coverage
 

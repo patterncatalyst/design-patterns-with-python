@@ -6,7 +6,7 @@ description: Carrier lookup and pricing written with Protocol, an optional retur
 github_path: examples/09-protocol-and-structural-typing
 card_eyebrow: "Python substrate · Protocol, Null Object"
 card_title: "Interfaces as shapes, absence as a type"
-card_blurb: "A carrier lookup that returns an optional gateway, a Protocol beside an ABC, a callback Protocol, inferred variance, and the checks runtime_checkable does and does not make."
+card_blurb: "A carrier lookup that returns an optional gateway, a Protocol beside an ABC, a callback Protocol, inferred variance, and the checks runtime_checkable does and doesn't make."
 ---
 
 One carrier model witnesses where each check happens. Each test asserts the behaviour named in

@@ -98,7 +98,7 @@ def apply(request: BookingRequest, amendment: Amendment) -> tuple[BookingRequest
 
 `apply` returns two things, the amended request and the amendment that reverses it. The inverse of `Reweigh(kg(130))` on a 120 kg request is `Reweigh(kg(120))`, read from the request that was amended. `test_apply_returns_the_amendment_that_reverses_it` runs this for each kind: applying the inverse restores the original request, and the inverse's inverse is the amendment you started with. `dataclasses.replace`, documented in the [`dataclasses` module](https://docs.python.org/3/library/dataclasses.html), builds the new request, so the old one is untouched. `test_a_redirect_needs_a_port_code` shows `Redirect` refusing `"sgsin"` and `"SGSIN "` with an `AmendmentError` that quotes the code it was given.
 
-The last arm is `case _: assert_never(amendment)`. A fourth kind added to the union without an arm is a type error, and the technique is the one taught in [State and finite state machines]({{ '/docs/14-state-and-finite-state-machines/' | relative_url }}). `test_mypy_reports_an_amendment_kind_missing_from_apply` runs a reduced copy of this module with an `Insure` kind added. `test_the_amendment_snippet_mirrors_the_source` holds the copy to the real classes and arms, and the run through the test's own helper prints:
+The last arm is `case _: assert_never(amendment)`. A fourth kind added to the union without an arm is a type error, and the technique is the one in [State and finite state machines]({{ '/docs/14-state-and-finite-state-machines/' | relative_url }}). `test_mypy_reports_an_amendment_kind_missing_from_apply` runs a reduced copy of this module with an `Insure` kind added. `test_the_amendment_snippet_mirrors_the_source` holds the copy to the real classes and arms, and the run through the test's own helper prints:
 
 ```text
 <string>:51: error: Argument 1 to "assert_never" has incompatible type "Insure"; expected "Never"  [arg-type]
@@ -146,7 +146,7 @@ class Booking:
 ```
 <!-- fmt:on -->
 
-The stacks hold inverses. `amend` applies an amendment and pushes what `apply` returned. `undo` pops an inverse, applies it, and pushes what that application returned onto the redo stack, which is the amendment that redoes the change. `redo` runs the same move the other way. `test_undo_and_redo_walk_the_history` amends twice, undoes twice and redoes twice, checking the request and the stack sizes at each step, and `test_two_amendments_undone_restore_the_original_request` checks that the request returns to the starting value. `test_undo_or_redo_with_nothing_recorded_is_an_amendment_error` covers both operations on an empty stack: an `AmendmentError`, with the request unchanged.
+The stacks hold inverses. `test_undo_and_redo_walk_the_history` amends twice, undoes twice and redoes twice, checking the request and the stack sizes at each step, and `test_two_amendments_undone_restore_the_original_request` checks that the request returns to the starting value. `test_undo_or_redo_with_nothing_recorded_is_an_amendment_error` covers both operations on an empty stack: an `AmendmentError`, with the request unchanged.
 
 A new amendment clears the redo stack, which is the dashed box in the figure. Once the history has branched, the old redo entries describe a future that no longer follows from the present, and `test_a_new_amendment_clears_redo` undoes a weight change, makes a redirect and finds redo empty and refused.
 
@@ -173,7 +173,7 @@ def _loose_apply(
     )
 ```
 
-`test_commands_sharing_a_mutable_mapping_undo_to_the_wrong_state` builds a first command from a `notes` dictionary holding "keep dry", then edits `notes` to "fragile", builds a second command from the same dictionary and applies the inverse of the second. The instructions are `{"handling": "fragile"}` where "keep dry" was expected. Both commands, and the request that stored the first one's mapping, point at one dict. The frozen decorator stopped nobody, and `test_mypy_accepts_commands_that_share_a_dict` shows that mypy accepts the shape with exit status 0 and no output. Frozen is shallow, which [Dataclasses and value semantics]({{ '/docs/08-dataclasses-and-value-semantics/' | relative_url }}) teaches. Here the consequence is concrete: an inverse is only as good as the data it holds, and a mutable field makes that data a moving target.
+`test_commands_sharing_a_mutable_mapping_undo_to_the_wrong_state` builds a first command from a `notes` dictionary holding "keep dry", then edits `notes` to "fragile", builds a second command from the same dictionary and applies the inverse of the second. The instructions are `{"handling": "fragile"}` where "keep dry" was expected. Both commands, and the request that stored the first one's mapping, point at one dict. The frozen decorator stopped nobody, and `test_mypy_accepts_commands_that_share_a_dict` shows that mypy accepts the shape with exit status 0 and no output. Frozen is shallow, which [Dataclasses and value semantics]({{ '/docs/08-dataclasses-and-value-semantics/' | relative_url }}) covers.
 
 The fix is the field type. `SetInstructions.instructions` and `BookingRequest.instructions` are `frozendict[str, str]`. Python 3.15 adds the type as a builtin, and [PEP 814](https://peps.python.org/pep-0814/), by Victor Stinner and Donghee Na, says what it is for: "A new public immutable type `frozendict` is added to the `builtins` module." The [What's New page for 3.15](https://docs.python.org/3/whatsnew/3.15.html) adds: "It does not allow modification after creation." Three tests measure what that buys:
 
@@ -183,7 +183,7 @@ The fix is the field type. `SetInstructions.instructions` and `BookingRequest.in
 
 The caller who wants to supply a mapping writes `frozendict({"handling": "keep dry"})`, a mapping that nobody else holds. mypy catches the caller who forgets, and an item assignment into a `frozendict` raises at run time. A frozen dataclass may also default a `frozendict` field without `default_factory`: `BookingRequest` does, and `test_a_frozen_mapping_default_needs_no_factory` shows two requests sharing one default object, with a `dict` default refused as a `ValueError` that says to use `default_factory`.
 
-One more property comes free. Every `BookingRequest` is a frozen value, so a request kept from before a series of amendments still equals the original after them. `test_a_frozen_request_is_a_safe_snapshot` checks that. Snapshots as an undo strategy, with rollback of a whole object, belong to [Visitor, Memento, and Interpreter]({{ '/docs/25-visitor-memento-interpreter/' | relative_url }}). A snapshot is the alternative when no inverse exists.
+Every `BookingRequest` is a frozen value, so a request kept from before a series of amendments still equals the original after them. `test_a_frozen_request_is_a_safe_snapshot` checks that. Snapshots as an undo strategy, with rollback of a whole object, belong to [Visitor, Memento, and Interpreter]({{ '/docs/25-visitor-memento-interpreter/' | relative_url }}). A snapshot is the alternative when no inverse exists.
 
 ## A queue that applies all or nothing
 
@@ -209,7 +209,7 @@ Queued amendments change nothing until they're applied. `submit` appends to a de
 ```
 <!-- fmt:on -->
 
-The loop works on a local deque built from the queue and a local request, and nothing on `self` changes until the loop has finished. `test_queued_amendments_apply_in_order` submits four amendments, checks that the weight is still 120, applies the batch and finds the last weight, destination and instructions in place. Undoing then walks back through them in reverse, with one inverse per amendment. `test_a_batch_clears_redo_and_records_one_inverse_per_amendment` checks the committed history, `[Reweigh(kg(120)), Redirect("SGSIN")]`.
+`test_queued_amendments_apply_in_order` submits four amendments, checks that the weight is still 120, applies the batch and finds the last weight, destination and instructions in place. Undoing then walks back through them in reverse, with one inverse per amendment. `test_a_batch_clears_redo_and_records_one_inverse_per_amendment` checks the committed history, `[Reweigh(kg(120)), Redirect("SGSIN")]`.
 
 The failing case is the reason for the local variable. `test_a_failing_batch_leaves_the_booking_unchanged` submits a reweigh and then `Redirect("nowhere")`. The second raises `AmendmentError`, and the test finds the request, the undo stack, the redo stack and the pending queue all equal to their values before the call, with both amendments still waiting. The first amendment's effect was computed and thrown away.
 
@@ -222,7 +222,13 @@ Call the function when a change is never undone or queued. A `reweigh(request, w
 If a database transaction already gives you undo, a second stack of inverses repeats it. If the history exists to audit changes rather than reverse them, record what happened as events and publish them; [Observer]({{ '/docs/22-observer/' | relative_url }}) covers that. If an amendment's inverse depends on state you don't hold, such as a rate fetched from another system, no value can carry it, and a snapshot of the whole object is the tool to reach for.
 
 <blockquote class="ai-sidebar" markdown="1">
-**Reviewing assistant-written commands.** An assistant asked for "the Command pattern" may write a `Command` base class with `execute` and `undo`, record the old value when the command is created, store a caller's `dict` or `list` in a command, or apply a batch by changing the booking step by step. Check: is each command a frozen value that compares equal; is the inverse computed from the state the command actually changed; are the command's fields immutable types such as `frozendict` or `tuple`; does a failing batch leave the booking unchanged; is the history's bound a stated choice.
+
+**Reviewing assistant-written commands.** Asked for "the Command pattern", an assistant may write a `Command` base with `execute` and `undo`, record the old value when the command is built, or store the caller's `dict` in a command. Paste a prompt that states the form:
+
+> Make each amendment a frozen, slotted dataclass in a closed union, with immutable field types (`frozendict`, `tuple`). Write `apply(request, amendment)` as a `match` ending in `assert_never` that returns the new request and the inverse read from the request it changed. Keep undo and redo in `deque`s, the undo stack with `maxlen`, and clear redo on a new amendment. Apply a queue on a local request, so a failure leaves the booking unchanged.
+
+If the inverse is recorded when the command is queued, ask for the two-amendment undo test.
+
 </blockquote>
 
 ## Build, run, observe
@@ -305,6 +311,14 @@ Success: no issues found in 10 source files
 ```
 
 The batch's first amendment is applied to the booking before the second one raises, so the request is half amended and no longer equals the one the test captured. mypy reports success again. Nothing in a type says that a batch is atomic.
+
+## What you can do now
+
+- Say what dissolves and what survives: `test_amendments_compare_by_value_and_partials_do_not` shows the deferred call dissolving and the value surviving.
+- Write amendments and `apply`: the closed union, the `assert_never` arm, and the inverse read from the request being amended.
+- Keep the history: `Booking`'s two stacks, `test_undo_and_redo_walk_the_history`, and `test_an_inverse_captured_when_queued_restores_a_stale_weight` for why the inverse waits until run time.
+- Close the shared-mapping gap: `_LooseSetInstructions` undoes to the wrong text, and a `frozendict` field stops it.
+- Apply a queue all or nothing: `apply_pending` and `test_a_failing_batch_leaves_the_booking_unchanged`.
 
 ## For deeper coverage
 

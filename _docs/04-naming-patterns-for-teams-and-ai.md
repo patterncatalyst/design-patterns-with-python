@@ -29,21 +29,19 @@ AI coding assistants add a second reader to the same code. An assistant that is 
 
 {% include excalidraw.html name="04-naming-patterns-for-teams-and-ai" caption="Figure 4.1: One pattern name, two readers. A reviewer and an AI assistant read the same name for the same contract; naming the Python mechanism as well, a callable type alias rather than a class hierarchy, keeps both readers on the idiomatic shape." %}
 
-A request that names only the pattern leaves the mechanism open. A request that names the role and the mechanism, such as `PricingRule` implemented by `per_kg`, closes it, and both readers then check the same contract.
-
 ## A name is a checkable claim
 
 Robert Martin's treatment of meaningful names in *Clean Code* argues that a name should say why something exists, what it does and how it is used, and that a name needing a comment has failed. Martin Fowler's *Refactoring* lists Mysterious Name as a code smell for the same reason: when a reader cannot tell what an identifier promises, every use of it costs a trip to the definition. Both are arguments about cost. A name that is wrong or vague makes each later reader pay.
 
-Pattern names raise the stakes because they are compressed claims. Calling something a `RateStrategy` asserts at least three things: there are several interchangeable rate computations, the caller selects one, and the caller depends only on what they share. Each assertion can be checked. Are there several? Does anything select between them? Is the shared surface narrow? A reviewer who reads the name and then finds a single implementation, selected by an `if` inside the class, has found a mismatch between claim and code without reading anything else.
+Pattern names are compressed claims. Calling something a `RateStrategy` asserts at least three things: there are several interchangeable rate computations, the caller selects one, and the caller depends only on what they share. Each assertion can be checked. Are there several? Does anything select between them? Is the shared surface narrow? A reviewer who reads the name and then finds a single implementation, selected by an `if` inside the class, has found a mismatch between claim and code without reading anything else.
 
-That's what "checkable" means here. A good name produces a short list of questions the diff can answer. A name like `Helper` produces none, so it never fails review and never helps.
+A good name produces a short list of questions the diff can answer. A name like `Helper` produces none, so it never fails review and never helps.
 
 ## Where the pattern name lives in Python
 
 In a language where a pattern needs a class, the class name carries the pattern name, and the habit of appending the pattern as a suffix follows. Python gives the pattern name more places to live, and most of them are better than a suffix.
 
-The first is the type alias. In the example for this part, the pricing contract is a single declaration, `type PricingRule = Callable[[Consignment], Money]`. The alias states the role in the name and the mechanism in the right-hand side. A reader who sees `PricingRule` knows what the parameter is for, and a reader who follows it to the definition sees that a plain callable satisfies it. The functions `flat_rate` and `per_kg` are then ordinary functions named for what they compute, not for the role they play. See the [`type` statement](https://docs.python.org/3/reference/simple_stmts.html#type) for the alias syntax.
+The first is the type alias. In the [three-way split example]({{ '/examples/03-three-way-split/' | relative_url }}), the pricing contract is a single declaration, `type PricingRule = Callable[[Consignment], Money]`. The alias states the role in the name and the mechanism in the right-hand side. A reader who sees `PricingRule` knows what the parameter is for, and a reader who follows it to the definition sees that a plain callable satisfies it. The functions `flat_rate` and `per_kg` are then ordinary functions named for what they compute, not for the role they play. See the [`type` statement](https://docs.python.org/3/reference/simple_stmts.html#type) for the alias syntax.
 
 The second is the docstring. A one-line docstring can name the pattern when the pattern is the reason the code exists: the stack of calculators that wrap one another is a Decorator, and saying so once, where the class is defined, tells reviewers which contract to check.
 
@@ -75,7 +73,7 @@ Fowler's *Refactoring* gives the remedy names of its own: Rename Variable and Re
 
 ## Keeping Decorator and `@decorator` apart in names
 
-The headline disambiguation in this book is the Decorator pattern against the `@decorator` syntax. They are different things, and names are where the confusion either spreads or stops.
+The headline disambiguation in this book is the Decorator pattern against the `@decorator` syntax. They are different things.
 
 The Decorator pattern is a wrapper object that adds behaviour while keeping the wrapped object's interface, composed at runtime so that stacks are data. In the example it is `Surcharge`, which holds an inner `RateCalculator` and a fee and adds the fee to whatever the inner calculator prices. The name is the domain concept: a surcharge on a rate. It doesn't end in `Decorator`, and it doesn't need to. The docstring can name the pattern, and the class name stays in the domain.
 
@@ -95,8 +93,6 @@ Name the existing vocabulary. Point at `HandlingEvent`, `CarrierGateway` or `Con
 
 Give the disambiguation up front. "A Decorator pattern object, not an `@` function" costs one phrase and removes the commonest source of mismatch.
 
-These are the practices that make a request to a colleague checkable, applied to a reader whose context is the prompt and the repository. The prompt also records the intent, alongside the pull request description.
-
 ## Reviewing a name an assistant attached to its output
 
 An assistant may return code with a pattern name attached, in a class name or a summary. Treat the name as a claim and run the same checks as for a colleague's code.
@@ -109,8 +105,6 @@ Then check for the disambiguation. If the summary says "added a decorator", find
 
 Finally, check the vocabulary against the domain. A name such as `ShipmentTracker` for something that is really a `TrackingHistory` introduces a second word for an existing concept. Mismatched domain words are cheap to reject in review and costly to find a year later.
 
-This is the review you'd run on a human contributor. Run the same checklist on an assistant's output.
-
 ## When a name stops matching the code
 
 Names drift. A function called `per_kg` gains a minimum charge, a `Surcharge` gains a second fee, a `PricingRule` ends up holding state. Each change is small and reasonable, and the name slowly stops being true.
@@ -119,7 +113,15 @@ The drift is a smell in Fowler's terms, and the fix is a rename. Editors rename 
 
 Sometimes the right move is not a better label but no label. When a design that was once a Strategy has shrunk to a single function called from one place, the pattern name is documentation of something that no longer exists. Remove the name from the docstring, delete the alias if nothing else uses it, and let the function be a function. The inverse also holds: when a plain callable grows state, validation and a second method, it has become a class, and the right name for the class describes its role in the domain, with the pattern named in the docstring if it helps.
 
-The test is the same at every step: read the name, list what it promises, and check the code against the list.
+## What you can do now
+
+- Treat a name as a checkable claim: `RateStrategy` and its three questions.
+- Place the name: `type PricingRule = Callable[[Consignment], Money]`, the docstring, the PR description, and `GATEWAYS` under PEP 8.
+- Name lifecycle events as facts: `Booked` through `Delivered` in `HandlingEvent`.
+- Rename names that hide the bucket: `PricingRule`, `make_consignment`, and the Manager and Helper suffixes.
+- Keep the two decorators apart: `Surcharge` against `audited(sink)`.
+- Write a prompt that names `PricingRule` and `per_kg`, and review the reply with the four checks.
+- Rename in its own commit, or retire the label.
 
 ## For deeper coverage
 

@@ -2,7 +2,7 @@
 layout: example
 order: 14
 title: "State and finite state machines"
-description: A consignment lifecycle written as a read-only transition table and as frozen states matched with assert_never, with tests for what mypy checks, what it cannot, and a seeded transit-delay model.
+description: A consignment lifecycle written as a read-only transition table and as frozen states matched with assert_never, with tests for what mypy checks, what it can't, and a seeded transit-delay model.
 github_path: examples/14-state-and-finite-state-machines
 card_eyebrow: "Selecting behaviour · State"
 card_title: "A lifecycle in a table and in a match"

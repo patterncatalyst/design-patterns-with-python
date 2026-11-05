@@ -40,7 +40,7 @@ Gamma, Helm, Johnson and Vlissides, in *Design Patterns* (1994), describe Single
 
 The bucket is needs disambiguating, and the default answer to the force, "load this once and let everyone read it", is the first meaning: a module. [What 1994 assumed, and what Python dissolves]({{ '/docs/02-what-1994-assumed-and-python-dissolves/' | relative_url }}) shows the module shape, and [The three-way split: dissolve, survive, disambiguate]({{ '/docs/03-the-three-way-split/' | relative_url }}) places Singleton in its bucket.
 
-One table of behaviour holds them all. `test_every_form_gives_each_caller_the_same_rates` runs six forms (the module, `LoadOnce`, Borg, a metaclass singleton, a cached function and the `__new__` form) and checks that two callers read equal rates and how many loads happened. Five load once. The `__new__` form loads twice, because `__init__` runs on every call.
+`test_every_form_gives_each_caller_the_same_rates` runs six forms (the module, `LoadOnce`, Borg, a metaclass singleton, a cached function and the `__new__` form) and checks that two callers read equal rates and how many loads happened. Five load once. The `__new__` form loads twice, because `__init__` runs on every call.
 
 ## The module, at import time or on first use
 
@@ -67,7 +67,7 @@ def quote_standard(zone: str, kilograms: Decimal) -> Decimal:
 
 [PEP 810](https://peps.python.org/pep-0810/) adds the `lazy` soft keyword, and the [What's New page for 3.15](https://docs.python.org/3/whatsnew/3.15.html) says what it does: "Python defers the actual module loading until the imported name is first used." Importing `quoting` loads nothing, and the first call to `quote_standard` loads the table. `test_a_lazy_import_loads_the_table_on_first_use` runs that in a fresh `python -I` interpreter, so test order can't decide the answer. After `import singleton.quoting` the load log is empty and `singleton.tariff_table` isn't in `sys.modules`. After the first quote the log holds one `"tariff"` and the module is present.
 
-Threads racing on that first use load it once. PEP 810 says so in its thread-safety section: "Exactly one thread performs the import and atomically rebinds the importing module’s global to the resolved object." `test_threads_racing_on_a_lazy_import_load_the_table_once` releases eight threads together from a barrier and finds one load and eight equal quotes. The race isn't forced. Nothing makes the threads overlap inside the import, so the test asserts the outcome and the claim rests on the PEP. The recorded evidence agrees: twenty fresh interpreters ran the same code, and all twenty loaded once. That is an unforced observation and not a proof.
+Threads racing on that first use load it once. PEP 810 says so in its thread-safety section: "Exactly one thread performs the import and atomically rebinds the importing module’s global to the resolved object." `test_threads_racing_on_a_lazy_import_load_the_table_once` releases eight threads together from a barrier and finds one load and eight equal quotes. The race isn't forced. Nothing makes the threads overlap inside the import, so the test asserts the outcome and the claim rests on the PEP. The recorded evidence agrees: twenty fresh interpreters ran the same code, and all twenty loaded once.
 
 A lazy import moves failures as well as work. The What's New page puts it this way: "Python raises the exception at the point of first use rather than at import time." PEP 810 adds that a failed reification doesn't replace the lazy object, so "subsequent uses of the lazy object will retry the whole reification". A broken rates file shows up at the first quote, not at start-up.
 
@@ -174,9 +174,9 @@ class _NewTariffTable:
 ```
 <!-- fmt:on -->
 
-Rhodes's page notes the quirk that drives the cost: `__init__()` is called on the result of the class call "whether the object that’s being returned is new or not". `test_a_new_based_singleton_reruns_init_on_every_call` makes two calls with two sources. The two calls return the same object, and its `source` is now `express.csv`. The first caller's table was overwritten by the second caller's, and the load list records both. That's the cost: one shared object, rewritten by each call.
+Rhodes's page notes the quirk that drives the cost: `__init__()` is called on the result of the class call "whether the object that’s being returned is new or not". `test_a_new_based_singleton_reruns_init_on_every_call` makes two calls with two sources. The two calls return the same object, and its `source` is now `express.csv`. The first caller's table was overwritten by the second caller's, and the load list records both.
 
-The metaclass fixture has the opposite problem. `_SingletonMeta.__call__` builds the instance on the first call and returns it on every later one, so `test_a_singleton_metaclass_ignores_the_second_calls_arguments` finds that the second call, `meta_table("express.csv")`, gives back the standard table, with `source` still `standard.csv` and one entry in the load list. The caller asked for one thing and got another, silently. mypy can't see it either, because it types the call by `__init__`. In a reduced model of the metaclass, `test_mypy_types_a_metaclass_singleton_call_by_init` accepts a second call with a different argument, and a call with none prints:
+The metaclass fixture has the opposite problem. `_SingletonMeta.__call__` builds the instance on the first call and returns it on every later one, so `test_a_singleton_metaclass_ignores_the_second_calls_arguments` finds that the second call, `meta_table("express.csv")`, gives back the standard table, with `source` still `standard.csv` and one entry in the load list. mypy doesn't flag the ignored argument, because it types the call by `__init__`. In a reduced model of the metaclass, `test_mypy_types_a_metaclass_singleton_call_by_init` accepts a second call with a different argument, and a call with none prints:
 
 ```text
 <string>:18: error: Missing positional argument "source" in call to "TariffTable"  [call-arg]
@@ -193,7 +193,11 @@ Borg suits code that must construct its own object and still share configuration
 Pass a parameter when state differs per test, per tenant or per request. If the "singleton" is a cache, write a cache and name it one, with an eviction rule and a reset. When several threads write to one mutable global, the lock is the smaller problem, and the design needs a different shape. A class whose only reason to exist is to be single is a module.
 
 <blockquote class="ai-sidebar" markdown="1">
-**Reviewing assistant-written singletons.** An assistant asked for "a singleton" may write a class that overrides `__new__` with a `_instance` attribute, a `SingletonMeta` metaclass, or a `@functools.cache` function described as making something load once. Check: could this be a module attribute, or a `lazy import` of one; does `__init__` run again on every call; are a second call's arguments silently ignored; do tests get their own instance by parameter; is anything claimed to be call-once under threads, and if so, is it a lock with a double check or the import system.
+**Reviewing assistant-written singletons.** Asked for "a singleton", an assistant may override `__new__` with an `_instance` attribute, write a `SingletonMeta`, or describe `functools.cache` as loading something once. Paste a prompt that states the form:
+
+> Build `TARIFF` at import time in `tariff_table`, or reach it with `lazy from singleton import tariff_table` to load it on first use. Take the table as a parameter of `quote`, so tests and tenants pass their own. If the load needs run-time input, use `LoadOnce`: a lock with a double check and a `sentinel` marker. Don't use `functools.cache` as call-once, and don't override `__new__` or write a metaclass.
+
+If the reply claims call-once under threads, ask for the `Barrier` test that forces the race.
 </blockquote>
 
 ## Build, run, observe
@@ -276,6 +280,13 @@ Success: no issues found in 12 source files
 ```
 
 The test's fresh interpreter finds the load log already holding `"tariff"` after the import alone, so the first-use claim fails. mypy stays green again, since an eager import is also a valid one.
+
+## What you can do now
+
+- Say which of three things "Singleton" means: `test_every_form_gives_each_caller_the_same_rates` runs six forms of one object, one shared state and one class that returns the same object, and five load once.
+- Climb the ladder in order: `TARIFF`, the `lazy` import, `quote(..., table=...)` and `LoadOnce`.
+- Show a forced race: the `Barrier(2)` test finds `functools.cache` running a loader twice.
+- Name the cost of each class form: Borg shares state without identity, a metaclass ignores the second call's arguments, and `__new__` reruns `__init__`.
 
 ## For deeper coverage
 

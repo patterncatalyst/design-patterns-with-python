@@ -2,7 +2,7 @@
 layout: example
 order: 8
 title: "Dataclasses and value semantics: value types in one declaration"
-description: Frozen, slotted dataclasses for a shipping booking, with tests for hashing, aliasing, ordering, entities and what mypy can and cannot see.
+description: Frozen, slotted dataclasses for a shipping booking, with tests for hashing, aliasing, ordering, entities and what mypy can and can't see.
 github_path: examples/08-dataclasses-and-value-semantics
 card_eyebrow: "Python substrate · Dataclasses, Value Object"
 card_title: "Value types from one dataclass declaration"
