@@ -560,8 +560,8 @@ Step ids are `J*` (see User decisions).
 
 | Step | What | Depends | Status |
 | --- | --- | --- | --- |
-| J0 | This plan file. PDP-119a-c and 120a-c `active` in `iteration-plan.md` (dated note). Reconciliation rows 97-106 `open`; row 5 notes "witnessed by rows 101-103 (r09)"; row 6 moves to ch26 (decision 5). Domain rows 19-20 updated (decisions 1-5 and the supporting names), with the ch20/ch26 non-overlap sentence extended to the syntax stacking-order witness. ch19-20 stub `description` lines written. Decisions recorded | - | todo |
-| J1a | ch19 member, card, README; one `uv lock`; three green runs; the deletion table, each row in a fresh scratch copy with its `.venv` removed and re-synced (confirm `__file__`) | J0 | todo |
+| J0 | This plan file. PDP-119a-c and 120a-c `active` in `iteration-plan.md` (dated note). Reconciliation rows 97-106 `open`; row 5 notes "witnessed by rows 101-103 (r09)"; row 6 moves to ch26 (decision 5). Domain rows 19-20 updated (decisions 1-5 and the supporting names), with the ch20/ch26 non-overlap sentence extended to the syntax stacking-order witness. ch19-20 stub `description` lines written. Decisions recorded | - | done |
+| J1a | ch19 member, card, README; one `uv lock`; three green runs; the deletion table, each row in a fresh scratch copy with its `.venv` removed and re-synced (confirm `__file__`) | J0 | done |
 | J1b | ch20 member, card, README; one `uv lock` after J1a (sequenced); three green runs; deletion table; `_plans/evidence/percentage-layer-rounding.md` | J1a | todo |
 | J2 | Witness results into rows 97-106 (the claims audit resolves). A failed witness changes the thesis before prose. Any message differing from Planning evidence goes in "Corrections after the build". The dated spikes.md note on percentage layers | J1b | todo |
 | J3 | Two figures, specs `diagrams/specs/19-*.py` and `20-*.py`, `_data/diagrams.yml` (single owner; `section: "Ch. 19"` and `"Ch. 20"`); figures 00-18 unchanged | J2 | todo |
@@ -588,6 +588,9 @@ Reconciliation rows (step J0). The "How to verify" column uses resolvable tokens
 Row 5 status note at J2: "witnessed by rows 101-103 (r09)". Row 6: Ch cell 26, "moved from ch20 (r09 decision 5)", stays `open`.
 
 ## Corrections after the build
+
+- Step J1a: member has 20 test functions and 33 cases (8/3/4/5). Test 4 originally compared `from_pounds(1)` with the constant itself, so a rounded `0.4536` passed; it now asserts the exact `Decimal("0.45359237")` first. Cents use `int(value.amount.scaleb(2))` with no rounding mode (an unwitnessable argument was dropped; fractional cents truncate). Test 2 adds a `1.005` lb booking to witness `ROUND_HALF_UP`. Test 9 flattens unions with `typing.get_args`. `_book_by_branching` takes `(consignment, carrier, airco, fastline)`. `InsuredBooking` refuses zero and negative values; NaN is not handled or tested.
+- Step J1a, mypy messages against Planning evidence: test 16 (`g: CarrierGateway = FastlineClient()`) prints only the `[assignment]` line with no missing-member note (as E2, unlike C); test 18 is `[assignment]` with an Expected/Got note naming `Weight` (E4 showed `[arg-type]` on a call); test 19 matches C (`is missing following "CarrierGateway" protocol member: insure`). The `ship` return-annotation deletion gives `[union-attr]` in tests, not the planned `[return-value]`. Test 17 is a reduced model and needs naming as one in prose.
 
 (Empty. The orchestrator records here every message, count or value that differs from Planning evidence or this spec, with the step that found it.)
 

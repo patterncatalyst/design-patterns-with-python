@@ -123,12 +123,12 @@ PR, squash-merge with branch deletion, an `rNN.x` tag and a notes-only release.
 | PDP-118a | Ch18 Singleton: module, Borg, metaclass: example | r08 | active |
 | PDP-118b | Ch18 Singleton: module, Borg, metaclass: figure | r08 | active |
 | PDP-118c | Ch18 Singleton: module, Borg, metaclass: prose | r08 | active |
-| PDP-119a | Ch19 Adapter, Facade, Bridge: example | r09 | todo |
-| PDP-119b | Ch19 Adapter, Facade, Bridge: figure | r09 | todo |
-| PDP-119c | Ch19 Adapter, Facade, Bridge: prose | r09 | todo |
-| PDP-120a | Ch20 Decorator pattern vs decorator syntax, and Proxy: example | r09 | todo |
-| PDP-120b | Ch20 Decorator pattern vs decorator syntax, and Proxy: figure | r09 | todo |
-| PDP-120c | Ch20 Decorator pattern vs decorator syntax, and Proxy: prose | r09 | todo |
+| PDP-119a | Ch19 Adapter, Facade, Bridge: example | r09 | active |
+| PDP-119b | Ch19 Adapter, Facade, Bridge: figure | r09 | active |
+| PDP-119c | Ch19 Adapter, Facade, Bridge: prose | r09 | active |
+| PDP-120a | Ch20 Decorator pattern vs decorator syntax, and Proxy: example | r09 | active |
+| PDP-120b | Ch20 Decorator pattern vs decorator syntax, and Proxy: figure | r09 | active |
+| PDP-120c | Ch20 Decorator pattern vs decorator syntax, and Proxy: prose | r09 | active |
 | PDP-121a | Ch21 Composite and Flyweight: example | r10 | todo |
 | PDP-121b | Ch21 Composite and Flyweight: figure | r10 | todo |
 | PDP-121c | Ch21 Composite and Flyweight: prose | r10 | todo |
@@ -206,3 +206,5 @@ PR, squash-merge with branch deletion, an `rNN.x` tag and a notes-only release.
 2026-11-04 (r07): PDP-114a to PDP-115c are active for r07 (chapters 14 and 15, Part 5). Earlier iterations keep their status.
 
 2026-11-04 (r08): PDP-116a to PDP-118c are active for r08 (chapters 16 to 18, Part 6). Earlier iterations keep their status.
+
+2026-11-04 (r09): PDP-119a to PDP-120c are active for r09 (chapters 19 and 20, Part 7). Earlier iterations keep their status.

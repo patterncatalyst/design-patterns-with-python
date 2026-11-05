@@ -4,7 +4,7 @@ order: 19
 layout: tutorial
 sectionid: docs
 part: "composing-adapting-structure"
-description: "Draft pending: Adapter, Facade, and Bridge."
+description: "Duck typing removes an adapter only where shapes and units already agree; a facade is often a module function, and a bridge separates two axes of variation behind a narrow Protocol."
 ---
 
 ## Learning objectives

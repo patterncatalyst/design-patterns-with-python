@@ -4,7 +4,7 @@ order: 20
 layout: tutorial
 sectionid: docs
 part: "composing-adapting-structure"
-description: "Draft pending: Decorator the pattern vs @decorator the syntax, and Proxy."
+description: "The Decorator pattern composes wrapper objects while the program runs, the @decorator syntax rebinds a name once at definition time, and a proxy keeps the interface to control access."
 ---
 
 ## Learning objectives
