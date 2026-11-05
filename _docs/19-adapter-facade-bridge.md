@@ -93,6 +93,7 @@ The shape: Fastline takes a payload of strings and returns a numeric receipt, an
 
 The unit: the pound is converted in one place, on the value type. `Weight` holds kilograms as a `Decimal`, a frozen value that refuses zero, negative and non-finite amounts, and `test_a_consignment_weight_must_be_positive_and_finite` checks all three. A weight in the wrong unit can't be built by accident, because the way in from pounds is `from_pounds`.
 
+<!-- fmt:off -->
 ```python
     @classmethod
     def from_pounds(cls, pounds: Decimal) -> Self:
@@ -102,6 +103,7 @@ The unit: the pound is converted in one place, on the value type. `Weight` holds
     def pounds(self) -> Decimal:
         return self.kilograms / POUND_IN_KILOGRAMS
 ```
+<!-- fmt:on -->
 
 `test_weight_converts_between_kilograms_and_pounds_exactly` checks the factor, 0.45359237 kg to the pound, and that 10 kg reads 22.05 lb. `test_a_pounds_api_called_with_kilograms_books_the_wrong_weight` runs the branching caller from the opening: it sends `"10"` as `weight_lb`, and `Weight.from_pounds` reads that back as 4.54 kg.
 

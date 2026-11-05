@@ -1,6 +1,6 @@
 # Adapter, Facade, and Bridge
 
-Two carrier SDKs of deliberately different shapes behind one `CarrierGateway`, a desk function
+Two carrier SDKs of different shapes behind one `CarrierGateway`, a desk function
 over them, and booking kinds that vary independently of the carriers. The chapter's thesis is
 that all three patterns survive, each lighter than in 1994: structural typing removes an adapter
 only where the shapes and the units already agree, a module function is a facade, and a Bridge is

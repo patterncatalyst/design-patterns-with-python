@@ -4,7 +4,7 @@ Three things that look like a wrapper and are not the same. The Decorator patter
 object with the wrapped object's interface, composed while the program runs, so a stack of layers
 is data. The `@decorator` syntax rebinds a function name once, at definition time. A proxy keeps
 the interface and controls access. The chapter's thesis is that the two decorator names need
-disambiguating and that the honest proxy is an explicit class mypy can check. Rates, fees, tax
+disambiguating and that the proxy to prefer is an explicit class mypy can check. Rates, fees, tax
 percentages and the retry count are illustrative. `functools.wraps` and `ParamSpec` are used in
 `retry` and `audited` and are not taught here.
 
