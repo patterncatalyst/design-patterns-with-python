@@ -12,7 +12,7 @@ numbers and SDK shapes are illustrative.
 Adapter.
 
 - `AircoClient` has the shape of the `CarrierGateway` Protocol and is registered as it is.
-  `FastlineClient` does not: it takes a payload of strings in pounds and returns a numeric
+  `FastlineClient` doesn't: it takes a payload of strings in pounds and returns a numeric
   receipt, and its cover call takes cents. mypy rejects it where a `CarrierGateway` is expected.
 - `FastlineGateway` is an object adapter. It sends the weight in pounds, quantised to hundredths,
   builds the `FL-` reference, turns `FastlineRejectedError` into `CarrierError` and converts cover
@@ -23,7 +23,7 @@ Adapter.
   on the adapter.
 - A client with the right shape but its units in a `float` is accepted by mypy. Typing the
   parameter as `Weight` makes the same client an `[assignment]` error. The `float` snippet in
-  `test_static.py` is a reduced model and does not import the package.
+  `test_static.py` is a reduced model and doesn't import the package.
 
 Facade.
 
@@ -39,8 +39,8 @@ Bridge.
   two primitives, `book` and `insure`. Every kind works with every carrier. A class per kind and
   carrier is a fixture (`_CarrierBooking` and four subclasses) that passes the same table, and a
   test counts the classes with `ast`: two in `bookings.py`, five in the fixture.
-- An insured booking records the declared value and refuses one that is not positive. A gateway
-  without `insure` is an `[assignment]` error, which is the cost of widening or narrowing the
+- An insured booking records the declared value and refuses one that isn't positive. A gateway
+  without `insure` is an `[assignment]` error, which is the cost of widening the
   implementor's Protocol.
 
 ## Layout
@@ -93,6 +93,7 @@ uv run mypy --strict src tests
 - `test_the_class_per_pair_design_needs_a_class_for_every_kind_and_carrier`: an `ast` count.
 - `test_an_insured_booking_records_the_declared_value_with_the_carrier`: Airco's `insure` record and Fastline's cover in cents.
 - `test_an_insured_booking_without_a_declared_value_is_a_booking_error`: zero and negative.
+- `test_a_new_booking_kind_needs_no_gateway_change`: a booking kind defined in the test books and insures through both real gateways.
 
 `tests/test_static.py`
 

@@ -71,7 +71,7 @@ emit(
             "w": 200,
             "h": 70,
             "style": "ghost",
-            "lines": ["Weight.from_pounds", "units converted in one place"],
+            "lines": ["Weight.pounds", "units converted in one place"],
         },
     ],
     edges=[

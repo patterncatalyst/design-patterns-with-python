@@ -168,7 +168,9 @@ def test_a_layer_refuses_a_fee_in_another_currency() -> None:
         stack.price(_hundred_kilograms())
 
 
-@pytest.mark.parametrize("kilograms", [Decimal(0), Decimal(-1), Decimal("NaN")])
+@pytest.mark.parametrize(
+    "kilograms", [Decimal(0), Decimal(-1), Decimal("NaN")], ids=["zero", "negative", "nan"]
+)
 def test_a_weight_that_is_not_positive_and_finite_is_refused(kilograms: Decimal) -> None:
     with pytest.raises(ValueError, match="weight must be positive and finite"):
         Weight(kilograms)

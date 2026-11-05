@@ -188,4 +188,4 @@ State/FSM chapter: frozen dataclass states, `type State = A | B | C`, transition
 
 2026-11-04 (r05): Python 3.15.2. The spike tests were re-run green on 3.15.2. The recorded GIL benchmark output and the S4a findings remain 3.14.10 evidence, and the GIL chapter re-measures.
 
-**r09 note, 2026-11-04 (Decorator layering).** "Pure percentage layers commute" holds in exact arithmetic only. With per-layer rounding to cents, two percentage layers in opposite orders differ by one cent on 6,940 of 20,000 sampled prices (6,726 of 20,000 in a seeded weighted draw); see `_plans/evidence/percentage-layer-rounding.md`. The order-matters demo still uses an additive fee.
+**r09 note, 2026-11-04 (Decorator layering).** "Pure percentage layers commute" holds in exact arithmetic only. With per-layer rounding to cents, two percentage layers in opposite orders differ by one cent on 6,940 of 20,000 per-kilogram prices from 0.01 to 200.00 (6,726 of 20,000 in a seeded draw over price and weight); see `_plans/evidence/percentage-layer-rounding.md`. The order-matters demo still uses an additive fee.

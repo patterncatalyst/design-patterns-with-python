@@ -23,20 +23,19 @@ The Decorator pattern.
 - `compose(base, layers)` puts the last layer outermost, and `layers_for(consignment)` chooses the
   layers while the program runs: heavy and dangerous-goods surcharges first, destination tax last,
   and an unknown country is a `RatingError`. A stack compares and hashes by value.
-- The layer constructors (`discount`, `surcharge`, `tax`) return small lambdas, not `partial`
-  objects, because mypy accepts a `partial` that binds nothing in a typed slot.
+- The layer constructors (`discount`, `surcharge`, `tax`) return small lambdas.
 
 The `@decorator` syntax.
 
 - `retry` and `audited` are PEP 695 `[**P, R]` factories. `quote_carrier` carries
   `@retry(attempts=3, on=(CarrierTimeoutError,))`. A test-local counting decorator shows the
-  factory runs once at definition, and `__wrapped__` is not the rebound name.
+  factory runs once at definition, and `__wrapped__` isn't the rebound name.
 - `retry` calls again on a listed error, gives up after the last attempt, lets other errors
   through and refuses fewer than one attempt. It has no delay: backoff is out of scope.
 - Stacking order is fixed when the `def` runs. An `@audited` above an `@retry` reports once for a
   quote that needed three calls, and the reverse reports once per attempt.
-- Rebound functions do not compare by value. A decorated function has no `price`, and a layer has
-  no `__wrapped__`. A factory such as `functools.cache` may return an object that is not a function,
+- Rebound functions don't compare by value. A decorated function has no `price`, and a layer has
+  no `__wrapped__`. A factory such as `functools.cache` may return an object that isn't a function,
   and it is still the syntax.
 - `ParamSpec` keeps the call signature for mypy: a wrong argument type is `[arg-type]` and an
   unknown keyword is `[call-arg]`.
@@ -51,9 +50,9 @@ Proxy.
   typo and a wrongly typed use through it, a `-> object` version fails the Protocol, a
   `runtime_checkable` `isinstance` is false because it looks attributes up statically, and a typo
   raises an `AttributeError` that names the wrapped class.
-- The `Any` snippets in `test_static.py` (the forwarding proxy with a typo or a wrong type, the
+- The reduced-model snippets in `test_static.py` (the forwarding proxy with a typo or a wrong type, the
   forwarding proxy returning `object`, the proxy without `book`) are reduced models: they restate
-  the shape and do not import the fixture.
+  the shape and don't import the fixture.
 
 ## Layout
 

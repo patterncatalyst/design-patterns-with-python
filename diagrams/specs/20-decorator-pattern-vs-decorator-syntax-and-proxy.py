@@ -48,7 +48,7 @@ emit(
             "w": RW,
             "h": 70,
             "style": "ink",
-            "lines": ["@retry(attempts=..., on=...)", "a factory returns the decorator"],
+            "lines": ["@retry(attempts=..., on=...)", "a factory returns what @ applies"],
         },
         {
             "x": RX,

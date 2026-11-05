@@ -45,11 +45,11 @@ Standing, not a decision: step ids are `J*`. `validate.py --claims` resolves `ru
    **Recommend: yes.** Alternative (b): fold Facade into the Adapter section as one paragraph. The chapter title names three patterns, and a two-sentence Facade would read as an omission.
 
 4. **Two carrier SDK stand-ins, not three; domain row 19 is amended.** Domain row 19 says "Three carrier APIs behind one CarrierGateway", but the rules allow only `FASTLINE` and `AIRCO`.
-   - (a) Two stand-ins in `sdks.py` with deliberately different shapes:
+   - (a) Two stand-ins in `sdks.py` with different shapes:
      - `AircoClient`, whose `book` and `insure` already match the Protocol, so it's used with no adapter (the duck-typing case, evidence E1);
      - `FastlineClient`, whose `submit_shipment(payload)` takes pounds and returns a numeric receipt, and whose `add_cover` takes cents. It needs `FastlineGateway`, an object adapter that translates shape, units and errors (E2, E4).
    - A class adapter (`_FastlineClassAdapter(FastlineClient)`) is a test-only comparison fixture on the same adapter table. It leaks `submit_shipment` to callers.
-   - Row 19 becomes "Two carrier SDKs of deliberately different shapes behind one `CarrierGateway`".
+   - Row 19 becomes "Two carrier SDKs of different shapes behind one `CarrierGateway`".
 
    **Recommend: (a).** Alternative (b): a third stand-in, a legacy Fastline API in pounds, selected by a setting. That needs a configuration path the chapter doesn't otherwise use, and it adds words to the tightest chapter in the iteration.
 
@@ -375,7 +375,7 @@ Citations, both chapters: verify each before writing; apply the bracketed fallba
   - `Consignment(id, weight, origin, destination)`, frozen slotted kw_only.
   - `Booking(carrier: str, reference: str, insured_for: Money | None = None)`, frozen slotted.
   - `BookingError(ValueError)`, `CarrierError(RuntimeError)`, `UnknownCarrierError(LookupError)`.
-- `sdks.py` (stand-ins, "deliberately different shapes"; each records calls on the instance):
+- `sdks.py` (stand-ins, "different shapes"; each records calls on the instance):
   - `AircoClient` with `book(self, consignment_id: str, weight: Weight) -> str` (returns `AC-<id>`) and `insure(self, reference: str, value: Money) -> None`.
   - `FastlineReceipt(tracking_number: int)`.
   - `FastlineRejectedError(Exception)`.
@@ -601,6 +601,8 @@ Row 5 status note at J2: "witnessed by rows 101-103 (r09)". Row 6: Ch cell 26, "
 
 - Step J5, chapter 20 experiments: (a) tax before the fees also fails `test_the_fees_are_in_the_order_the_rules_say` (3 failed, 47 passed; mypy clean); (b) deleting the proxy's `book` also fails `test_runtime_checkable_does_not_see_attributes_forwarded_by_getattr` and `test_mypy_accepts_the_explicit_proxy_as_a_gateway` (3 failed), mypy 2 errors in conftest.
 
+- Step J6 round 1: ch19 claimed structural typing covers a renamed method (test 16 contradicts it), Rhodes's composition page covering Facade (it doesn't), two fixtures where mypy reported three; the object adapter's public `client` field made "one door" false; figure 19 drew `Weight.from_pounds` where the adapter uses `Weight.pounds`. ch20 missed the functools `wraps` quotation (criterion 17) and used bare "decorator" for the `@` syntax four times (criterion 8). Added `test_a_new_booking_kind_needs_no_gateway_change`.
+
 ## Acceptance criteria
 
 1. `bash scripts/verify.sh` prints `verify: all steps passed`. `uv lock --check` passes, and the only `uv.lock` change is the two new members.
@@ -655,7 +657,7 @@ Row 5 status note at J2: "witnessed by rows 101-103 (r09)". Row 6: Ch cell 26, "
 - **ch26 overlap.** The syntax stacking-order witness touches ch26's "stacking order" ground. ch20 keeps it to the audit/retry pair and one paragraph; ch26 owns caches and renderers. Domain row 20's non-overlap sentence is extended at J0.
 - **The percentage-layer refinement** contradicts a CLAUDE.md sentence read literally. The chapter states both halves (commute exactly, split after rounding) with the evidence file, and the owner decides whether CLAUDE.md changes.
 - **Bridge may read as dependency injection again.** The section leads with the two-axis count and the implementor-widening cost, and gives the mechanism one sentence plus a pointer.
-- **SDK stand-ins look like invented domain.** They stay inside the Carrier area ("carrier SDK types are small stand-in classes with deliberately different shapes", domain row Carrier), and use only `FASTLINE` and `AIRCO`.
+- **SDK stand-ins look like invented domain.** They stay inside the Carrier area ("carrier SDK types are small stand-in classes with different shapes", domain row Carrier), and use only `FASTLINE` and `AIRCO`.
 - **`get_type_hints` on deferred annotations** (3.15) in ch19 test 9: the executor confirms that it resolves the `desk` module's names under `--import-mode=importlib`, and otherwise reads `inspect.get_annotations(ship, eval_str=True)`.
 - **ruff.** N818 holds (`CarrierError`, `BookingError`, `RatingError`, `CarrierTimeoutError`, `FastlineRejectedError`, `UnknownCarrierError`). B-rules may flag a `lambda` assigned in a layer constructor; the constructors return the lambda directly.
 - **Liquid.** f-strings with `{{` in excerpts need `{% raw %}`; validate.py checks.

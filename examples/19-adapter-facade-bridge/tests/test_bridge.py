@@ -1,5 +1,6 @@
 import ast
 from collections.abc import Callable, Sequence
+from dataclasses import dataclass
 from decimal import Decimal
 from pathlib import Path
 
@@ -79,3 +80,31 @@ def test_an_insured_booking_without_a_declared_value_is_a_booking_error(
 ) -> None:
     with pytest.raises(BookingError, match="declared value must be positive"):
         InsuredBooking(gateways["AIRCO"], Money(amount, "EUR"))
+
+
+@dataclass(frozen=True, slots=True)
+class _ExpressBooking:
+    """A booking kind that exists only in this test: it calls the same two primitives."""
+
+    gateway: CarrierGateway
+    declared_value: Money
+
+    def place(self, consignment: Consignment, carrier: str) -> Booking:
+        reference = self.gateway.book(consignment.id, consignment.weight)
+        self.gateway.insure(reference, self.declared_value)
+        return Booking(carrier, reference, self.declared_value)
+
+
+def test_a_new_booking_kind_needs_no_gateway_change(
+    consignment: Consignment,
+    carrier: str,
+    gateways: dict[str, CarrierGateway],
+    declared_value: Money,
+    expected_reference: str,
+    cover_sent_to_sdk: Sequence[object],
+    expected_cover_sent_to_sdk: Sequence[object],
+) -> None:
+    booking = _ExpressBooking(gateways[carrier], declared_value).place(consignment, carrier)
+
+    assert booking == Booking(carrier, expected_reference, declared_value)
+    assert list(cover_sent_to_sdk) == list(expected_cover_sent_to_sdk)
