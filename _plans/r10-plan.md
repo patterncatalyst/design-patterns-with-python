@@ -734,8 +734,8 @@ Step ids are `K*` (see User decisions).
 
 | Step | What | Depends | Status |
 | --- | --- | --- | --- |
-| K0 | This plan file. PDP-121a-c and 122a-c `active` in `iteration-plan.md` (dated note). Reconciliation rows 107-119 `open` with a dated r10 note. Domain rows 21-22 updated with the supporting names and decisions 1-5. ch21-22 stub `description` lines written. r09's J7 (and r08's I6 and I7 if still `todo`) closed. Decisions recorded | - | todo |
-| K1a | ch21 member, card, README, `bench/commodity_memory.py`, `_plans/evidence/flyweight-memory.md`; one `uv lock`; three green runs; `mypy --strict src tests bench`; the deletion table, each row in a fresh scratch copy with its `.venv` removed and re-synced (confirm `__file__`) | K0 | todo |
+| K0 | This plan file. PDP-121a-c and 122a-c `active` in `iteration-plan.md` (dated note). Reconciliation rows 107-119 `open` with a dated r10 note. Domain rows 21-22 updated with the supporting names and decisions 1-5. ch21-22 stub `description` lines written. r09's J7 (and r08's I6 and I7 if still `todo`) closed. Decisions recorded | - | done |
+| K1a | ch21 member, card, README, `bench/commodity_memory.py`, `_plans/evidence/flyweight-memory.md`; one `uv lock`; three green runs; `mypy --strict src tests bench`; the deletion table, each row in a fresh scratch copy with its `.venv` removed and re-synced (confirm `__file__`) | K0 | done |
 | K1b | ch22 member, card, README; one `uv lock` after K1a (sequenced); three green runs; deletion table | K1a | todo |
 | K2 | Witness results into rows 107-119 (the claims audit resolves). A failed witness changes the thesis before prose. Every message, count or value that differs from Planning evidence goes in "Corrections after the build" | K1b | todo |
 | K3 | Two figures, specs `diagrams/specs/21-*.py` and `22-*.py`, `_data/diagrams.yml` (single owner; 23 entries); figures 00-20 unchanged; every name drawn exists in `src` | K2 | todo |
@@ -763,6 +763,9 @@ Reconciliation rows (step K0). The "How to verify" column uses resolvable tokens
 | 119 | 21-22 | The "Build, run, observe" experiments behave as quoted | `run: K5` |
 
 ## Corrections after the build
+- Step K1a: member 31 functions, 44 cases, as planned. `mypy.api.run` raises the process recursion limit, so the deep-tree test passed alone and failed after any static test; a `recursion_limit` fixture pins it to 1000 and restores it (tests 10, 12). Test 12 builds the 5,000-level tree through `object.__new__`/`object.__setattr__` because `__post_init__` flattens recursively. `domain.py` carries a private `_consignment_ids` match to avoid an import cycle. Test 15 asserts `__suppress_context__` (witnesses `from None`). Bench figures within a few hundred bytes of evidence E; `getsizeof` values identical. `verify.sh` doesn't run mypy on `bench/`; checked by hand.
+- Step K1a, experiment (b) differs: removing `weakref_slot=True` also fails tests 7, 11, 12, 17 and 21 (the pool builds every commodity); test 15[weak-pool] still passes (the unknown code raises before any weak reference).
+- Tooling, 2026-11-05 (owner): validate.py's word floor is now a warning and the 2,500 ceiling an error; CLAUDE.md records the new sidebar content rule and chapter structure from lgtm-professional-voice (#94-#96). r10 chapters follow them; chapters 0-20 are retrofitted later.
 
 (Empty. The orchestrator records here every message, count or value that differs from Planning evidence or this spec, with the step that found it.)
 

@@ -4,7 +4,7 @@ order: 22
 layout: tutorial
 sectionid: docs
 part: "coordinating-traversing"
-description: "Draft pending: Observer."
+description: "An Observer is a callable, but the delivery contract is still a design: subscription order, failure isolation, events published during delivery, and how long a signal keeps a subscriber alive."
 ---
 
 ## Learning objectives

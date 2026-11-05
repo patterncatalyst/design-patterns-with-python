@@ -7,6 +7,7 @@ members = [
     "adapter-facade-bridge",
     "builder-prototype",
     "command-undo",
+    "composite-flyweight",
     "consignments",
     "context-managers",
     "data-model",
@@ -94,6 +95,11 @@ wheels = [
 name = "command-undo"
 version = "0.1.0"
 source = { editable = "examples/15-command-undo-and-command-queues" }
+
+[[package]]
+name = "composite-flyweight"
+version = "0.1.0"
+source = { editable = "examples/21-composite-and-flyweight" }
 
 [[package]]
 name = "consignments"

@@ -73,7 +73,7 @@ Every chapter follows the same shape: learning objectives; why this matters; the
 the one AI sidebar; "For deeper coverage" citing the hub's `books.yml` and this book's
 `/bibliography/`.
 
-- Body prose is **1,900-2,500 words** (floor 1,900; validate.py enforces). Excluding code and diagrams.
+- Body prose targets **1,900-2,500 words**, excluding code and diagrams. The ceiling is an error in validate.py; the floor is a warning (owner decision 2026-11-05): length serves the reader, so never pad to reach it and never cut a fact to sit under the ceiling.
 - **One paired SVG + `.excalidraw` figure per chapter**, generated with `lgtm-diagram-generator`
   from a spec in `diagrams/specs/`. Never hand-edit an SVG: change the spec and regenerate.
 - **Figures are generated after the green example**, using the real type and function names from
@@ -84,7 +84,15 @@ the one AI sidebar; "For deeper coverage" citing the hub's `books.yml` and this 
 - **AI sidebar**: exactly one per pattern chapter, written as an explicit
   `<blockquote class="ai-sidebar" markdown="1">` ... `</blockquote>`. Never the kramdown form
   `{: .ai-sidebar}` (it breaks blockquote parsing under kramdown-GFM). The check is
-  `grep -c '<blockquote class="ai-sidebar"'` equals 1.
+  `grep -c '<blockquote class="ai-sidebar"'` equals 1. Content (lgtm-professional-voice, 2026-11-05):
+  state the problem in one or two sentences, then give a ready-to-paste sample prompt as a nested
+  `>` quote that bakes in the chapter's decision rule, then at most one line of review action. Not
+  a description of what an assistant gets wrong. Chapters 0-20 still use the older checklist form
+  and are retrofitted in a separate iteration (owner decision 2026-11-05).
+- **Structure** (lgtm-professional-voice, 2026-11-05): intent before mechanism; explain a subtle
+  mechanism by a minimal example first; prose doesn't re-narrate a code block (the code shows how;
+  prose adds the force, the trade-off, the domain fact); close by mapping each learning objective
+  to what the reader can now do and the artifact that delivered it.
 - **No "as we saw in Chapter N"** and no chapter-number cross-references in prose or slides. Name
   the pattern or idiom instead, and keep pointers to other chapters light: each chapter stands alone.
 - **No internal codes** (PDP-###, rNN, spike names) and no verification status in reader-facing files.

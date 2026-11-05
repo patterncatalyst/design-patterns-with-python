@@ -4,7 +4,7 @@ order: 21
 layout: tutorial
 sectionid: docs
 part: "composing-adapting-structure"
-description: "Draft pending: Composite and Flyweight."
+description: "A consignment and a consolidation of consignments answer the same question through a closed union, and a flyweight pool shares one frozen commodity among them while deciding who builds it and how long it lives."
 ---
 
 ## Learning objectives

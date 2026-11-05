@@ -129,12 +129,12 @@ PR, squash-merge with branch deletion, an `rNN.x` tag and a notes-only release.
 | PDP-120a | Ch20 Decorator pattern vs decorator syntax, and Proxy: example | r09 | active |
 | PDP-120b | Ch20 Decorator pattern vs decorator syntax, and Proxy: figure | r09 | active |
 | PDP-120c | Ch20 Decorator pattern vs decorator syntax, and Proxy: prose | r09 | active |
-| PDP-121a | Ch21 Composite and Flyweight: example | r10 | todo |
-| PDP-121b | Ch21 Composite and Flyweight: figure | r10 | todo |
-| PDP-121c | Ch21 Composite and Flyweight: prose | r10 | todo |
-| PDP-122a | Ch22 Observer: example | r10 | todo |
-| PDP-122b | Ch22 Observer: figure | r10 | todo |
-| PDP-122c | Ch22 Observer: prose | r10 | todo |
+| PDP-121a | Ch21 Composite and Flyweight: example | r10 | active |
+| PDP-121b | Ch21 Composite and Flyweight: figure | r10 | active |
+| PDP-121c | Ch21 Composite and Flyweight: prose | r10 | active |
+| PDP-122a | Ch22 Observer: example | r10 | active |
+| PDP-122b | Ch22 Observer: figure | r10 | active |
+| PDP-122c | Ch22 Observer: prose | r10 | active |
 | PDP-123a | Ch23 Mediator and Chain of Responsibility: example | r11 | todo |
 | PDP-123b | Ch23 Mediator and Chain of Responsibility: figure | r11 | todo |
 | PDP-123c | Ch23 Mediator and Chain of Responsibility: prose | r11 | todo |
@@ -208,3 +208,5 @@ PR, squash-merge with branch deletion, an `rNN.x` tag and a notes-only release.
 2026-11-04 (r08): PDP-116a to PDP-118c are active for r08 (chapters 16 to 18, Part 6). Earlier iterations keep their status.
 
 2026-11-04 (r09): PDP-119a to PDP-120c are active for r09 (chapters 19 and 20, Part 7). Earlier iterations keep their status.
+
+2026-11-05 (r10): PDP-121a to PDP-122c are active for r10 (chapters 21 and 22, Parts 7 and 8). Earlier iterations keep their status.
