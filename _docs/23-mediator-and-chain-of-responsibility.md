@@ -4,7 +4,7 @@ order: 23
 layout: tutorial
 sectionid: docs
 part: "coordinating-traversing"
-description: "A chain of responsibility is a tuple of callables, but which stage runs first and who decides when nobody does are still decisions, and a mediator keeps the rule for releasing a held declaration in one place."
+description: "A chain of responsibility is a tuple of callables, but which stage runs first and who decides when nobody does are still decisions, and a mediator keeps the rule for releasing a declaration held for duty or inspection in one place."
 ---
 
 ## Learning objectives
@@ -14,7 +14,7 @@ By the end of this chapter you can:
 - Say what Python removes from Chain of Responsibility and Mediator, the handler class with its successor link and the Mediator and Colleague classes, and which decisions survive.
 - Write a clearance chain as a tuple of typed callables, where `None` passes the declaration on and a separately typed final stage can't.
 - Say what mypy checks about a chain, the shape of each stage, and what it can't see, their order.
-- Write one mediator that releases a held declaration once, after duty and inspection have both reported, in either order.
+- Write one mediator that releases a declaration held for duty or inspection once, after both have reported, in either order.
 - Choose between a chain, a `match`, a mediator and a signal.
 
 ## Why this matters
@@ -31,7 +31,7 @@ Each is a decision, and both patterns survive because Python's syntax doesn't ma
 
 {% include excalidraw.html name="23-mediator-and-chain-of-responsibility" caption="Figure 23.1: A declaration passes along an ordered tuple of clearance stages; the first stage that decides ends the walk, and a clean one is released by the final stage. A consignment held for duty or inspection waits on a mediator that releases it once." %}
 
-Read the figure from the top down. `CustomsDeclaration` goes to `clear`, "walks the stages in order". Below it sit `check_documents`, `assess_duty` and `inspect_goods`, each with a "None: pass it on" arrow down, and then `release`, "final stage: decides". Each stage also has an arrow to `Held`, "the stage stops the walk". `Held` goes to `ClearanceMediator`, "releases once, after both report". `Settlement` and `Inspection` feed the mediator, which sends `CLEARED` to `TrackingHistory.record`. A muted dashed box, "linked chain", reads "falls off the end with None".
+Read the figure from the top down. `CustomsDeclaration` goes to `clear`, "walks the stages in order". Below it sit `check_documents`, `assess_duty` and `inspect_goods`, each with a "None: pass it on" arrow down, and then `release`, "final stage: decides". Each stage also has an arrow to `Held`, "the stage stops the walk". `Held` goes, for duty or inspection, to `ClearanceMediator`, "releases once, after both report". `Settlement` and `Inspection` feed the mediator, which sends `CLEARED` to `TrackingHistory.record`. A muted dashed box, "linked chain", reads "falls off the end with None".
 
 ## A chain is a tuple of stages
 

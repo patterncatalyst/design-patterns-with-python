@@ -1,7 +1,7 @@
 # Mediator and Chain of Responsibility
 
 Two patterns that coordinate who acts: a chain decides whether a declaration is held, and a mediator
-decides when a held consignment is released. The chapter's thesis is that both survive. Python
+decides when a consignment held for duty or inspection is released. The chapter's thesis is that both survive. Python
 removes the handler class with its next-handler link, and the Mediator and Colleague classes, because
 a stage is a callable and a colleague holds the mediator's `receive`. The decisions remain: what
 "pass it on" means, which stage runs first, who decides when nobody does, and the rule for release

@@ -2,7 +2,7 @@
 layout: example
 order: 23
 title: "Mediator and Chain of Responsibility"
-description: A customs clearance chain written as a tuple of typed stages with a final stage that always decides, and a mediator that releases a held consignment once, after duty and inspection both report, with a linked chain, a match and colleagues that call each other as comparisons.
+description: A customs clearance chain written as a tuple of typed stages with a final stage that always decides, and a mediator that releases a consignment held for duty or inspection once, after both report, with a linked chain, a match and colleagues that call each other as comparisons.
 github_path: examples/23-mediator-and-chain-of-responsibility
 card_eyebrow: "Coordination · Mediator and Chain of Responsibility"
 card_blurb: "Stages return a decision or None to pass it on, the first decision wins, and the final stage is typed so it cannot pass. A mediator holds the release rule and its state, and a choreography shows what it replaces."
@@ -10,7 +10,7 @@ card_title: "Who decides, in what order, and when to release"
 ---
 
 One shipping domain witnesses both patterns: customs clearance. A declaration passes along an
-ordered chain of stages until one holds it, and a held consignment then waits on a mediator. Each
+ordered chain of stages until one holds it, and one held for duty or inspection then waits on a mediator. Each
 test asserts the behaviour named in its title.
 
 ## The chain
