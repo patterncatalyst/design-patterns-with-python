@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 700" font-family="'Red Hat Text', system-ui, sans-serif" role="img">
+<defs><marker id="a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#555"/></marker><marker id="am" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#b8650a"/></marker></defs>
+<rect x="60" y="30" width="260" height="60" rx="9" fill="#fff8ef" stroke="#e8870c" stroke-width="2"/>
+<text x="190.0" y="65.5" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">CustomsDeclaration</text>
+<rect x="60" y="130" width="260" height="60" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+<text x="190.0" y="158.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">clear</text>
+<text x="190.0" y="175.0" font-size="11.5" fill="#555555" text-anchor="middle">walks the stages in order</text>
+<rect x="60" y="240" width="260" height="60" rx="9" fill="#eef4fb" stroke="#2f6db5" stroke-width="2"/>
+<text x="190.0" y="275.5" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">check_documents</text>
+<rect x="60" y="340" width="260" height="60" rx="9" fill="#eef4fb" stroke="#2f6db5" stroke-width="2"/>
+<text x="190.0" y="375.5" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">assess_duty</text>
+<rect x="60" y="440" width="260" height="60" rx="9" fill="#eef4fb" stroke="#2f6db5" stroke-width="2"/>
+<text x="190.0" y="475.5" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">inspect_goods</text>
+<rect x="60" y="560" width="260" height="60" rx="9" fill="#fff8ef" stroke="#e8870c" stroke-width="2"/>
+<text x="190.0" y="588.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">release</text>
+<text x="190.0" y="605.0" font-size="11.5" fill="#555555" text-anchor="middle">final stage: decides</text>
+<rect x="420" y="340" width="200" height="60" rx="9" fill="#f1f5f9" stroke="#64748b" stroke-width="2"/>
+<text x="520.0" y="368.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">Held</text>
+<text x="520.0" y="385.0" font-size="11.5" fill="#555555" text-anchor="middle">the stage stops the walk</text>
+<rect x="420" y="560" width="240" height="70" rx="9" fill="#ffffff" stroke="#999999" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="540.0" y="593.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">linked chain</text>
+<text x="540.0" y="610.0" font-size="11.5" fill="#555555" text-anchor="middle">falls off the end with None</text>
+<rect x="690" y="200" width="120" height="60" rx="9" fill="#eef4fb" stroke="#2f6db5" stroke-width="2"/>
+<text x="750.0" y="235.5" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">Settlement</text>
+<rect x="840" y="200" width="120" height="60" rx="9" fill="#eef4fb" stroke="#2f6db5" stroke-width="2"/>
+<text x="900.0" y="235.5" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">Inspection</text>
+<rect x="690" y="340" width="270" height="70" rx="9" fill="#fff8ef" stroke="#e8870c" stroke-width="2"/>
+<text x="825.0" y="373.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">ClearanceMediator</text>
+<text x="825.0" y="390.0" font-size="11.5" fill="#555555" text-anchor="middle">releases once, after both report</text>
+<rect x="690" y="500" width="270" height="60" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+<text x="825.0" y="535.5" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">TrackingHistory.record</text>
+<path d="M190,90 L190,130" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<path d="M190,190 L190,240" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<path d="M190,300 L190,340" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<text x="275.0" y="314.0" font-size="11" fill="#ffffff" stroke="#ffffff" stroke-width="3" paint-order="stroke" text-anchor="middle">None: pass it on</text>
+<text x="275.0" y="314.0" font-size="11" fill="#555" text-anchor="middle">None: pass it on</text>
+<path d="M190,400 L190,440" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<text x="275.0" y="414.0" font-size="11" fill="#ffffff" stroke="#ffffff" stroke-width="3" paint-order="stroke" text-anchor="middle">None: pass it on</text>
+<text x="275.0" y="414.0" font-size="11" fill="#555" text-anchor="middle">None: pass it on</text>
+<path d="M190,500 L190,560" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<text x="275.0" y="524.0" font-size="11" fill="#ffffff" stroke="#ffffff" stroke-width="3" paint-order="stroke" text-anchor="middle">None: pass it on</text>
+<text x="275.0" y="524.0" font-size="11" fill="#555" text-anchor="middle">None: pass it on</text>
+<path d="M320,270 L420,350" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<path d="M320,370 L420,370" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<text x="370.0" y="360.0" font-size="11" fill="#ffffff" stroke="#ffffff" stroke-width="3" paint-order="stroke" text-anchor="middle">Held: stop here</text>
+<text x="370.0" y="360.0" font-size="11" fill="#555" text-anchor="middle">Held: stop here</text>
+<path d="M320,470 L420,390" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<path d="M620,370 L690,370" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<path d="M750,260 L780,340" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<path d="M900,260 L870,340" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<path d="M825,410 L825,500" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<text x="875.0" y="449.0" font-size="11" fill="#ffffff" stroke="#ffffff" stroke-width="3" paint-order="stroke" text-anchor="middle">CLEARED</text>
+<text x="875.0" y="449.0" font-size="11" fill="#555" text-anchor="middle">CLEARED</text>
+</svg>

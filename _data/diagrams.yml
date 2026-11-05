@@ -199,3 +199,20 @@
     order, nested events wait their turn, failures are gathered and raised
     afterwards, and bound methods are held weakly so abandoned subscribers
     can go.
+
+- name: 23-mediator-and-chain-of-responsibility
+  section: "Ch. 23"
+  title: A chain of stages, then a mediator
+  caption: >-
+    A declaration passes along an ordered tuple of clearance stages; the first
+    stage that decides ends the walk, and a clean declaration is released by
+    the final stage. A held consignment then waits on a mediator that releases
+    it once.
+
+- name: 24-iterator-generators-and-the-iterator-protocol
+  section: "Ch. 24"
+  title: A fresh iterator, lazy pages, a reader that closes
+  caption: >-
+    A tracking history gives each loop a fresh iterator, so two walks both see
+    every event. Pages are read one batch at a time, and closing a reader
+    closes its file.

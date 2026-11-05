@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 660" font-family="'Red Hat Text', system-ui, sans-serif" role="img">
+<defs><marker id="a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#555"/></marker><marker id="am" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#b8650a"/></marker></defs>
+<rect x="100" y="30" width="300" height="70" rx="9" fill="#fff8ef" stroke="#e8870c" stroke-width="2"/>
+<text x="250.0" y="63.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">TrackingHistory</text>
+<text x="250.0" y="80.0" font-size="11.5" fill="#555555" text-anchor="middle">each loop gets a fresh iterator</text>
+<rect x="30" y="180" width="180" height="60" rx="9" fill="#eef4fb" stroke="#2f6db5" stroke-width="2"/>
+<text x="120.0" y="208.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">__iter__</text>
+<text x="120.0" y="225.0" font-size="11.5" fill="#555555" text-anchor="middle">walk one</text>
+<rect x="240" y="180" width="180" height="60" rx="9" fill="#eef4fb" stroke="#2f6db5" stroke-width="2"/>
+<text x="330.0" y="208.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">__iter__</text>
+<text x="330.0" y="225.0" font-size="11.5" fill="#555555" text-anchor="middle">walk two</text>
+<rect x="460" y="180" width="220" height="70" rx="9" fill="#ffffff" stroke="#999999" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="570.0" y="213.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">self-iterating cursor</text>
+<text x="570.0" y="230.0" font-size="11.5" fill="#555555" text-anchor="middle">empty on the second pass</text>
+<rect x="80" y="340" width="340" height="70" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+<text x="250.0" y="373.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">pages</text>
+<text x="250.0" y="390.0" font-size="11.5" fill="#555555" text-anchor="middle">batched: reads one page at a time</text>
+<rect x="80" y="480" width="340" height="70" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+<text x="250.0" y="513.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">page</text>
+<text x="250.0" y="530.0" font-size="11.5" fill="#555555" text-anchor="middle">islice: stops at the page it returns</text>
+<rect x="710" y="180" width="260" height="70" rx="9" fill="#fff8ef" stroke="#e8870c" stroke-width="2"/>
+<text x="840.0" y="213.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">read_events</text>
+<text x="840.0" y="230.0" font-size="11.5" fill="#555555" text-anchor="middle">opens inside with</text>
+<rect x="710" y="340" width="260" height="70" rx="9" fill="#eef4fb" stroke="#2f6db5" stroke-width="2"/>
+<text x="840.0" y="373.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">close()</text>
+<text x="840.0" y="390.0" font-size="11.5" fill="#555555" text-anchor="middle">file closed, reader finished</text>
+<rect x="710" y="480" width="260" height="70" rx="9" fill="#ffffff" stroke="#999999" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="840.0" y="513.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">break alone</text>
+<text x="840.0" y="530.0" font-size="11.5" fill="#555555" text-anchor="middle">still open while named</text>
+<path d="M220,100 L120,180" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<path d="M280,100 L330,180" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<path d="M120,240 L200,340" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<path d="M330,240 L300,340" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<path d="M250,410 L250,480" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<path d="M840,250 L840,340" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+</svg>
