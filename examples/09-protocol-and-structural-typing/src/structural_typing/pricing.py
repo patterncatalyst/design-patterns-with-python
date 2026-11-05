@@ -23,7 +23,7 @@ def flat_rate(consignment: Consignment) -> Money:
 
 
 def per_kg(shipment: Consignment) -> Money:
-    """The parameter is not called consignment on purpose: PricingRule ignores the name."""
+    """Named shipment: PricingRule's parameter is positional-only, so the name is free."""
     return Money((Decimal(str(shipment.weight.kilograms)) * _PER_KG).quantize(_CENT), "EUR")
 
 

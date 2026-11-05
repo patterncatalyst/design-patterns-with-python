@@ -24,7 +24,7 @@ ready for the other examples.
   built with `dataclasses.replace`.
 
 All three are frozen, slotted dataclasses. Each validates in `__post_init__` and
-raises `ValueError` on bad input, so an invalid instance cannot exist.
+raises `ValueError` on bad input, so an invalid instance can't exist.
 
 ## Build, run, observe
 
@@ -56,5 +56,5 @@ uv run ruff format --check examples/00-prerequisites
 - `reweigh` returns a new consignment with the new weight and leaves the original
   unchanged.
 - Assigning to a field raises `dataclasses.FrozenInstanceError`.
-- Malformed ids, non-positive or non-finite weights, and port codes that are not
+- Malformed ids, non-positive or non-finite weights, and port codes that aren't
   five uppercase letters raise `ValueError`.

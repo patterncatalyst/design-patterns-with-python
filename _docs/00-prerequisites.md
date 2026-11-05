@@ -125,7 +125,7 @@ class Consignment:
         return replace(self, weight=new)
 ```
 
-`kw_only=True` forces every argument to be named at the call site. With two string fields of the same type in a row, `Consignment(id=..., origin="NLRTM", destination="SGSIN", weight=...)` can't silently swap the ports the way a positional call could. The class body also validates both port codes in its own `__post_init__`, elided here. Since the instance is frozen, a change to weight can't be an assignment. `reweigh` calls `dataclasses.replace`, which builds a new instance from the old one with one field changed. It calls `__init__` again, so `__post_init__` checks the copy (the port codes) like any new instance; the `Weight` was validated when it was built. The method annotation `-> Consignment` needs no quotes: since Python 3.14, annotations are evaluated lazily (PEP 649), so a class can name itself in its own signatures.
+`kw_only=True` forces every argument to be named at the call site. With two string fields of the same type in a row, `Consignment(id=..., origin="NLRTM", destination="SGSIN", weight=...)` can't silently swap the ports the way a positional call could. The class body also validates both port codes in its own `__post_init__`, elided here. Since the instance is frozen, a change to weight can't be an assignment. `dataclasses.replace` calls `__init__` again, so `__post_init__` checks the copy (the port codes) like any new instance; the `Weight` was validated when it was built. The method annotation `-> Consignment` needs no quotes: since Python 3.14, annotations are evaluated lazily (PEP 649), so a class can name itself in its own signatures.
 
 ## What the tests prove
 
@@ -141,7 +141,7 @@ class Consignment:
 
 ## What each gate catches
 
-The gates overlap less than they seem to. ruff check finds an unused import, a mutable default argument, or a bare `except` before anything runs, and ruff format settles layout so reviews don't argue about it. mypy finds the wrong argument type, the attribute that doesn't exist, and the `None` that reaches a call expecting a value, none of which a passing test proves absent unless a test happens to hit that line. pytest finds behaviour that is well typed and wrong: a hash that disagrees with equality, a validator with an off-by-one. The `reweigh` experiment in Build, run, observe shows the asymmetry in one direction, and a test that passes a malformed id shows it in the other, since a type checker can't know that `"CN-1"` is too short. Skipping any one gate leaves a class of defect that the other three accept.
+The gates overlap less than they seem to. ruff check finds an unused import, a mutable default argument, or a bare `except` before anything runs, and ruff format settles layout so reviews don't argue about it. mypy finds the wrong argument type, the attribute that doesn't exist, and the `None` that reaches a call expecting a value, none of which a passing test proves absent unless a test happens to hit that line. pytest finds behaviour that is well typed and wrong: a hash that disagrees with equality, a validator with an off-by-one. Changing `reweigh` to return `str` makes mypy fail and leaves pytest green, and a test that passes a malformed id shows it in the other, since a type checker can't know that `"CN-1"` is too short. Skipping any one gate leaves a class of defect that the other three accept.
 
 ## Bumping a pin
 
@@ -203,7 +203,7 @@ tests/test_consignment.py::test_invalid_port_code_is_rejected[destination-NL1TM]
 ============================== 26 passed in 0.03s ==============================
 ```
 
-Note `rootdir` and `configfile`: pytest found the root `pyproject.toml` from inside the example, which is the configuration discovery described above.
+`rootdir` and `configfile` show that pytest found the root `pyproject.toml` from inside the example, which is the configuration discovery described above.
 
 ```text
 $ uv run mypy --strict src tests
@@ -215,6 +215,15 @@ Three files are checked: the module, the package `__init__`, and the test file. 
 ## Teardown
 
 Everything installed lives in four places. `rm -rf .venv` removes the environment, `uv cache clean` empties uv's download and build cache, and `uv python uninstall 3.15.2` removes the interpreter if no other project of yours uses it. Removing uv itself is `rm ~/.local/bin/uv ~/.local/bin/uvx` for the installer route, or `sudo dnf remove uv` for the package. Nothing else on the system changes.
+
+## What you can do now
+
+- Install uv and a pinned CPython without containers: the installer plus `.python-version`, which leaves system Python alone.
+- Build the one locked environment: `uv sync --locked --all-packages` from the root, producing the root `.venv`.
+- Read the machine check: `scripts/check-prereqs.sh` and its table.
+- Run the four gates for one example or all of them: ruff check, ruff format, `mypy --strict` per member, pytest, and `bash scripts/verify.sh`.
+- Say what the consignment tests prove: `Consignment`, `ConsignmentId` and `Weight`, the 26 cases in `tests/test_consignment.py`, and the `reweigh` experiment.
+- Point an editor at `.venv/bin/python` and undo the install with the Teardown commands.
 
 ## For deeper coverage
 

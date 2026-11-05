@@ -17,14 +17,14 @@ the behaviour named in its title.
 A read-only registry maps a carrier code to `FastlineGateway.from_settings` or
 `AircoGateway.from_settings`. Each classmethod returns `Self`, so a subclass builds itself, and the
 registry slot is a `Callable`, which mypy checks against every constructor. A `type[...]` slot
-accepts a class that cannot be called without arguments. A GoF creator hierarchy passes the same
+accepts a class that can't be called without arguments. A GoF creator hierarchy passes the same
 table in a test, with three classes where the registry declares none.
 
 ## Abstract Factory
 
 A carrier added to two of three if-chains is quoted at another carrier's rate, and mypy says
 nothing. `CarrierKit` holds one family's constructors as a frozen value. Its reference type ties
-the gateway to the label printer, so a mixed kit is a type error. It does not tie the rate source,
+the gateway to the label printer, so a mixed kit is a type error. It doesn't tie the rate source,
 and a printer that takes any `str` fits every family.
 
 ## Build, run, observe

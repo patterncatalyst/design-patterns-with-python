@@ -84,11 +84,11 @@ The survivors keep a force that no language feature resolves. They fall into thr
 
 **Structure.** Adapter, Facade, Bridge, Composite and Flyweight are about the shape of what is built. Duck typing removes an Adapter only when the shapes already match. A Facade narrows a large subsystem to the few calls a caller needs, a Bridge lets an abstraction and its implementations vary independently, and a Composite gives a `ConsolidatedShipment` of consignments one interface. Flyweight shares immutable state that would otherwise repeat. None of these forces concerns how a behaviour is passed, so no feature that makes functions values touches them.
 
-**Coordination.** Observer, Mediator, Chain of Responsibility, Memento and Interpreter govern how parties agree. Observer is callbacks in Python, but the hard parts of the pattern are untouched by that: in what order subscribers are called, whether one failing subscriber stops the rest, and how long a subscriber stays alive. A Mediator centralises who talks to whom, a Chain of Responsibility decides who handles a request, a Memento captures state to restore later, and an Interpreter evaluates a small grammar. Each of these is still a decision about relationships, and the code is shorter in Python without the decision being smaller.
+**Coordination.** Observer, Mediator, Chain of Responsibility, Memento and Interpreter govern how parties agree. Observer is callbacks in Python, but the hard parts of the pattern are untouched by that: in what order subscribers are called, whether one failing subscriber stops the rest, and how long a subscriber stays alive. A Mediator centralises who talks to whom, a Chain of Responsibility decides who handles a request, a Memento captures state to restore later, and an Interpreter evaluates a small grammar. Each of these is still a decision about relationships.
 
 ## Names that need disambiguating
 
-Four names mean two things in Python. The first, Decorator, matters most, because confusing the two produces wrong designs.
+Four names mean two things in Python. Decorator comes first: confusing its two meanings produces wrong designs.
 
 **Decorator, the pattern.** In the catalogue, a decorator is an object that wraps another object with the same interface and adds a responsibility, and a stack of such wrappers is composed at runtime, often per request. In the example, a `BaseRate` applies a pricing rule and a `Surcharge` wraps any `RateCalculator` and adds a fixed fee:
 
@@ -117,7 +117,7 @@ def calculator_for(
     return base
 ```
 
-The witness test shows what makes this the pattern. For a light consignment `calculator_for` returns the `BaseRate` itself; for a heavy one it returns a `Surcharge` whose `inner` is that same `BaseRate`, which is left unchanged and can still price on its own. The layer is chosen per consignment at runtime, the stack is data, and `Surcharge` has no base class beyond `object`: it satisfies `RateCalculator` structurally, so the Protocol, and no inheritance, makes it interchangeable with the thing it wraps.
+A `Surcharge` leaves its `inner` calculator unchanged, so the `BaseRate` underneath can still price on its own. The layer is chosen per consignment at runtime, the stack is data, and `Surcharge` has no base class beyond `object`: it satisfies `RateCalculator` structurally, so the Protocol, and no inheritance, makes it interchangeable with the thing it wraps.
 
 **The `@decorator` syntax.** The syntax is a statement about a function name. `@audited(sink)` above a `def` means "evaluate `audited(sink)`, call the result on the function, and bind the name to what comes back", and it happens once, when the definition executes:
 
@@ -126,7 +126,7 @@ The witness test shows what makes this the pattern. For a light consignment `cal
 def quote_carrier(consignment: Consignment, carrier: str) -> Money:
 ```
 
-The witness for this is about timing. `quote_carrier` is no longer the function written under it: the rebound name is a wrapper that keeps the original's name, reaches it through `__wrapped__`, and reports to the sink only when called. Nothing is chosen per consignment and no stack is composed from data; there is one function, replaced at definition time.
+The witness for this is about timing: the rebound `quote_carrier` is a wrapper that reports to the sink only when called. Nothing is chosen per consignment and no stack is composed from data; there is one function, replaced at definition time.
 
 The two mechanisms are independent, and one test pins that: an audited function placed inside a `Surcharge` stack is reported once per call, and neither mechanism adds the other's attributes. Either can be used without the other, and a team that says "we use the Decorator pattern here" while pointing at `@audited` has made a claim that the code can't support. The pattern gets its own treatment, with Proxy, in [Decorator the pattern vs @decorator the syntax, and Proxy]({{ '/docs/20-decorator-pattern-vs-decorator-syntax-and-proxy/' | relative_url }}).
 
@@ -213,9 +213,18 @@ tests/test_survive.py::test_undo_needs_a_command_object PASSED           [100%]
 Success: no issues found in 11 source files
 ```
 
-Read the test names as the map's claims in short form. The Decorator pair and the independence test sit together in the disambiguation file; the singleton test passes only because the load log shows a single load; the Null Object test runs mypy on two source strings and asserts the exact error code, so a green run is a statement about the type checker as well as the code.
+The Decorator pair and the independence test sit together in the disambiguation file; the singleton test passes only because the load log shows a single load; the Null Object test runs mypy on two source strings and asserts the exact error code, so a green run is a statement about the type checker as well as the code.
 
 One experiment: in `tests/test_dissolve.py`, delete the `if gateway is None:` guard and its return from the `_GUARDED` string and run `uv run pytest`. `test_null_object_is_an_optional_checked_by_mypy` fails, because mypy now reports `[union-attr]` for that snippet. Restore the guard and it passes. A second experiment uses the same loop: edit `calculator_for` to return a `Surcharge` for every consignment, and see which test notices.
+
+## What you can do now
+
+- Apply the two sorting questions: whether the name means two things in Python, and whether a feature resolves the force.
+- Place a pattern in its bucket with the reason, using the table: the feature that dissolves it, the force that survives, or the name that needs clarifying.
+- Keep `Surcharge` apart from `@audited`, backed by the independence test.
+- Recognise the idioms that belong to no entry: `find_gateway` as the optional Null Object, `Money` as the frozen Value Object, and dict dispatch in `GATEWAYS`.
+- Explain the straddlers: Command, `declare_customs` and `describe`.
+- Run the nineteen tests and the `_GUARDED` experiment, and say what each claims about the map.
 
 ## For deeper coverage
 

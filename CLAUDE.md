@@ -87,8 +87,8 @@ the one AI sidebar; "For deeper coverage" citing the hub's `books.yml` and this 
   `grep -c '<blockquote class="ai-sidebar"'` equals 1. Content (lgtm-professional-voice, 2026-11-05):
   state the problem in one or two sentences, then give a ready-to-paste sample prompt as a nested
   `>` quote that bakes in the chapter's decision rule, then at most one line of review action. Not
-  a description of what an assistant gets wrong. Chapters 0-20 still use the older checklist form
-  and are retrofitted in a separate iteration (owner decision 2026-11-05).
+  a description of what an assistant gets wrong. Chapters 0-20 were retrofitted to this form in
+  r10b (owner decision 2026-11-05).
 - **Structure** (lgtm-professional-voice, 2026-11-05): intent before mechanism; explain a subtle
   mechanism by a minimal example first; prose doesn't re-narrate a code block (the code shows how;
   prose adds the force, the trade-off, the domain fact); close by mapping each learning objective
@@ -131,7 +131,7 @@ the one AI sidebar; "For deeper coverage" citing the hub's `books.yml` and this 
   Assert the exact outcome of the forced interleaving. Performance claims live only in benchmark
   scripts with recorded, host-scrubbed output, never in assertions.
 - Tests assert behaviour, not that the build exits 0. Prefer `mocker.create_autospec` and say
-  plainly that mocks bypass the static check.
+  in the prose that mocks bypass the static check.
 - Primary sources first: the Python docs, the typing spec and PEPs.
 
 ## Spike findings to remember
@@ -173,6 +173,9 @@ the one AI sidebar; "For deeper coverage" citing the hub's `books.yml` and this 
 1. `bash scripts/verify.sh` green.
 2. `uv run python scripts/validate.py` exits 0.
 3. `lgtm-professional-voice` `scan.sh` to **0 ban-tier** over the chapter, with `--stats` reviewed.
+   Repo-wide gate: `bash ~/.claude/skills/lgtm-professional-voice/scripts/scan.sh --tier ban --fail
+   --exclude LICENSE-docs.md --exclude CLAUDE.md --exclude validate.py --exclude host_ids.py .`
+   (those four name the banned patterns or are verbatim legal text).
 4. `lgtm-idiomatic-review` scan over the example: 0 ban-tier.
 5. `python3 scripts/host_ids.py check` exits 0.
 6. Quoted output matches a fresh run modulo scrubbing.

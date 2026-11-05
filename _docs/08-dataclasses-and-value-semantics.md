@@ -33,13 +33,13 @@ Martin Fowler's *Patterns of Enterprise Application Architecture* (2002) catalog
 
 The force is four needs at once. Two values with the same content should be equal. A value should be shareable without defensive copies. It should work as a dictionary key or set member. An invariant, such as a positive weight, should hold for as long as the value exists.
 
-The structure that pattern calls for, written by hand, is private fields with read accessors, a constructor that checks the invariant, an `__eq__` and `__hash__` pair that must be kept in step, and methods that return a modified copy. Each piece is correct and none is interesting, and the pair that has to stay in step is the one that drifts.
+The structure that pattern calls for, written by hand, is private fields with read accessors, a constructor that checks the invariant, an `__eq__` and `__hash__` pair that must be kept in step, and methods that return a modified copy. The pair that has to stay in step is the one that drifts.
 
 This pattern dissolves. A feature resolves the force without the pattern's structure: one `@dataclass(frozen=True, slots=True)` declaration produces the constructor, `repr`, equality, hash and an assignment guard, and `dataclasses.replace` is the copy-with-change method. Dataclasses arrived with [PEP 557](https://peps.python.org/pep-0557/), new in Python 3.7; the [`dataclasses` documentation](https://docs.python.org/3/library/dataclasses.html) covers the current behaviour, including `slots`, `kw_only` and `weakref_slot`, added later, and is the source for the generated behaviour below. What remains is the part no decorator can supply.
 
 ## One declaration: frozen and slotted
 
-The example is a member called `value-semantics`. Its first value is a weight:
+A weight is the smallest value, equal by content and never zero:
 
 ```python
 @dataclass(frozen=True, slots=True, order=True)
@@ -53,7 +53,7 @@ class Weight:
             raise ValueError(f"kilograms must be positive, got {self.kilograms}")
 ```
 
-The check rejects zero, negative, infinite and NaN weights, since `inf > 0` is true and would otherwise pass. The decorator writes `__init__`, `__repr__`, `__eq__`, `__hash__` and the ordering methods, and with `frozen=True` it writes a `__setattr__` and `__delattr__` that raise `FrozenInstanceError`. `test_a_frozen_value_refuses_assignment` assigns to `kilograms` and matches the message `cannot assign to field 'kilograms'`. The same assignment is a static error. `test_mypy_checks_the_generated_methods[frozen-assignment]` runs this through `mypy --strict`:
+`inf > 0` is true, so the finiteness test is what rejects it. The decorator writes `__init__`, `__repr__`, `__eq__`, `__hash__` and the ordering methods, and with `frozen=True` it writes a `__setattr__` and `__delattr__` that raise `FrozenInstanceError`. `test_a_frozen_value_refuses_assignment` assigns to `kilograms` and matches the message `cannot assign to field 'kilograms'`. The same assignment is a static error. `test_mypy_checks_the_generated_methods[frozen-assignment]` runs this through `mypy --strict`:
 
 ```python
 def reweigh(w: Weight) -> None:
@@ -62,7 +62,7 @@ def reweigh(w: Weight) -> None:
 
 and gets `<string>:6: error: Property "kilograms" defined in "Weight" is read-only  [misc]`, which means the mistake is caught before a test runs.
 
-Frozen guards attribute assignment; it doesn't seal the object. `test_frozen_is_a_setattr_guard_not_a_seal` calls `object.__setattr__(w, "kilograms", -5.0)` and the write succeeds, past the invariant. That's why the example doesn't normalise inside `__post_init__` through that back door: a type that mutates itself in its constructor has stopped being immutable in any sense a reader can rely on. The documentation on frozen instances notes that the generated `__init__` itself writes fields through `object.__setattr__`, and the back door is a reason to normalise before construction, which a later section does.
+Frozen guards attribute assignment; it doesn't seal the object. `test_frozen_is_a_setattr_guard_not_a_seal` calls `object.__setattr__(w, "kilograms", -5.0)` and the write succeeds, past the invariant. That's why the example doesn't normalise inside `__post_init__` through that back door: a type that mutates itself in its constructor is no longer immutable. The documentation on frozen instances notes that the generated `__init__` itself writes fields through `object.__setattr__`, and the back door is a reason to normalise before construction, which a later section does.
 
 `slots=True` replaces the per-instance `__dict__` with fixed slots. A slotted class also loses the weak-reference slot. `test_slots_remove_dict_and_weakref_until_asked` shows `weakref.ref(w)` raising `TypeError` with the message `cannot create weak reference to 'Weight' object`, and shows that `weakref_slot=True` puts the slot back. mypy says nothing about it: `test_mypy_cannot_see_value_semantics_mistakes[slots-weakref]` runs `weakref.ref(Weight(1.0))` through `--strict` and gets exit status 0 and empty output. A cache that holds weak references to values fails at run time, not at type-check time.
 
@@ -167,9 +167,11 @@ Data that has to change in place as one aggregate is another poor fit. A running
 A value whose equality isn't field by field needs a hand-written `__eq__` and a matching `__hash__`. A carton that may be stowed on any face is equal to its rotation, and no field comparison says so. The chapter titled [The data model: dunder methods as the substrate]({{ '/docs/07-the-data-model/' | relative_url }}) covers that contract.
 
 <blockquote class="ai-sidebar" markdown="1">
+**Reviewing assistant-written value types.** An assistant writing a value type may produce private fields with accessors, a mutable dataclass used as a dict key, a `list` inside a frozen class, or `object.__setattr__` in `__post_init__`. Paste a prompt that states the form:
 
-**Reviewing assistant-written value types.** An assistant may produce private fields with accessor methods, a mutable dataclass used as a dict key, a `list` field inside a frozen class, `order=True` on an amount with a currency, or `object.__setattr__` in `__post_init__` to normalise. Check that the type is frozen and slotted, that its field types are immutable, that `__post_init__` only reads, that ordering is meaningful field by field, and that a test puts two equal values in a set.
+> Write each value as `@dataclass(frozen=True, slots=True)` with immutable field types (`tuple`, `frozenset`, `Decimal`). `__post_init__` only validates and raises; normalise in a classmethod such as `Money.of` before construction. Amend with `dataclasses.replace`. Use `order=True` only where field order is the meaning, and `eq=False` for an entity such as `StowagePlan`. Add a test that puts two equal values in a set.
 
+If `__post_init__` assigns through `object.__setattr__`, ask for the normalising constructor.
 </blockquote>
 
 ## Build, run, observe
@@ -263,6 +265,14 @@ tests/test_generated.py:27: error: Unused "type: ignore" comment  [unused-ignore
 ```
 
 The `# type: ignore[operator]` that suppressed the comparison error has nothing left to suppress, so strict mode reports the line. Restore the decorator.
+
+## What you can do now
+
+- Say what the decorator generates: `__init__`, `__repr__`, `__eq__`, `__hash__` and the assignment guard, with `test_frozen_is_a_setattr_guard_not_a_seal` showing what it leaves to you.
+- Explain hashing: `_MutableSlotId` can't key a dict, and `_FrozenWithList` can't be hashed, because a `list` field breaks the promise.
+- Amend a shared value: `replace` builds the new consignment, and `test_an_amendment_is_a_new_value_and_the_other_booking_keeps_the_old` shows the other booking keeping the old one.
+- Choose value or entity: `SlotId` and `Consignment` compare by content, and `StowagePlan` with `eq=False` compares by identity.
+- Place the switches: `order=True` against `_OrderedMoney`, `kw_only=True` on `Consignment` and `field(compare=False)` on `remarks`, each with its static case in the mypy tests.
 
 ## For deeper coverage
 

@@ -28,7 +28,7 @@ writers already entered exit in reverse order and discard their partial files.
 
 A truthy return swallows the exception, and `contextlib.suppress` swallows one named exception
 only. mypy reads the return type: `-> None` makes the code after a raising `with` unreachable,
-`-> bool` does not.
+`-> bool` doesn't.
 
 ## Python 3.15
 

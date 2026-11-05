@@ -177,7 +177,7 @@ def test_the_weak_pool_drops_a_commodity_nobody_holds(pool: CommodityPool) -> No
 
     del first
     # CPython usually frees an object at its last reference, but the language promises no
-    # immediate finalisation, so collect deliberately before asserting.
+    # immediate finalisation, so collect explicitly before asserting.
     gc.collect()
 
     assert first_ref() is None

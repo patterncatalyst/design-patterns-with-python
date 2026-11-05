@@ -69,7 +69,7 @@ mypy splits these swaps by type. The test `test_mypy_cannot_see_two_same_typed_a
 <string>:37: error: Argument 8 to "LegacyBookingRequest" has incompatible type "Weight"; expected "Money | None"  [arg-type]
 ```
 
-So a type system finds the swaps that cross types, and two arguments of one type pass whatever their order. [Dataclasses and value semantics]({{ '/docs/08-dataclasses-and-value-semantics/' | relative_url }}) teaches how `kw_only` makes a positional call a `TypeError`.
+So a type system finds the swaps that cross types, and two arguments of one type pass whatever their order. [Dataclasses and value semantics]({{ '/docs/08-dataclasses-and-value-semantics/' | relative_url }}) shows how `kw_only` makes a positional call a `TypeError`.
 
 ## A keyword-only dataclass is the builder
 
@@ -115,7 +115,7 @@ The carrier and the service level are `Literal` types, `CarrierCode` and `Servic
 
 Leaving out `destination` prints `<string>:10: error: Missing named argument "destination" for "BookingRequest"  [call-arg]`, and a misspelt `servce=` prints `<string>:10: error: Unexpected keyword argument "servce" for "BookingRequest"; did you mean "service"?  [call-arg]`. The same swap of origin and destination, written with keywords, still type-checks, because both fields are `str`. What changed is that the call site says which is which, so a reviewer can read it. The check stays a human one.
 
-The cross-field rules run in `__post_init__` once, at construction, so a request that exists is a request that passed them. `test_both_constructors_pass_the_booking_table` runs four cases (a minimal request, an insured one without a declared value, dangerous goods without the note, and equal ports) through three forms: the dataclass by keyword, the positional constructor and a fluent builder. All twelve combinations produce the expected fields or the expected `BookingError` message. The comparison is fair because the checks are the same, and the difference is where the mistakes show up.
+The cross-field rules run in `__post_init__` once, at construction, so a request that exists is a request that passed them. `test_both_constructors_pass_the_booking_table` runs four cases (a minimal request, an insured one without a declared value, dangerous goods without the note, and equal ports) through three forms: the dataclass by keyword, the positional constructor and a fluent builder. All twelve combinations produce the expected fields or the expected `BookingError` message. The checks are the same in all three, so the difference is where the mistakes show up.
 
 ## What a builder costs
 
@@ -123,7 +123,7 @@ The fluent form is the fixture `_BookingRequestBuilder`: one method per field, e
 
 A dataclass call has the other properties a builder is praised for. Optional values take defaults, and the product is complete the moment it exists. What a builder adds is an intermediate object that is incomplete and mutable, and the checks you write to cope with that.
 
-A builder keeps a real job where the value is assembled in stages from parts that arrive over time, and the parts aren't all in hand at one call site. Then the incomplete state is the point. The [Final project]({{ '/docs/39-final-project/' | relative_url }}) is the place to weigh that choice in a larger build. For the dataclass side, Luciano Ramalho's *Fluent Python* has material on dataclasses, and Brett Slatkin's *Effective Python* has advice on keyword-only arguments. Both are in the [bibliography]({{ '/bibliography/' | relative_url }}).
+A builder keeps a real job where the value is assembled in stages from parts that arrive over time, and the parts aren't all in hand at one call site. Then the incomplete state is the point. For the dataclass side, Luciano Ramalho's *Fluent Python* has material on dataclasses, and Brett Slatkin's *Effective Python* has advice on keyword-only arguments. Both are in the [bibliography]({{ '/bibliography/' | relative_url }}).
 
 ## Prototype: templates and replace
 
@@ -169,7 +169,7 @@ def from_template(name: str, *, consignment_id: ConsignmentId, weight: Weight) -
 
 `test_a_template_and_replace_give_a_new_request` runs both templates: the new request has the new id and weight, is a different object, and replacing the two fields back gives a value equal to the template, which still carries its placeholder id. `test_an_unknown_template_is_a_booking_error` asks for `'air-freight'` and gets `BookingError` with the message "no template 'air-freight'", the original `KeyError` suppressed. `test_the_template_registry_is_read_only` assigns into `TEMPLATES` and gets a `TypeError` about item assignment, so a caller can't add a template by accident. A read-only module-level table is a small case of the shared state that [Singleton: module, Borg, and metaclass]({{ '/docs/18-singleton-module-borg-metaclass/' | relative_url }}) takes up. Which class to construct, by name, is the question of [Factory Method and Abstract Factory]({{ '/docs/16-factory-method-and-abstract-factory/' | relative_url }}). Here every template is the same class.
 
-`replace` is Prototype's `clone`, a point [The three-way split: dissolve, survive, disambiguate]({{ '/docs/03-the-three-way-split/' | relative_url }}) makes. The new ground is what a copy goes through. `dataclasses.replace` builds the copy by calling `__init__`, and the [dataclasses documentation](https://docs.python.org/3/library/dataclasses.html) says that this "ensures that `__post_init__()`, if present, is also called." The `copy` module gained a generic form. The [copy documentation](https://docs.python.org/3/library/copy.html) describes `copy.replace(obj, /, **changes)` as: "Creates a new object of the same type as obj, replacing fields with values from changes." It's marked "Added in version 3.13." A class opts in with `__replace__`, described there as: "This method should create a new object of the same type, replacing fields with values from changes." The dataclasses page adds: "Dataclass instances are also supported by generic function `copy.replace()`."
+`replace` is Prototype's `clone`, a point [The three-way split: dissolve, survive, disambiguate]({{ '/docs/03-the-three-way-split/' | relative_url }}) makes. `dataclasses.replace` builds the copy by calling `__init__`, and the [dataclasses documentation](https://docs.python.org/3/library/dataclasses.html) says that this "ensures that `__post_init__()`, if present, is also called." The `copy` module gained a generic form. The [copy documentation](https://docs.python.org/3/library/copy.html) describes `copy.replace(obj, /, **changes)` as: "Creates a new object of the same type as obj, replacing fields with values from changes." It's marked "Added in version 3.13." A class opts in with `__replace__`, described there as: "This method should create a new object of the same type, replacing fields with values from changes." The dataclasses page adds: "Dataclass instances are also supported by generic function `copy.replace()`."
 
 `test_replace_reruns_the_cross_field_checks` runs both functions on a template with `insured=True` and gets `BookingError` from each, matching "declared value", with the template unchanged. A replace can't build an invalid request. `test_copy_replace_works_on_dataclasses_and_refuses_a_plain_class` calls `copy.replace(template, service="standard")` on the express template and gets a standard request, with the template unchanged. A plain class without `__replace__` gets `TypeError: replace() does not support Plain objects` from a run of `copy.replace`.
 
@@ -184,7 +184,7 @@ The same misspelling through `dataclasses.replace` prints `Unexpected keyword ar
 
 ## Shallow copies share
 
-`replace` and `copy.copy` are shallow. The copy documentation defines the two kinds: "A shallow copy constructs a new compound object and then (to the extent possible) inserts references into it to the objects found in the original." And: "A deep copy constructs a new compound object and then, recursively, inserts copies into it of the objects found in the original." That's the whole difficulty when a field holds a list.
+`replace` and `copy.copy` are shallow. The copy documentation defines the two kinds: "A shallow copy constructs a new compound object and then (to the extent possible) inserts references into it to the objects found in the original." And: "A deep copy constructs a new compound object and then, recursively, inserts copies into it of the objects found in the original."
 
 The fixture for it is `_LooseRequest`, a mutable slotted dataclass whose `documents` field is `list[str] = field(default_factory=list)`. The model's request can't be used here, because its documents are a tuple.
 
@@ -192,14 +192,18 @@ The fixture for it is `_LooseRequest`, a mutable slotted dataclass whose `docume
 
 `copy.deepcopy` separates the lists. `test_a_deep_copy_separates_the_documents_list` appends through a deep copy and finds the template unchanged and the two lists distinct objects. That works, and the documentation states its price: "Because deep copy copies everything it may copy too much, such as data which is intended to be shared between copies." A lock is a poor fit for it: on Python 3.15.2, `copy.deepcopy(threading.Lock())` raises `TypeError: cannot pickle '_thread.lock' object`. Build such an object again.
 
-The better answer is the field type. In the model, `documents` is `tuple[str, ...]`. A tuple has no `append`, so a copy that wants a longer list of documents builds a new tuple. `test_a_tuple_field_makes_the_template_safe_to_share` copies a template with `copy.copy`, makes a longer request with `replace(clone, documents=(*clone.documents, "packing list"))`, and checks that the template still holds `("commercial invoice",)`. The copy equals its template and is a different object. Nothing is shared that can change. That frozen is shallow is the lesson of [Dataclasses and value semantics]({{ '/docs/08-dataclasses-and-value-semantics/' | relative_url }}), and a field type chosen for immutability is its remedy here as it is there.
+The better answer is the field type. In the model, `documents` is `tuple[str, ...]`. A tuple has no `append`, so a copy that wants a longer list of documents builds a new tuple. `test_a_tuple_field_makes_the_template_safe_to_share` copies a template with `copy.copy`, makes a longer request with `replace(clone, documents=(*clone.documents, "packing list"))`, and checks that the template still holds `("commercial invoice",)`. The copy equals its template and is a different object. Nothing is shared that can change. That frozen is shallow is covered in [Dataclasses and value semantics]({{ '/docs/08-dataclasses-and-value-semantics/' | relative_url }}), and a field type chosen for immutability is its remedy here as it is there.
 
 ## When not to use it
 
 A value with three fields doesn't need this treatment: a plain frozen dataclass or an ordinary constructor is clear. An object whose construction is a process, such as opening a connection or calling a service, is a function. A request that holds no resources is the case `replace` and the copy functions fit. Don't deep-copy a lock; build another. A builder kept only for a fluent style gives up the type checker's missing-argument report in exchange for a chain of method calls.
 
 <blockquote class="ai-sidebar" markdown="1">
-**Reviewing assistant-written builders.** An assistant asked for "a builder" may write a fluent `BookingRequestBuilder` whose `build()` checks for missing parts at run time, a constructor with a dozen positional parameters, a `clone()` method that copies `self.__dict__`, or a template with a `list` field copied with `copy.copy`. Check: is the product a frozen keyword-only dataclass; are cross-field rules in `__post_init__`; are closed choices `Literal` or enum types; are copies made with `replace` or `copy.replace`; are template fields immutable.
+**Reviewing assistant-written builders.** Asked for "a builder", an assistant may write a fluent `BookingRequestBuilder` whose `build()` checks for missing parts at run time, a dozen positional parameters, or a `clone()` that copies `self.__dict__`. Paste a prompt that states the form:
+
+> Write `BookingRequest` as `@dataclass(frozen=True, slots=True, kw_only=True)` with the cross-field rules in `__post_init__`, closed choices as `Literal` types and `documents` as a `tuple`. Keep templates in a read-only `frozendict` and copy them with `dataclasses.replace` or `copy.replace`, which rerun `__post_init__`. No builder class and no `clone` method.
+
+If a template field is a `list`, ask for the test that appends through a copy.
 </blockquote>
 
 ## Build, run, observe
@@ -302,7 +306,15 @@ tests/conftest.py:202: error: Argument "documents" to "BookingRequest" has incom
 Found 6 errors in 3 files (checked 8 source files)
 ```
 
-One test fails, `test_the_request_has_twelve_fields_and_four_are_required`, which reads the field defaults. The template-sharing tests pass, because the templates in `src` still hand over tuples at run time. mypy is the check that notices: it reports six errors, including the two literals in `templates.py` that pass tuples where a list is now declared. A field type is a design decision that the type checker enforces everywhere the field is used.
+One test fails, `test_the_request_has_twelve_fields_and_four_are_required`, which reads the field defaults. The template-sharing tests pass, because the templates in `src` still hand over tuples at run time. mypy is the check that notices: it reports six errors, including the two literals in `templates.py` that pass tuples where a list is now declared.
+
+## What you can do now
+
+- Say why Builder and Prototype dissolve: the twelve-argument positional fixture shows the force a builder answers, and the dataclass answers it with a declaration.
+- Write a booking as a frozen keyword-only dataclass: the field-table test reads twelve fields, and `__post_init__` runs the three rules once.
+- Know what mypy checks on the call: `test_mypy_checks_literal_fields_and_keyword_names` rejects a swapped `Literal` and a misspelt keyword, and the same-type swap still passes.
+- Keep Prototype as a table: `TEMPLATES` is read-only, and `from_template` copies with `replace`.
+- Choose the field type: the tuple field is safe to share, and `copy.deepcopy` is the measured alternative.
 
 ## For deeper coverage
 

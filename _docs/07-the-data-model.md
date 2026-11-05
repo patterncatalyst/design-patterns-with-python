@@ -48,7 +48,7 @@ The lookup is on the type. The Python Language Reference, in the section on spec
 
 ## Equality and hashing: one contract
 
-Two weights of 1.5 kilograms should be one value. The default `__eq__` compares identity, so a plain class gives two set elements for two equal weights, and the example keeps such a class as a negative fixture, `_IdentityWeight`, to show it. The `Weight` in the model declares its fields as a frozen dataclass and gets a value `__eq__` and a matching `__hash__` from the declaration; what the declaration writes is the subject of [Dataclasses and value semantics]({{ '/docs/08-dataclasses-and-value-semantics/' | relative_url }}). `Weight` also rejects a weight that isn't finite and positive in `__post_init__`, which matters here for one reason: two weights built from `nan` compare unequal, and a value that fails to equal its own copy breaks the equality half of the contract.
+Two weights of 1.5 kilograms should be one value. The default `__eq__` compares identity, so a plain class gives two set elements for two equal weights, and the example keeps such a class as a negative fixture, `_IdentityWeight`, to show it. The `Weight` in the model declares its fields as a frozen dataclass and gets a value `__eq__` and a matching `__hash__` from the declaration; what the declaration writes is the subject of [Dataclasses and value semantics]({{ '/docs/08-dataclasses-and-value-semantics/' | relative_url }}). `Weight` also rejects a weight that isn't finite and positive in `__post_init__`, because two weights built from `nan` compare unequal, and a value that fails to equal its own copy breaks the equality half of the contract.
 
 The reference's section on basic customization sets the contract: equal values must hash alike. Python enforces part of it by default. A class that defines `__eq__` and not `__hash__` has its `__hash__` set to `None`, and an instance can't go in a set or serve as a dict key. `test_defining_eq_alone_makes_a_class_unhashable` checks that `vars(_EqOnlyWeight)["__hash__"]` is `None` and that building a set raises `TypeError` matching `unhashable type`.
 
@@ -109,7 +109,7 @@ Multiplication by a factor adds the reflected half:
 ```
 <!-- fmt:on -->
 
-`price * Decimal("2")` needs only `__mul__`, and `__rmul__` delegates to it, since multiplication by a factor is the same either way round. `Decimal("2") * price` is the case in the figure: `Decimal.__mul__` returns `NotImplemented` for a `Money`, and the interpreter calls `price.__rmul__(factor)`. The float factor shows the end of the path: `price * 1.5` gets `NotImplemented` from `Money.__mul__` and from `float.__rmul__`, and the result is `TypeError: unsupported operand type(s) for *`. `test_a_factor_times_money_uses_the_reflected_method` covers a `Decimal` and an `int` on the left, both float orders and the cent quantisation; `test_money_multiplication_rounds_half_up` pins the rounding mode, so a half cent rounds up.
+`Decimal("2") * price` is the case in the figure: `Decimal.__mul__` returns `NotImplemented` for a `Money`, and the interpreter calls `price.__rmul__(factor)`. The float factor shows the end of the path: `price * 1.5` gets `NotImplemented` from `Money.__mul__` and from `float.__rmul__`, and the result is `TypeError: unsupported operand type(s) for *`. `test_a_factor_times_money_uses_the_reflected_method` covers a `Decimal` and an `int` on the left, both float orders and the cent quantisation; `test_money_multiplication_rounds_half_up` pins the rounding mode, so a half cent rounds up.
 
 `sum()` runs into the same rule from another side. It starts from the integer `0`, so `sum(prices)` evaluates `0 + price`, `int.__add__` declines, `Money` has no `__radd__`, and the call raises `TypeError`. The fix is `sum(prices, start=Money(Decimal("0.00"), "EUR"))`, which the test `test_sum_needs_a_money_start` uses. A `Money.__radd__` that accepted `0` would make the bare call work by teaching `Money` a special case for a number it isn't. `start=` says what the zero is, and it carries the currency.
 
@@ -170,12 +170,14 @@ Delegating to `str` lets `f"{price:>12}"` align a `Money` like text, giving `   
 
 ## When a dunder costs more than it buys
 
-An operator is a promise about meaning. `Money * Money` has no unit a reader can name, and `consignment + consignment` could mean merging or pooling. If a reader has to look up what the operator does, a named method such as `consolidate` costs one line and removes the question. A `__bool__` on an amount makes zero falsy, which surprises code that tests `if amount:` to mean "has an amount", so `Money` leaves it out. Equality across types, say `Money == Decimal`, would need a hash that agrees across both, and the contract above is hard enough within one class.
+An operator is a promise about meaning. `Money * Money` has no unit a reader can name, and `consignment + consignment` could mean merging or pooling. If a reader has to look up what the operator does, a named method such as `consolidate` costs one line and removes the question. A `__bool__` on an amount makes zero falsy, which surprises code that tests `if amount:` to mean "has an amount", so `Money` leaves it out. Equality across types, say `Money == Decimal`, would need a hash that agrees across both.
 
 <blockquote class="ai-sidebar" markdown="1">
+**Reviewing assistant-written dunders.** An assistant writing dunders may type `__eq__` with the class, define `__eq__` without `__hash__`, or add a `__radd__` that accepts `0` so that `sum()` works. Paste a prompt that states the contract:
 
-**Reviewing assistant-written dunders.** An assistant may type `__eq__` with the class instead of `object`, define `__eq__` without `__hash__`, or add `__radd__` that accepts `0` to make `sum()` work. Check four things. Does `__eq__` take `object` and return `NotImplemented` for foreign types? Do equal values hash equal, shown by a set test and not by a reading? Are operands typed so mypy rejects the ones the method refuses? Is `start=` used in place of a special case in `__radd__`?
+> `__eq__` takes `object` and returns `NotImplemented` for foreign types, and `__hash__` hashes the same key equality compares. Type each operator's operand, return `NotImplemented` for anything else, and raise `ValueError` for mixed currencies. Add `__rmul__` for a scalar factor. Derive ordering from `__lt__` with `functools.total_ordering`. No `__radd__` for `0`: callers pass `start=` to `sum`. Add a test that puts two equal values in a set.
 
+If equal values can hash differently, ask for that set test.
 </blockquote>
 
 ## Build, run, observe
@@ -266,6 +268,14 @@ Found 6 errors in 1 file (checked 11 source files)
 ```
 
 A missing hash is invisible to the checker and a missing reflected method isn't, which is why the set test and the operand tests are both in the suite. Restore the method.
+
+## What you can do now
+
+- Say which special method a call makes: the table lists them, and `test_special_methods_are_looked_up_on_the_type` shows the lookup on the type.
+- Keep equality and hashing consistent: `Dimensions` hashes the key it compares, `test_defining_eq_alone_makes_a_class_unhashable` shows what `__eq__` alone does, and experiment one deletes `Dimensions.__hash__`.
+- Return `NotImplemented` for a foreign operand: `__add__` and `Money.__mul__` decline, `Money.__rmul__` answers the reflected case, and experiment two deletes it.
+- Derive the comparisons: `functools.total_ordering` on `Money` supplies them from `__lt__`, and `RateQuote` stays unordered.
+- Make a class sized, iterable and truthy: `TrackingHistory` defines `__len__` and `__iter__`, and `Money` serves its three readers with `__str__` and `__format__`.
 
 ## For deeper coverage
 

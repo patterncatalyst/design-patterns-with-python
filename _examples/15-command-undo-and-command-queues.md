@@ -15,7 +15,7 @@ title.
 ## Commands as values
 
 `Reweigh`, `Redirect` and `SetInstructions` are frozen dataclasses under one `type` alias. They
-compare and print by value, which a `functools.partial` does not. `apply` matches on the amendment,
+compare and print by value, which a `functools.partial` doesn't. `apply` matches on the amendment,
 ends in `assert_never`, and returns the amended request together with the amendment that reverses
 it.
 

@@ -49,12 +49,18 @@ HTML_TAG_RE = re.compile(r"<[^>]+>")
 H2_RE = re.compile(r"^##\s+(.+?)\s*$")
 FIGURE_RE = re.compile(r"\{%-?\s*include\s+excalidraw\.html\b")
 SPINE = {
-    "argument": ("Learning objectives", "Why this matters", "For deeper coverage"),
+    "argument": (
+        "Learning objectives",
+        "Why this matters",
+        "What you can do now",
+        "For deeper coverage",
+    ),
     "appendix": ("Learning objectives", "Why this matters", "For deeper coverage"),
     "hands-on": (
         "Learning objectives",
         "Why this matters",
         "Build, run, observe",
+        "What you can do now",
         "For deeper coverage",
     ),
     "pattern": (
@@ -62,6 +68,7 @@ SPINE = {
         "Why this matters",
         "Build, run, observe",
         "When not to use it",
+        "What you can do now",
         "For deeper coverage",
     ),
 }
@@ -954,7 +961,12 @@ def self_test() -> int:
     wc += "Real [link text](http://example.com/very/long) and `code span` and http://x.io/y.\n"
     wc += '```\nfenced words\n```\n{% include a.html name="x" %}\n<b>bold</b> end\n'
     expect("word count prose only", word_count(wc) == 7)
-    spine_text = "## Learning objectives\n## Why this matters\n## For deeper coverage\n"
+    spine_text = (
+        "## Learning objectives\n## Why this matters\n## What you can do now\n"
+        "## For deeper coverage\n"
+    )
+    no_close = spine_text.replace("## What you can do now\n", "")
+    expect("spine close required", bool(check_spine("a.md", no_close, "argument")))
     expect("spine hands-on missing", bool(check_spine("a.md", spine_text, "hands-on")))
     expect("spine argument ok", not check_spine("a.md", spine_text, "argument"))
     expect("spine pattern missing", len(check_spine("a.md", spine_text, "pattern")) == 2)

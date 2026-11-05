@@ -23,11 +23,9 @@ A consignment is booked, loaded, in transit, cleared and delivered, in that orde
 
 A tracking record keeps a `status` field. Nothing stops a caller setting it from delivered back to booked, and nothing says so when it happens. A customs hold is added as a sixth state, and the page that renders each state has a final "anything else" branch, so held consignments render as something they aren't, with no error anywhere. A transit-delay simulation is seeded to make it repeatable, and its result changes anyway, because another part of the program drew from the generator it shares.
 
-Each is a lifecycle problem that the type system and the test suite can be made to see, once the lifecycle is written down as something they can read.
-
 {% include excalidraw.html name="14-state-and-finite-state-machines" caption="Figure 14.1: One consignment lifecycle, two ways to write it. A read-only table maps a status and an event to the next status; a match over frozen states does the same with per-state data, and an injected generator drives transit delays." %}
 
-Read the figure from the top. Two boxes sit above the lifecycle: `TRANSITIONS`, a read-only table keyed by status and event, on the left, and `apply_event`, a match on state ending in `assert_never`, on the right. Dashed arrows run from both into `Booked`, because both forms start there. Below them a column runs `Booked`, `Loaded`, `InTransit`, `Cleared` and `Delivered`, with the arrows labelled `LOADED`, `DEPARTED`, `CLEARED` and `DELIVERED`. `Delivered` is marked terminal. A dashed box beside `InTransit` reads "each day: delay with probability p (injected Random)" and points into it. At the bottom, a dashed arrow labelled "any other event" runs from `Delivered` to the accent box, "illegal event: TransitionError". An illegal event raises from any state, and the tests hold both forms to that.
+Read the figure from the top. `TRANSITIONS`, a read-only table, and `apply_event`, a match ending in `assert_never`, both lead into the lifecycle `Booked`, `Loaded`, `InTransit`, `Cleared` and `Delivered`, which is marked terminal. A dashed box beside `InTransit` reads "each day: delay with probability p (injected Random)". A dashed arrow labelled "any other event" runs from `Delivered` to the accent box, "illegal event: TransitionError", and the tests hold both forms to that.
 
 ## The force that remains
 
@@ -117,7 +115,7 @@ def apply_event(state: ConsignmentState, event: HandlingEvent) -> ConsignmentSta
             assert_never(state)
 ```
 
-The second-to-last arm is the illegal arm, and it names every state. The last arm, `case _`, can only be reached by a state the arms above didn't name, and `assert_never` is where the type checker says so. The typing documentation puts the rule this way: "For a call to assert_never to pass type checking, the inferred type of the argument passed in must be the bottom type, Never, and nothing else." The same page adds: "At runtime, this throws an exception when called." The [typing guide on unreachable code and exhaustiveness checking](https://typing.python.org/en/latest/guides/unreachable.html) has more.
+The last arm, `case _`, can only be reached by a state the arms above didn't name, and `assert_never` is where the type checker says so. The typing documentation puts the rule this way: "For a call to assert_never to pass type checking, the inferred type of the argument passed in must be the bottom type, Never, and nothing else." The same page adds: "At runtime, this throws an exception when called." The [typing guide on unreachable code and exhaustiveness checking](https://typing.python.org/en/latest/guides/unreachable.html) has more.
 
 Add a `Held` state to the union and mypy reports the call that can now be reached. The snippet is a copy of the source's states and `match` with one more state, and `test_the_static_snippets_mirror_the_source` parses `states.py` and fails if the two drift apart:
 
@@ -145,7 +143,7 @@ The chapter titled [Naming patterns for teams and AI assistants]({{ '/docs/04-na
 
 ## One lifecycle, two forms
 
-The table and the `match` say the same thing in different places, and that is deliberate. A fixture parametrised over `table` and `match` folds a history of event kinds through each form, so `test_the_lifecycle_runs_booked_to_delivered`, `test_an_illegal_event_is_a_transition_error` and `test_delivered_is_terminal` each run twice from one set of cases. `test_the_two_forms_agree_on_every_status_and_event` then takes every status paired with every event kind and asserts that the forms both refuse with the same message or both reach the same status. A change to one form that the other doesn't follow fails that test.
+The table and the `match` say the same thing in different places, so a test can hold each to the other. A fixture parametrised over `table` and `match` folds a history of event kinds through each form, so `test_the_lifecycle_runs_booked_to_delivered`, `test_an_illegal_event_is_a_transition_error` and `test_delivered_is_terminal` each run twice from one set of cases. `test_the_two_forms_agree_on_every_status_and_event` then takes every status paired with every event kind and asserts that the forms both refuse with the same message or both reach the same status. A change to one form that the other doesn't follow fails that test.
 
 Pick the table when the states carry no data and the lifecycle should be reviewable as data: a reviewer reads four lines, and a test walks them. Pick the `match` when states carry their own data, as `InTransit` does, or when behaviour differs per state. The `match` form is the one `track` folds over a history, and it refuses an event for another consignment with `test_an_event_for_another_consignment_is_refused`.
 
@@ -175,7 +173,7 @@ Adding an operation, say `amendable`, to the Protocol is reported at each return
 <string>:17: note:     amendable
 ```
 
-That's a good report, though it lands where a state is returned and not where the class is written. Adding a state gets no report at all if nothing returns it. A `Held` class that defines only `on_loaded`, and that no other state hands back, is accepted with exit status 0 and empty output (`test_mypy_accepts_a_state_object_nothing_returns`). In the `match` form the opposite holds: a new state is reported at once, at `assert_never`.
+The report lands where a state is returned and not where the class is written. Adding a state gets no report at all if nothing returns it. A `Held` class that defines only `on_loaded`, and that no other state hands back, is accepted with exit status 0 and empty output (`test_mypy_accepts_a_state_object_nothing_returns`). In the `match` form the opposite holds: a new state is reported at once, at `assert_never`.
 
 So the line is about who extends the set. Where the set of states is open, each state owns several operations, and the people adding states can't edit a central `match`, objects behind a Protocol are the right form. A closed lifecycle owned by one team is a union and a `match`, with a checker that reports a forgotten state.
 
@@ -191,18 +189,24 @@ def sail_one_day(state: InTransit, *, rng: random.Random, delay_probability: flo
     return replace(state, days_sailed=state.days_sailed + 1)
 ```
 
-The generator is a parameter. The `random` documentation explains why that matters: "The functions supplied by this module are actually bound methods of a hidden instance of the random.Random class. You can instantiate your own instances of Random to get generators that don’t share state." A call to `random.random()` inside the model would draw from that hidden instance, and any other code drawing from it would share state with the model.
+The generator is a parameter. The `random` documentation says: "The functions supplied by this module are actually bound methods of a hidden instance of the random.Random class. You can instantiate your own instances of Random to get generators that don’t share state." A call to `random.random()` inside the model would draw from that hidden instance, and any other code drawing from it would share state with the model.
 
 With an injected generator the model is reproducible. The same page says: "By reusing a seed value, the same sequence should be reproducible from run to run as long as multiple threads are not running." `test_a_seeded_transit_is_reproducible` runs a 21-day voyage at a delay probability of 0.2 from `Random(7)` twice and gets 11 delay days both times, and gets 3 from `Random(2026)`. The voyage lengths and probabilities are illustrative. A generator that two voyages share is a different matter: `test_a_shared_generator_gives_a_different_second_run` runs two voyages from one `Random(7)` and gets 11 delay days, then 5. `test_transit_delay_bounds` covers probabilities 0 and 1: a voyage is never delayed in the first case and, in the second, stops at the day cap, sixty simulated days, having sailed none. `test_the_day_cap_bounds_the_number_of_draws` counts draws and sees exactly the cap, and `test_a_draw_equal_to_the_probability_is_not_a_delay` pins the strict comparison. `test_the_model_leaves_the_module_generator_alone` reads `random.getstate()` before and after a simulation and finds them equal.
 
-Over 10,000 seeds the same 21-day voyage averaged 5.2758 delay days against 5.25 from the negative-binomial mean, in a run recorded under `_plans/evidence/transit-delay-model.md`. That's a recorded run, and no test asserts it. The same documentation carries a warning that matters if someone reuses the pattern for tokens: "The pseudo-random generators of this module should not be used for security purposes." The model is a simulation, and [`random`](https://docs.python.org/3/library/random.html) is the right module for it.
+Over 10,000 seeds the same 21-day voyage averaged 5.2758 delay days against 5.25 from the negative-binomial mean, in a recorded run on Python 3.15.2 that no test asserts. The same documentation warns: "The pseudo-random generators of this module should not be used for security purposes." The model is a simulation.
 
 ## When not to use it
 
 A two-state flag is a `bool`. A lifecycle that nothing ever checks, because nothing branches on it, is an enum field. A workflow whose steps are configured by users at run time is data in a store, and a type per step would be a mistake. Ordered processing stages that can stop an item belong with [Mediator and Chain of Responsibility]({{ '/docs/23-mediator-and-chain-of-responsibility/' | relative_url }}).
 
 <blockquote class="ai-sidebar" markdown="1">
-**Reviewing assistant-written state machines.** An assistant asked for "the State pattern" may propose a state class per status with a method per event, a mutable `status` field that any caller can set, or a `match` whose last arm raises for "anything else". Check: is every legal transition written in one place; is an illegal one refused with a domain error; does the `match` name every state before an `assert_never` arm; does a test walk the table for unreachable and terminal states; is any random generator passed in and not drawn from the module.
+
+**Reviewing assistant-written state machines.** Asked for "the State pattern", an assistant may propose a class per status with a method per event, a mutable `status` field, or a `match` whose last arm raises for anything else. Paste a prompt that states the form:
+
+> Write the lifecycle as `TRANSITIONS`, a read-only `frozendict` from `(ConsignmentStatus, HandlingKind)` to the next status, raising `TransitionError` that names both halves for an absent pair. Where states carry data, make them frozen dataclasses in a union and write `apply_event` as a `match` on the state with an arm per state and `assert_never` last, no wildcard. Pass a `random.Random` in for delays. Test that every status is reachable and `DELIVERED` is terminal.
+
+If the `match` ends in `case _: raise`, ask what mypy reports when a state is added.
+
 </blockquote>
 
 ## Build, run, observe
@@ -304,6 +308,14 @@ Success: no issues found in 10 source files
 ```
 
 mypy reports success, because the entry is well typed. Four tests fail. `test_delivered_is_terminal[table]` fails because delivered now accepts a booking event, and the `[match]` case still passes. `test_the_two_forms_agree_on_every_status_and_event` fails because the forms disagree on that pair. `test_state_objects_agree_with_the_transition_table` fails on the same disagreement from the object side. `test_the_transition_table_is_read_only` fails on its `assert key not in TRANSITIONS`, since that key is now present. A table is checked by the tests that read it as a graph and by the forms that must agree with it, and not by mypy.
+
+## What you can do now
+
+- Say why State survives: no feature says which transitions are legal, so `TRANSITIONS` and `apply_event` write them down.
+- Write the table and know its limit: `test_every_status_is_reachable_from_booked`, `test_delivered_is_terminal`, and the illegal-pair case that mypy accepts.
+- Write the `match`: `apply_event` ends in `assert_never`, and the wildcard and tuple shapes are the two that lose its report.
+- Choose between table, `match` and objects: `test_state_objects_pass_the_same_lifecycle_table`, and `test_mypy_accepts_a_state_object_nothing_returns` for what objects leave unreported.
+- Make delays reproducible: `test_a_seeded_transit_is_reproducible` against `test_a_shared_generator_gives_a_different_second_run`.
 
 ## For deeper coverage
 

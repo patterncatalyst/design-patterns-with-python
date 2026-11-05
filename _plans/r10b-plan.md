@@ -553,12 +553,12 @@ Step ids are `L*` (see User decisions).
 | Step | What | Depends | Status |
 | --- | --- | --- | --- |
 | L0 | Branch `release/r10b` from main at b7e2a71. This plan file. Owner answers decisions 1-10, recorded here. `iteration-plan.md` row r10b marked active (dated note) | - | done |
-| L1a | Chapters 00-04, per batching | L0 | todo |
-| L1b | Chapters 05-10, per batching | L0 | todo |
-| L1c | Chapters 11-15, per batching | L0 | todo |
-| L1d | Chapters 16-20, per batching | L0 | todo |
-| L1e | Item 5 fixes and landing cards; `bash scripts/verify.sh` green; the chapter 21 excerpt still byte-identical to its source | L0 | todo |
-| L2 | Orchestrator: `CLAUDE.md` line 134 reworded; the sidebar note "Chapters 0-20 still use the older checklist form..." replaced with a dated r10b note; the canonical ban-gate command with its four exclusions added to Per-chapter gates step 3; decision 2's `SPINE` change and `--self-test`; decision 6's dated note on reconciliation row 35; all gates (criteria 1-3) | L1a-L1e | todo |
+| L1a | Chapters 00-04, per batching | L0 | done |
+| L1b | Chapters 05-10, per batching | L0 | done |
+| L1c | Chapters 11-15, per batching | L0 | done |
+| L1d | Chapters 16-20, per batching | L0 | done |
+| L1e | Item 5 fixes and landing cards; `bash scripts/verify.sh` green; the chapter 21 excerpt still byte-identical to its source | L0 | done |
+| L2 | Orchestrator: `CLAUDE.md` line 134 reworded; the sidebar note "Chapters 0-20 still use the older checklist form..." replaced with a dated r10b note; the canonical ban-gate command with its four exclusions added to Per-chapter gates step 3; decision 2's `SPINE` change and `--self-test`; decision 6's dated note on reconciliation row 35; all gates (criteria 1-3) | L1a-L1e | done |
 | L3 | Opus validation round 1: criteria 1-17 plus a read of every changed paragraph against the house-voice rubric and `before-after.md`, and every sidebar prompt checked against its chapter's decision rule and `src` names. Findings recorded per batch as blocker, should-fix or nit | L2 | todo |
 | L4 | Repair round 1: Sonnet, same partition, flagged files only | L3 | todo |
 | L5 | Opus validation round 2 | L4 | todo |
@@ -567,6 +567,8 @@ Step ids are `L*` (see User decisions).
 | L8 | PR, `ci-ok` green, ask the owner before merge; squash-merge; tag `r10b.x` on main; notes-only release | L7 | todo |
 
 ## Corrections after the build
+- L1a-L1e (Sonnet, 2026-11-05): all 21 closes and 16 sidebars in the new form; r10b-check ok; words 1,999-2,467. Planned cuts in 11 and 14 were smaller net than planned because each chapter also gained a sidebar and close; both are under 2,470. Chapter 17's pointer to the unwritten Final project was cut (plan item). L1e shortened the `pricing.py` docstring further than the plan's wording to fit 100 columns.
+- L2 (orchestrator): three reader-text pointers to `_plans/evidence/` (chapters 14 and 20, example 20 README) replaced with "a recorded run", as r10 did for chapter 21; the claim rows still cite the evidence files. `validate.py` SPINE requires "What you can do now" for argument, hands-on and pattern kinds, with a self-test case. The r10b plan's "Critical files" list carried absolute home paths in the first pushed commit; the commit was rebuilt with repo-relative paths and the branch force-pushed before any PR (host_ids history clean).
 
 (None yet. Orchestrator records here every handback that differs from this plan: word counts, declined findings, changed prompt wording, any rendering difference.)
 

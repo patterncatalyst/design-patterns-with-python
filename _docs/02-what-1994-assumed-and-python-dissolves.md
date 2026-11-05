@@ -19,7 +19,7 @@ By the end of this chapter you can:
 
 ## Why this matters
 
-A pattern catalogue is a record of decisions made with the tools on hand. Its authors say as much: the language you design in shapes the patterns you can state, and a catalogue written for one set of language features would read differently if the features changed. Read that way, the 1994 book isn't a rulebook that Python breaks. It is a snapshot of one set of assumptions, and the useful question about each entry is which assumption it depended on.
+A pattern catalogue is a record of decisions made with the tools on hand. Its authors say as much: the language you design in shapes the patterns you can state, and a catalogue written for one set of language features would read differently if the features changed. Read that way, the 1994 book is a snapshot of one set of assumptions, and the useful question about each entry is which assumption it depended on.
 
 The practical stake is code review. A pull request that adds a `PricingStrategy` base class, three subclasses and a factory to price a consignment is faithful to the catalogue and wasteful in Python. A review that only says "that isn't Pythonic" teaches nothing. A review that names the assumption (behaviour has to arrive inside an object of a declared class) and the feature that removes it (a function is already an object) teaches the reader to make the call themselves, and to notice the other case, where the force is real and the pattern still pays for itself.
 
@@ -63,7 +63,7 @@ def quote(consignment: Consignment, rule: PricingRule) -> RateQuote:
     return RateQuote(consignment.id, rule(consignment))
 ```
 
-`type PricingRule = ...` is the PEP 695 alias statement, new in 3.12 and the idiom for naming a type in 3.15. It says what a pricing rule is: anything that takes a `Consignment` and returns `Money`. `flat_rate` and `per_kg` satisfy it as plain functions, with no base class to inherit and no method to override. `quote` is the context of the 1994 pattern, reduced to one line that calls whatever it was given.
+`type PricingRule = ...` is the PEP 695 alias statement, new in 3.12 and the idiom for naming a type in 3.15. It says what a pricing rule is: anything that takes a `Consignment` and returns `Money`. `flat_rate` and `per_kg` satisfy it as plain functions, and the 1994 context is the one-line `quote`.
 
 A rule that needs configuration doesn't need a constructor and a field. It needs its argument fixed in advance, which is what `functools.partial` does:
 
@@ -71,7 +71,7 @@ A rule that needs configuration doesn't need a constructor and a field. It needs
 from_partial: PricingRule = partial(per_kg, rate=Decimal("2.00"))
 ```
 
-The test assigns that value to a variable annotated `PricingRule`, alongside a lambda and a `def`, and passes all three through `quote`. The checker accepts each because each is a callable with the right signature. That is the dissolve, stated precisely: the force (swap the algorithm) is unchanged, and the mechanism (a declared hierarchy) is replaced by a first-class value.
+The test assigns that value to a variable annotated `PricingRule`, alongside a lambda and a `def`, and passes all three through `quote`. The checker accepts each because each is a callable with the right signature. The force (swap the algorithm) is unchanged, and the mechanism (a declared hierarchy) is replaced by a first-class value.
 
 The deferred half of Command goes the same way. A request packaged as an object to run later is a call with its arguments bound, which is again a partial or a closure. The half of Command that records what to undo, or orders a queue, is a different matter: it survives.
 
@@ -87,7 +87,7 @@ def pages(history: TrackingHistory, size: int) -> Iterator[tuple[HandlingEvent, 
     yield from batched(history, size, strict=False)
 ```
 
-`TrackingHistory` is a small class whose `__iter__` returns an iterator over a source of `HandlingEvent` values, and `pages` groups them into tuples of at most `size`. The word "lazily" in the docstring is checked by a test: the test builds a source that counts how many events it has produced, asks for the first page of three, and asserts that three were pulled, not seven. Nothing is read until the caller asks. A consumer that stops after the first page never touches the rest.
+The word "lazily" in the docstring is checked by a test: the test builds a source that counts how many events it has produced, asks for the first page of three, and asserts that three were pulled, not seven. Nothing is read until the caller asks. A consumer that stops after the first page never touches the rest.
 
 What the language did not remove is the decision to expose a sequence of items without exposing its storage. That decision is still the design, and a `TrackingHistory` that hides how events are fetched is still the right boundary. Only the classes are gone. When the sequence is asynchronous, the same idea has an `async` form with one extra rule about cleanup, which belongs with the asyncio material.
 
@@ -123,7 +123,7 @@ Each has a `book` with a compatible signature, so each is accepted wherever the 
 
 That removes the scaffolding Adapter used to supply in one common situation: two parts already agree on shape and only disagree on declaration. It doesn't remove the Adapter pattern. If a carrier's client exposed `submit_shipment(payload)` instead of `book(consignment)`, no checker can bridge that. The force of Adapter is a mismatch of shape, and a mismatch of shape needs code that translates. Duck typing removes the adapter only when the shapes already match; when they don't, you write the wrapper, and it's the same class it has always been.
 
-Two cautions apply. `@runtime_checkable` makes `isinstance` work against a protocol, but it checks that the names exist and nothing about signatures, so it's a weaker guarantee than the static check. And a mock object is typed as `Any` by the checker, so it satisfies any protocol whether or not it matches. Both are reasons to rely on `mypy --strict`, not runtime checks, for the shape.
+Two cautions apply. `@runtime_checkable` makes `isinstance` work against a protocol, but it checks that the names exist and nothing about signatures, so it's a weaker guarantee than the static check. And a mock is assignable to every type, so it satisfies any protocol whether or not it matches. Both are reasons to rely on `mypy --strict`, not runtime checks, for the shape.
 
 ## Modules
 
@@ -174,7 +174,7 @@ The return type is a union, and the checker won't let a caller treat it as the p
 
 The mistake is caught before the code runs, at the exact expression that forgot the case. The same test confirms that the guarded form (`if gateway is None: return "unknown carrier"`) passes with no output. Absence is neither hidden behind a do-nothing object nor left as a run-time `AttributeError`; it's a branch the checker makes you write.
 
-The force remains here: callers still need protecting from a missing object. Null Object protected them by making the missing case look present. The type checker protects them by making the missing case impossible to ignore. Where a do-nothing default is the correct behaviour (a logger that discards output, a discount of zero), a real null object remains a fine design, and now it's a deliberate choice rather than the only option.
+The force remains here: callers still need protecting from a missing object. Null Object protected them by making the missing case look present. The type checker protects them by making the missing case impossible to ignore. Where a do-nothing default is the correct behaviour (a logger that discards output, a discount of zero), a null object is still the right design, and now it's one option among several.
 
 ## Did the force move, or only the mechanism?
 
@@ -184,7 +184,15 @@ For Strategy, the force (vary the algorithm at run time) is intact and the class
 
 Some patterns fail the dissolve test because the force isn't about mechanism. Composite exists because clients must treat one item and a group of items through the same interface; a `Protocol` makes that cheaper to declare but doesn't decide the recursive structure, how a total is computed across children, or what a leaf does with `add`. State exists because behaviour depends on a history of transitions that must be explicit and checkable; a dictionary of functions can store the table, but the table is the design. Command with undo needs a record of what to reverse and an order in which to do it, and no callable holds that for you. These keep their shape, and later chapters develop each.
 
-The practical consequence is a rule of proportion. When a review comment says "this should be a function", the justification is that the force remains and the mechanism doesn't need a class. When the comment says "this needs a real object", the justification is that the force itself has state, structure or ordering that a callable can't carry. Both comments are about forces, and the grouping of the whole catalogue into what dissolves, what survives and what needs a clearer name is the job of the three-way split chapter.
+When a review comment says "this should be a function", the justification is that the force remains and the mechanism doesn't need a class. When the comment says "this needs a real object", the justification is that the force itself has state, structure or ordering that a callable can't carry. Both comments are about forces, and the grouping of the whole catalogue into what dissolves, what survives and what needs a clearer name is the job of the three-way split chapter.
+
+## What you can do now
+
+- State the object-model assumption: behaviour had to arrive inside an object of a declared class, and a catalogue is tied to the features its authors could rely on.
+- Say which feature removes each scaffold: `PricingRule` and `functools.partial` for Strategy, a generator function for Iterator, `CarrierGateway` for Adapter, `TARIFF` through `sys.modules` for Singleton, and `find_gateway("FASTLINE").book(consignment)` with the mypy error for Null Object.
+- Read the alias, the Protocol and the generator as the replacements for a strategy hierarchy, an interface and an iterator class.
+- Spot the mismatch that still needs an adapter: the `submit_shipment(payload)` case.
+- Apply the force-or-mechanism test, with Composite, State and Command as the survivors.
 
 ## For deeper coverage
 

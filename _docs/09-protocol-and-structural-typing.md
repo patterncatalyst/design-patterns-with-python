@@ -29,7 +29,7 @@ Read the figure from the top. The accent box is the call, `book_with(code, consi
 
 ## Shape at the point of use
 
-[PEP 544](https://peps.python.org/pep-0544/), by Ivan Levkivskyi, Jukka Lehtosalo and Łukasz Langa, defines the mechanism: a class is a subtype of a Protocol when it has the members the Protocol names, with compatible types, whether or not it says so. The [typing specification's section on protocols](https://typing.python.org/en/latest/spec/protocol.html) and the [mypy documentation on protocols](https://mypy.readthedocs.io/en/stable/protocols.html) cover the rules in full. The comparison happens where the value is used, not where the class is written.
+The comparison happens where the value is used, not where the class is written. [PEP 544](https://peps.python.org/pep-0544/), by Ivan Levkivskyi, Jukka Lehtosalo and Łukasz Langa, defines the mechanism: a class is a subtype of a Protocol when it has the members the Protocol names, with compatible types, whether or not it says so. The [typing specification's section on protocols](https://typing.python.org/en/latest/spec/protocol.html) and the [mypy documentation on protocols](https://mypy.readthedocs.io/en/stable/protocols.html) cover the rules in full.
 
 ```python
 class CarrierGateway(Protocol):
@@ -76,7 +76,7 @@ def book_with(code: str, consignment: Consignment) -> str:
     return gateway.book(consignment)
 ```
 
-The unguarded call, `find_gateway(code).book(c)`, is rejected, as the chapter titled [What 1994 assumed, and what Python dissolves]({{ '/docs/02-what-1994-assumed-and-python-dissolves/' | relative_url }}) shows. Here the interest is in what satisfies the checker. `test_mypy_requires_a_branch_for_absence` runs five snippets through `mypy --strict`: the unguarded one gets `[union-attr]`, and a walrus, a `match` with `case None`, an early return and an `assert` are all clean. The `assert` has a catch the others don't. The [reference for the `assert` statement](https://docs.python.org/3/reference/simple_stmts.html#the-assert-statement) says: "The current code generator emits no code for an assert statement when optimization is requested at compile time." Under `python -O` the check disappears and the `None` reaches the attribute access. Use an explicit branch where the check must survive.
+The unguarded call, `find_gateway(code).book(c)`, is rejected, as the chapter titled [What 1994 assumed, and what Python dissolves]({{ '/docs/02-what-1994-assumed-and-python-dissolves/' | relative_url }}) shows. `test_mypy_requires_a_branch_for_absence` runs five snippets through `mypy --strict`: the unguarded one gets `[union-attr]`, and a walrus, a `match` with `case None`, an early return and an `assert` are all clean. The `assert` has a catch the others don't. The [reference for the `assert` statement](https://docs.python.org/3/reference/simple_stmts.html#the-assert-statement) says: "The current code generator emits no code for an assert statement when optimization is requested at compile time." Under `python -O` the check disappears and the `None` reaches the attribute access. Use an explicit branch where the check must survive.
 
 `test_book_with_turns_absence_into_a_booking_error` shows the guard doing its job: an unknown code raises `BookingError` with `unknown carrier 'UNKNOWN'`, at the lookup, with the code in the message.
 
@@ -90,7 +90,7 @@ class _NullGateway:
         return ""
 ```
 
-`test_a_null_gateway_hides_a_lost_booking` books through it and gets `""` back with nothing raised. `test_mypy_accepts_a_null_gateway` assigns the same class to a `CarrierGateway` variable and mypy exits 0 with no output. The shape is right, so the checker is satisfied, and nothing was booked. A null object turns "no carrier" into a success that carries no information, which is the opposite of what a booking needs.
+`test_a_null_gateway_hides_a_lost_booking` books through it and gets `""` back with nothing raised. `test_mypy_accepts_a_null_gateway` assigns the same class to a `CarrierGateway` variable and mypy exits 0 with no output. The shape is right, so the checker is satisfied, and nothing was booked. A null object turns "no carrier" into a success that carries no information.
 
 A null object is right where doing nothing is the correct answer. `no_discount` returns `Money(Decimal("0.00"), "EUR")`, and `quote` subtracts the discount from the gross. `test_no_discount_is_a_null_object_that_loses_nothing` shows that the default changes nothing and that a real discount subtracts. Zero is a discount, so no caller is misled.
 
@@ -205,9 +205,11 @@ On 3.15 there is a deprecation. The [What's New in Python 3.15](https://docs.pyt
 A Protocol with one implementation and no substitute is ceremony: the class is the contract. An ABC hierarchy for classes that share no code adds a base nobody uses. A `| None` threaded through ten signatures costs ten branches where one guard at the boundary would do, as `book_with` does for the lookup. A sentinel where `None` already means "absent" adds a name and a third branch for no distinction.
 
 <blockquote class="ai-sidebar" markdown="1">
+**Reviewing assistant-written interfaces.** An assistant may add a `NullGateway` that returns empty values, inherit from a Protocol to implement it, or treat `isinstance` on a runtime-checkable Protocol as a signature check. Paste a prompt that states the form:
 
-**Reviewing assistant-written interfaces.** An assistant may add a `NullGateway` that returns empty values, inherit from a Protocol to "implement" it, use `isinstance` against a runtime-checkable Protocol as a signature check, or leave a callback Protocol without `/`. Check that absence is a `| None` that each caller narrows, that a null object exists only where doing nothing is the correct result, that a Protocol is satisfied by shape rather than inheritance, that a runtime check is backed by `mypy --strict`, and that each callback Protocol marks its parameters positional-only.
+> Return `CarrierGateway | None` from `find_gateway` and narrow it once, at the boundary, with an explicit branch, because `assert` vanishes under `-O`. Satisfy `CarrierGateway` by shape, with no Protocol in the bases. Keep a do-nothing object only where doing nothing is correct, as `no_discount` is. Use a `sentinel` when `None` is a valid argument. Mark callback Protocol parameters positional-only with `/`. Leave signature checks to `mypy --strict`, not `@runtime_checkable`.
 
+If a stand-in returns an empty reference, ask what the caller learns when a booking is lost.
 </blockquote>
 
 ## Build, run, observe
@@ -315,6 +317,14 @@ FAILED tests/test_static.py::test_mypy_matches_callback_parameter_names_without_
 ```
 
 The failing assertion is the clean-run check on the `PricingRule` snippet, which now exits 1. The runtime behaviour is unchanged, because the functions still run; the change is in what the checker accepts. Restore the `/`.
+
+## What you can do now
+
+- Say what mypy compares: `test_mypy_checks_protocols_at_use_and_abcs_at_construction[protocol-use]` shows the assignment error on the line that passes the value.
+- Replace a do-nothing stand-in: `find_gateway` returns `CarrierGateway | None`, `test_mypy_requires_a_branch_for_absence` covers the walrus, `match`, early return and `assert` narrowings, and `no_discount` is the case where the stand-in is still right.
+- Use a `sentinel`: `carriers_to_ask` takes one as its default, which separates "not given" from `None`.
+- Read a variance error and write a callback Protocol: `test_mypy_infers_quoter_variance` rejects a `HazmatQuoter` where a general quoter is wanted, and `PricingRule.__call__` takes its parameter with `/`, so `per_kg` qualifies.
+- Choose Protocol or ABC: `CarrierBase` shares code and `CarrierGateway` compares shape, and `test_runtime_checkable_checks_names_only` shows what `runtime_checkable` checks.
 
 ## For deeper coverage
 
