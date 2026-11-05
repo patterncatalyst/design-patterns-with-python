@@ -787,7 +787,7 @@ Step ids are `M*` (see User decisions).
 
 | Step | What | Depends | Status |
 | --- | --- | --- | --- |
-| M0 | This plan file. PDP-123a-c and 124a-c `active` in `iteration-plan.md` (dated note); r11 marked active and r10b closed. Reconciliation rows 120-133 `open` with a dated r11 note. Domain rows 23-24 updated with the supporting names and decisions 1-8; the ch24/ch38 non-overlap rule reworded (decision 5) with a dated note. ch23-24 stub `description` lines written. r10's K7, r10b's L8 and PDP-121a to 122c closed. Decisions recorded | - | todo |
+| M0 | This plan file. PDP-123a-c and 124a-c `active` in `iteration-plan.md` (dated note); r11 marked active and r10b closed. Reconciliation rows 120-133 `open` with a dated r11 note. Domain rows 23-24 updated with the supporting names and decisions 1-8; the ch24/ch38 non-overlap rule reworded (decision 5) with a dated note. ch23-24 stub `description` lines written. r10's K7, r10b's L8 and PDP-121a to 122c closed. Decisions recorded | - | done |
 | M1a | ch23 member, card, README; one `uv lock`; three green runs plus one reverse-file-order run; the deletion table, each row in a fresh scratch copy with its `.venv` removed and re-synced (confirm `__file__`) | M0 | todo |
 | M1b | ch24 member, card, README; one `uv lock` after M1a (sequenced for `uv.lock`); three green runs plus one reverse-order run; deletion table | M1a | todo |
 | M2 | Witness results into rows 120-133 (the claims audit resolves). A failed witness changes the thesis before prose. Every message, count or value that differs from Planning evidence goes in "Corrections after the build" | M1b | todo |

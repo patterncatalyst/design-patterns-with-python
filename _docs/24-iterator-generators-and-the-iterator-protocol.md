@@ -4,7 +4,7 @@ order: 24
 layout: tutorial
 sectionid: docs
 part: "coordinating-traversing"
-description: "Draft pending: Iterator: generators and the iterator protocol."
+description: "A generator replaces the cursor class, but one pass or many, how much to read and who closes the source are decisions the language leaves to you."
 ---
 
 ## Learning objectives

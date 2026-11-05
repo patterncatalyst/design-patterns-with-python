@@ -4,7 +4,7 @@ order: 23
 layout: tutorial
 sectionid: docs
 part: "coordinating-traversing"
-description: "Draft pending: Mediator and Chain of Responsibility."
+description: "A chain of responsibility is a tuple of callables, but which stage runs first and who decides when nobody does are still decisions, and a mediator keeps the rule for releasing a held declaration in one place."
 ---
 
 ## Learning objectives
