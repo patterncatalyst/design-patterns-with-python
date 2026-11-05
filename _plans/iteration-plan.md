@@ -28,6 +28,7 @@ PR, squash-merge with branch deletion, an `rNN.x` tag and a notes-only release.
 | r08 | Ch 16-18: factories, Builder/dataclass/Prototype, Singleton |
 | r09 | Ch 19-20: Adapter/Facade/Bridge, Decorator vs @decorator + Proxy |
 | r10 | Ch 21-22: Composite/Flyweight, Observer |
+| r10b | Retrofit chapters 0-20 to lgtm-professional-voice #94-#96 (owner decision 2026-11-05): AI sidebars to problem + ready-to-paste prompt + one review line; objective-payoff closers; intent-before-mechanism and no re-narrated code where a chapter falls short. Its own plan, validation and PR |
 | r11 | Ch 23-24: Mediator/CoR, Iterator |
 | r12 | Ch 25-26: Visitor/Memento/Interpreter, decorators done right |
 | r13 | Ch 27-28: descriptors, singledispatch |
