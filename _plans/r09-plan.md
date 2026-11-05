@@ -566,7 +566,7 @@ Step ids are `J*` (see User decisions).
 | J2 | Witness results into rows 97-106 (the claims audit resolves). A failed witness changes the thesis before prose. Any message differing from Planning evidence goes in "Corrections after the build". The dated spikes.md note on percentage layers | J1b | done |
 | J3 | Two figures, specs `diagrams/specs/19-*.py` and `20-*.py`, `_data/diagrams.yml` (single owner; `section: "Ch. 19"` and `"Ch. 20"`); figures 00-18 unchanged | J2 | done |
 | J4 | ch19-20 `status = "drafted"` (`kind` stays `pattern`) | J3 | done |
-| J5 | Two prose agents in parallel. Each re-fetches its sources and quotes exactly, runs its two experiments in scratch copies, quotes fresh output filtered by `python3 scripts/host_ids.py filter`, and hands back the sources checked plus a per-paragraph claims table (claim, then test, run or source URL) | J3, J4 | todo |
+| J5 | Two prose agents in parallel. Each re-fetches its sources and quotes exactly, runs its two experiments in scratch copies, quotes fresh output filtered by `python3 scripts/host_ids.py filter`, and hands back the sources checked plus a per-paragraph claims table (claim, then test, run or source URL) | J3, J4 | done |
 | J6 | Opus validation; up to two repair rounds | J5 | todo |
 | J7 | PR, `ci-ok` green, ask the user before merge; tag r09.x; notes-only release | J6 | todo |
 
@@ -596,6 +596,10 @@ Row 5 status note at J2: "witnessed by rows 101-103 (r09)". Row 6: Ch cell 26, "
 
 - Step J1b: member has 35 test functions and 50 cases (12/19, 9/11, 6/9, 8/11), not the planned 27/40: added tests for the heavy threshold, fee order, unknown country, `retry` attempts < 1, `Weight`, read-only `TAX_RATES`, the explicit proxy accepted as a gateway and a typo on it. Test 25 needed an assignment snippet to get `[assignment]` (a returned proxy gives `[return-value]`); tests 25, 26 and 28 are reduced models. `quote_carrier`'s `[call-arg]` also prints a `defined in` note. Deleting the proxy's `book` gives `[return-value]` in conftest with the missing-member note. The evidence sweep reproduces 6,940 of 20,000; a seeded weighted draw (seed 20261104) gives 6,726, always one cent.
 - Step J2: claims 103 and 105 resolve only once ch20 links PEP 318, the typing docs and the data model reference (J5).
+
+- Step J5, chapter 19 experiments: (a) sending kilograms also fails `test_a_carrier_rejection_becomes_a_carrier_error` (600 kg sent as 600 lb is under the 1,000 lb limit), 3 failed, 30 passed; (b) widening `CarrierGateway` with `cancel` fails `test_mypy_accepts_a_client_whose_shape_matches_the_protocol` (planned: pytest still green), and member mypy reports 9 errors in 3 files.
+
+- Step J5, chapter 20 experiments: (a) tax before the fees also fails `test_the_fees_are_in_the_order_the_rules_say` (3 failed, 47 passed; mypy clean); (b) deleting the proxy's `book` also fails `test_runtime_checkable_does_not_see_attributes_forwarded_by_getattr` and `test_mypy_accepts_the_explicit_proxy_as_a_gateway` (3 failed), mypy 2 errors in conftest.
 
 ## Acceptance criteria
 
