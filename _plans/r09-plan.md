@@ -9,7 +9,7 @@ render_with_liquid: false
 
 Opus-planned 2026-11-04. Branch `release/r09` (from main at bfd0b4c, r08.x). This file is the source of truth for r09 scope, criteria and status. Executors never edit it; the orchestrator updates the status board. No toolchain work this iteration: Python 3.15.2, mypy 2.4.1, pytest 9.2.0, pytest-mock 3.17.0, ruff 0.17.3 and uv 0.13.7 are unchanged. `uv.lock` changes only because two members are added.
 
-## User decisions (proposed 2026-11-04, for the owner to confirm)
+## User decisions (confirmed by the owner 2026-11-04: all five as recommended; 1-4 asked, 5 the wraps owner as recommended)
 
 Each decision carries a recommendation. Nothing below is built until the owner answers.
 
