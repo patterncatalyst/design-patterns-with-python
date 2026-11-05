@@ -15,7 +15,7 @@ Exact chapter identities, from `scripts/chapters.toml` and the `_docs` front mat
 - ch21: slug `21-composite-and-flyweight`, title "Composite and Flyweight", part 7 (`composing-adapting-structure`), `kind = "pattern"`, `has_example = true`, `status = "stub"`.
 - ch22: slug `22-observer`, title "Observer", part 8 (`coordinating-traversing`), `kind = "pattern"`, `has_example = true`, `status = "stub"`.
 
-## User decisions (proposed, for the owner to confirm)
+## User decisions (confirmed by the owner 2026-11-05: all five as recommended)
 
 Each decision carries a recommendation. Nothing below is built until the owner answers.
 
