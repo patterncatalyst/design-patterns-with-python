@@ -30,7 +30,7 @@ The first is the Decorator pattern, the second the `@decorator` syntax and the t
 
 {% include excalidraw.html name="20-decorator-pattern-vs-decorator-syntax-and-proxy" caption="Figure 20.1: Two things called Decorator, and a proxy. Layers are chosen per consignment and stacked as a value while the program runs; the @ form rebinds a name once at definition; the proxy keeps the interface and controls access." %}
 
-On the left, "Decorator pattern: while the program runs": `layers_for(consignment)` leads to `compose(base, layers)` ("the last layer ends up outermost"), then to nested frames, `Tax` around `Surcharge` around `BaseRate`, "a value: chosen per consignment". On the right, "@decorator syntax: at definition time": `@retry(attempts=..., on=...)` leads to `def quote_carrier`, then to `quote_carrier` ("name rebound once, when the module loads"). A dashed note between them reads "same word, unrelated mechanisms". At the bottom, `CarrierGatewayProxy` ("Proxy: same interface, controls access (caches quote)") sits beside a muted dashed box, "forwarding with __getattr__" and "mypy sees Any".
+On the left, "Decorator pattern: while the program runs": `layers_for(consignment)` leads to `compose(base, layers)`, then to nested frames, `Tax` around `Surcharge` around `BaseRate`, "a value: chosen per consignment". On the right, "@decorator syntax: at definition time": `@retry(attempts=..., on=...)` leads to `def quote_carrier`, then to `quote_carrier`. A dashed note between them reads "same word, unrelated mechanisms". At the bottom, `CarrierGatewayProxy` ("Proxy: same interface, controls access (caches quote)") sits beside a muted dashed box, "forwarding with __getattr__" and "mypy sees Any".
 
 ## Two things called Decorator
 
@@ -118,7 +118,7 @@ def quote_carrier(gateway: CarrierGateway, consignment: Consignment) -> CarrierQ
 
 Stacking order is fixed when the module loads. `test_syntax_stacking_order_decides_whether_each_attempt_is_audited` defines two functions over a gateway that times out twice. With `@audited` above `@retry`, the sink has one record. With `@retry` above `@audited`, it has three. Rebound functions don't compare by value either: two calls of `retry(...)` on the same function give two unequal wrappers (`test_rebound_functions_do_not_compare_by_value`), where two layer stacks built the same way are equal.
 
-The overlap case is a factory that returns an object that isn't a function. `functools.cache` does, and the returned value has `cache_info` and fails `inspect.isfunction` (`test_a_decorator_may_return_an_object_that_is_not_a_function`). Both factories use [`functools.wraps`](https://docs.python.org/3/library/functools.html#functools.wraps), without which, its documentation says, "the name of the example function would have been 'wrapper'", and a PEP 695 `ParamSpec`. The witness here is that mypy keeps `quote_carrier`'s signature through `retry`: a `5` for the consignment is `[arg-type]` and `retries=2` is `[call-arg]` (`test_mypy_keeps_the_call_signature_through_retry`). How both work is the subject of [Decorators done right]({{ '/docs/26-decorators-done-right/' | relative_url }}).
+A rebound function has no `price`, and a layer has no `__wrapped__`. The overlap case is a factory that returns an object that isn't a function. `functools.cache` does, and the returned value has `cache_info` and fails `inspect.isfunction` (`test_a_decorator_may_return_an_object_that_is_not_a_function`), and it's still the `@decorator` syntax, rebound at definition. Both factories use [`functools.wraps`](https://docs.python.org/3/library/functools.html#functools.wraps), without which, its documentation says, "the name of the example function would have been 'wrapper'", and a PEP 695 `ParamSpec`. The witness here is that mypy keeps `quote_carrier`'s signature through `retry`: a `5` for the consignment is `[arg-type]` and `retries=2` is `[call-arg]` (`test_mypy_keeps_the_call_signature_through_retry`). How both work is the subject of [Decorators done right]({{ '/docs/26-decorators-done-right/' | relative_url }}).
 
 ## Proxy: the same interface, controlling access
 
@@ -327,7 +327,7 @@ The explicit proxy fails at run time with `AttributeError`, and `test_the_proxy_
 
 ## What you can do now
 
-- Say which mechanism a use of "decorator" names: the two mechanisms differ in when they run, and PEP 318 records its own complaint about the name.
+- Say which mechanism "decorator" names: a layer stack built while the program runs, or a name rebound at definition, the mismatch PEP 318 records.
 - Build a stack of layers as a value: `layers_for` chooses it, `compose(base, layers)` wraps it, and the fee-order and rounding tests show which orders matter.
 - Say what a proxy keeps and changes: `CarrierGatewayProxy` returns the gateway's quote where `Tax` changes the price, and the explicit-proxy mypy report names the missing `book`.
 - Name the four costs of a `__getattr__` forwarding proxy: accepted typos, an `object` return, `runtime_checkable` and the wrong class in the error.

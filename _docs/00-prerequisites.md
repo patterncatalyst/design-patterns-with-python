@@ -141,7 +141,7 @@ class Consignment:
 
 ## What each gate catches
 
-The gates overlap less than they seem to. ruff check finds an unused import, a mutable default argument, or a bare `except` before anything runs, and ruff format settles layout so reviews don't argue about it. mypy finds the wrong argument type, the attribute that doesn't exist, and the `None` that reaches a call expecting a value, none of which a passing test proves absent unless a test happens to hit that line. pytest finds behaviour that is well typed and wrong: a hash that disagrees with equality, a validator with an off-by-one. Changing `reweigh` to return `str` makes mypy fail and leaves pytest green, and a test that passes a malformed id shows it in the other, since a type checker can't know that `"CN-1"` is too short. Skipping any one gate leaves a class of defect that the other three accept.
+The gates overlap less than they seem to. ruff check finds an unused import, a mutable default argument, or a bare `except` before anything runs, and ruff format settles layout so reviews don't argue about it. mypy finds the wrong argument type, the attribute that doesn't exist, and the `None` that reaches a call expecting a value, none of which a passing test proves absent unless a test happens to hit that line. pytest finds behaviour that is well typed and wrong: a hash that disagrees with equality, a validator with an off-by-one. Changing the return annotation of `reweigh` to `str` makes mypy fail and leaves pytest green, and a test that passes a malformed id shows it in the other, since a type checker can't know that `"CN-1"` is too short. Skipping any one gate leaves a class of defect that the other three accept.
 
 ## Bumping a pin
 

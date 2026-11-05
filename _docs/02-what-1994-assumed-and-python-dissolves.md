@@ -63,7 +63,7 @@ def quote(consignment: Consignment, rule: PricingRule) -> RateQuote:
     return RateQuote(consignment.id, rule(consignment))
 ```
 
-`type PricingRule = ...` is the PEP 695 alias statement, new in 3.12 and the idiom for naming a type in 3.15. It says what a pricing rule is: anything that takes a `Consignment` and returns `Money`. `flat_rate` and `per_kg` satisfy it as plain functions, and the 1994 context is the one-line `quote`.
+`type PricingRule = ...` is the PEP 695 alias statement, new in 3.12 and the idiom for naming a type in 3.15. It says what a pricing rule is: anything that takes a `Consignment` and returns `Money`. `flat_rate` and `per_kg` satisfy it as plain functions, and the pattern's context class shrinks to the one-line `quote`, which calls whatever rule it's given.
 
 A rule that needs configuration doesn't need a constructor and a field. It needs its argument fixed in advance, which is what `functools.partial` does:
 

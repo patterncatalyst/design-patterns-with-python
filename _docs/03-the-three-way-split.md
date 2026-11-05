@@ -222,7 +222,7 @@ One experiment: in `tests/test_dissolve.py`, delete the `if gateway is None:` gu
 - Apply the two sorting questions: whether the name means two things in Python, and whether a feature resolves the force.
 - Place a pattern in its bucket with the reason, using the table: the feature that dissolves it, the force that survives, or the name that needs clarifying.
 - Keep `Surcharge` apart from `@audited`, backed by the independence test.
-- Recognise the idioms that belong to no entry: `find_gateway` as the optional Null Object, `Money` as the frozen Value Object, and dict dispatch in `GATEWAYS`.
+- Recognise the idioms that belong to no entry: `find_gateway` as the optional Null Object, `Money` as the frozen Value Object, and dict dispatch with EAFP in `GATEWAYS`.
 - Explain the straddlers: Command, `declare_customs` and `describe`.
 - Run the nineteen tests and the `_GUARDED` experiment, and say what each claims about the map.
 

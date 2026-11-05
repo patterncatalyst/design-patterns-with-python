@@ -334,8 +334,8 @@ pytest has one failure: the test that assigns an `AircoClient` to a `CarrierGate
 ## What you can do now
 
 - Say when structural typing removes an adapter: `AircoClient` is registered as it is, and `FastlineClient` is refused for its different shape.
-- Show how a `float` gets pounds past mypy: `test_mypy_cannot_see_pounds_passed_as_kilograms_through_a_float` exits 0, and a `Weight` parameter is refused.
-- Choose between the two adapters: the class adapter exposes `submit_shipment`, and `FastlineGateway` does not.
+- Show how a `float` gets pounds past mypy: `test_mypy_cannot_see_pounds_passed_as_kilograms_through_a_float` exits 0, and `test_mypy_rejects_a_float_where_a_weight_belongs` refuses the same client once the Protocol takes a `Weight`.
+- Choose between the two adapters: the class adapter exposes `submit_shipment`, and `FastlineGateway` doesn't.
 - Write a facade that names no SDK type: `ship` passes `test_the_desk_names_no_sdk_type_in_its_public_surface`.
 - Split two axes with a Bridge: the class-count test finds two classes against five, and `test_mypy_reports_an_implementor_missing_a_primitive` names the cost on the implementor.
 

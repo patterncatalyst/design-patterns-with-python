@@ -283,7 +283,7 @@ The test's fresh interpreter finds the load log already holding `"tariff"` after
 
 ## What you can do now
 
-- Say which of three things "Singleton" means: the six-form table runs one object, shared state and a class that returns the same object through the same behaviour.
+- Say which of three things "Singleton" means: `test_every_form_gives_each_caller_the_same_rates` runs six forms of one object, one shared state and one class that returns the same object, and five load once.
 - Climb the ladder in order: `TARIFF`, the `lazy` import, `quote(..., table=...)` and `LoadOnce`.
 - Show a forced race: the `Barrier(2)` test finds `functools.cache` running a loader twice.
 - Name the cost of each class form: Borg shares state without identity, a metaclass ignores the second call's arguments, and `__new__` reruns `__init__`.

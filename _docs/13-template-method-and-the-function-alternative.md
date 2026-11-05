@@ -221,7 +221,7 @@ A class is the wrong tool when the steps share nothing. Binding unrelated functi
 
 **Reviewing assistant-written templates.** Asked for "a template method", an assistant may write an abstract base class whose subclasses must remember to call the parent, put an invariant inside an overridable step, or give a `Protocol` default bodies and expect matching classes to inherit them. Paste a prompt that states the form:
 
-> Write `declare_customs` as a function that fixes the order and the invariant steps (refuse an empty consignment, one currency, invoice first) and takes `CustomsHooks`, a frozen keyword-only dataclass with `classify` and `duty` undefaulted and `extra_documents` defaulted. Use an ABC only when destinations share a table and a schedule, and mark its `declare` with `typing.final`. No default bodies in a `Protocol`.
+> Write `declare_customs` as a function that fixes the order and the invariant steps (refuse an empty consignment, total in one currency, invoice first) and takes `CustomsHooks`, a frozen keyword-only dataclass with `classify` and `duty` undefaulted and `extra_documents` defaulted. Use an ABC only when destinations share a table and a schedule, and mark its `declare` with `typing.final`. No default bodies in a `Protocol`.
 
 If an invariant sits inside a hook, ask for the test where a variant skips it.
 

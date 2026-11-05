@@ -72,7 +72,7 @@ Consider how the second shape was usually drawn thirty years ago. A rating rule 
 
 The structure and the forces are separable. Because Python lets you pass a function wherever that object was passed, the abstract base class and the subclasses are no longer needed to carry behaviour. Nothing about the commercial team's calendar has changed, though. The surcharge still has to be addable without editing the tax rule, the order of application still has to be explainable in a dispute, and each rule still has to be testable alone. A callable resolves the same forces with less machinery.
 
-The test runs both ways. Sometimes a language feature resolves the force without the pattern's structure, and the structure should go. Sometimes the force is as strong as ever and the pattern remains the right resolution, even though the syntax around it has changed. The following chapter, [What 1994 assumed, and what Python dissolves]({{ '/docs/02-what-1994-assumed-and-python-dissolves/' | relative_url }}), takes the assumptions the catalogue was written under and checks each against what the language now provides.
+That question is the book's recurring test, and it runs both ways. Sometimes a language feature resolves the force without the pattern's structure, and the structure should go. Sometimes the force is as strong as ever and the pattern remains the right resolution, even though the syntax around it has changed. The following chapter, [What 1994 assumed, and what Python dissolves]({{ '/docs/02-what-1994-assumed-and-python-dissolves/' | relative_url }}), takes the assumptions the catalogue was written under and checks each against what the language now provides.
 
 ## What a pattern name buys and costs
 
@@ -86,8 +86,8 @@ Pick the change that actually happens in your system, such as a new surcharge, a
 
 ## What you can do now
 
-- State what a pattern records: the template sections and Alexander's forces, with context, forces, resolution and Consequences.
-- Use Consequences as the ledger: it lists what a pattern buys and what it costs, so it supports the decision.
+- State what a pattern records: Alexander's forces, the context they act in, the resolution and its Consequences.
+- Name the template sections and use Consequences as the ledger: it lists what a pattern buys and what it costs, so it supports the decision.
 - List the four forces on the rate quote and their owners: the carrier, the commercial team, the tax authority and the disputed invoice.
 - Choose by the dominant force: a function over `Tariff`, rule callables returning `Money`, or a `RateCalculator` Protocol.
 - Ask whether the force is still here, as in the move from a class per rule to a callable.

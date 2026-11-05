@@ -26,7 +26,7 @@ The rating engine in this chapter asks carriers for a price, skips the ones that
 
 {% include excalidraw.html name="11-testing-with-pytest-pytest-mock-and-mypy" caption="Figure 11.1: How a claim becomes evidence. A claim gets a witness test named after it, a negative fixture shows the failure it rules out, the test is seen failing when its check is deleted, and only a fresh, scrubbed run is quoted." %}
 
-Read the figure from the top. The accent box holds the claim, "the engine books only the winner", with an arrow down to the witness test, `test_book_best_books_only_the_winner`. The negative fixture points into the witness, and below it sit "seen failing" and the quoted, scrubbed run.
+Read the figure from the top. The accent box holds the claim, "the engine books only the winner", with an arrow down to the witness test, `test_book_best_books_only_the_winner`. The negative fixture points into the witness, and below the witness sit "seen failing" and the quoted, scrubbed run.
 
 ## A claim, a witness, and a test you've seen fail
 
@@ -69,7 +69,7 @@ Python's `unittest.mock` blurs the lines, because one `Mock` object stands in fo
 | `Mock(spec=CarrierGateway)` | `AttributeError` | accepted | accepted |
 | `create_autospec(CarrierGateway, instance=True)` | `AttributeError` | `TypeError` | accepted |
 
-The `FakeGateway` row is witnessed by `test_a_fake_rejects_unknown_names_and_wrong_signatures`, whose two `# type: ignore` comments name the codes mypy reports. The plain `Mock` row is the opening failure. `test_a_plain_mock_passes_an_assertion_on_a_misspelled_method` builds it:
+The `FakeGateway` row is witnessed by `test_a_fake_rejects_unknown_names_and_wrong_signatures`, whose two `# type: ignore` comments name the codes mypy reports. The plain `Mock` row is the negative fixture for the engine's claim. `test_a_plain_mock_passes_an_assertion_on_a_misspelled_method` builds it:
 
 ```python
 def test_a_plain_mock_passes_an_assertion_on_a_misspelled_method(
@@ -377,7 +377,7 @@ With `-o filterwarnings=default`, the same test prints `1 passed, 1 warning in 0
 
 ## What you can do now
 
-- Name a test after its claim and show it counts: `test_book_best_books_only_the_winner`, with its check deleted in a scratch copy (experiment one).
+- Name a test after its claim and show it counts: `test_book_best_books_only_the_winner` fails when experiment one books every carrier.
 - Supply dependencies by name: the `quote_log` fixture cleans up after a failing test (experiment three), and `make_fake` builds each `FakeGateway`.
 - Say what each double checks: the table of four doubles, and `test_mypy_accepts_every_mock_where_a_gateway_is_expected` for the mypy column.
 - Make time and the environment deterministic: the injected clock, and the one test that restores `os.environ` inside `monkeypatch.context()`.

@@ -292,7 +292,7 @@ The checker passed the registry, and the failure shows up at call time, in the p
 - Select a rule by name: `RATE_RULES`, the `RatingError` for an unknown name, and the key recorded on the quote.
 - Choose the form of a configured rule: the five-form table, with `partial` for `per_kg` and a frozen `ZoneRate` where an audit must compare values.
 - Read the registry cases: the mypy errors for a registered class, and `test_an_unbound_partial_fails_only_when_called` for the one mistake mypy accepts.
-- Recognise when a strategy must be an object: `_make_loyalty_discount` returns different money on a second call, and the sidebar prompt keeps assistants from adding structure.
+- Recognise when a strategy must be an object: `_make_loyalty_discount` returns different money on a second call, a rule with several operations needs the `RateCalculator` Protocol, and the prompt keeps assistants from adding structure.
 
 ## For deeper coverage
 

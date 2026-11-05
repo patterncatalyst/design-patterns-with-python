@@ -25,7 +25,7 @@ A tracking record keeps a `status` field. Nothing stops a caller setting it from
 
 {% include excalidraw.html name="14-state-and-finite-state-machines" caption="Figure 14.1: One consignment lifecycle, two ways to write it. A read-only table maps a status and an event to the next status; a match over frozen states does the same with per-state data, and an injected generator drives transit delays." %}
 
-Read the figure from the top. `TRANSITIONS`, a read-only table, and `apply_event`, a match ending in `assert_never`, both lead into the lifecycle `Booked`, `Loaded`, `InTransit`, `Cleared` and `Delivered`, which is marked terminal. A dashed box beside `InTransit` reads "each day: delay with probability p (injected Random)". A dashed arrow labelled "any other event" runs from `Delivered` to the accent box, "illegal event: TransitionError", and the tests hold both forms to that.
+Read the figure from the top. `TRANSITIONS`, a read-only table, and `apply_event`, a match ending in `assert_never`, both lead into the lifecycle `Booked`, `Loaded`, `InTransit`, `Cleared` and `Delivered`, the terminal state. A dashed box beside `InTransit` reads "each day: delay with probability p (injected Random)". A dashed arrow labelled "any other event" runs from `Delivered` to the accent box, "illegal event: TransitionError", and the tests hold both forms to that.
 
 ## The force that remains
 
@@ -193,7 +193,7 @@ The generator is a parameter. The `random` documentation says: "The functions su
 
 With an injected generator the model is reproducible. The same page says: "By reusing a seed value, the same sequence should be reproducible from run to run as long as multiple threads are not running." `test_a_seeded_transit_is_reproducible` runs a 21-day voyage at a delay probability of 0.2 from `Random(7)` twice and gets 11 delay days both times, and gets 3 from `Random(2026)`. The voyage lengths and probabilities are illustrative. A generator that two voyages share is a different matter: `test_a_shared_generator_gives_a_different_second_run` runs two voyages from one `Random(7)` and gets 11 delay days, then 5. `test_transit_delay_bounds` covers probabilities 0 and 1: a voyage is never delayed in the first case and, in the second, stops at the day cap, sixty simulated days, having sailed none. `test_the_day_cap_bounds_the_number_of_draws` counts draws and sees exactly the cap, and `test_a_draw_equal_to_the_probability_is_not_a_delay` pins the strict comparison. `test_the_model_leaves_the_module_generator_alone` reads `random.getstate()` before and after a simulation and finds them equal.
 
-Over 10,000 seeds the same 21-day voyage averaged 5.2758 delay days against 5.25 from the negative-binomial mean, in a recorded run on Python 3.15.2 that no test asserts. The same documentation warns: "The pseudo-random generators of this module should not be used for security purposes." The model is a simulation.
+Over 10,000 seeds the same 21-day voyage averaged 5.2758 delay days against 5.25 from the negative-binomial mean, in a recorded run on Python 3.15.2 that no test asserts. The same documentation warns: "The pseudo-random generators of this module should not be used for security purposes." The model is a simulation, so the warning doesn't apply.
 
 ## When not to use it
 
@@ -203,7 +203,7 @@ A two-state flag is a `bool`. A lifecycle that nothing ever checks, because noth
 
 **Reviewing assistant-written state machines.** Asked for "the State pattern", an assistant may propose a class per status with a method per event, a mutable `status` field, or a `match` whose last arm raises for anything else. Paste a prompt that states the form:
 
-> Write the lifecycle as `TRANSITIONS`, a read-only `frozendict` from `(ConsignmentStatus, HandlingKind)` to the next status, raising `TransitionError` that names both halves for an absent pair. Where states carry data, make them frozen dataclasses in a union and write `apply_event` as a `match` on the state with an arm per state and `assert_never` last, no wildcard. Pass a `random.Random` in for delays. Test that every status is reachable and `DELIVERED` is terminal.
+> Write the lifecycle as `TRANSITIONS`, a read-only `frozendict` from `(ConsignmentStatus, HandlingKind)` to the next status, and raise `TransitionError`, naming both halves, for an absent pair. Where states carry data, make them frozen dataclasses in a union and write `apply_event` as a `match` on the state with an arm per state and `assert_never` last, no wildcard. Pass a `random.Random` in for delays. Test that every status is reachable and `DELIVERED` is terminal.
 
 If the `match` ends in `case _: raise`, ask what mypy reports when a state is added.
 
