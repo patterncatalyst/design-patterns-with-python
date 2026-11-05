@@ -15,7 +15,7 @@ Exact chapter identities, from `scripts/chapters.toml` and the `_docs` front mat
 - ch25: slug `25-visitor-memento-interpreter`, title "Visitor, Memento, and Interpreter", part 8 (`coordinating-traversing`), `kind = "pattern"`, `has_example = true`, `status = "stub"`.
 - ch26: slug `26-decorators-done-right`, title "Decorators done right", part 9 (`idiomatic-python`), `kind = "pattern"`, `has_example = true`, `status = "stub"`.
 
-## User decisions (awaiting the owner)
+## User decisions (owner confirmed 2026-11-05: all ten as recommended; the spikes.md singledispatch note is written now, dated)
 
 Standing, not a decision: step ids are `N*`. `validate.py --claims` resolves `run: <id>` against the steps table of every `_plans/r*-plan.md`, and `grep -nE "^\| N[0-9]" _plans/*.md` matched nothing before this file.
 
