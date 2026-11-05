@@ -69,7 +69,7 @@ Python's `unittest.mock` blurs the lines, because one `Mock` object stands in fo
 | `Mock(spec=CarrierGateway)` | `AttributeError` | accepted | accepted |
 | `create_autospec(CarrierGateway, instance=True)` | `AttributeError` | `TypeError` | accepted |
 
-The `FakeGateway` row is witnessed by `test_a_fake_rejects_unknown_names_and_wrong_signatures`, whose two `# type: ignore` comments name the codes mypy reports. The plain `Mock` row is the negative fixture for the engine's claim. `test_a_plain_mock_passes_an_assertion_on_a_misspelled_method` builds it:
+The `FakeGateway` row is witnessed by `test_a_fake_rejects_unknown_names_and_wrong_signatures`, whose two `# type: ignore` comments name the codes mypy reports. The plain `Mock` row, built inline, plays the negative fixture for the engine's claim. `test_a_plain_mock_passes_an_assertion_on_a_misspelled_method` builds it:
 
 ```python
 def test_a_plain_mock_passes_an_assertion_on_a_misspelled_method(
