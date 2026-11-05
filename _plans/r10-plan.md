@@ -741,7 +741,7 @@ Step ids are `K*` (see User decisions).
 | K3 | Two figures, specs `diagrams/specs/21-*.py` and `22-*.py`, `_data/diagrams.yml` (single owner; 23 entries); figures 00-20 unchanged; every name drawn exists in `src` | K2 | done |
 | K4 | ch21-22 `status = "drafted"` (`kind` stays `pattern`) | K3 | done |
 | K5 | Two prose agents in parallel. Each re-fetches its sources and quotes exactly, runs its two experiments in scratch copies, quotes fresh output filtered by `python3 scripts/host_ids.py filter`, and hands back the sources checked plus a per-paragraph claims table (claim, then test, run or source URL) | K3, K4 | done |
-| K6 | Opus validation; up to two repair rounds | K5 | todo |
+| K6 | Opus validation; up to two repair rounds | K5 | done |
 | K7 | PR, `ci-ok` green, ask the user before merge; tag r10.x; notes-only release | K6 | todo |
 
 Reconciliation rows (step K0). The "How to verify" column uses resolvable tokens.
@@ -769,6 +769,7 @@ Reconciliation rows (step K0). The "How to verify" column uses resolvable tokens
 - Step K5: ch21 2,416 words, ch22 2,249. ch21 experiment (b) on a fresh scratch copy gives 8 failures and 10 fixture errors (the K1a note's list was from a different filter); the chapter states the narrower filter it quotes. ch22 experiments use widened filters (the stock `E {7}` misses the deeper-indented `RuntimeError`; (b) avoids object addresses), each stated in the chapter. Fluent Python dropped from ch22 (its weak-reference section unverified); `inspect.ismethod` narrowing sentence dropped (no run). The plan's "mypy accepts a group nested in itself" has no static test; ch21 claims only the runtime result. GoF intent paraphrases (both chapters) are from memory, for K6 to check against the plain-paraphrase rule.
 - Criterion 11 reading: the two dashes it finds in `_plans/` (r10-plan and r09-plan) sit inside verbatim quotations of upstream titles; plans aren't reader text, and the quotations stay exact.
 - Step K6 round 1 (Opus): 1 blocker (ch21 experiment one quoted an empty block), 14 should-fix, 12 nits; repair 1 briefed from them. The x22 mutation (a snapshot of resolved bound methods) passed all 31 tests, so test 17b is strengthened to assert the dead subscriber isn't called.
+- Step K6 round 2 (Opus, 867cac7): PASS, no blocker or should-fix; six nits (two Rhodes phrasings, one re-narration in ch22, a README wrap, four contractions, the skip-test README line) applied by the orchestrator. Rows 107-119 verified.
 - Criterion 13 reading: the idiom scan's 16 `print()` hits are all in `bench/commodity_memory.py`, a script whose job is stdout; lgtm-idiomatic-review's Python reference allows `print` there and says to triage CLI entrypoints by hand. The criterion is read as 0 ban-tier outside `bench/`.
 - Tooling, 2026-11-05 (owner): validate.py's word floor is now a warning and the 2,500 ceiling an error; CLAUDE.md records the new sidebar content rule and chapter structure from lgtm-professional-voice (#94-#96). r10 chapters follow them; chapters 0-20 are retrofitted later.
 

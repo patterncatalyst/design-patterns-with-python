@@ -78,7 +78,7 @@ The union is closed, and mypy reads it. `test_mypy_reads_weight_on_either_kind_o
 
 ## Where the kinds differ: match over a closed union
 
-Rhodes names the limit on symmetry: the question of return type, he writes, "will serve as a very important guardrail when you are designing in Python". Flattening is a case where the kinds differ in what they do but return one type, a tuple of consignments, so no caller needs `isinstance`:
+Rhodes names the limit on symmetry: "The question of return type will serve as a very important guardrail when you are designing in Python". Flattening is a case where the kinds differ in what they do but return one type, a tuple of consignments, so no caller needs `isinstance`:
 
 <!-- fmt:off -->
 ```python
@@ -133,7 +133,7 @@ Putting `add` on the base class gives all components the same surface, at the pr
 
 Flyweight is for many references to equal values. A consolidation can carry many consignments, and several of them can name one commodity. The catalogue's remedy, credited to Gamma, Helm, Johnson and Vlissides, is to split what's the same everywhere (a commodity: HS code, description, dangerous-goods flag) from what varies by use (each consignment's weight and ports), and to share one object for the first. The catalogue's terms, as Rhodes quotes them, are intrinsic for the first kind of state and extrinsic for the second. The HS codes here are illustrative.
 
-Rhodes's [The Flyweight Pattern](https://python-patterns.guide/gang-of-four/flyweight/) points at what Python already does: `sys.intern` is a factory function, and a dictionary behind one is the usual store. He suggests a `WeakValueDictionary` when the number of possible values could exhaust memory, and he advises against hiding the factory in `__new__`, because a call that looks like construction then returns a shared object. Python removes the need for a factory class: a lookup over a mapping does the job. `CommodityPool` wraps one so the catalogue and the weak dictionary travel together, and its `get` is the factory function Rhodes describes:
+Rhodes's [The Flyweight Pattern](https://python-patterns.guide/gang-of-four/flyweight/) points at what Python already does: `sys.intern` is a factory function, and a dictionary behind one is the usual store. He suggests a `WeakValueDictionary` when callers may ask for so many distinct values that memory runs out, and he advises against putting the factory in `__new__`, because a call that looks like construction then returns a shared object. Python removes the need for a factory class: a lookup over a mapping does the job. `CommodityPool` wraps one so the catalogue and the weak dictionary travel together, and its `get` is the factory function Rhodes describes:
 
 <!-- fmt:off -->
 ```python

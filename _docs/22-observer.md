@@ -113,7 +113,7 @@ Both forms pass `test_subscribers_are_called_in_subscription_order` and `test_an
 ```
 <!-- fmt:on -->
 
-A failure is collected, delivery continues, and one `ExceptionGroup` named "subscribers failed" is raised at the end. The group holds the failures in the order they happened. [PEP 654](https://peps.python.org/pep-0654/), by Irit Katriel, Yury Selivanov and Guido van Rossum, introduces the type to "allow programs to raise and handle multiple unrelated exceptions simultaneously", and subscriber failures fit that description: the store being down and the notifier timing out have no relation to each other. `test_one_failing_subscriber_does_not_stop_the_rest` checks that the subscribers before and after the failure both ran and that the group holds one `RuntimeError`. `test_every_failure_is_reported_after_delivery` runs one failure and two, and the group's `exceptions` tuple equals the errors in order.
+[PEP 654](https://peps.python.org/pep-0654/), by Irit Katriel, Yury Selivanov and Guido van Rossum, introduces the type to "allow programs to raise and handle multiple unrelated exceptions simultaneously", and subscriber failures fit that description: the store being down and the notifier timing out have no relation to each other. `test_one_failing_subscriber_does_not_stop_the_rest` checks that the subscribers before and after the failure both ran and that the group holds one `RuntimeError`. `test_every_failure_is_reported_after_delivery` runs one failure and two, and the group's `exceptions` tuple equals the errors in order.
 
 Raising after delivery moves the decision to the caller. It can log the group or retry, and the other subscribers have already done their work. The signal doesn't undo what earlier subscribers did.
 

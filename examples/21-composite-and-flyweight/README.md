@@ -17,8 +17,8 @@ Composite.
   against 17.25 kg for a sum of the direct consignments.
 - Where the kinds differ, `consignments` and `carries_dangerous_goods` use `match` over the closed
   union with `assert_never`. A missing arm is an `[arg-type]` error.
-- A group is built bottom-up from a tuple of parts, so it can't be rewired afterwards. It refuses empty `parts` and a consignment that appears twice anywhere beneath it, and it
-  compares and hashes by value. mypy refuses `add`, `append` and assignment on it.
+- A group is built bottom-up from a tuple of parts, so it can't be rewired afterwards. It refuses
+  empty `parts` and a consignment that appears twice anywhere beneath it, and it compares and hashes by value. mypy refuses `add`, `append` and assignment on it.
 - The GoF form is a fixture in `tests/conftest.py`: `_Component` declares `add` for every component,
   `_ComponentLeaf` inherits the `add` that raises, and `_ComponentGroup` holds a mutable list. It
   passes the same weight table as the frozen form. mypy accepts `leaf.add(...)`, the call fails only

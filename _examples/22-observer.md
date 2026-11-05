@@ -15,13 +15,13 @@ history that subscribes to them. Each test asserts the behaviour named in its ti
 ## The delivery contract
 
 `Signal[E]` runs subscribers in subscription order and ignores a duplicate. One failing subscriber
-does not stop the rest: every failure arrives after delivery as one `ExceptionGroup`. Delivery goes
+doesn't stop the rest: every failure arrives after delivery as one `ExceptionGroup`. Delivery goes
 to a snapshot, so subscribing or unsubscribing during delivery skips no one, and an event published
 during delivery waits its turn.
 
 ## Subscriber lifetime
 
-A bound method is held through `weakref.WeakMethod`, so an abandoned `TrackingHistory` is not kept
+A bound method is held through `weakref.WeakMethod`, so an abandoned `TrackingHistory` isn't kept
 alive. A lambda is held strongly. A plain list of callables keeps every subscriber, stops at the
 first failure and iterates live, and it runs the same tables as a comparison.
 

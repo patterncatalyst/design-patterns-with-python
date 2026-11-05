@@ -21,7 +21,7 @@ Delivery.
   failure. The signal recovers after a failed delivery, and also after a subscriber raises
   something that isn't an `Exception`, because `_delivering` is reset in a `finally`.
 - The comparison form `_ListSignal` is a fixture in `tests/conftest.py`: a list of callables
-  iterated live, with no `try`. It is the `plain-list` parameter of `signal_form`, so it runs the same
+  iterated live, with no `try`. It's the `plain-list` parameter of `signal_form`, so it runs the same
   order and unsubscribe tables as `Signal`. Its hazards have their own tests, because they fail on
   purpose.
 
@@ -81,7 +81,7 @@ uv run mypy --strict src tests
 - `test_an_unsubscribed_subscriber_gets_no_more_events`: both forms.
 - `test_subscribing_twice_delivers_once`: a function and a bound method.
 - `test_one_failing_subscriber_does_not_stop_the_rest`: one `ExceptionGroup` with the `RuntimeError`.
-- `test_a_plain_list_stops_at_the_first_failing_subscriber`: the later subscriber is not called.
+- `test_a_plain_list_stops_at_the_first_failing_subscriber`: the later subscriber isn't called.
 - `test_every_failure_is_reported_after_delivery`: one and two failures, in order.
 - `test_tracking_history_records_events_in_order`: booked, loaded, departed.
 - `test_the_signal_accepts_new_events_after_a_failed_delivery`: the next event is delivered.
@@ -91,7 +91,7 @@ uv run mypy --strict src tests
 
 - `test_a_plain_list_keeps_an_abandoned_subscriber_alive`: alive after `del` and `gc.collect()`, and still called.
 - `test_a_bound_method_subscriber_is_dropped_when_its_owner_goes`: gone, and `len` is 0.
-- `test_a_subscriber_that_dies_during_delivery_is_skipped`: an earlier subscriber drops the owner of a later one.
+- `test_a_subscriber_that_dies_during_delivery_is_skipped`: an earlier subscriber drops the owner of a later one, which is never called.
 - `test_a_subscriber_nobody_else_holds_is_dropped`: `TrackingHistory().record`.
 - `test_a_lambda_subscriber_is_held_strongly`: still called after `gc.collect()`.
 - `test_a_lambda_that_closes_over_its_owner_keeps_it_alive`: the history survives.
