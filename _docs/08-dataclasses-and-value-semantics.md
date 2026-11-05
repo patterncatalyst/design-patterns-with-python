@@ -39,7 +39,7 @@ This pattern dissolves. A feature resolves the force without the pattern's struc
 
 ## One declaration: frozen and slotted
 
-A weight is the simplest value here, one field, equal by content and always positive:
+A weight is the simplest value here, one field, equal by content and positive by construction:
 
 ```python
 @dataclass(frozen=True, slots=True, order=True)
