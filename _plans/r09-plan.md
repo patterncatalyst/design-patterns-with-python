@@ -564,8 +564,8 @@ Step ids are `J*` (see User decisions).
 | J1a | ch19 member, card, README; one `uv lock`; three green runs; the deletion table, each row in a fresh scratch copy with its `.venv` removed and re-synced (confirm `__file__`) | J0 | done |
 | J1b | ch20 member, card, README; one `uv lock` after J1a (sequenced); three green runs; deletion table; `_plans/evidence/percentage-layer-rounding.md` | J1a | done |
 | J2 | Witness results into rows 97-106 (the claims audit resolves). A failed witness changes the thesis before prose. Any message differing from Planning evidence goes in "Corrections after the build". The dated spikes.md note on percentage layers | J1b | done |
-| J3 | Two figures, specs `diagrams/specs/19-*.py` and `20-*.py`, `_data/diagrams.yml` (single owner; `section: "Ch. 19"` and `"Ch. 20"`); figures 00-18 unchanged | J2 | todo |
-| J4 | ch19-20 `status = "drafted"` (`kind` stays `pattern`) | J3 | todo |
+| J3 | Two figures, specs `diagrams/specs/19-*.py` and `20-*.py`, `_data/diagrams.yml` (single owner; `section: "Ch. 19"` and `"Ch. 20"`); figures 00-18 unchanged | J2 | done |
+| J4 | ch19-20 `status = "drafted"` (`kind` stays `pattern`) | J3 | done |
 | J5 | Two prose agents in parallel. Each re-fetches its sources and quotes exactly, runs its two experiments in scratch copies, quotes fresh output filtered by `python3 scripts/host_ids.py filter`, and hands back the sources checked plus a per-paragraph claims table (claim, then test, run or source URL) | J3, J4 | todo |
 | J6 | Opus validation; up to two repair rounds | J5 | todo |
 | J7 | PR, `ci-ok` green, ask the user before merge; tag r09.x; notes-only release | J6 | todo |

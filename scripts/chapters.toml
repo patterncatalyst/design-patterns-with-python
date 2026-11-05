@@ -178,7 +178,7 @@ title = "Adapter, Facade, and Bridge"
 part = 7
 kind = "pattern"
 has_example = true
-status = "stub"
+status = "drafted"
 
 [[chapter]]
 number = 20
@@ -187,7 +187,7 @@ title = "Decorator the pattern vs @decorator the syntax, and Proxy"
 part = 7
 kind = "pattern"
 has_example = true
-status = "stub"
+status = "drafted"
 
 [[chapter]]
 number = 21
