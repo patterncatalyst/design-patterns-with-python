@@ -562,8 +562,8 @@ Step ids are `J*` (see User decisions).
 | --- | --- | --- | --- |
 | J0 | This plan file. PDP-119a-c and 120a-c `active` in `iteration-plan.md` (dated note). Reconciliation rows 97-106 `open`; row 5 notes "witnessed by rows 101-103 (r09)"; row 6 moves to ch26 (decision 5). Domain rows 19-20 updated (decisions 1-5 and the supporting names), with the ch20/ch26 non-overlap sentence extended to the syntax stacking-order witness. ch19-20 stub `description` lines written. Decisions recorded | - | done |
 | J1a | ch19 member, card, README; one `uv lock`; three green runs; the deletion table, each row in a fresh scratch copy with its `.venv` removed and re-synced (confirm `__file__`) | J0 | done |
-| J1b | ch20 member, card, README; one `uv lock` after J1a (sequenced); three green runs; deletion table; `_plans/evidence/percentage-layer-rounding.md` | J1a | todo |
-| J2 | Witness results into rows 97-106 (the claims audit resolves). A failed witness changes the thesis before prose. Any message differing from Planning evidence goes in "Corrections after the build". The dated spikes.md note on percentage layers | J1b | todo |
+| J1b | ch20 member, card, README; one `uv lock` after J1a (sequenced); three green runs; deletion table; `_plans/evidence/percentage-layer-rounding.md` | J1a | done |
+| J2 | Witness results into rows 97-106 (the claims audit resolves). A failed witness changes the thesis before prose. Any message differing from Planning evidence goes in "Corrections after the build". The dated spikes.md note on percentage layers | J1b | done |
 | J3 | Two figures, specs `diagrams/specs/19-*.py` and `20-*.py`, `_data/diagrams.yml` (single owner; `section: "Ch. 19"` and `"Ch. 20"`); figures 00-18 unchanged | J2 | todo |
 | J4 | ch19-20 `status = "drafted"` (`kind` stays `pattern`) | J3 | todo |
 | J5 | Two prose agents in parallel. Each re-fetches its sources and quotes exactly, runs its two experiments in scratch copies, quotes fresh output filtered by `python3 scripts/host_ids.py filter`, and hands back the sources checked plus a per-paragraph claims table (claim, then test, run or source URL) | J3, J4 | todo |
@@ -593,6 +593,9 @@ Row 5 status note at J2: "witnessed by rows 101-103 (r09)". Row 6: Ch cell 26, "
 - Step J1a, mypy messages against Planning evidence: test 16 (`g: CarrierGateway = FastlineClient()`) prints only the `[assignment]` line with no missing-member note (as E2, unlike C); test 18 is `[assignment]` with an Expected/Got note naming `Weight` (E4 showed `[arg-type]` on a call); test 19 matches C (`is missing following "CarrierGateway" protocol member: insure`). The `ship` return-annotation deletion gives `[union-attr]` in tests, not the planned `[return-value]`. Test 17 is a reduced model and needs naming as one in prose.
 
 (Empty. The orchestrator records here every message, count or value that differs from Planning evidence or this spec, with the step that found it.)
+
+- Step J1b: member has 35 test functions and 50 cases (12/19, 9/11, 6/9, 8/11), not the planned 27/40: added tests for the heavy threshold, fee order, unknown country, `retry` attempts < 1, `Weight`, read-only `TAX_RATES`, the explicit proxy accepted as a gateway and a typo on it. Test 25 needed an assignment snippet to get `[assignment]` (a returned proxy gives `[return-value]`); tests 25, 26 and 28 are reduced models. `quote_carrier`'s `[call-arg]` also prints a `defined in` note. Deleting the proxy's `book` gives `[return-value]` in conftest with the missing-member note. The evidence sweep reproduces 6,940 of 20,000; a seeded weighted draw (seed 20261104) gives 6,726, always one cent.
+- Step J2: claims 103 and 105 resolve only once ch20 links PEP 318, the typing docs and the data model reference (J5).
 
 ## Acceptance criteria
 
