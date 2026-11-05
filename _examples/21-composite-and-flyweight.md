@@ -16,8 +16,8 @@ commodity and port codes. Each test asserts the behaviour named in its title.
 
 A `Consignment` and a `ConsolidatedShipment` both answer `weight`, and the group's total includes
 nested groups. Where the kinds differ, `match` over the closed `Shipment` union makes a missing arm
-a mypy error. A group is built bottom-up and frozen, so it cannot be empty, rewired or contain
-itself, and it refuses a consignment that appears twice.
+a mypy error. A group is built bottom-up and frozen, so it can't be empty or rewired, and it refuses
+a consignment that appears twice.
 
 ## Flyweight
 

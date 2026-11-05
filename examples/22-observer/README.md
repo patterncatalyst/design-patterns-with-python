@@ -19,7 +19,7 @@ Delivery.
 - `publish` delivers to every subscriber and then raises one `ExceptionGroup`
   ("subscribers failed") holding the failures in order. A plain list of callables stops at the first
   failure. The signal recovers after a failed delivery, and also after a subscriber raises
-  something that is not an `Exception`, because `_delivering` is reset in a `finally`.
+  something that isn't an `Exception`, because `_delivering` is reset in a `finally`.
 - The comparison form `_ListSignal` is a fixture in `tests/conftest.py`: a list of callables
   iterated live, with no `try`. It is the `plain-list` parameter of `signal_form`, so it runs the same
   order and unsubscribe tables as `Signal`. Its hazards have their own tests, because they fail on
@@ -51,8 +51,6 @@ Static checks.
 - mypy refuses a subscriber typed for another event and publishing a wrong event. It accepts a
   typo in a string-topic bus with `Any` payloads (a reduced model in `test_static.py`, not part of the
   example), and it accepts a slotted subscriber that fails at run time.
-- `inspect.ismethod` narrows to `types.MethodType` for mypy, so the weak-reference branch of
-  `subscribe` is checked at the signature and not after it.
 
 ## Layout
 
@@ -117,4 +115,4 @@ uv run mypy --strict src tests
 - `test_mypy_cannot_see_a_subscriber_that_refuses_weak_references`: clean.
 
 Classes and functions named with a leading underscore in `tests/conftest.py` are test fixtures and
-are not part of the model code.
+aren't part of the model code.

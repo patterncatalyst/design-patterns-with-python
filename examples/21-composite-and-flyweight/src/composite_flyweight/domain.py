@@ -1,5 +1,6 @@
 """Shipping values for the composite example: weight, commodity, consignment, consolidation."""
 
+import operator
 from dataclasses import dataclass
 from decimal import Decimal
 from functools import reduce
@@ -82,7 +83,7 @@ class ConsolidatedShipment:
     @property
     def weight(self) -> Weight:
         """The total, recursing through nested consolidations."""
-        return reduce(Weight.__add__, (part.weight for part in self.parts))
+        return reduce(operator.add, (part.weight for part in self.parts))
 
 
 type Shipment = Consignment | ConsolidatedShipment

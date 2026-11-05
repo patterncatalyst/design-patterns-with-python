@@ -5,7 +5,7 @@ the language promises no immediate finalisation, and a reference cycle waits for
 import gc
 import weakref
 from collections.abc import Callable
-from typing import Protocol
+from typing import Protocol, override
 
 import pytest
 from observer.domain import HandlingEvent, HandlingKind
@@ -168,7 +168,14 @@ def _subscribe_and_abandon(
 def test_a_subscriber_that_dies_during_delivery_is_skipped(
     signal: Signal[HandlingEvent], event: MakeEvent
 ) -> None:
-    holders = [TrackingHistory()]
+    told: list[HandlingKind] = []
+
+    class _Told(TrackingHistory):
+        @override
+        def record(self, received: HandlingEvent, /) -> None:
+            told.append(received.kind)
+
+    holders = [_Told()]
     history_ref = weakref.ref(holders[0])
 
     def drop_the_history(_event: HandlingEvent, /) -> None:
@@ -181,6 +188,7 @@ def test_a_subscriber_that_dies_during_delivery_is_skipped(
     signal.publish(event(HandlingKind.LOADED))  # raises nothing: the dead entry is skipped
 
     assert history_ref() is None
+    assert told == []
 
 
 def test_unsubscribe_is_safe_after_the_owner_has_gone(signal: Signal[HandlingEvent]) -> None:

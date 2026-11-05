@@ -17,16 +17,15 @@ Composite.
   against 17.25 kg for a sum of the direct consignments.
 - Where the kinds differ, `consignments` and `carries_dangerous_goods` use `match` over the closed
   union with `assert_never`. A missing arm is an `[arg-type]` error.
-- A group is built bottom-up from a tuple of parts, so it cannot be rewired afterwards or contain
-  itself. It refuses empty `parts` and a consignment that appears twice anywhere beneath it, and it
+- A group is built bottom-up from a tuple of parts, so it can't be rewired afterwards. It refuses empty `parts` and a consignment that appears twice anywhere beneath it, and it
   compares and hashes by value. mypy refuses `add`, `append` and assignment on it.
 - The GoF form is a fixture in `tests/conftest.py`: `_Component` declares `add` for every component,
   `_ComponentLeaf` inherits the `add` that raises, and `_ComponentGroup` holds a mutable list. It
   passes the same weight table as the frozen form. mypy accepts `leaf.add(...)`, the call fails only
-  when the program runs, and a group can contain itself and then recurses without end.
+  when the program runs, and a group can contain itself and then raises `RecursionError`.
 - A very deep tree raises `RecursionError` on `.weight`. The deep tree in the test is assembled
   without running validation, because validation recurses as well. The threshold is a CPython
-  detail and is not asserted.
+  detail and isn't asserted.
 
 Flyweight.
 
@@ -41,11 +40,11 @@ Flyweight.
   but distinct objects, interned codes are one object, and equality works without interning.
 - Every lifetime test drops its names and calls `gc.collect()` before asserting.
 
-Memory figures are not asserted. `bench/commodity_memory.py` prints them for the running
-interpreter, and the recorded run is in `_plans/evidence/flyweight-memory.md`.
+Memory figures aren't asserted. `bench/commodity_memory.py` prints them for the running
+interpreter, and the chapter quotes a recorded run with its Python version and date.
 
 The reduced-model snippet in `test_static.py` (the component form with `add` on a leaf) restates the
-shape and does not import the fixture.
+shape and doesn't import the fixture.
 
 ## Layout
 
@@ -54,7 +53,7 @@ shape and does not import the fixture.
 - `src/composite_flyweight/consolidation.py`: `consignments`, `carries_dangerous_goods`.
 - `src/composite_flyweight/flyweights.py`: `CATALOGUE`, `CommodityPool`, `UnknownCommodityError`,
   `PortCodeError`, `port_code`, `route`.
-- `bench/commodity_memory.py`: the `sys.getsizeof` and `tracemalloc` comparison. Pytest does not collect it.
+- `bench/commodity_memory.py`: the `sys.getsizeof` and `tracemalloc` comparison. Pytest doesn't collect it.
 
 ## Run it
 
@@ -85,7 +84,7 @@ uv run python -I bench/commodity_memory.py
 - `test_a_consignment_may_appear_only_once_in_a_consolidation`: same level and nested.
 - `test_a_frozen_consolidation_cannot_be_rewired`: `FrozenInstanceError`, and `parts` is a tuple.
 - `test_a_component_leaf_refuses_add_only_when_the_program_runs`: `TypeError` from the comparison form.
-- `test_a_mutable_component_group_can_contain_itself`: the comparison form recurses without end.
+- `test_a_mutable_component_group_can_contain_itself`: the comparison form raises `RecursionError`.
 - `test_consolidations_compare_by_value`: two separately built trees are equal and hash equal.
 - `test_a_pathologically_deep_consolidation_hits_the_recursion_limit`: `RecursionError`.
 - `test_weight_refuses_zero_negative_and_non_finite_values`: zero, negative, NaN and infinity.
@@ -115,4 +114,4 @@ uv run python -I bench/commodity_memory.py
 - `test_mypy_accepts_add_on_a_component_leaf`: clean (a reduced model).
 
 Classes and functions named with a leading underscore in `tests/conftest.py` are test fixtures and
-are not part of the model code.
+aren't part of the model code.

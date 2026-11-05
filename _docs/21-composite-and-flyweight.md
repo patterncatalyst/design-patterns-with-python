@@ -30,13 +30,13 @@ A consignment sits in two groups of one consolidation and is counted twice. Noth
 
 One commodity object is shared by all the consignments that carry it, and one consignment's line edits it. The other consignments see the change, because they hold the same object.
 
-{% include excalidraw.html name="21-composite-and-flyweight" caption="Figure 21.1: One weight question, one shared commodity. A consolidation sums its parts through nested groups as a consignment does alone; consignments reach a single frozen commodity per code from a pool that lets go of commodities nobody holds." %}
+{% include excalidraw.html name="21-composite-and-flyweight" caption="Figure 21.1: One weight question, one shared commodity. A consolidation answers weight as a consignment does, summing its parts through nested groups; consignments reach a single frozen commodity per code from a pool that lets go of commodities nobody holds." %}
 
 The figure has a top `ConsolidatedShipment` ("weight: sums its parts, nested or not") with two children: a `Consignment` and a second, nested `ConsolidatedShipment` ("a nested group, same question") that holds two more. All three `Consignment` leaves point to one `Commodity` ("one object per code, frozen"), and `CommodityPool` ("weak values: dropped when nobody holds them") points up to it. At the side, a note reads "Shipment = Consignment | ConsolidatedShipment", and a separate `port_code` box reads "sys.intern: one object per code". Port codes are the other shared value, and they have no arrow into the tree because a consignment holds them as plain strings.
 
 ## One question for a consignment and a consolidation
 
-Composite is for the caller who holds something and asks one question without caring whether it's a single item or a bundle of them. The *Design Patterns* catalogue by Gamma, Helm, Johnson and Vlissides (1994) gives it to part-whole structures. Brandon Rhodes, in [The Composite Pattern](https://python-patterns.guide/gang-of-four/composite/), calls the value symmetry and says the craft lies in deciding where to break it. He also observes that Python doesn't force a common parent class on the container and its contents; a shared interface or duck typing will do. That's the part that dissolves here. [What 1994 assumed, and what Python dissolves]({{ '/docs/02-what-1994-assumed-and-python-dissolves/' | relative_url }}) lists the assumptions behind the base class. The decisions that remain are what both kinds answer, where the total is computed and which invariants hold, so the bucket is survives.
+Composite is for the caller who holds something and asks one question without caring whether it's a single item or a bundle of them. The *Design Patterns* catalogue by Gamma, Helm, Johnson and Vlissides (1994) gives it to part-whole structures. Brandon Rhodes, in [The Composite Pattern](https://python-patterns.guide/gang-of-four/composite/), treats the pattern as symmetry between containers and contents and writes that "The art of using the Composite Pattern is determining where to break the symmetry." In Python he lets any mechanism supply that symmetry, whether a base class, a type checker or duck typing. That's the part that dissolves here. [What 1994 assumed, and what Python dissolves]({{ '/docs/02-what-1994-assumed-and-python-dissolves/' | relative_url }}) lists the assumptions behind the base class. The decisions that remain are what both kinds answer, where the total is computed and which invariants hold, so the bucket is survives.
 
 <!-- fmt:off -->
 ```python
@@ -65,7 +65,7 @@ class ConsolidatedShipment:
     @property
     def weight(self) -> Weight:
         """The total, recursing through nested consolidations."""
-        return reduce(Weight.__add__, (part.weight for part in self.parts))
+        return reduce(operator.add, (part.weight for part in self.parts))
 
 
 type Shipment = Consignment | ConsolidatedShipment
@@ -78,7 +78,7 @@ The union is closed, and mypy reads it. `test_mypy_reads_weight_on_either_kind_o
 
 ## Where the kinds differ: match over a closed union
 
-Rhodes's warning about symmetry applies here: if making two kinds look alike forces an `isinstance` check onto callers that handle the result, the symmetry has gone too far. Flattening a tree is a case where the kinds really do differ in what they do, though the result is the same shape for both:
+Rhodes names the limit on symmetry: the question of return type, he writes, "will serve as a very important guardrail when you are designing in Python". Flattening is a case where the kinds differ in what they do but return one type, a tuple of consignments, so no caller needs `isinstance`:
 
 <!-- fmt:off -->
 ```python
@@ -102,9 +102,9 @@ The last arm is the safety. A kind with no arm leaves `unreachable` typed as som
 
 The tree's invariants are the part of Composite that no language feature supplies. This one has three. A consolidation needs at least one part (`test_a_consolidation_must_have_parts`). A consignment appears once, at the same level or nested below another group (`test_a_consignment_may_appear_only_once_in_a_consolidation`, both placements). Weights are positive and finite (`test_weight_refuses_zero_negative_and_non_finite_values`, for zero, negative, NaN and infinity).
 
-The other protection is construction order. Parts are passed as a tuple of objects that already exist, and the dataclass is frozen, so `test_a_frozen_consolidation_cannot_be_rewired` finds `FrozenInstanceError` on assignment and a tuple in `parts`. mypy refuses `add`, `append` and assignment on a group (`test_mypy_refuses_adding_to_a_frozen_consolidation`, three cases). Two trees built separately from the same data compare equal and hash equal (`test_consolidations_compare_by_value`); [Dataclasses and value semantics]({{ '/docs/08-dataclasses-and-value-semantics/' | relative_url }}) covers frozen and hash. Recursion has a limit: `test_a_pathologically_deep_consolidation_hits_the_recursion_limit` assembles a 5,000-level tree and gets `RecursionError` on `.weight`. The domain nests a few levels, so the limit is a fact to know.
+The other protection is construction order. Parts are passed as a tuple of objects that already exist, and the dataclass is frozen, so `test_a_frozen_consolidation_cannot_be_rewired` finds `FrozenInstanceError` on assignment and a tuple in `parts`. mypy refuses `add`, `append` and assignment on a group (`test_mypy_refuses_adding_to_a_frozen_consolidation`, three cases). Two trees built separately from the same data compare equal and hash equal (`test_consolidations_compare_by_value`); [Dataclasses and value semantics]({{ '/docs/08-dataclasses-and-value-semantics/' | relative_url }}) covers frozen and hash. Recursion has a limit: `test_a_pathologically_deep_consolidation_hits_the_recursion_limit` assembles a 5,000-level tree and gets `RecursionError` on `.weight`. The domain nests a few levels.
 
-For contrast, here is the mutable form the original catalogue describes, kept as a test fixture. It's the one comparison in the chapter, and it passes the same weight table as the frozen form (`test_the_total_weight_includes_nested_consolidations`, parametrised over `frozen-union` and `component-classes`).
+For contrast, here is the mutable form the original catalogue describes, kept as a test fixture that passes the same weight table as the frozen form (`test_the_total_weight_includes_nested_consolidations`, parametrised over `frozen-union` and `component-classes`).
 
 <!-- fmt:off -->
 ```python
@@ -127,7 +127,7 @@ class _ComponentLeaf(_Component):
 ```
 <!-- fmt:on -->
 
-Putting `add` on the base class gives all components the same surface, which is the transparency Rhodes notes some Composite users dispute, since a leaf offers an operation it can't honour. The cost shows up late. `test_mypy_accepts_add_on_a_component_leaf` type-checks a reduced model of this shape (it restates the classes and doesn't import the fixture) and gets exit status 0. `test_a_component_leaf_refuses_add_only_when_the_program_runs` then gets `TypeError` matching "cannot hold components". And `test_a_mutable_component_group_can_contain_itself` adds a group to itself; the `add` succeeds, and `weight` recurses until `RecursionError`. The frozen form gives up `add` and gains a type error at the call.
+Putting `add` on the base class gives all components the same surface, at the price of a leaf that offers an operation it can't honour. The cost shows up late. `test_mypy_accepts_add_on_a_component_leaf` type-checks a reduced model of this shape (it restates the classes and doesn't import the fixture) and gets exit status 0. `test_a_component_leaf_refuses_add_only_when_the_program_runs` then gets `TypeError` matching "cannot hold components". And `test_a_mutable_component_group_can_contain_itself` adds a group to itself; the `add` succeeds, and `weight` recurses until `RecursionError`. The frozen form gives up `add` and gains a type error at the call.
 
 ## Flyweight: one commodity, many consignments
 
@@ -196,7 +196,7 @@ What makes sharing safe is that the value is frozen. `test_equal_commodities_nee
 
 ## Memory: slots trim, sharing removes, interning for strings
 
-The figures below come from `bench/commodity_memory.py`, run with `uv run python -I bench/commodity_memory.py` and recorded in the plan's evidence file on Python 3.15.2 on 5 November 2026. They're approximate and depend on the interpreter version and allocator, so no test asserts them. A fresh run for this chapter printed the same numbers. Each row holds 100,000 items in a list, and the per-item figure includes the 8-byte list pointer.
+The figures below come from `bench/commodity_memory.py`, run with `uv run python -I bench/commodity_memory.py` and recorded on Python 3.15.2 on 5 November 2026. They're approximate and depend on the interpreter version and allocator, so no test asserts them. A fresh run for this chapter printed the same numbers. Each row holds 100,000 items in a list, and the per-item figure includes the 8-byte list pointer.
 
 | What is held | Bytes allocated | Per item |
 | --- | --- | --- |
@@ -211,7 +211,7 @@ Slots trim each instance by a constant (the data model says: "The space saved ov
 
 `sys.getsizeof` points the wrong way here. Its [documentation](https://docs.python.org/3/library/sys.html) says: "Only the memory consumption directly attributed to the object is accounted for, not the memory consumption of objects it refers to." The same run reports 48 bytes for a dict-backed instance and 56 for a slotted one, so the slotted one reads larger while the table shows it costs less per item. `tracemalloc` counts what was allocated for the list and everything it holds, which is the comparison to read.
 
-Port codes are the strings in each consignment's route. `test_split_port_codes_are_equal_but_distinct_objects` observes on CPython 3.15.2 that two codes from `str.split` are equal and `is not` the same object. `port_code` validates and returns an interned string:
+Port codes are the strings in a route line such as `NLRTM;SGSIN`. `test_split_port_codes_are_equal_but_distinct_objects` observes on CPython 3.15.2 that two codes from `str.split` are equal and `is not` the same object. `port_code` validates and returns an interned string:
 
 <!-- fmt:off -->
 ```python
@@ -223,7 +223,7 @@ def port_code(text: str) -> str:
 ```
 <!-- fmt:on -->
 
-`test_interned_port_codes_are_one_object` parses `"NLRTM;SGSIN;NLRTM"` through `route` and finds the first and last ports are one object. `test_a_malformed_port_code_is_refused` covers a lowercase code and a short one. The `sys.intern` entry says what interning buys: "Interning strings is useful to gain a little performance on dictionary lookup". The table shows the memory side, 4 distinct objects instead of 100,000 in the run. Equality works without interning, and the tests above compare with `==`; interning saves memory and lookup time, and nothing depends on it.
+`test_interned_port_codes_are_one_object` parses `"NLRTM;SGSIN;NLRTM"` through `route` and finds the first and last ports are one object. `test_a_malformed_port_code_is_refused` covers a lowercase code and a short one. The `sys.intern` entry says what interning buys: "Interning strings is useful to gain a little performance on dictionary lookup". The same run counted 4 distinct objects instead of 100,000. Equality works without interning, and the tests above compare with `==`; interning saves memory and lookup time, and nothing depends on it.
 
 ## When not to use it
 
@@ -320,7 +320,12 @@ The suite has 31 test functions and 44 cases. The groups are:
 **Experiment one: drop the duplicate check.** In a scratch copy, delete the `if consignment_id in seen:` block in `ConsolidatedShipment.__post_init__`. Running `uv run pytest -q 2>&1 | grep -E '^(FAILED|E {7}[^ ]|tests/.*Error$|[0-9]+ (passed|failed))'` and then `uv run mypy --strict src tests` printed, identically in three runs apart from the duration:
 
 ```text
-
+E       Failed: DID NOT RAISE ConsolidationError
+E       Failed: DID NOT RAISE ConsolidationError
+FAILED tests/test_composite.py::test_a_consignment_may_appear_only_once_in_a_consolidation[same-level]
+FAILED tests/test_composite.py::test_a_consignment_may_appear_only_once_in_a_consolidation[nested]
+2 failed, 42 passed in 3.60s
+Success: no issues found in 8 source files
 ```
 
 Both placements of the repeated consignment now build a consolidation without complaint, and mypy stays green because a tuple with a repeat is still a tuple.

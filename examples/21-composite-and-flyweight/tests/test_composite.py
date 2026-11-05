@@ -1,6 +1,7 @@
 import dataclasses
 from collections.abc import Callable
 from decimal import Decimal
+from typing import TYPE_CHECKING
 
 import pytest
 from composite_flyweight.consolidation import carries_dangerous_goods, consignments
@@ -11,6 +12,9 @@ from composite_flyweight.domain import (
     Shipment,
     Weight,
 )
+
+if TYPE_CHECKING:
+    from conftest import MakeConsignment
 
 LITHIUM = "850760"
 
@@ -57,7 +61,7 @@ def test_consignments_lists_every_leaf_in_order(nested: ConsolidatedShipment) ->
 def test_a_consolidation_with_dangerous_goods_anywhere_is_flagged(
     where: str,
     nested: ConsolidatedShipment,
-    make_consignment: Callable[..., Consignment],
+    make_consignment: MakeConsignment,
 ) -> None:
     shipments: dict[str, Shipment] = {
         "top-level": ConsolidatedShipment(
@@ -79,7 +83,7 @@ def test_a_consolidation_must_have_parts() -> None:
 
 @pytest.mark.parametrize("placement", ["same-level", "nested"])
 def test_a_consignment_may_appear_only_once_in_a_consolidation(
-    placement: str, make_consignment: Callable[..., Consignment]
+    placement: str, make_consignment: MakeConsignment
 ) -> None:
     once = make_consignment("CN-1", "1")
     other = make_consignment("CN-2", "1")
@@ -117,7 +121,7 @@ def test_a_mutable_component_group_can_contain_itself(
 
 
 def test_consolidations_compare_by_value(
-    make_consignment: Callable[..., Consignment],
+    make_consignment: MakeConsignment,
 ) -> None:
     def build() -> ConsolidatedShipment:
         inner = ConsolidatedShipment(
@@ -135,7 +139,7 @@ def test_consolidations_compare_by_value(
 
 @pytest.mark.usefixtures("recursion_limit")
 def test_a_pathologically_deep_consolidation_hits_the_recursion_limit(
-    make_consignment: Callable[..., Consignment],
+    make_consignment: MakeConsignment,
 ) -> None:
     """Validation recurses too, so the deep tree is assembled without running it."""
     shipment: Shipment = make_consignment("CN-1", "1")

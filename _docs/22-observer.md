@@ -19,7 +19,7 @@ By the end of this chapter you can:
 
 ## Why this matters
 
-A tracking system has one source of truth, the handling events that arrive as cargo moves, and several parties that want to hear about them: a history per consignment, a customer notification, a billing trigger. The handling code shouldn't name any of them, and a new party shouldn't mean an edit to it. That is the force behind Observer, and a Python callback list resolves it in two lines. Three things go wrong in the obvious version.
+A tracking system has one source of truth, the handling events that arrive as cargo moves, and several parties that want to hear about them: a history per consignment, a customer notification, a billing trigger. The handling code shouldn't name any of them, and a new party shouldn't mean an edit to it. That's the force behind Observer, and a Python list of callables resolves it without an interface. Three things go wrong in the obvious version.
 
 A subscriber that writes to a history store raises because the store is down. The subscribers registered after it don't hear the event, and the caller of `publish` sees the store's error and nothing else.
 
@@ -35,7 +35,7 @@ Read the figure from the top down. An accent box, `Signal.publish(event)`, is la
 
 ## A subscriber is a callable
 
-The *Design Patterns* catalogue by Gamma, Helm, Johnson and Vlissides (1994) gives Observer to a subject whose changes other parties care about and who must not be coupled to what those parties are. The subject keeps a list of interested parties and tells each of them when something happens. In that book the parties implement an observer interface with an update method.
+The *Design Patterns* catalogue by Gamma, Helm, Johnson and Vlissides (1994) gives Observer to a subject whose changes other parties care about and which mustn't be coupled to what those parties are. The subject keeps a list of interested parties and tells each of them when something happens. In that book the parties implement an observer interface with an update method.
 
 Python removes the interface. Anything that takes the event is a subscriber, and the type says so:
 
@@ -55,11 +55,11 @@ The event is one class, `HandlingEvent`, with a `HandlingKind` enum for what hap
 
 A bus keyed by strings gives up that check. `test_mypy_accepts_a_typo_in_a_string_topic_bus` runs a reduced model, a bus keyed by topic strings with `Any` payloads, which isn't part of the example. mypy exits 0 with empty output on a publish to a misspelled topic and on a payload of `42` to a handler that expects a dictionary. A signal per event source has no topic string to misspell, and a wrong payload is an error.
 
-The bucket is survives, as [The three-way split: dissolve, survive, disambiguate]({{ '/docs/03-the-three-way-split/' | relative_url }}) sorts it. The interface dissolves into a callable. A list of callables decides nothing about the next three sections.
+The bucket is survives, as [The three-way split: dissolve, survive, disambiguate]({{ '/docs/03-the-three-way-split/' | relative_url }}) sorts it. The interface dissolves into a callable. A list of callables decides nothing about delivery order, failure, re-entry or lifetime, and `Signal` decides each.
 
 ## Order and failure
 
-The comparison form is the list a first draft would use, written as a test fixture so it runs the same delivery table as `Signal`:
+Order and failure are the first two decisions a list of callables leaves open: who hears an event first, and whether one subscriber that raises costs the others the event. The comparison form is the list a first draft would use, written as a test fixture so it runs the same delivery table as `Signal`:
 
 ```python
 # Comparison: a plain list of callables, iterated live, with no `try` around the calls.
@@ -80,7 +80,7 @@ class _ListSignal:
             subscriber(event)
 ```
 
-Both forms pass `test_subscribers_are_called_in_subscription_order` and `test_an_unsubscribed_subscriber_gets_no_more_events`, They part at failure. `test_a_plain_list_stops_at_the_first_failing_subscriber` has a store that raises between two labelled subscribers: the error reaches the caller and the later subscriber isn't called. `Signal` delivers to each subscriber and reports afterwards:
+Both forms pass `test_subscribers_are_called_in_subscription_order` and `test_an_unsubscribed_subscriber_gets_no_more_events`. They part at failure. `test_a_plain_list_stops_at_the_first_failing_subscriber` has a store that raises between two labelled subscribers: the error reaches the caller and the later subscriber isn't called. `Signal` delivers to each subscriber and reports afterwards:
 
 <!-- fmt:off -->
 ```python
@@ -113,7 +113,7 @@ Both forms pass `test_subscribers_are_called_in_subscription_order` and `test_an
 ```
 <!-- fmt:on -->
 
-A failure is collected, delivery continues, and one `ExceptionGroup` named "subscribers failed" is raised at the end, holding the failures in the order they happened. [PEP 654](https://peps.python.org/pep-0654/), by Irit Katriel, Yury Selivanov and Guido van Rossum, introduces the type to "allow programs to raise and handle multiple unrelated exceptions simultaneously", and subscriber failures fit that description: the store being down and the notifier timing out have no relation to each other. `test_one_failing_subscriber_does_not_stop_the_rest` checks that the subscribers before and after the failure both ran and that the group holds one `RuntimeError`. `test_every_failure_is_reported_after_delivery` runs one failure and two, and the group's `exceptions` tuple equals the errors in order.
+A failure is collected, delivery continues, and one `ExceptionGroup` named "subscribers failed" is raised at the end. The group holds the failures in the order they happened. [PEP 654](https://peps.python.org/pep-0654/), by Irit Katriel, Yury Selivanov and Guido van Rossum, introduces the type to "allow programs to raise and handle multiple unrelated exceptions simultaneously", and subscriber failures fit that description: the store being down and the notifier timing out have no relation to each other. `test_one_failing_subscriber_does_not_stop_the_rest` checks that the subscribers before and after the failure both ran and that the group holds one `RuntimeError`. `test_every_failure_is_reported_after_delivery` runs one failure and two, and the group's `exceptions` tuple equals the errors in order.
 
 Raising after delivery moves the decision to the caller. It can log the group or retry, and the other subscribers have already done their work. The signal doesn't undo what earlier subscribers did.
 
@@ -142,7 +142,7 @@ def test_a_bound_method_subscriber_is_dropped_when_its_owner_goes(
     signal.publish(event(HandlingKind.LOADED))  # reaches no one, and raises nothing
 ```
 
-`del history` removes the application's name for the history, and `gc.collect()` runs the collector so that the assertion doesn't depend on timing. In the plain list the same sequence leaves the history alive and still called: `test_a_plain_list_keeps_an_abandoned_subscriber_alive` finds the object through its weak reference and publishes to it. In `Signal` the history is gone, and `len(signal)`, the number of entries, is 0.
+`del history` removes the application's name for the history. The test collects before asserting because the language doesn't promise immediate reclamation; the reference-cycle case below shows why. In the plain list the same sequence leaves the history alive and still called: `test_a_plain_list_keeps_an_abandoned_subscriber_alive` finds the object through its weak reference and publishes to it. In `Signal` the history is gone, and `len(signal)`, the number of entries, is 0.
 
 The rule is in `subscribe`:
 
@@ -171,7 +171,7 @@ The rule is in `subscribe`:
 ```
 <!-- fmt:on -->
 
-A bound method is held through `weakref.WeakMethod`, and any other callable is held strongly. The `weakref` documentation explains why a plain weak reference won't do: "A weak reference to an object is not enough to keep the object alive: when the only remaining references to a referent are weak references, garbage collection is free to destroy the referent and reuse its memory for something else." A bound method is a temporary object made on each attribute access, so a plain weak reference to `history.record` is dead at once. The documentation says of `WeakMethod`: "Since a bound method is ephemeral, a standard weak reference cannot keep hold of it." `WeakMethod` recreates the bound method on demand, until the owner or the original function dies. When the owner goes, its callback, `_forget`, removes the entry.
+The `weakref` documentation explains why a plain weak reference won't do: "A weak reference to an object is not enough to keep the object alive: when the only remaining references to a referent are weak references, garbage collection is free to destroy the referent and reuse its memory for something else." A bound method is a temporary object made on each attribute access, so a plain weak reference to `history.record` is dead at once. The documentation says of `WeakMethod`: "Since a bound method is ephemeral, a standard weak reference cannot keep hold of it." `WeakMethod` "has special code to recreate the bound method until either the object or the original function dies". When the owner goes, its callback, `_forget`, removes the entry.
 
 A function or a lambda is the opposite case. A run on Python 3.15.2 of `weakref.ref(lambda: None)()` returns `None`: nothing else holds the lambda, so it is gone before the call. A signal that held lambdas weakly would drop an inline lambda before its first event. So they are held strongly, and `test_a_lambda_subscriber_is_held_strongly` checks that the lambda is still called after a collection.
 
@@ -182,13 +182,13 @@ Strong and weak have trade-offs, and each has a test:
 - An owner with `__slots__` and no weak-reference slot is refused when it subscribes. The documentation says "When `__slots__` are defined for a given type, weak reference support is disabled unless a `'__weakref__'` string is also present in the sequence of strings in the `__slots__` declaration." `test_a_slotted_subscriber_without_a_weakref_slot_is_refused` finds a `TypeError` matching "cannot create weak reference" and a signal with no entries. mypy sees nothing: `test_mypy_cannot_see_a_subscriber_that_refuses_weak_references` runs the same subscription and gets exit status 0. The slotted-dataclass version of this finding, and `weakref_slot=True`, belong to [Dataclasses and value semantics]({{ '/docs/08-dataclasses-and-value-semantics/' | relative_url }}).
 - A subscriber in a reference cycle outlives its last name. `test_a_subscriber_in_a_reference_cycle_stays_until_the_collector_runs` subscribes a history that refers to itself, with automatic collection paused. The weak reference is still live and the signal still has an entry until `gc.collect()` runs, then both are gone.
 
-The cycle case is the reason the tests collect explicitly. The data model says "Do not depend on immediate finalization of objects when they become unreachable", and CPython's reference counting "collects most objects as soon as they become unreachable, but is not guaranteed to collect garbage containing circular references". The `gc` documentation describes the collector as supplementing the reference counting, so a program that makes no cycles can disable it. The entry stays until the collector reaches the cycle. Unsubscribing is safe after the owner has gone: `test_unsubscribe_is_safe_after_the_owner_has_gone` calls it twice without an error.
+The cycle case is the reason the tests collect explicitly. The data model says "Do not depend on immediate finalization of objects when they become unreachable", and CPython's reference counting "collects most objects as soon as they become unreachable, but is not guaranteed to collect garbage containing circular references". The `gc` documentation adds: "Since the collector supplements the reference counting already used in Python, you can disable the collector if you are sure your program does not create reference cycles." The entry stays until the collector reaches the cycle. Unsubscribing is safe after the owner has gone: `test_unsubscribe_is_safe_after_the_owner_has_gone` calls it twice without an error.
 
 ## Subscribing and publishing during delivery
 
 A subscriber is code, and code can call back into the signal. A subscriber may add another subscriber, remove itself, or publish a new event, and the list or dict being iterated changes under the loop. The contract has two rules.
 
-The first is that delivery iterates a snapshot, `tuple(self._subscribers.values())`, as the `publish` excerpt shows. A subscriber added during delivery gets the next event and not the current one (`test_a_subscriber_added_during_delivery_gets_the_next_event`). A subscriber that removes itself skips no one: the log reads remover, a, b (`test_unsubscribing_during_delivery_does_not_skip_another_subscriber`). The plain list removes an item from the list it is walking, and the log reads remover, b, so `a` was never told (`test_a_plain_list_skips_a_subscriber_when_one_unsubscribes_during_delivery`). The snapshot holds the `WeakMethod` for a bound method, not the method, so a subscriber whose owner dies mid-delivery is skipped, not called: `test_a_subscriber_that_dies_during_delivery_is_skipped` has one subscriber release the owner of the next.
+The first is that delivery iterates a snapshot, `tuple(self._subscribers.values())`, as the `publish` excerpt shows. A subscriber added during delivery gets the next event and not the current one (`test_a_subscriber_added_during_delivery_gets_the_next_event`). A subscriber that removes itself skips no one: the log reads remover, a, b (`test_unsubscribing_during_delivery_does_not_skip_another_subscriber`). The plain list removes an item from the list it is walking, and the log reads remover, b, so `a` was never told (`test_a_plain_list_skips_a_subscriber_when_one_unsubscribes_during_delivery`). The snapshot holds the `WeakMethod` for a bound method, not the method, so a subscriber whose owner dies mid-delivery is skipped, not called. `test_a_subscriber_that_dies_during_delivery_is_skipped` has one subscriber release the owner of the next and collect; the test then finds that the next subscriber's `record` was never called.
 
 The second is that an event published during delivery waits. `publish` appends to a queue, and a nested call returns at once when delivery is already running; the outer call drains the queue after the current event. The test builds the failure from the start of the chapter:
 

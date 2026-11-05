@@ -6,6 +6,7 @@ import sys
 from abc import ABC, abstractmethod
 from collections.abc import Callable, Iterator
 from decimal import Decimal
+from typing import Protocol
 
 import pytest
 from composite_flyweight.domain import (
@@ -21,13 +22,19 @@ LITHIUM = "850760"
 COFFEE = "090111"
 
 
+class MakeConsignment(Protocol):
+    def __call__(
+        self, consignment_id: str, kilograms: str, hs_code: str = ..., /
+    ) -> Consignment: ...
+
+
 @pytest.fixture
 def pool() -> CommodityPool:
     return CommodityPool()
 
 
 @pytest.fixture
-def make_consignment(pool: CommodityPool) -> Callable[..., Consignment]:
+def make_consignment(pool: CommodityPool) -> MakeConsignment:
     """Build a consignment from an id, a weight in kilograms and an HS code."""
 
     def make(consignment_id: str, kilograms: str, hs_code: str = COFFEE) -> Consignment:
@@ -43,7 +50,7 @@ def make_consignment(pool: CommodityPool) -> Callable[..., Consignment]:
 
 
 @pytest.fixture
-def nested(make_consignment: Callable[..., Consignment]) -> ConsolidatedShipment:
+def nested(make_consignment: MakeConsignment) -> ConsolidatedShipment:
     """CN-1 (10 kg), a nested group of CN-3 (2.5 kg) and CN-4 (4 kg), then CN-2 (7.25 kg).
 
     CN-4 is dangerous goods. The total is 23.75 kg. The consignments directly beneath the
