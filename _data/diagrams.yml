@@ -163,3 +163,21 @@
     Four ways to load the tariff table once, in the order to reach for them.
     A module, a lazy import and a parameter come first; the class forms
     beside them each cost something the tests measure.
+
+- name: 19-adapter-facade-bridge
+  section: "Ch. 19"
+  title: One call, two axes, one translation
+  caption: >-
+    One call, two axes, one translation. The facade picks a gateway and a
+    booking kind; each kind works through the narrow gateway Protocol, which
+    one client already satisfies and the other reaches through an adapter
+    that converts units.
+
+- name: 20-decorator-pattern-vs-decorator-syntax-and-proxy
+  section: "Ch. 20"
+  title: Two things called Decorator, and a proxy
+  caption: >-
+    Two things called Decorator, and a proxy. Layers are chosen per
+    consignment and stacked as a value while the program runs; the @ form
+    rebinds a name once at definition; the proxy keeps the interface and
+    controls access.
