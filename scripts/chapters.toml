@@ -196,7 +196,7 @@ title = "Composite and Flyweight"
 part = 7
 kind = "pattern"
 has_example = true
-status = "stub"
+status = "drafted"
 
 [[chapter]]
 number = 22
@@ -205,7 +205,7 @@ title = "Observer"
 part = 8
 kind = "pattern"
 has_example = true
-status = "stub"
+status = "drafted"
 
 [[chapter]]
 number = 23

@@ -738,8 +738,8 @@ Step ids are `K*` (see User decisions).
 | K1a | ch21 member, card, README, `bench/commodity_memory.py`, `_plans/evidence/flyweight-memory.md`; one `uv lock`; three green runs; `mypy --strict src tests bench`; the deletion table, each row in a fresh scratch copy with its `.venv` removed and re-synced (confirm `__file__`) | K0 | done |
 | K1b | ch22 member, card, README; one `uv lock` after K1a (sequenced); three green runs; deletion table | K1a | done |
 | K2 | Witness results into rows 107-119 (the claims audit resolves). A failed witness changes the thesis before prose. Every message, count or value that differs from Planning evidence goes in "Corrections after the build" | K1b | done |
-| K3 | Two figures, specs `diagrams/specs/21-*.py` and `22-*.py`, `_data/diagrams.yml` (single owner; 23 entries); figures 00-20 unchanged; every name drawn exists in `src` | K2 | todo |
-| K4 | ch21-22 `status = "drafted"` (`kind` stays `pattern`) | K3 | todo |
+| K3 | Two figures, specs `diagrams/specs/21-*.py` and `22-*.py`, `_data/diagrams.yml` (single owner; 23 entries); figures 00-20 unchanged; every name drawn exists in `src` | K2 | done |
+| K4 | ch21-22 `status = "drafted"` (`kind` stays `pattern`) | K3 | done |
 | K5 | Two prose agents in parallel. Each re-fetches its sources and quotes exactly, runs its two experiments in scratch copies, quotes fresh output filtered by `python3 scripts/host_ids.py filter`, and hands back the sources checked plus a per-paragraph claims table (claim, then test, run or source URL) | K3, K4 | todo |
 | K6 | Opus validation; up to two repair rounds | K5 | todo |
 | K7 | PR, `ci-ok` green, ask the user before merge; tag r10.x; notes-only release | K6 | todo |
