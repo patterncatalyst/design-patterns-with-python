@@ -908,7 +908,7 @@ Step ids are `N*` (see User decisions).
 | Step | What | Depends | Status |
 | --- | --- | --- | --- |
 | N0 | This plan file. PDP-125a-c and 126a-c `active` in `iteration-plan.md` (dated note); r12 marked active and r11 closed. Reconciliation rows 134-146 `open` with a dated r12 note; rows 6-8 noted "r12". Domain rows 25-26 updated with the supporting names and decisions 1-10 (row 25's `load_plan(cargo, vessel)` replaced per decision 3), with a dated note. ch25-26 stub `description` lines written. r11's M6-M7 and PDP-123a to 124c closed. Upstream pins re-checked. Decisions recorded | - | done |
-| N1a | ch25 member, card, README; one `uv lock`; three green runs plus one reverse-file-order run; the deletion table, each row in a fresh scratch copy (no `.venv`, `uv sync --locked --all-packages`, confirm `__file__`) | N0 | todo |
+| N1a | ch25 member, card, README; one `uv lock`; three green runs plus one reverse-file-order run; the deletion table, each row in a fresh scratch copy (no `.venv`, `uv sync --locked --all-packages`, confirm `__file__`) | N0 | done |
 | N1b | ch26 member, card, README; one `uv lock` after N1a (sequenced for `uv.lock`); three green runs plus one reverse-order run; deletion table | N1a | todo |
 | N2 | Witness results into rows 134-146 and rows 6-8 (row 6 verified, row 7 adjusted, row 8 verified); the spikes.md r12 note (evidence A). A failed witness changes the thesis before prose. Every message, count or value that differs from Planning evidence goes in "Corrections after the build" | N1b | todo |
 | N3 | Two figures, specs `diagrams/specs/25-*.py` and `26-*.py`, `_data/diagrams.yml` (single owner; 27 entries); figures 00-24 unchanged; every name drawn exists in `src` or the standard library | N2 | todo |
@@ -941,6 +941,7 @@ Legacy rows at N2:
 - Row 8 gets `test_mypy_reports_an_event_left_out_of_a_match` ("verified (r12)").
 
 ## Corrections after the build
+- Step N1a: member `visitor-memento-interpreter`, 28 test functions, 48 cases (plan: 26/41). Added for witnesses: a `100.333` kg pricing case (the `quantize` deletion survived without it), `test_the_larger_of_two_rules_in_different_currencies_is_refused` (`cannot compare USD with EUR`, for `Money.__lt__`) and `test_a_weight_must_be_positive_and_finite_for_a_priced_consignment` (4 cases). Ids read `[tree-10]`. Every predicted mypy message and value matched evidence D-E. Deleting the `Delivered` arm fails only `[match]` (the accept twins route through `accept`); a `case _` default in `describe` gives `[unreachable]` in src, not `[arg-type]`. Experiment (a) (capture the audit) fails only `test_rollback_keeps_the_audit_trail`. 27 deletion rows, each failing a named test.
 - Step N0: pin survey found ruff 0.17.4 (PyPI) against the pinned 0.17.3; bumped per the latest-stable rule. `uv lock` changed only ruff; `ruff check .` and `ruff format --check .` clean on 0.17.4; the prerequisites table and quoted `check-prereqs.sh` run in the prerequisites chapter re-run and updated (only the ruff line changed). Other pins match upstream.
 
 (None yet. The orchestrator records here every handback that differs from this plan: messages, counts, which tests an experiment fails, word counts, declined findings, changed prompt wording.)

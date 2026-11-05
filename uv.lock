@@ -28,6 +28,7 @@ members = [
     "testing-baseline",
     "three-way-split",
     "value-semantics",
+    "visitor-memento-interpreter",
 ]
 
 [[package]]
@@ -405,3 +406,8 @@ wheels = [
 name = "value-semantics"
 version = "0.1.0"
 source = { editable = "examples/08-dataclasses-and-value-semantics" }
+
+[[package]]
+name = "visitor-memento-interpreter"
+version = "0.1.0"
+source = { editable = "examples/25-visitor-memento-interpreter" }
