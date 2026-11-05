@@ -51,7 +51,7 @@ emit(
             "w": 270,
             "h": 70,
             "style": "accent",
-            "lines": ["ClearanceMediator", "releases once, after both report"],
+            "lines": ["ClearanceMediator", "releases once nothing is outstanding"],
         },
         {
             "x": 690,

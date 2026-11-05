@@ -2,7 +2,7 @@
 layout: example
 order: 23
 title: "Mediator and Chain of Responsibility"
-description: A customs clearance chain written as a tuple of typed stages with a final stage that always decides, and a mediator that releases a consignment held for duty or inspection once, after both report, with a linked chain, a match and colleagues that call each other as comparisons.
+description: A customs clearance chain written as a tuple of typed stages with a final stage that always decides, and a mediator that releases a consignment exactly once, after the duty and inspection it still owes have reported, with a linked chain, a match and colleagues that call each other as comparisons.
 github_path: examples/23-mediator-and-chain-of-responsibility
 card_eyebrow: "Coordination · Mediator and Chain of Responsibility"
 card_blurb: "Stages return a decision or None to pass it on, the first decision wins, and the final stage is typed so it cannot pass. A mediator holds the release rule and its state, and a choreography shows what it replaces."
@@ -25,7 +25,7 @@ chain and a single `match` run the same hold table as comparisons.
 ## The mediator
 
 `ClearanceMediator` receives a closed union of messages through `match` and releases once, after
-duty and inspection have both reported, in either order. A failed inspection holds the consignment.
+the duty and inspection it still owes have reported, in either order. A failed inspection holds the consignment.
 Colleagues that call each other pass the inspection-first case and lose a settlement that arrives
 before the inspection.
 

@@ -108,6 +108,28 @@ def test_a_declaration_with_nothing_outstanding_is_released_at_once(
     assert len(history.events) == 1
 
 
+@pytest.mark.parametrize(
+    ("restricted", "duty_paid", "report"),
+    [
+        (False, False, Settlement(CN1)),
+        (True, True, Inspection(CN1, True)),
+    ],
+    ids=["duty-only", "inspection-only"],
+)
+def test_a_declaration_that_owes_one_report_is_released_on_that_report(
+    declaration: DeclarationFactory,
+    restricted: bool,
+    duty_paid: bool,
+    report: ClearanceMessage,
+) -> None:
+    mediator, history = _mediate(declaration(restricted=restricted, duty_paid=duty_paid))
+    assert _kinds(history) == []
+
+    mediator.receive(report)
+
+    assert _kinds(history) == [HandlingKind.CLEARED]
+
+
 def test_a_message_for_another_consignment_is_refused(declaration: DeclarationFactory) -> None:
     mediator, history = _mediate(declaration(restricted=True, duty_paid=False))
 

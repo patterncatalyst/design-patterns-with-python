@@ -93,6 +93,8 @@ uv run mypy --strict src tests
 - `test_a_duplicate_settlement_releases_once`: one event.
 - `test_a_failed_inspection_holds_the_consignment`: no release after a settlement.
 - `test_a_declaration_with_nothing_outstanding_is_released_at_once`: one event at construction.
+- `test_a_declaration_that_owes_one_report_is_released_on_that_report`: duty only or inspection only;
+  nothing before the report, `CLEARED` after it.
 - `test_a_message_for_another_consignment_is_refused`: `ClearanceError` naming `CN-2`, nothing released.
 - `test_release_records_a_cleared_handling_event_at_the_port`: `CLEARED` at `NLRTM`.
 

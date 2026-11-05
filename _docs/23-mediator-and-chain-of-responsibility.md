@@ -14,7 +14,7 @@ By the end of this chapter you can:
 - Say what Python removes from Chain of Responsibility and Mediator, the handler class with its successor link and the Mediator and Colleague classes, and which decisions survive.
 - Write a clearance chain as a tuple of typed callables, where `None` passes the declaration on and a separately typed final stage can't.
 - Say what mypy checks about a chain, the shape of each stage, and what it can't see, their order.
-- Write one mediator that releases a declaration held for duty or inspection once, after both have reported, in either order.
+- Write one mediator that releases a declaration exactly once, after every report it still owes has arrived (duty if unpaid, inspection if restricted), in either order.
 - Choose between a chain, a `match`, a mediator and a signal.
 
 ## Why this matters
@@ -31,7 +31,7 @@ Each is a decision, and both patterns survive because Python's syntax doesn't ma
 
 {% include excalidraw.html name="23-mediator-and-chain-of-responsibility" caption="Figure 23.1: A declaration passes along an ordered tuple of clearance stages; the first stage that decides ends the walk, and a clean one is released by the final stage. A consignment held for duty or inspection waits on a mediator that releases it once." %}
 
-Read the figure from the top down. `CustomsDeclaration` goes to `clear`, "walks the stages in order". Below it sit `check_documents`, `assess_duty` and `inspect_goods`, each with a "None: pass it on" arrow down, and then `release`, "final stage: decides". Each stage also has an arrow to `Held`, "the stage stops the walk". `Held` goes, for duty or inspection, to `ClearanceMediator`, "releases once, after both report". `Settlement` and `Inspection` feed the mediator, which sends `CLEARED` to `TrackingHistory.record`. A muted dashed box, "linked chain", reads "falls off the end with None".
+Read the figure from the top down. `CustomsDeclaration` goes to `clear`, "walks the stages in order". Below it sit `check_documents`, `assess_duty` and `inspect_goods`, each with a "None: pass it on" arrow down, and then `release`, "final stage: decides". Each stage also has an arrow to `Held`, "the stage stops the walk". `Held` goes, for duty or inspection, to `ClearanceMediator`, "releases once nothing is outstanding". `Settlement` and `Inspection` feed the mediator, which sends `CLEARED` to `TrackingHistory.record`. A muted dashed box, "linked chain", reads "falls off the end with None".
 
 ## A chain is a tuple of stages
 
@@ -126,7 +126,7 @@ When the rules are closed and fixed, one `match` with a default is the chain. Th
 
 Mediator is for a group of parties whose actions depend on one another. If each party calls the others, each must know who else exists and what order they report in. *Design Patterns* moves that knowledge into an object of its own, and the parties talk to it. In Python the abstract Mediator and Colleague classes dissolve. A colleague needs only the mediator's `receive`, and the mediator is given a callable that does the release. The rule is what survives, written once with its state.
 
-Here the rule is that a declaration held for duty or inspection is released when duty is settled and inspection has passed, in either order, and once. A `Settlement` is billing reporting that duty is paid in full, and an `Inspection` carries the inspection party's result. Both are messages:
+Here the rule is that a declaration is released exactly once, after duty is settled if it was unpaid and inspection has passed if the commodity is restricted, in either order. A `Settlement` is billing reporting that duty is paid in full, and an `Inspection` carries the inspection party's result. Both are messages:
 
 <!-- fmt:off -->
 ```python
@@ -159,7 +159,7 @@ Here the rule is that a declaration held for duty or inspection is released when
 ```
 <!-- fmt:on -->
 
-`ClearanceMessage` is `Settlement | Inspection`, and `_outstanding` starts as what the declaration still needs: duty if it isn't paid, inspection if the commodity is restricted. The rule lives in `_try_release`, next to the state it reads. No colleague knows another exists. A declaration with nothing outstanding is released at construction (`test_a_declaration_with_nothing_outstanding_is_released_at_once`), and the event it records is `CLEARED` at the declaration's port (`test_release_records_a_cleared_handling_event_at_the_port`).
+`ClearanceMessage` is `Settlement | Inspection`, and `_outstanding` starts as what the declaration still needs: duty if it isn't paid, inspection if the commodity is restricted, so a declaration that owes one of them is released on that one report (`test_a_declaration_that_owes_one_report_is_released_on_that_report`). The rule lives in `_try_release`, next to the state it reads. No colleague knows another exists. A declaration with nothing outstanding is released at construction (`test_a_declaration_with_nothing_outstanding_is_released_at_once`), and the event it records is `CLEARED` at the declaration's port (`test_release_records_a_cleared_handling_event_at_the_port`).
 
 `test_the_mediator_releases_in_either_order` runs inspection first and settlement first. After the first message the history is empty, and after the second it holds one `CLEARED` event. A second settlement after release adds nothing (`test_a_duplicate_settlement_releases_once`). A failed inspection holds the consignment: after a settlement and an `Inspection(CN1, False)` the history is empty (`test_a_failed_inspection_holds_the_consignment`). A message for another consignment is refused, and `test_a_message_for_another_consignment_is_refused` expects a `ClearanceError` that names `CN-2`, then finds the history still empty after the right inspection. The class says in its docstring that it's single-threaded, and the example has no thread test.
 
@@ -184,7 +184,7 @@ With one check, call the function. With a fixed set of rules that nobody extends
 <blockquote class="ai-sidebar" markdown="1">
 **Specifying a chain and a mediator.** "A chain of responsibility" doesn't say what "pass it on" means, which stage is final or who decides when none do. State those in the prompt:
 
-> Write the clearance chain as `clear(declaration, stages, /, *, final=release)`, where each stage is a typed callable returning `Decision | None`, `None` passes the declaration on, the first decision wins, and `final` is typed `Callable[[CustomsDeclaration], Decision]` so it can't pass. Write release coordination as one `ClearanceMediator` that receives a closed union of messages through `match` with `assert_never`, releases only after duty and inspection both report, in either order, and releases once.
+> Write the clearance chain as `clear(declaration, stages, /, *, final=release)`, where each stage is a typed callable returning `Decision | None`, `None` passes the declaration on, the first decision wins, and `final` is typed `Callable[[CustomsDeclaration], Decision]` so it can't pass. Write release coordination as one `ClearanceMediator` that receives a closed union of messages through `match` with `assert_never`, releases only after every report it still owes (duty if unpaid, inspection if restricted) has arrived, in either order, and releases once.
 
 If the reply puts the final stage inside the tuple or lets the parties call each other, ask for the test that fails.
 </blockquote>
@@ -208,56 +208,58 @@ cachedir: .pytest_cache
 rootdir: <repo>
 configfile: pyproject.toml
 plugins: mock-3.17.0
-collecting ... collected 42 items
+collecting ... collected 44 items
 
 tests/test_chain.py::test_a_restricted_commodity_is_held_for_inspection[stages] PASSED [  2%]
 tests/test_chain.py::test_a_restricted_commodity_is_held_for_inspection[linked] PASSED [  4%]
-tests/test_chain.py::test_a_restricted_commodity_is_held_for_inspection[match] PASSED [  7%]
+tests/test_chain.py::test_a_restricted_commodity_is_held_for_inspection[match] PASSED [  6%]
 tests/test_chain.py::test_a_declaration_missing_a_document_is_held[stages-commercial-invoice] PASSED [  9%]
 tests/test_chain.py::test_a_declaration_missing_a_document_is_held[stages-dangerous-goods] PASSED [ 11%]
-tests/test_chain.py::test_a_declaration_missing_a_document_is_held[linked-commercial-invoice] PASSED [ 14%]
-tests/test_chain.py::test_a_declaration_missing_a_document_is_held[linked-dangerous-goods] PASSED [ 16%]
-tests/test_chain.py::test_a_declaration_missing_a_document_is_held[match-commercial-invoice] PASSED [ 19%]
-tests/test_chain.py::test_a_declaration_missing_a_document_is_held[match-dangerous-goods] PASSED [ 21%]
-tests/test_chain.py::test_an_unpaid_declaration_is_held_for_duty[stages] PASSED [ 23%]
-tests/test_chain.py::test_an_unpaid_declaration_is_held_for_duty[linked] PASSED [ 26%]
-tests/test_chain.py::test_an_unpaid_declaration_is_held_for_duty[match] PASSED [ 28%]
-tests/test_chain.py::test_the_first_stage_that_decides_wins[stages] PASSED [ 30%]
-tests/test_chain.py::test_the_first_stage_that_decides_wins[linked] PASSED [ 33%]
-tests/test_chain.py::test_the_first_stage_that_decides_wins[match] PASSED [ 35%]
-tests/test_chain.py::test_a_clean_declaration_is_released PASSED         [ 38%]
-tests/test_chain.py::test_a_linked_chain_with_no_terminal_returns_none PASSED [ 40%]
-tests/test_chain.py::test_stages_after_a_decision_are_not_called PASSED  [ 42%]
-tests/test_chain.py::test_a_stage_added_after_release_clears_a_restricted_commodity PASSED [ 45%]
-tests/test_chain.py::test_a_stage_added_to_the_chain_runs_before_the_final_stage PASSED [ 47%]
-tests/test_chain.py::test_an_empty_chain_leaves_the_decision_to_the_final_stage[release] PASSED [ 50%]
-tests/test_chain.py::test_an_empty_chain_leaves_the_decision_to_the_final_stage[hold] PASSED [ 52%]
-tests/test_chain.py::test_describe_names_every_decision[released] PASSED [ 54%]
-tests/test_chain.py::test_describe_names_every_decision[held] PASSED     [ 57%]
-tests/test_mediator.py::test_release_follows_inspection_then_settlement[mediator] PASSED [ 59%]
-tests/test_mediator.py::test_release_follows_inspection_then_settlement[choreography] PASSED [ 61%]
-tests/test_mediator.py::test_the_mediator_releases_in_either_order[inspection-first] PASSED [ 64%]
-tests/test_mediator.py::test_the_mediator_releases_in_either_order[settlement-first] PASSED [ 66%]
-tests/test_mediator.py::test_a_choreography_loses_a_settlement_that_arrives_before_inspection PASSED [ 69%]
-tests/test_mediator.py::test_a_duplicate_settlement_releases_once PASSED [ 71%]
-tests/test_mediator.py::test_a_failed_inspection_holds_the_consignment PASSED [ 73%]
-tests/test_mediator.py::test_a_declaration_with_nothing_outstanding_is_released_at_once PASSED [ 76%]
-tests/test_mediator.py::test_a_message_for_another_consignment_is_refused PASSED [ 78%]
-tests/test_mediator.py::test_release_records_a_cleared_handling_event_at_the_port PASSED [ 80%]
-tests/test_static.py::test_mypy_refuses_a_stage_that_can_pass_as_the_final_stage PASSED [ 83%]
-tests/test_static.py::test_mypy_cannot_see_release_placed_inside_the_chain PASSED [ 85%]
+tests/test_chain.py::test_a_declaration_missing_a_document_is_held[linked-commercial-invoice] PASSED [ 13%]
+tests/test_chain.py::test_a_declaration_missing_a_document_is_held[linked-dangerous-goods] PASSED [ 15%]
+tests/test_chain.py::test_a_declaration_missing_a_document_is_held[match-commercial-invoice] PASSED [ 18%]
+tests/test_chain.py::test_a_declaration_missing_a_document_is_held[match-dangerous-goods] PASSED [ 20%]
+tests/test_chain.py::test_an_unpaid_declaration_is_held_for_duty[stages] PASSED [ 22%]
+tests/test_chain.py::test_an_unpaid_declaration_is_held_for_duty[linked] PASSED [ 25%]
+tests/test_chain.py::test_an_unpaid_declaration_is_held_for_duty[match] PASSED [ 27%]
+tests/test_chain.py::test_the_first_stage_that_decides_wins[stages] PASSED [ 29%]
+tests/test_chain.py::test_the_first_stage_that_decides_wins[linked] PASSED [ 31%]
+tests/test_chain.py::test_the_first_stage_that_decides_wins[match] PASSED [ 34%]
+tests/test_chain.py::test_a_clean_declaration_is_released PASSED         [ 36%]
+tests/test_chain.py::test_a_linked_chain_with_no_terminal_returns_none PASSED [ 38%]
+tests/test_chain.py::test_stages_after_a_decision_are_not_called PASSED  [ 40%]
+tests/test_chain.py::test_a_stage_added_after_release_clears_a_restricted_commodity PASSED [ 43%]
+tests/test_chain.py::test_a_stage_added_to_the_chain_runs_before_the_final_stage PASSED [ 45%]
+tests/test_chain.py::test_an_empty_chain_leaves_the_decision_to_the_final_stage[release] PASSED [ 47%]
+tests/test_chain.py::test_an_empty_chain_leaves_the_decision_to_the_final_stage[hold] PASSED [ 50%]
+tests/test_chain.py::test_describe_names_every_decision[released] PASSED [ 52%]
+tests/test_chain.py::test_describe_names_every_decision[held] PASSED     [ 54%]
+tests/test_mediator.py::test_release_follows_inspection_then_settlement[mediator] PASSED [ 56%]
+tests/test_mediator.py::test_release_follows_inspection_then_settlement[choreography] PASSED [ 59%]
+tests/test_mediator.py::test_the_mediator_releases_in_either_order[inspection-first] PASSED [ 61%]
+tests/test_mediator.py::test_the_mediator_releases_in_either_order[settlement-first] PASSED [ 63%]
+tests/test_mediator.py::test_a_choreography_loses_a_settlement_that_arrives_before_inspection PASSED [ 65%]
+tests/test_mediator.py::test_a_duplicate_settlement_releases_once PASSED [ 68%]
+tests/test_mediator.py::test_a_failed_inspection_holds_the_consignment PASSED [ 70%]
+tests/test_mediator.py::test_a_declaration_with_nothing_outstanding_is_released_at_once PASSED [ 72%]
+tests/test_mediator.py::test_a_declaration_that_owes_one_report_is_released_on_that_report[duty-only] PASSED [ 75%]
+tests/test_mediator.py::test_a_declaration_that_owes_one_report_is_released_on_that_report[inspection-only] PASSED [ 77%]
+tests/test_mediator.py::test_a_message_for_another_consignment_is_refused PASSED [ 79%]
+tests/test_mediator.py::test_release_records_a_cleared_handling_event_at_the_port PASSED [ 81%]
+tests/test_static.py::test_mypy_refuses_a_stage_that_can_pass_as_the_final_stage PASSED [ 84%]
+tests/test_static.py::test_mypy_cannot_see_release_placed_inside_the_chain PASSED [ 86%]
 tests/test_static.py::test_mypy_refuses_a_stage_with_the_wrong_return_type PASSED [ 88%]
 tests/test_static.py::test_mypy_reports_a_stage_that_falls_off_the_end PASSED [ 90%]
-tests/test_static.py::test_mypy_reports_a_decision_left_unhandled PASSED [ 92%]
+tests/test_static.py::test_mypy_reports_a_decision_left_unhandled PASSED [ 93%]
 tests/test_static.py::test_mypy_refuses_a_linked_chain_result_where_a_decision_is_needed PASSED [ 95%]
 tests/test_static.py::test_mypy_refuses_a_message_the_mediator_does_not_know PASSED [ 97%]
 tests/test_static.py::test_mypy_cannot_exhaust_a_match_on_true_and_false_patterns PASSED [100%]
 
-============================== 42 passed in 3.37s ==============================
+============================== 44 passed in 3.43s ==============================
 Success: no issues found in 8 source files
 ```
 
-The suite has 27 test functions and 42 cases. `tests/test_chain.py` holds the chain and its comparison forms, `tests/test_mediator.py` the release table with its two coordination forms, and `tests/test_static.py` the mypy witnesses. For how those are built, see [Proving it works: pytest, pytest-mock, and mypy]({{ '/docs/11-testing-with-pytest-pytest-mock-and-mypy/' | relative_url }}).
+The suite has 28 test functions and 44 cases. `tests/test_chain.py` holds the chain and its comparison forms, `tests/test_mediator.py` the release table with its two coordination forms, and `tests/test_static.py` the mypy witnesses. For how those are built, see [Proving it works: pytest, pytest-mock, and mypy]({{ '/docs/11-testing-with-pytest-pytest-mock-and-mypy/' | relative_url }}).
 
 **Experiment one: compute every decision first.** In a scratch copy, replace the loop in `clear` with `decisions = [stage(declaration) for stage in stages]` followed by a loop that returns the first decision that isn't `None`. Running `uv run pytest -q 2>&1 | grep -E '^(FAILED|E {7}[^ ]|tests/.*Error$|[0-9]+ (passed|failed))'` and then `uv run mypy --strict src tests` prints:
 
@@ -265,7 +267,7 @@ The suite has 27 test functions and 42 cases. `tests/test_chain.py` holds the ch
 E       AssertionError: assert ['passing', '...ing', 'never'] == ['passing', 'holding']
 tests/test_chain.py:107: AssertionError
 FAILED tests/test_chain.py::test_stages_after_a_decision_are_not_called - Ass...
-1 failed, 41 passed in 3.34s
+1 failed, 43 passed in 3.34s
 Success: no issues found in 8 source files
 ```
 
@@ -277,7 +279,7 @@ The answers are the same, so every table that checks a result passes, and only t
 E       AssertionError: assert 2 == 1
 tests/test_mediator.py:91: AssertionError
 FAILED tests/test_mediator.py::test_a_duplicate_settlement_releases_once - As...
-1 failed, 41 passed in 3.37s
+1 failed, 43 passed in 3.37s
 Success: no issues found in 8 source files
 ```
 
