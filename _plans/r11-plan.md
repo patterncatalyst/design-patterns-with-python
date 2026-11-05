@@ -788,7 +788,7 @@ Step ids are `M*` (see User decisions).
 | Step | What | Depends | Status |
 | --- | --- | --- | --- |
 | M0 | This plan file. PDP-123a-c and 124a-c `active` in `iteration-plan.md` (dated note); r11 marked active and r10b closed. Reconciliation rows 120-133 `open` with a dated r11 note. Domain rows 23-24 updated with the supporting names and decisions 1-8; the ch24/ch38 non-overlap rule reworded (decision 5) with a dated note. ch23-24 stub `description` lines written. r10's K7, r10b's L8 and PDP-121a to 122c closed. Decisions recorded | - | done |
-| M1a | ch23 member, card, README; one `uv lock`; three green runs plus one reverse-file-order run; the deletion table, each row in a fresh scratch copy with its `.venv` removed and re-synced (confirm `__file__`) | M0 | todo |
+| M1a | ch23 member, card, README; one `uv lock`; three green runs plus one reverse-file-order run; the deletion table, each row in a fresh scratch copy with its `.venv` removed and re-synced (confirm `__file__`) | M0 | done |
 | M1b | ch24 member, card, README; one `uv lock` after M1a (sequenced for `uv.lock`); three green runs plus one reverse-order run; deletion table | M1a | todo |
 | M2 | Witness results into rows 120-133 (the claims audit resolves). A failed witness changes the thesis before prose. Every message, count or value that differs from Planning evidence goes in "Corrections after the build" | M1b | todo |
 | M3 | Two figures, specs `diagrams/specs/23-*.py` and `24-*.py`, `_data/diagrams.yml` (single owner; 25 entries); figures 00-22 unchanged; every name drawn exists in `src` or the standard library | M2 | todo |
@@ -817,6 +817,7 @@ Reconciliation rows (step M0). The "How to verify" column uses resolvable tokens
 | 133 | 23-24 | The "Build, run, observe" experiments behave as quoted | `run: M5` |
 
 ## Corrections after the build
+- Step M1a: member `mediator-chain`, 27 test functions, 42 cases, as planned; every predicted mypy message matched. A failed `Inspection` now also discards "inspection" from the outstanding set and sets `_failed`, so the `_failed` check has its own witness (`test_a_failed_inspection_holds_the_consignment`); behaviour at the interface is unchanged. `is not None` -> truthiness in `clear` is an equivalent mutant (decisions are always truthy); the chapter keeps `is not None` because it names "pass it on", and the pass-on deletion row is the real witness. Test 14 runs on a `choreography` fixture alone; test 21 uses `(release, inspect_goods)`. Test 13 asserts through a `_kinds` helper because mypy 2.4.1 narrows `history.events` to `tuple[()]` after an `== ()` assert and then rejects the next comparison. Experiment (b) (drop the released check) fails only `test_a_duplicate_settlement_releases_once`.
 
 (None yet. The orchestrator records here every handback that differs from this plan: messages, counts, which tests an experiment fails, word counts, declined findings, changed prompt wording.)
 
