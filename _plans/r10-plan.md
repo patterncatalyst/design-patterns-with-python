@@ -742,7 +742,7 @@ Step ids are `K*` (see User decisions).
 | K4 | ch21-22 `status = "drafted"` (`kind` stays `pattern`) | K3 | done |
 | K5 | Two prose agents in parallel. Each re-fetches its sources and quotes exactly, runs its two experiments in scratch copies, quotes fresh output filtered by `python3 scripts/host_ids.py filter`, and hands back the sources checked plus a per-paragraph claims table (claim, then test, run or source URL) | K3, K4 | done |
 | K6 | Opus validation; up to two repair rounds | K5 | done |
-| K7 | PR, `ci-ok` green, ask the user before merge; tag r10.x; notes-only release | K6 | todo |
+| K7 | PR, `ci-ok` green, ask the user before merge; tag r10.x; notes-only release | K6 | done |
 
 Reconciliation rows (step K0). The "How to verify" column uses resolvable tokens.
 

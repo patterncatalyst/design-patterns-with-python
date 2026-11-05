@@ -28,8 +28,8 @@ PR, squash-merge with branch deletion, an `rNN.x` tag and a notes-only release.
 | r08 | Ch 16-18: factories, Builder/dataclass/Prototype, Singleton |
 | r09 | Ch 19-20: Adapter/Facade/Bridge, Decorator vs @decorator + Proxy |
 | r10 | Ch 21-22: Composite/Flyweight, Observer |
-| r10b (active) | Retrofit chapters 0-20 to lgtm-professional-voice #94-#96 (owner decision 2026-11-05): AI sidebars to problem + ready-to-paste prompt + one review line; objective-payoff closers; intent-before-mechanism and no re-narrated code where a chapter falls short. Its own plan, validation and PR |
-| r11 | Ch 23-24: Mediator/CoR, Iterator |
+| r10b | Retrofit chapters 0-20 to lgtm-professional-voice #94-#96 (owner decision 2026-11-05): AI sidebars to problem + ready-to-paste prompt + one review line; objective-payoff closers; intent-before-mechanism and no re-narrated code where a chapter falls short. Its own plan, validation and PR |
+| r11 (active) | Ch 23-24: Mediator/CoR, Iterator |
 | r12 | Ch 25-26: Visitor/Memento/Interpreter, decorators done right |
 | r13 | Ch 27-28: descriptors, singledispatch |
 | r14 | Ch 29-30: __init_subclass__/metaclasses, __getattr__/Proxy |
@@ -130,18 +130,18 @@ PR, squash-merge with branch deletion, an `rNN.x` tag and a notes-only release.
 | PDP-120a | Ch20 Decorator pattern vs decorator syntax, and Proxy: example | r09 | active |
 | PDP-120b | Ch20 Decorator pattern vs decorator syntax, and Proxy: figure | r09 | active |
 | PDP-120c | Ch20 Decorator pattern vs decorator syntax, and Proxy: prose | r09 | active |
-| PDP-121a | Ch21 Composite and Flyweight: example | r10 | active |
-| PDP-121b | Ch21 Composite and Flyweight: figure | r10 | active |
-| PDP-121c | Ch21 Composite and Flyweight: prose | r10 | active |
-| PDP-122a | Ch22 Observer: example | r10 | active |
-| PDP-122b | Ch22 Observer: figure | r10 | active |
-| PDP-122c | Ch22 Observer: prose | r10 | active |
-| PDP-123a | Ch23 Mediator and Chain of Responsibility: example | r11 | todo |
-| PDP-123b | Ch23 Mediator and Chain of Responsibility: figure | r11 | todo |
-| PDP-123c | Ch23 Mediator and Chain of Responsibility: prose | r11 | todo |
-| PDP-124a | Ch24 Iterator, generators, and the iterator protocol: example | r11 | todo |
-| PDP-124b | Ch24 Iterator, generators, and the iterator protocol: figure | r11 | todo |
-| PDP-124c | Ch24 Iterator, generators, and the iterator protocol: prose | r11 | todo |
+| PDP-121a | Ch21 Composite and Flyweight: example | r10 | done |
+| PDP-121b | Ch21 Composite and Flyweight: figure | r10 | done |
+| PDP-121c | Ch21 Composite and Flyweight: prose | r10 | done |
+| PDP-122a | Ch22 Observer: example | r10 | done |
+| PDP-122b | Ch22 Observer: figure | r10 | done |
+| PDP-122c | Ch22 Observer: prose | r10 | done |
+| PDP-123a | Ch23 Mediator and Chain of Responsibility: example | r11 | active |
+| PDP-123b | Ch23 Mediator and Chain of Responsibility: figure | r11 | active |
+| PDP-123c | Ch23 Mediator and Chain of Responsibility: prose | r11 | active |
+| PDP-124a | Ch24 Iterator, generators, and the iterator protocol: example | r11 | active |
+| PDP-124b | Ch24 Iterator, generators, and the iterator protocol: figure | r11 | active |
+| PDP-124c | Ch24 Iterator, generators, and the iterator protocol: prose | r11 | active |
 | PDP-125a | Ch25 Visitor, Memento, Interpreter: example | r12 | todo |
 | PDP-125b | Ch25 Visitor, Memento, Interpreter: figure | r12 | todo |
 | PDP-125c | Ch25 Visitor, Memento, Interpreter: prose | r12 | todo |
@@ -211,3 +211,5 @@ PR, squash-merge with branch deletion, an `rNN.x` tag and a notes-only release.
 2026-11-04 (r09): PDP-119a to PDP-120c are active for r09 (chapters 19 and 20, Part 7). Earlier iterations keep their status.
 
 2026-11-05 (r10): PDP-121a to PDP-122c are active for r10 (chapters 21 and 22, Parts 7 and 8). Earlier iterations keep their status.
+
+2026-11-05 (r11): PDP-123a to PDP-124c are active for r11 (chapters 23 and 24, Part 8). PDP-121a to PDP-122c are closed (r10 and r10b are tagged), r10b is closed and r11 is marked active in the roadmap. Earlier iterations keep their status.

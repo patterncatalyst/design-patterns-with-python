@@ -564,7 +564,7 @@ Step ids are `L*` (see User decisions).
 | L5 | Opus validation round 2 | L4 | done |
 | L6 | Repair round 2 if L5 finds a blocker or should-fix; orchestrator re-runs criteria 1-17. There is no third round: anything left goes to Corrections and to the owner | L5 | done |
 | L7 | `scripts/site-build.sh`; `git status` clean (`Gemfile.lock` unchanged); rendered check of one converted sidebar and one close (nested quote inside the sidebar renders as in chapter 21) | L6 | done |
-| L8 | PR, `ci-ok` green, ask the owner before merge; squash-merge; tag `r10b.x` on main; notes-only release | L7 | todo |
+| L8 | PR, `ci-ok` green, ask the owner before merge; squash-merge; tag `r10b.x` on main; notes-only release | L7 | done |
 
 ## Corrections after the build
 - Owner chose a narrow Opus check before merge (as in r09): the six round-2 edits are clean; a seam scan of every r10b deletion found four lost antecedents (01 "It also", 00 "shows it in the other", 18 "can't see it either", 20 "by value either"), fixed with its exact replacements, plus three nits (08 "positive by construction", 13 "empty-consignment guard", 04 double blank lines). Lesson: after cutting a sentence, re-read the next sentence for a pronoun or "either" that leaned on it.
