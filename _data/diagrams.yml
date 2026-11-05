@@ -205,9 +205,9 @@
   title: A chain of stages, then a mediator
   caption: >-
     A declaration passes along an ordered tuple of clearance stages; the first
-    stage that decides ends the walk, and a clean declaration is released by
-    the final stage. A held consignment then waits on a mediator that releases
-    it once.
+    stage that decides ends the walk, and a clean one is released by the final
+    stage. A consignment held for duty or inspection waits on a mediator that
+    releases it once.
 
 - name: 24-iterator-generators-and-the-iterator-protocol
   section: "Ch. 24"

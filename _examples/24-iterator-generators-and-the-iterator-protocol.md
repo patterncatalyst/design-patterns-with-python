@@ -5,7 +5,7 @@ title: "Iterator: generators and the iterator protocol"
 description: A tracking history that hands each loop a fresh iterator, lazy paging with itertools, and a log reader that opens inside with and closes on close(), with a self-iterating cursor as the comparison.
 github_path: examples/24-iterator-generators-and-the-iterator-protocol
 card_eyebrow: "Traversal · Iterator"
-card_blurb: "A generator replaces the cursor class. The history walks many times, pages read one batch at a time, and a reader closes its file when it is closed or collected, not when a loop breaks."
+card_blurb: "A generator replaces the cursor class. The history walks many times, pages read one batch at a time, and a reader closes its file when it is closed or collected, not when a loop over a named reader breaks."
 card_title: "One pass or many, how much to read, who closes"
 ---
 

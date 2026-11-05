@@ -19,7 +19,7 @@ By the end of this chapter you can:
 
 ## Why this matters
 
-Customs clearance is a row of checks, and each one can stop a consignment: the documents are incomplete, the duty is unpaid, the commodity needs inspection. The code that submits a declaration shouldn't know which check stops it, and a new check shouldn't mean an edit at every call site. That's the force behind Chain of Responsibility. A held consignment then waits on two parties who don't know each other, billing and the inspection party, and something has to decide when both have reported. That's the force behind Mediator. One story joins them: the chain decides whether a declaration is held, and a held declaration waits on the mediator. Three things go wrong in the obvious versions.
+Customs clearance is a row of checks, and each one can stop a consignment: the documents are incomplete, the duty is unpaid, the commodity needs inspection. The code that submits a declaration shouldn't know which check stops it, and a new check shouldn't mean an edit at every call site. That's the force behind Chain of Responsibility. A consignment held for duty or inspection then waits on two parties who don't know each other, billing and the inspection party, and something has to decide when both have reported. That's the force behind Mediator. One story joins them: the chain decides whether a declaration is held, and one held for duty or inspection waits on the mediator. Three things go wrong in the obvious versions.
 
 A restricted batch of batteries is cleared. Someone appended the inspection stage after the release stage, so release decided first. mypy accepts the code.
 
@@ -29,7 +29,7 @@ Billing and the inspection party are wired to tell each other what happened. A s
 
 Each is a decision, and both patterns survive because Python's syntax doesn't make those decisions for you.
 
-{% include excalidraw.html name="23-mediator-and-chain-of-responsibility" caption="Figure 23.1: A declaration passes along an ordered tuple of clearance stages; the first stage that decides ends the walk, and a clean declaration is released by the final stage. A held consignment then waits on a mediator that releases it once." %}
+{% include excalidraw.html name="23-mediator-and-chain-of-responsibility" caption="Figure 23.1: A declaration passes along an ordered tuple of clearance stages; the first stage that decides ends the walk, and a clean one is released by the final stage. A consignment held for duty or inspection waits on a mediator that releases it once." %}
 
 Read the figure from the top down. `CustomsDeclaration` goes to `clear`, "walks the stages in order". Below it sit `check_documents`, `assess_duty` and `inspect_goods`, each with a "None: pass it on" arrow down, and then `release`, "final stage: decides". Each stage also has an arrow to `Held`, "the stage stops the walk". `Held` goes to `ClearanceMediator`, "releases once, after both report". `Settlement` and `Inspection` feed the mediator, which sends `CLEARED` to `TrackingHistory.record`. A muted dashed box, "linked chain", reads "falls off the end with None".
 
@@ -66,7 +66,7 @@ Three decisions are visible in it. What "pass it on" means: a stage returns `Non
 
 The first stage that decides wins. `test_the_first_stage_that_decides_wins` gives a declaration with no documents and unpaid duty, and the reason is the missing invoice, because `check_documents` runs before `assess_duty`. Stages after the winner don't run: `test_stages_after_a_decision_are_not_called` records the names of the stages that were called and gets `["passing", "holding"]`, with a third stage left out. A clean declaration reaches the final stage and is released (`test_a_clean_declaration_is_released`). A restricted commodity, a missing document and unpaid duty are each held, in the tuple form and in the two comparison forms below (`test_a_restricted_commodity_is_held_for_inspection`, `test_a_declaration_missing_a_document_is_held` and `test_an_unpaid_declaration_is_held_for_duty`).
 
-The comparison form is the linked chain from the book's structure, written as a test fixture so it runs the same hold table:
+The comparison form is the linked chain that *Design Patterns* draws, written as a test fixture so it runs the same hold table:
 
 ```python
 class _Handler:
@@ -98,7 +98,7 @@ It holds the same three cases. It parts from `clear` on a clean declaration: `te
 
 A stage with the wrong return type is an `[arg-type]` error too (`test_mypy_refuses_a_stage_with_the_wrong_return_type`), and a stage that returns a value on one path and falls off the end on another gets `Missing return statement  [return]` (`test_mypy_reports_a_stage_that_falls_off_the_end`). A new stage appended to the default order is a plain tuple operation, and `test_a_stage_added_to_the_chain_runs_before_the_final_stage` shows a stage that holds everything running ahead of `final`. An empty chain leaves the decision to `final` (`test_an_empty_chain_leaves_the_decision_to_the_final_stage`, once with a releasing final and once with a holding one).
 
-Order is another matter. This is the test that builds the failure from the start of the chapter:
+Order is another matter. This test builds the misordered chain:
 
 ```python
 def test_a_stage_added_after_release_clears_a_restricted_commodity(
@@ -120,13 +120,13 @@ def test_a_stage_added_after_release_clears_a_restricted_commodity(
 
 A `Decision` that gains a third member turns each `match` that ends in `assert_never` into the same kind of error.
 
-When the rules are closed and fixed, one `match` with a default is the chain. The `match` statement, as the Python tutorial puts it, "takes an expression and compares its value to successive patterns given as one or more case blocks". The fixture `_clear_by_match` is that form and passes the same hold table. The difference shows in its signature. It takes the declaration and nothing else, so its order lives in source and a caller can't extend it or test a stage on its own. Choose it when nobody adds rules, and the tuple when someone does.
+When the rules are closed and fixed, one `match` with a default is the chain. The `match` statement, as the Python tutorial puts it, "takes an expression and compares its value to successive patterns given as one or more case blocks". The conftest function `_clear_by_match` is that form and passes the same hold table. The difference shows in its signature. It takes the declaration and nothing else, so its order lives in source and a caller can't extend it or test a stage on its own. Choose it when nobody adds rules, and the tuple when someone does.
 
 ## Mediator: one place decides when to release
 
 Mediator is for a group of parties whose actions depend on one another. If each party calls the others, each must know who else exists and what order they report in. *Design Patterns* moves that knowledge into an object of its own, and the parties talk to it. In Python the abstract Mediator and Colleague classes dissolve. A colleague needs only the mediator's `receive`, and the mediator is given a callable that does the release. The rule is what survives, written once with its state.
 
-Here the rule is that a held declaration is released when duty is settled and inspection has passed, in either order, and once. A `Settlement` is billing reporting that duty is paid in full, and an `Inspection` carries the inspection party's result. Both are messages:
+Here the rule is that a declaration held for duty or inspection is released when duty is settled and inspection has passed, in either order, and once. A `Settlement` is billing reporting that duty is paid in full, and an `Inspection` carries the inspection party's result. Both are messages:
 
 <!-- fmt:off -->
 ```python
@@ -171,7 +171,7 @@ Two static checks apply to the messages. A message the mediator doesn't know is 
 <string>:7: error: Argument 1 to "receive" of "ClearanceMediator" has incompatible type "HandlingEvent"; expected "Settlement | Inspection"  [arg-type]
 ```
 
-And the second arm of `receive` is `case Inspection()` after the `passed=True` arm, because mypy 2.4.1 doesn't treat `True` and `False` patterns on a field as exhausting the class. `test_mypy_cannot_exhaust_a_match_on_true_and_false_patterns` runs a reduced model, a one-field class matched on both values and then on `assert_never`, and mypy reports `Argument 1 to "assert_never" has incompatible type "Inspection"; expected "Never"`.
+And the second `Inspection` arm of `receive` is `case Inspection()`, not `case Inspection(passed=False)`, because mypy 2.4.1 doesn't treat `True` and `False` patterns on a field as exhausting the class. `test_mypy_cannot_exhaust_a_match_on_true_and_false_patterns` runs a reduced model, a one-field class matched on both values and then on `assert_never`, and mypy reports `Argument 1 to "assert_never" has incompatible type "Inspection"; expected "Never"`.
 
 ## A mediator decides, a signal broadcasts
 

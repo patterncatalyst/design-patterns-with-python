@@ -41,8 +41,8 @@ The mediator.
 Static checks.
 
 - mypy refuses a message the mediator doesn't know. It can't exhaust a `match` on `True` and `False`
-  field patterns of a class (a reduced model), which is why the mediator's second arm is
-  `case Inspection()`. The linked-chain check is a reduced model too.
+  field patterns of a class (a reduced model), which is why the mediator's second `Inspection`
+  arm is `case Inspection()`. The linked-chain check is a reduced model too.
 
 ## Layout
 
