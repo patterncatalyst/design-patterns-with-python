@@ -16,6 +16,7 @@ members = [
     "factories",
     "feature-spikes",
     "isp-dip-di",
+    "iterator-protocol",
     "mediator-chain",
     "observer",
     "singleton",
@@ -169,6 +170,11 @@ wheels = [
 name = "isp-dip-di"
 version = "0.1.0"
 source = { editable = "examples/06-isp-dip-and-di-without-a-framework" }
+
+[[package]]
+name = "iterator-protocol"
+version = "0.1.0"
+source = { editable = "examples/24-iterator-generators-and-the-iterator-protocol" }
 
 [[package]]
 name = "librt"
