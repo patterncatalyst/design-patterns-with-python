@@ -29,14 +29,16 @@ The `@decorator` syntax.
 
 - `retry` and `audited` are PEP 695 `[**P, R]` factories. `quote_carrier` carries
   `@retry(attempts=3, on=(CarrierTimeoutError,))`. A test-local `@counting` function shows that it
-  runs once, at definition, and `__wrapped__` isn't the rebound name. - `retry` calls again on a
-  listed error, gives up after the last attempt, lets other errors through and refuses fewer than
-  one attempt. It has no delay: backoff is out of scope. - Stacking order is fixed when the `def`
-  runs. An `@audited` above an `@retry` reports once for a quote that needed three calls, and the
-  reverse reports once per attempt. - Rebound functions don't compare by value. A decorated function
-  has no `price`, and a layer has no `__wrapped__`. A factory such as `functools.cache` may return
-  an object that isn't a function, and it is still the syntax. - `ParamSpec` keeps the call
-  signature for mypy: a wrong argument type is `[arg-type]` and an unknown keyword is `[call-arg]`.
+  runs once, at definition, and `__wrapped__` isn't the rebound name.
+- `retry` calls again on a listed error, gives up after the last attempt, lets other errors
+  through and refuses fewer than one attempt. It has no delay: backoff is out of scope.
+- Stacking order is fixed when the `def` runs. An `@audited` above an `@retry` reports once for a
+  quote that needed three calls, and the reverse reports once per attempt.
+- Rebound functions don't compare by value. A rebound function has no `price`, and a layer has no
+  `__wrapped__`. A factory such as `functools.cache` may return an object that isn't a function, and
+  it is still the syntax.
+- `ParamSpec` keeps the call signature for mypy: a wrong argument type is `[arg-type]` and an
+  unknown keyword is `[call-arg]`.
 
 Proxy.
 
@@ -81,20 +83,18 @@ uv run mypy --strict src tests
 
 `tests/test_layers.py`
 
-- `test_a_layer_wraps_a_calculator_and_leaves_it_unchanged`: the inner calculator is the same object
-  and prices as before. - `test_layer_order_changes_the_price_when_a_fee_is_added`: four stacks,
-  four prices. - `test_two_percentage_layers_agree_before_rounding_and_can_split_by_a_cent`: 130.68
-  both ways, then 0.06 against 0.05. -
-  `test_the_layers_for_a_consignment_are_chosen_while_the_program_runs`: light, heavy and dangerous
-  goods. - `test_the_heavy_threshold_is_exclusive`: exactly the limit gets no surcharge. -
-  `test_the_fees_are_in_the_order_the_rules_say`: tax outermost, then dangerous goods, then heavy. -
-  `test_an_unknown_destination_country_is_a_rating_error`: no silent zero tax. -
-  `test_layer_stacks_compare_by_value`: equal, same hash, a different percentage is unequal. -
-  `test_compose_wraps_the_last_layer_outermost`: the type at each level. -
-  `test_a_layer_refuses_a_fee_in_another_currency`: `RatingError`. -
-  `test_a_weight_that_is_not_positive_and_finite_is_refused`: zero, negative and NaN. -
-  `test_the_tax_rates_are_read_only`: item assignment raises `TypeError` and the registry isn't a
-  `dict`.
+- `test_a_layer_wraps_a_calculator_and_leaves_it_unchanged`: the inner calculator is the same object and prices as before.
+- `test_layer_order_changes_the_price_when_a_fee_is_added`: four stacks, four prices.
+- `test_two_percentage_layers_agree_before_rounding_and_can_split_by_a_cent`: 130.68 both ways, then 0.06 against 0.05.
+- `test_the_layers_for_a_consignment_are_chosen_while_the_program_runs`: light, heavy and dangerous goods.
+- `test_the_heavy_threshold_is_exclusive`: exactly the limit gets no surcharge.
+- `test_the_fees_are_in_the_order_the_rules_say`: tax outermost, then dangerous goods, then heavy.
+- `test_an_unknown_destination_country_is_a_rating_error`: no silent zero tax.
+- `test_layer_stacks_compare_by_value`: equal, same hash, a different percentage is unequal.
+- `test_compose_wraps_the_last_layer_outermost`: the type at each level.
+- `test_a_layer_refuses_a_fee_in_another_currency`: `RatingError`.
+- `test_a_weight_that_is_not_positive_and_finite_is_refused`: zero, negative and NaN.
+- `test_the_tax_rates_are_read_only`: item assignment raises `TypeError` and the registry isn't a `dict`.
 
 `tests/test_syntax.py`
 
