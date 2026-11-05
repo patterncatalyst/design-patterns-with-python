@@ -263,10 +263,12 @@ def check_prose(rel: str, text: str, kind: str, status: str) -> tuple[list[Findi
         if kind != "appendix" and figures != 1:
             errors.append(Finding(rel, 1, f"{figures} figure includes, need exactly 1"))
         words = word_count(text)
+        # The floor is a target, not a gate (owner decision 2026-11-05): never pad to reach it.
         if words < MIN_WORDS:
-            errors.append(Finding(rel, 1, f"prose has {words} words, minimum {MIN_WORDS}"))
+            message = f"prose has {words} words, below the {MIN_WORDS} target"
+            warnings.append(Finding(rel, 1, message))
         elif words > MAX_WORDS:
-            warnings.append(Finding(rel, 1, f"prose has {words} words, above {MAX_WORDS}"))
+            errors.append(Finding(rel, 1, f"prose has {words} words, above {MAX_WORDS}"))
         if kind == "pattern":
             count = text.count(SIDEBAR)
             if count != 1:
@@ -923,7 +925,10 @@ def self_test() -> int:
     full_spine = "".join(f"## {h}\n" for h in SPINE["pattern"])
     ok = full_spine + long_body + "\n" + SIDEBAR + "\n" + figure_line
     expect("pattern with sidebar", not check_prose("a.md", ok, "pattern", "done")[0])
-    expect("long warns", bool(check_prose("a.md", "word " * 2600, "argument", "done")[1]))
+    long_errors = check_prose("a.md", "word " * 2600, "argument", "done")[0]
+    expect("long errors", any("above" in f.message for f in long_errors))
+    short_warnings = check_prose("a.md", short, "argument", "done")[1]
+    expect("short warns", any("below the" in f.message for f in short_warnings))
 
     bad = "```python\nx = '{{ a }}'\n```\n"
     good = "{% raw %}\n```python\nx = '{{ a }}'\n```\n{% endraw %}\n"

@@ -7,6 +7,7 @@ members = [
     "adapter-facade-bridge",
     "builder-prototype",
     "command-undo",
+    "composite-flyweight",
     "consignments",
     "context-managers",
     "data-model",
@@ -15,6 +16,7 @@ members = [
     "factories",
     "feature-spikes",
     "isp-dip-di",
+    "observer",
     "singleton",
     "srp-ocp-lsp",
     "state-machines",
@@ -94,6 +96,11 @@ wheels = [
 name = "command-undo"
 version = "0.1.0"
 source = { editable = "examples/15-command-undo-and-command-queues" }
+
+[[package]]
+name = "composite-flyweight"
+version = "0.1.0"
+source = { editable = "examples/21-composite-and-flyweight" }
 
 [[package]]
 name = "consignments"
@@ -238,6 +245,11 @@ sdist = { url = "https://files.pythonhosted.org/packages/d0/6f/43edf3be2748d0e40
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b5/99/7b1adac7e97ce7bbda34792dc6e9b2f5cc5cffd1875883f78a818b2a2687/mypy_extensions-1.2.0-py3-none-any.whl", hash = "sha256:993e7a20aa5671eb41a7132cf555af30062da99729601601b9a8382b11cae768", size = 5114, upload-time = "2026-11-03T16:26:32.731Z" },
 ]
+
+[[package]]
+name = "observer"
+version = "0.1.0"
+source = { editable = "examples/22-observer" }
 
 [[package]]
 name = "packaging"

@@ -568,7 +568,7 @@ Step ids are `J*` (see User decisions).
 | J4 | ch19-20 `status = "drafted"` (`kind` stays `pattern`) | J3 | done |
 | J5 | Two prose agents in parallel. Each re-fetches its sources and quotes exactly, runs its two experiments in scratch copies, quotes fresh output filtered by `python3 scripts/host_ids.py filter`, and hands back the sources checked plus a per-paragraph claims table (claim, then test, run or source URL) | J3, J4 | done |
 | J6 | Opus validation; up to two repair rounds | J5 | done |
-| J7 | PR, `ci-ok` green, ask the user before merge; tag r09.x; notes-only release | J6 | todo |
+| J7 | PR, `ci-ok` green, ask the user before merge; tag r09.x; notes-only release | J6 | done |
 
 Reconciliation rows (step J0). The "How to verify" column uses resolvable tokens.
 

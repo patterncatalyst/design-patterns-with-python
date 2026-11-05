@@ -181,3 +181,21 @@
     consignment and stacked as a value while the program runs; the @ form
     rebinds a name once at definition; the proxy keeps the interface and
     controls access.
+
+- name: 21-composite-and-flyweight
+  section: "Ch. 21"
+  title: One weight question, one shared commodity
+  caption: >-
+    One weight question, one shared commodity. A consolidation answers weight
+    as a consignment does, summing its parts through nested groups; consignments
+    reach a single frozen commodity per code from a pool that lets go of
+    commodities nobody holds.
+
+- name: 22-observer
+  section: "Ch. 22"
+  title: What a signal decides
+  caption: >-
+    What a signal decides. Each event reaches a snapshot of subscribers in
+    order, nested events wait their turn, failures are gathered and raised
+    afterwards, and bound methods are held weakly so abandoned subscribers
+    can go.
