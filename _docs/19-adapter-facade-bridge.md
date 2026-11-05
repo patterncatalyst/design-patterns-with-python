@@ -25,7 +25,7 @@ A caller branches on the carrier code and reaches into each SDK. For Fastline it
 
 A client whose parameter is a plain `float` is accepted wherever a kilogram `float` is expected, because mypy sees two floats. The unit is in a parameter name, and mypy doesn't read names.
 
-Booking kinds multiply with carriers. A standard booking and an insured booking, times two carriers, is four classes, and the Fastline ones repeat its translation.
+Booking kinds multiply with carriers. A standard booking and an insured booking, times two carriers, is four classes, and the two Fastline ones repeat Fastline's translation.
 
 {% include excalidraw.html name="19-adapter-facade-bridge" caption="Figure 19.1: One call, two axes, one translation. The facade picks a gateway and a booking kind; each kind works through the narrow gateway Protocol, which one client already satisfies and the other reaches through an adapter that converts units." %}
 
@@ -65,7 +65,7 @@ class CarrierGateway(Protocol):
 
 @dataclass(frozen=True, slots=True)
 class FastlineGateway:
-    """An object adapter: translates shape, units and errors, and exposes only the Protocol."""
+    """An object adapter: translates shape, units and errors behind the two Protocol methods."""
 
     client: FastlineClient
 
@@ -131,7 +131,7 @@ class _FastlineClassAdapter(FastlineClient):
     def book(self, consignment_id: ConsignmentId, weight: Weight, /) -> str:
 ```
 
-It passes the same booking table, because the `gateway_form` fixture runs the adapter test against both forms. It also leaks: `test_a_class_adapter_still_exposes_the_clients_own_methods` finds `submit_shipment` on the class adapter and not on `FastlineGateway`. So a caller holding the class adapter can call `submit_shipment` with a payload it builds itself and skip the translation. The object adapter offers only `book` and `insure`, with the SDK behind its `client` field.
+It passes the same booking table, because the `gateway_form` fixture runs the adapter test against both forms. It also leaks: `test_a_class_adapter_still_exposes_the_clients_own_methods` finds `submit_shipment` on the class adapter and not on `FastlineGateway`. So a caller holding the class adapter can call `submit_shipment` with a payload it builds itself and skip the translation. The object adapter has no `submit_shipment` of its own; a caller would have to reach through its public `client` field to skip the translation.
 
 ## A Facade is a function with a narrow surface
 
@@ -165,7 +165,7 @@ The surface is the facade, and choosing it is the design work. `ship` takes a co
 
 ## Bridge: two axes, one narrow Protocol
 
-Gamma, Helm, Johnson and Vlissides give Bridge to a design with two things that vary, such as what an operation means and how it's carried out, so each can change without disturbing the other. Brandon Rhodes uses the same reading in [The Composition Over Inheritance Principle](https://python-patterns.guide/gang-of-four/composition-over-inheritance/). His example subclasses a logger once per output and once per filter, which multiplies, and he resolves it with Adapter, Bridge and Decorator in turn. He quotes the Gang of Four principle as "Favor object composition over class inheritance." and concludes that the principle matters more than any one pattern. python-patterns.guide has no page named Adapter, Facade or Bridge, and this page is where it treats Adapter and Bridge.
+Gamma, Helm, Johnson and Vlissides give Bridge to a design with two things that vary, such as what an operation means and how it's carried out, so each can change without disturbing the other. Brandon Rhodes uses the same reading in [The Composition Over Inheritance Principle](https://python-patterns.guide/gang-of-four/composition-over-inheritance/). His example subclasses a logger once per output and once per filter, which multiplies, and he resolves it with Adapter, Bridge and Decorator in turn. He quotes the Gang of Four principle as "Favor object composition over class inheritance." and concludes that the principle matters more than any one pattern. python-patterns.guide has no page named Adapter, Facade or Bridge, and The Composition Over Inheritance Principle is where it treats Adapter and Bridge.
 
 Here the two axes are the booking kind and the carrier:
 

@@ -2,7 +2,7 @@
 layout: example
 order: 20
 title: "Decorator the pattern vs @decorator the syntax, and Proxy"
-description: A stack of rate layers chosen per consignment, the retry and audited decorators that rebind a function at definition time, and a caching gateway proxy, with tests for order, value equality and what mypy sees through each form.
+description: A stack of rate layers chosen per consignment, the retry and audited factories that rebind a function name at definition time, and a caching gateway proxy, with tests for order, value equality and what mypy sees through each form.
 github_path: examples/20-decorator-pattern-vs-decorator-syntax-and-proxy
 card_eyebrow: "Structure · Decorator and Proxy"
 card_blurb: "Layers stack while the program runs and compare by value; the @ form rebinds a name once. An explicit caching proxy is checked by mypy, and a forwarding proxy runs the same table as a comparison."
@@ -24,7 +24,7 @@ value.
 
 `retry` and `audited` are factories that rebind a function name once, when the `def` runs. Stacking
 order is fixed there: an audit above a retry reports once per call, and below it once per attempt.
-A rebound function does not compare by value and has no `price`.
+A rebound function doesn't compare by value and has no `price`.
 
 ## Proxy
 

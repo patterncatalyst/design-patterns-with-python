@@ -125,7 +125,7 @@ def gateway_form(request: pytest.FixtureRequest) -> tuple[CarrierGateway, Fastli
     return adapter, adapter
 
 
-# Comparison: one class per kind and carrier. Each pair repeats the carrier's translation.
+# Comparison: one class per kind and carrier. The Fastline pairs repeat Fastline's translation.
 class _CarrierBooking(ABC):
     @abstractmethod
     def place(self, consignment: Consignment, carrier: str) -> Booking: ...

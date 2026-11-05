@@ -567,7 +567,7 @@ Step ids are `J*` (see User decisions).
 | J3 | Two figures, specs `diagrams/specs/19-*.py` and `20-*.py`, `_data/diagrams.yml` (single owner; `section: "Ch. 19"` and `"Ch. 20"`); figures 00-18 unchanged | J2 | done |
 | J4 | ch19-20 `status = "drafted"` (`kind` stays `pattern`) | J3 | done |
 | J5 | Two prose agents in parallel. Each re-fetches its sources and quotes exactly, runs its two experiments in scratch copies, quotes fresh output filtered by `python3 scripts/host_ids.py filter`, and hands back the sources checked plus a per-paragraph claims table (claim, then test, run or source URL) | J3, J4 | done |
-| J6 | Opus validation; up to two repair rounds | J5 | todo |
+| J6 | Opus validation; up to two repair rounds | J5 | done |
 | J7 | PR, `ci-ok` green, ask the user before merge; tag r09.x; notes-only release | J6 | todo |
 
 Reconciliation rows (step J0). The "How to verify" column uses resolvable tokens.
@@ -602,6 +602,8 @@ Row 5 status note at J2: "witnessed by rows 101-103 (r09)". Row 6: Ch cell 26, "
 - Step J5, chapter 20 experiments: (a) tax before the fees also fails `test_the_fees_are_in_the_order_the_rules_say` (3 failed, 47 passed; mypy clean); (b) deleting the proxy's `book` also fails `test_runtime_checkable_does_not_see_attributes_forwarded_by_getattr` and `test_mypy_accepts_the_explicit_proxy_as_a_gateway` (3 failed), mypy 2 errors in conftest.
 
 - Step J6 round 1: ch19 claimed structural typing covers a renamed method (test 16 contradicts it), Rhodes's composition page covering Facade (it doesn't), two fixtures where mypy reported three; the object adapter's public `client` field made "one door" false; figure 19 drew `Weight.from_pounds` where the adapter uses `Weight.pounds`. ch20 missed the functools `wraps` quotation (criterion 17) and used bare "decorator" for the `@` syntax four times (criterion 8). Added `test_a_new_booking_kind_needs_no_gateway_change`.
+
+- Step J6 round 2: not ready on criterion 8 alone (bare "decorator" for the `@` syntax at ch20:104 and :106, the ch20 README and card description); all other items and gates passed. Fixed by the orchestrator as word swaps, with the should-fix items (`client` field wording and the `FastlineGateway` docstring, the Rhodes page name, the `len()`/`iter()` sentence sourced to "Special method lookup") and nits. No third validation round was run.
 
 ## Acceptance criteria
 

@@ -1,9 +1,9 @@
 # Decorator the pattern vs @decorator the syntax, and Proxy
 
-Three things that look like a wrapper and are not the same. The Decorator pattern is a wrapper
-object with the wrapped object's interface, composed while the program runs, so a stack of layers
-is data. The `@decorator` syntax rebinds a function name once, at definition time. A proxy keeps
-the interface and controls access. The chapter's thesis is that the two decorator names need
+Three things that look like a wrapper and aren't the same. The Decorator pattern is a wrapper object
+with the wrapped object's interface, composed while the program runs, so a stack of layers is data.
+The `@decorator` syntax rebinds a function name once, at definition time. A proxy keeps the
+interface and controls access. The chapter's thesis is that the two things called Decorator need
 disambiguating and that the proxy to prefer is an explicit class mypy can check. Rates, fees, tax
 percentages and the retry count are illustrative. `functools.wraps` and `ParamSpec` are used in
 `retry` and `audited` and are not taught here.
@@ -28,17 +28,15 @@ The Decorator pattern.
 The `@decorator` syntax.
 
 - `retry` and `audited` are PEP 695 `[**P, R]` factories. `quote_carrier` carries
-  `@retry(attempts=3, on=(CarrierTimeoutError,))`. A test-local counting decorator shows the
-  factory runs once at definition, and `__wrapped__` isn't the rebound name.
-- `retry` calls again on a listed error, gives up after the last attempt, lets other errors
-  through and refuses fewer than one attempt. It has no delay: backoff is out of scope.
-- Stacking order is fixed when the `def` runs. An `@audited` above an `@retry` reports once for a
-  quote that needed three calls, and the reverse reports once per attempt.
-- Rebound functions don't compare by value. A decorated function has no `price`, and a layer has
-  no `__wrapped__`. A factory such as `functools.cache` may return an object that isn't a function,
-  and it is still the syntax.
-- `ParamSpec` keeps the call signature for mypy: a wrong argument type is `[arg-type]` and an
-  unknown keyword is `[call-arg]`.
+  `@retry(attempts=3, on=(CarrierTimeoutError,))`. A test-local `@counting` function shows that it
+  runs once, at definition, and `__wrapped__` isn't the rebound name. - `retry` calls again on a
+  listed error, gives up after the last attempt, lets other errors through and refuses fewer than
+  one attempt. It has no delay: backoff is out of scope. - Stacking order is fixed when the `def`
+  runs. An `@audited` above an `@retry` reports once for a quote that needed three calls, and the
+  reverse reports once per attempt. - Rebound functions don't compare by value. A decorated function
+  has no `price`, and a layer has no `__wrapped__`. A factory such as `functools.cache` may return
+  an object that isn't a function, and it is still the syntax. - `ParamSpec` keeps the call
+  signature for mypy: a wrong argument type is `[arg-type]` and an unknown keyword is `[call-arg]`.
 
 Proxy.
 
@@ -83,22 +81,24 @@ uv run mypy --strict src tests
 
 `tests/test_layers.py`
 
-- `test_a_layer_wraps_a_calculator_and_leaves_it_unchanged`: the inner calculator is the same object and prices as before.
-- `test_layer_order_changes_the_price_when_a_fee_is_added`: four stacks, four prices.
-- `test_two_percentage_layers_agree_before_rounding_and_can_split_by_a_cent`: 130.68 both ways, then 0.06 against 0.05.
-- `test_the_layers_for_a_consignment_are_chosen_while_the_program_runs`: light, heavy and dangerous goods.
-- `test_the_heavy_threshold_is_exclusive`: exactly the limit gets no surcharge.
-- `test_the_fees_are_in_the_order_the_rules_say`: tax outermost, then dangerous goods, then heavy.
-- `test_an_unknown_destination_country_is_a_rating_error`: no silent zero tax.
-- `test_layer_stacks_compare_by_value`: equal, same hash, a different percentage is unequal.
-- `test_compose_wraps_the_last_layer_outermost`: the type at each level.
-- `test_a_layer_refuses_a_fee_in_another_currency`: `RatingError`.
-- `test_a_weight_that_is_not_positive_and_finite_is_refused`: zero, negative and NaN.
-- `test_the_tax_rates_are_read_only`: item assignment raises `TypeError` and the registry is not a `dict`.
+- `test_a_layer_wraps_a_calculator_and_leaves_it_unchanged`: the inner calculator is the same object
+  and prices as before. - `test_layer_order_changes_the_price_when_a_fee_is_added`: four stacks,
+  four prices. - `test_two_percentage_layers_agree_before_rounding_and_can_split_by_a_cent`: 130.68
+  both ways, then 0.06 against 0.05. -
+  `test_the_layers_for_a_consignment_are_chosen_while_the_program_runs`: light, heavy and dangerous
+  goods. - `test_the_heavy_threshold_is_exclusive`: exactly the limit gets no surcharge. -
+  `test_the_fees_are_in_the_order_the_rules_say`: tax outermost, then dangerous goods, then heavy. -
+  `test_an_unknown_destination_country_is_a_rating_error`: no silent zero tax. -
+  `test_layer_stacks_compare_by_value`: equal, same hash, a different percentage is unequal. -
+  `test_compose_wraps_the_last_layer_outermost`: the type at each level. -
+  `test_a_layer_refuses_a_fee_in_another_currency`: `RatingError`. -
+  `test_a_weight_that_is_not_positive_and_finite_is_refused`: zero, negative and NaN. -
+  `test_the_tax_rates_are_read_only`: item assignment raises `TypeError` and the registry isn't a
+  `dict`.
 
 `tests/test_syntax.py`
 
-- `test_the_at_sign_rebinds_the_name_once_at_definition_time`: the factory ran once, at the `def`.
+- `test_the_at_sign_rebinds_the_name_once_at_definition_time`: `counting` ran once, at the `def`.
 - `test_retry_calls_again_on_a_listed_error_and_gives_up_after_the_last_attempt`: three calls either way.
 - `test_retry_lets_an_unlisted_error_through`: one call.
 - `test_retry_refuses_fewer_than_one_attempt`: zero and negative.

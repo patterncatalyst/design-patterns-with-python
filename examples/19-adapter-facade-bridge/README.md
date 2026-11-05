@@ -78,7 +78,7 @@ uv run mypy --strict src tests
 - `test_weight_converts_between_kilograms_and_pounds_exactly`: one pound is the exact factor, and 10 kg reads 22.05 lb.
 - `test_a_pounds_api_called_with_kilograms_books_the_wrong_weight`: the branching caller sends "10", which reads back as 4.54 kg.
 - `test_an_unknown_carrier_is_refused_at_the_desk`: `UnknownCarrierError` with the original `KeyError` suppressed.
-- `test_the_desk_registry_is_read_only`: item assignment raises `TypeError` and the registry is not a `dict`.
+- `test_the_desk_registry_is_read_only`: item assignment raises `TypeError` and the registry isn't a `dict`.
 - `test_a_consignment_weight_must_be_positive_and_finite`: zero, negative and NaN.
 
 `tests/test_facade.py`

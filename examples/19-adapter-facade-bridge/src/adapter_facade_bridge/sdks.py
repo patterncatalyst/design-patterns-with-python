@@ -1,4 +1,4 @@
-"""Stand-ins for two carrier SDKs of deliberately different shapes. Each records its calls."""
+"""Stand-ins for two carrier SDKs of different shapes. Each records its calls."""
 
 from collections.abc import Mapping
 from decimal import Decimal

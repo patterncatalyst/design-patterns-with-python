@@ -21,7 +21,7 @@ class CarrierGateway(Protocol):
 
 @dataclass(frozen=True, slots=True)
 class FastlineGateway:
-    """An object adapter: translates shape, units and errors, and exposes only the Protocol."""
+    """An object adapter: translates shape, units and errors behind the two Protocol methods."""
 
     client: FastlineClient
 
