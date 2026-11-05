@@ -4,7 +4,7 @@ order: 25
 layout: tutorial
 sectionid: docs
 part: "coordinating-traversing"
-description: "Draft pending: Visitor, Memento, and Interpreter."
+description: "Visitor dissolves into a match over a closed union, while a snapshot and a tariff tree stay design: what to capture, what mustn't roll back, and the readings of one grammar."
 ---
 
 ## Learning objectives

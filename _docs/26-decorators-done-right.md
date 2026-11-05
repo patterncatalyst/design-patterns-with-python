@@ -4,7 +4,7 @@ order: 26
 layout: tutorial
 sectionid: docs
 part: "idiomatic-python"
-description: "Draft pending: Decorators done right."
+description: "The @ syntax is given, but getting a decorator right isn't: what wraps copies, what ParamSpec keeps for mypy, bare use of a factory, stacking order and class decorators."
 ---
 
 ## Learning objectives
