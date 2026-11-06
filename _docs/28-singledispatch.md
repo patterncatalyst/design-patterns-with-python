@@ -4,7 +4,7 @@ order: 28
 layout: tutorial
 sectionid: docs
 part: "idiomatic-python"
-description: "Draft pending: singledispatch: the Visitor the language gives you."
+description: "Dispatch on the type of the first argument without a visitor class, and the choices that matter once registrations can live in other modules."
 ---
 
 ## Learning objectives

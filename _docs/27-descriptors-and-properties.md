@@ -4,7 +4,7 @@ order: 27
 layout: tutorial
 sectionid: docs
 part: "idiomatic-python"
-description: "Draft pending: Descriptors and properties."
+description: "One validator, written once, guarding every field that needs it, and when a plain property or a cached one is the better tool."
 ---
 
 ## Learning objectives
