@@ -286,7 +286,7 @@ title = "Shortcut patterns: dict dispatch, function tables, and EAFP"
 part = 10
 kind = "pattern"
 has_example = true
-status = "stub"
+status = "drafted"
 
 [[chapter]]
 number = 32
@@ -294,8 +294,8 @@ slug = "32-anti-patterns-and-pattern-misuse"
 title = "Anti-patterns and pattern misuse"
 part = 10
 kind = "argument"
-has_example = false
-status = "stub"
+has_example = true
+status = "drafted"
 
 [[chapter]]
 number = 33

@@ -1,0 +1,107 @@
+"""Anti-patterns: one function and a factory, strategy and visitor price the same quote."""
+
+from generate_diagram import emit
+
+emit(
+    "32-anti-patterns-and-pattern-misuse",
+    1080,
+    860,
+    nodes=[
+        {
+            "x": 40,
+            "y": 30,
+            "w": 310,
+            "h": 110,
+            "style": "accent",
+            "lines": [
+                "quote(consignment, tariff)",
+                "flat fee, fuel surcharge and tax",
+                "in one definition",
+                "0 classes, 1 function, 8 lines, 1 call",
+            ],
+        },
+        {"x": 40, "y": 660, "w": 310, "h": 60, "style": "box", "lines": ["RateQuote"]},
+        {
+            "x": 430,
+            "y": 30,
+            "w": 340,
+            "h": 60,
+            "style": "ghost",
+            "lines": ["_PricingStrategyFactory", "create builds the strategy for the engine"],
+        },
+        {
+            "x": 430,
+            "y": 135,
+            "w": 340,
+            "h": 60,
+            "style": "ghost",
+            "lines": ["_RateEngine.quote", "9 classes, 17 functions, 57 lines, 11 calls"],
+        },
+        {
+            "x": 430,
+            "y": 240,
+            "w": 340,
+            "h": 60,
+            "style": "ghost",
+            "lines": ["_FlatFeeStrategy.charges", "returns the flat fee and fuel charge objects"],
+        },
+        {
+            "x": 430,
+            "y": 345,
+            "w": 340,
+            "h": 60,
+            "style": "ghost",
+            "lines": ["_FlatFeeCharge and _FuelSurcharge", "one object for each charge"],
+        },
+        {
+            "x": 430,
+            "y": 450,
+            "w": 340,
+            "h": 60,
+            "style": "ghost",
+            "lines": ["accept", "each charge calls back into the visitor"],
+        },
+        {
+            "x": 430,
+            "y": 555,
+            "w": 340,
+            "h": 60,
+            "style": "ghost",
+            "lines": [
+                "_NetTotalVisitor.visit_flat_fee",
+                "and visit_fuel add each amount to the total",
+            ],
+        },
+        {"x": 430, "y": 660, "w": 340, "h": 60, "style": "ghost", "lines": ["RateQuote"]},
+        {
+            "x": 830,
+            "y": 540,
+            "w": 220,
+            "h": 90,
+            "style": "ghost",
+            "lines": [
+                "a new charge kind:",
+                "a new class and a visit method",
+                "the visitor does not yet have",
+            ],
+        },
+        {
+            "x": 40,
+            "y": 770,
+            "w": 1000,
+            "h": 50,
+            "style": "ink",
+            "lines": ["same table of quotes; mypy and ruff pass both"],
+        },
+    ],
+    edges=[
+        {"x1": 195, "y1": 140, "x2": 195, "y2": 660},
+        {"x1": 600, "y1": 90, "x2": 600, "y2": 135},
+        {"x1": 600, "y1": 195, "x2": 600, "y2": 240},
+        {"x1": 600, "y1": 300, "x2": 600, "y2": 345},
+        {"x1": 600, "y1": 405, "x2": 600, "y2": 450},
+        {"x1": 600, "y1": 510, "x2": 600, "y2": 555},
+        {"x1": 600, "y1": 615, "x2": 600, "y2": 660},
+        {"x1": 830, "y1": 585, "x2": 770, "y2": 585, "dashed": True},
+    ],
+)

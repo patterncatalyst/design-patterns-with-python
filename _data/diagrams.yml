@@ -269,3 +269,19 @@
     the declared fields once into the instance dictionary and refuses any other
     name. Later reads skip it, and a class that relies on forwarding fails
     iter() and len().
+
+- name: 31-shortcut-patterns-dict-dispatch-and-eafp
+  section: "Ch. 31"
+  title: A table lookup in the try, a rate read that asks forgiveness
+  caption: >-
+    Issuing a document looks the kind up in a read-only table and calls the
+    issuer outside the try. Reading a duty rate asks forgiveness, so an eviction
+    by another thread reloads the rate instead of raising KeyError.
+
+- name: 32-anti-patterns-and-pattern-misuse
+  section: "Ch. 32"
+  title: One function against a factory, a strategy and a visitor
+  caption: >-
+    The same quote from one function and from a factory, strategy and visitor.
+    They pass the same table and the same type check, but the engine spreads the
+    fuel surcharge across five definitions where the function holds it in one.
