@@ -19,7 +19,7 @@ By the end of this chapter you can:
 
 ## Why this matters
 
-A managed attribute is a name that runs code when it is read or written. Python's attribute lookup calls `__get__` and `__set__` for you, and `property` and `cached_property` are descriptors already written, so the language owns the mechanism. What survives as design is the choice among them: one validator per rule, shared by every field that needs it, and a clear view of where a descriptor can and can't sit. That puts this idiom in the survives bucket of [The three-way split: dissolve, survive, disambiguate]({{ '/docs/03-the-three-way-split/' | relative_url }}).
+A managed attribute is a name that runs code when it is read or written. Python's attribute lookup calls `__get__` and `__set__` for you, and `property` and `cached_property` are descriptors already written, so the language owns the mechanism. What survives as design is the choice among them: one validator per rule, shared by every field that needs it, and a clear view of where a descriptor can and can't sit. In the buckets of [The three-way split: dissolve, survive, disambiguate]({{ '/docs/03-the-three-way-split/' | relative_url }}), that design survives, and `cached_property` is where the Proxy name needs disambiguating.
 
 The example validates weights and extents that arrive from carrier feeds. They must be finite and positive wherever they're held, and three things go wrong in the obvious versions.
 
@@ -76,7 +76,7 @@ The pair is correct, and it passes the same table as the descriptor version. `te
 
 ## A rule for many fields: a descriptor
 
-A descriptor puts the rule in one place and lets any number of fields use it. The [Python documentation's Descriptor Guide](https://docs.python.org/3/howto/descriptor.html) builds its worked example around the same idea: "A validator is a descriptor for managed attribute access." `Positive` is this chapter's validator.
+A descriptor puts the rule in one place and lets any number of fields use it. The [Python documentation's Descriptor Guide](https://docs.python.org/3/howto/descriptor.html) builds its worked example around the same idea: "A validator is a descriptor for managed attribute access." `Positive` is that validator.
 
 <!-- fmt:off -->
 ```python
@@ -106,9 +106,9 @@ A descriptor puts the rule in one place and lets any number of fields use it. Th
 ```
 <!-- fmt:on -->
 
-A descriptor sits in the class body, and Martin Teichmann's [PEP 487](https://peps.python.org/pep-0487/) states what that leaves it unable to do: "Descriptors are defined in the body of a class, but they do not know anything about that class, they do not even know the name they are accessed with." The PEP's remedy is `__set_name__`, which the [data model](https://docs.python.org/3/reference/datamodel.html) describes as "Automatically called at the time the owning class owner is created." The guide adds the limit that matters in practice: "notifications only take place at the time of class creation." A descriptor added to a class afterwards needs the call made by hand.
+A descriptor sits in the class body, and Martin Teichmann's [PEP 487](https://peps.python.org/pep-0487/) states what that leaves it unable to do: "Descriptors are defined in the body of a class, but they do not know anything about that class, they do not even know the name they are accessed with." The PEP's remedy is `__set_name__`, which the [data model](https://docs.python.org/3/reference/datamodel.html) describes as "Automatically called at the time the owning class owner is created." The guide adds the limit that matters in practice: "notifications only take place at the time of class creation." It continues: "If descriptors are added to the class afterwards, __set_name__() will need to be called manually."
 
-With the name in hand, each field gets its own message and its own storage. A valid `Dimensions` holds `_length_cm`, `_width_cm` and `_height_cm` in its instance dictionary (`test_set_name_gives_each_field_its_own_storage`). Six fields in three classes, `Consignment.kilograms`, the three extents and `Container.tare_kg` and `max_payload_kg`, are six separate instances of one class, read through `vars()` on each class (`test_one_descriptor_class_validates_every_field`). Each refuses -1 on construction with its own name in the message, for example "kilograms must be positive, got -1" (`test_a_positive_field_refuses_a_bad_value_on_every_class`, one field from each class). Assigning zero to `tare_kg` on a built container raises and leaves the old value in place (`test_assignment_to_a_container_field_is_validated`).
+With the name in hand, each field gets its own message and its own storage. A valid `Dimensions` holds `_length_cm`, `_width_cm` and `_height_cm` in its instance dictionary (`test_set_name_gives_each_field_its_own_storage`). Six fields in three classes, `Consignment.kilograms`, the three extents and `Container.tare_kg` and `max_payload_kg`, are six separate instances of one class, read through `vars()` on each class (`test_one_descriptor_class_validates_every_field`). A field from each class refuses -1 on construction with its own name in the message, for example "kilograms must be positive, got -1" (`test_a_positive_field_refuses_a_bad_value_on_every_class`, over `kilograms`, `height_cm`, `tare_kg` and `max_payload_kg`). Assigning zero to `tare_kg` on a built container raises and leaves the old value in place (`test_assignment_to_a_container_field_is_validated`).
 
 The `instance is None` branch is class access. The data model says `__get__` is called with the instance "or None when the attribute is accessed through the owner". `Positive` raises there, and `Container.tare_kg` is an `AttributeError` that names the field (`test_class_access_to_a_positive_field_raises_attribute_error`). The two overloads tell mypy that class access never returns and that instance access gives a `Decimal`.
 
@@ -168,13 +168,13 @@ mypy 2.4.1 reads the descriptor through `__set__`. This is the snippet in `test_
 <string>:10: note: Revealed type is "decimal.Decimal"
 ```
 
-The same checker reads `= Positive()` as a default whatever `__get__` does. `Dimensions()` type-checks with exit status 0 and then raises the `TypeError` above when it runs (`test_mypy_reads_a_descriptor_field_as_a_default`). The checker accepts a call the runtime refuses.
+The same checker reads `= Positive()` as a default, although `__get__` raises on class access. `Dimensions()` type-checks with exit status 0 and then raises the `TypeError` above when it runs (`test_mypy_reads_a_descriptor_field_as_a_default`). The checker accepts a call the runtime refuses.
 
 `slots=True` removes the descriptor. The data model says "__slots__ are implemented at the class level by creating descriptors for each variable name", so a slot descriptor takes the field's place in the class. In a reduced model, a slotted dataclass with a `Positive` field is built with `Decimal(-1)` and accepts it; the class entry is a `member_descriptor`, and mypy exits 0 (`test_mypy_accepts_a_descriptor_field_on_a_slotted_dataclass`). What else `slots=True` costs is in [Dataclasses and value semantics]({{ '/docs/08-dataclasses-and-value-semantics/' | relative_url }}).
 
 ## cached_property: lazy initialisation without a proxy
 
-The lazy-initialisation use of Proxy is a stand-in object that builds the real one on first use. `functools.cached_property` has the same effect with no stand-in: a value is computed on first read and then kept on the instance itself. That's why this chapter disambiguates the Proxy name for it. The Proxy pattern and the `@` syntax are sorted in [Decorator the pattern vs @decorator the syntax, and Proxy]({{ '/docs/20-decorator-pattern-vs-decorator-syntax-and-proxy/' | relative_url }}), and the buckets in [The three-way split: dissolve, survive, disambiguate]({{ '/docs/03-the-three-way-split/' | relative_url }}).
+The lazy-initialisation use of Proxy is a stand-in object that builds the real one on first use. `functools.cached_property` has the same effect with no stand-in: a value is computed on first read and then kept on the instance itself. So `cached_property` is where the Proxy name needs disambiguating. The Proxy pattern and the `@` syntax are sorted in [Decorator the pattern vs @decorator the syntax, and Proxy]({{ '/docs/20-decorator-pattern-vs-decorator-syntax-and-proxy/' | relative_url }}), and the buckets in [The three-way split: dissolve, survive, disambiguate]({{ '/docs/03-the-three-way-split/' | relative_url }}).
 
 <!-- fmt:off -->
 ```python
@@ -185,16 +185,16 @@ The lazy-initialisation use of Proxy is a stand-in object that builds the real o
 ```
 <!-- fmt:on -->
 
-The [functools documentation](https://docs.python.org/3/library/functools.html) describes a property "whose value is computed once and then cached as a normal attribute for the life of the instance", and adds that the decorator "only runs on lookups and only when an attribute of the same name doesn’t exist." Before the first read, `chargeable_kg` isn't in `vars(shipment)`. After it, the computed value is (`test_chargeable_weight_is_computed_on_first_access_and_stored`). The value is the larger of actual and volumetric weight at 167 kg per cubic metre, an illustrative factor: 160.32 for a 100 kg consignment of 120 by 80 by 100 cm, and 250 for one that weighs 250 kg (`test_chargeable_weight_is_the_larger_of_actual_and_volumetric_weight`). `replace` makes a new instance with an empty dictionary, so the value is computed again: 300 for a consignment replaced at 300 kg, after 160.32 for the original (`test_replace_recomputes_the_chargeable_weight`).
+The [functools documentation](https://docs.python.org/3/library/functools.html) describes a property "whose value is computed once and then cached as a normal attribute for the life of the instance", and adds that the decorator "only runs on lookups and only when an attribute of the same name doesn’t exist." Before the first read, `chargeable_kg` isn't in `vars(shipment)`. After it, the computed value is (`test_chargeable_weight_is_computed_on_first_access_and_stored`). The value is the larger of actual and volumetric weight at 167 kg per cubic metre, an illustrative factor: 160.32 for a 100 kg consignment of 120 by 80 by 100 cm, and 250 for one that weighs 250 kg (`test_chargeable_weight_is_the_larger_of_actual_and_volumetric_weight`). `replace` makes a new instance whose dictionary holds no cached value, so the value is computed again: 300 for a consignment replaced at 300 kg, after 160.32 for the original (`test_replace_recomputes_the_chargeable_weight`).
 
-The cost is that the cache lives in the instance dictionary, and four things follow from it.
+The cache lives in the instance dictionary, and it has four costs.
 
-- It needs the dictionary. The page says the decorator "requires that the __dict__ attribute on each instance be a mutable mapping". A slotted class has none, and the read raises `TypeError` with "No '__dict__' attribute" (`test_cached_property_needs_an_instance_dict`, on a test-local slotted class). mypy accepts the same decorator on a slotted dataclass in a reduced model, and the runtime then raises (`test_mypy_accepts_cached_property_on_a_slotted_dataclass`).
+- It needs the dictionary. The page says the decorator "requires that the __dict__ attribute on each instance be a mutable mapping". A class whose slots leave out `__dict__` has none, and the read raises `TypeError` with "No '__dict__' attribute" (`test_cached_property_needs_an_instance_dict`, on a test-local slotted class). mypy accepts the same decorator on a slotted dataclass in a reduced model, and the runtime then raises (`test_mypy_accepts_cached_property_on_a_slotted_dataclass`).
 - A frozen class can't clear it. The page says "The cached value can be cleared by deleting the attribute." A frozen dataclass refuses the `del` with "cannot delete field 'chargeable_kg'" (`test_a_frozen_dataclass_cannot_clear_a_cached_property`). On `Consignment` that is fine, because the inputs can't change.
 - Over mutable state it goes stale. A test-local `Container` subclass that caches `payload_kg` reads 100 after cargo is added following its first read, where the live container reads 350 (`test_a_cached_property_over_mutable_state_goes_stale`). `payload_kg` is a `property` for this reason.
-- Two threads can both run the getter. Since 3.12 the What's New page says "a cached property getter function could now run more than once for a single instance, if two threads race". A `Barrier` makes two readers meet inside the getter: both run it, both get 2, the getter has run twice, and a third read after both threads have finished doesn't run it again (`test_a_cached_property_getter_can_run_twice_under_threads`). Nothing in this member shares a consignment between threads.
+- Two threads can both run the getter. What's New in 3.12 records the lock's removal: "a cached property getter function could now run more than once for a single instance, if two threads race". A `Barrier` makes two readers meet inside the getter: both run it, both get 2, the getter has run twice, and a third read after both threads have finished doesn't run it again (`test_a_cached_property_getter_can_run_twice_under_threads`). Nothing in this member shares a consignment between threads.
 
-The functools page also names stacking `property` over `lru_cache` for a class where no mutable `__dict__` is available. What a cache on a method keeps alive is the subject of [Decorators done right]({{ '/docs/26-decorators-done-right/' | relative_url }}).
+The functools page offers an alternative: "If a mutable mapping is not available or if space-efficient key sharing is desired, an effect similar to @cached_property can also be achieved by stacking @property on top of @lru_cache." What a cache on a method keeps alive is the subject of [Decorators done right]({{ '/docs/26-decorators-done-right/' | relative_url }}).
 
 ## When not to use it
 
@@ -329,7 +329,7 @@ Nine tests fail. Seven report `DID NOT RAISE ValueError`, because the slot repla
 - Choose the form for an attribute: `payload_kg` as a read-only `property`, where `test_a_property_without_a_setter_refuses_assignment` shows the refusal and the descriptor shares a table with the property twin.
 - Write a validating descriptor: `Positive`, with `__set_name__` giving each field its own name, as `test_one_descriptor_class_validates_every_field` shows across three classes.
 - Predict a lookup: a data descriptor beats the instance dictionary and the dictionary beats `cached_property`, as `test_an_instance_dict_entry_takes_precedence_over_cached_property` shows.
-- Put a descriptor on a dataclass: `Dimensions`, frozen and unslotted, with `test_mypy_accepts_a_descriptor_field_on_a_slotted_dataclass` showing what `slots=True` does to it and experiment two showing the tests that notice.
+- Put a descriptor on a dataclass: `Dimensions`, frozen and unslotted, with `test_mypy_accepts_a_descriptor_field_on_a_slotted_dataclass` showing what `slots=True` does to it, `test_mypy_types_a_positive_field_by_its_set_value` showing the types, and experiment two showing the tests that notice.
 - Cache without a proxy: `chargeable_kg`, with `test_a_cached_property_over_mutable_state_goes_stale` showing why `payload_kg` isn't cached.
 
 ## For deeper coverage

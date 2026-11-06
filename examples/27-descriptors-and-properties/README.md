@@ -17,8 +17,8 @@ One attribute, then many.
 - `Positive` is one descriptor class on six `Decimal` fields in three classes: `Consignment.kilograms`,
   `Dimensions.length_cm`, `width_cm` and `height_cm`, and `Container.tare_kg` and `max_payload_kg`.
   `__set_name__` gives each field its own name and its own storage, written through `vars()`. Each
-  refuses zero, a negative value, `NaN` and infinity with its own name in the message, on
-  construction and on assignment.
+  refuses a bad value with its own name in the message on construction, and `tare_kg` refuses one
+  on assignment.
 - `field_form` is `descriptor` or `property`: `Dimensions` and a plain class with one validating
   property pair per field. Both give the same answer on one table of extents. A copy-pasted setter
   that drops `is_finite()` accepts infinity, and `Dimensions` refuses it.
@@ -70,7 +70,7 @@ uv run mypy --strict src tests
 `tests/test_fields.py`
 
 - `test_every_field_form_validates_the_same_extents`: `field_form` and five rows of extents.
-- `test_a_positive_field_refuses_a_bad_value_on_every_class`: one field from each class.
+- `test_a_positive_field_refuses_a_bad_value_on_every_class`: four fields across the three classes.
 - `test_assignment_to_a_container_field_is_validated`: the old value stays.
 - `test_set_name_gives_each_field_its_own_storage`: the keys of `vars()`.
 - `test_one_descriptor_class_validates_every_field`: six class entries, one class.

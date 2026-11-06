@@ -104,6 +104,7 @@ def test_mypy_reads_a_descriptor_field_as_a_default(tmp_path: Path) -> None:
 
     assert status == 0
     assert stdout == ""
+    assert _codes(stdout) == set()
     with pytest.raises(TypeError, match="missing 3 required positional arguments"):
         exec(_NO_ARGUMENTS, {})
 
@@ -113,6 +114,7 @@ def test_mypy_accepts_cached_property_on_a_slotted_dataclass(tmp_path: Path) -> 
 
     assert status == 0
     assert stdout == ""
+    assert _codes(stdout) == set()
     namespace: dict[str, object] = {}
     with pytest.raises(TypeError, match="No '__dict__' attribute"):
         exec(_SLOTTED_CACHED_PROPERTY, namespace)
@@ -123,6 +125,7 @@ def test_mypy_accepts_a_descriptor_field_on_a_slotted_dataclass(tmp_path: Path) 
 
     assert status == 0
     assert stdout == ""
+    assert _codes(stdout) == set()
     namespace: dict[str, object] = {}
     exec(_SLOTTED_DESCRIPTOR, namespace)
     assert namespace["accepted"] == Decimal(-1)

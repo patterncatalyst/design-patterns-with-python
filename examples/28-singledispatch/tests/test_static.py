@@ -154,6 +154,7 @@ def test_mypy_accepts_a_registered_class_that_differs_from_the_parameter(tmp_pat
 
     assert status == 0
     assert stdout == ""
+    assert _codes(stdout) == set()
     namespace: dict[str, object] = {}
     with pytest.raises(AttributeError, match="has no attribute 'cotton'"):
         exec(_MISMATCHED_REGISTER, namespace)
@@ -164,6 +165,7 @@ def test_mypy_accepts_a_forward_reference_that_fails_at_registration(tmp_path: P
 
     assert status == 0
     assert stdout == ""
+    assert _codes(stdout) == set()
     namespace: dict[str, object] = {}
     with pytest.raises(TypeError) as raised:
         exec(_FORWARD_REFERENCE, namespace)
@@ -180,5 +182,6 @@ def test_mypy_does_not_check_the_arguments_of_a_singledispatchmethod(tmp_path: P
 
     assert status == 0
     assert stdout == ""
+    assert _codes(stdout) == set()
     with pytest.raises(TypeError, match="can't multiply sequence"):
         exec(_METHOD_ARGUMENT, {})
