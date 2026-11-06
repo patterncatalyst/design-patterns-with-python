@@ -31,7 +31,7 @@ The diff between neighbouring modules is the technique:
 The table `CHARACTERISATION_ROWS` pins the cheaper carrier winning in each direction, a tie going
 to AIRCO, the margin rounded half up and grams truncated.
 `test_every_step_lets_a_carrier_timeout_fail_the_quote` pins that a carrier timeout fails the
-whole quote. The `step` fixture in `tests/conftest.py` runs it against five forms of the engine: the
+whole quote. The `step` fixture in `tests/conftest.py` runs the table against five forms of the engine: the
 legacy engine (the one place a patch appears), constructor keywords, the wrapped carriers, the
 function, and subclass and override, which is the comparison form. Two altered engines show the
 table can fail: grams rounded fail only the grams row, and a half-even margin fails only the

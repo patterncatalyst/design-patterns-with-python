@@ -25,7 +25,8 @@ class is defined, so a patch can't reach it.
 A patch on the module that defines the FASTLINE function leaves the engine calling the real
 carrier, because the engine holds its own name. AIRCO is patched on its own module.
 `monkeypatch` and `unittest.mock.patch` follow the same rule, and a misspelt name is refused
-unless the call says otherwise. `autospec=True` refuses a call with the wrong signature that a plain patch accepts.
+unless the call says otherwise. `autospec=True` refuses a call with the wrong signature that a
+plain patch accepts.
 
 ## Patches that miss
 

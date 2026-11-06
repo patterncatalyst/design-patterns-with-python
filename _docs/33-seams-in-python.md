@@ -60,7 +60,7 @@ class RateEngine:
         return RateQuote(consignment.id, code, Money(total))
 ```
 
-`request_quote` is a function imported by name, so `seams.legacy` holds its own binding of it. `airco` is a module object, and `quote` reaches into it with `airco.price`. `MARGIN` is a constant, which `__init__` reads once, as a default. The first two are seams. The third looks like one, and the section on patches that miss shows why it isn't. The engine passes `mypy --strict`, ruff and the idiom scan unchanged, so none of the three flags it. That shape is the subject, and it's kept as found.
+`request_quote` is a function imported by name, so `seams.legacy` holds its own binding of it. `airco` is a module object, and `quote` reaches into it with `airco.price`. `MARGIN` is a constant, which `__init__` reads once, as a default. The first two are seams. The third looks like one, and the section on patches that miss shows why it isn't. The engine passes `mypy --strict`, ruff and the idiom scan unchanged: none of those tools flags it. That shape is the subject, and it's kept as found.
 
 An object seam, a parameter a caller fills, is the subject of [ISP, DIP, and dependency injection without a framework]({{ '/docs/06-isp-dip-and-di-without-a-framework/' | relative_url }}), and [Protocol, duck typing, and structural typing with mypy]({{ '/docs/09-protocol-and-structural-typing/' | relative_url }}) covers how mypy checks its shape. The engine has no such parameter for either carrier yet.
 
@@ -85,7 +85,7 @@ def test_patching_the_name_where_it_is_looked_up_replaces_the_carrier(
     assert airco_grams == [12500]
 ```
 
-Both forms rebind a name in a module namespace, and the engine then asks the replacements: FASTLINE answers 25.00, AIRCO 28.00, and the quote is FASTLINE at 27.50. Patching `seams.fastline.request_quote` instead rebinds the name in the module that defines it. `seams.legacy` holds its own binding from the `from` import, so the engine still calls the real carrier (`test_patching_where_a_from_import_was_defined_leaves_the_engine_calling_the_real_carrier`).
+The string form and the object form both rebind a name in a module namespace, and the engine then asks the replacements: FASTLINE answers 25.00, AIRCO 28.00, and the quote is FASTLINE at 27.50. Patching `seams.fastline.request_quote` instead rebinds the name in the module that defines it. `seams.legacy` holds its own binding from the `from` import, so the engine still calls the real carrier (`test_patching_where_a_from_import_was_defined_leaves_the_engine_calling_the_real_carrier`).
 
 AIRCO goes the other way. The engine doesn't hold a name for `price`. It holds the module `airco` and reads `price` from it on each call, so the patch goes on `seams.airco`, the module the attribute belongs to (`test_a_module_attribute_is_patched_on_the_module_it_belongs_to`). With a cheaper AIRCO fake the quote becomes AIRCO at 22.00.
 
@@ -128,7 +128,7 @@ def test_autospec_refuses_a_call_with_the_wrong_signature(
     assert result == outcome
 ```
 
-With `autospec=True` the replacement has the real function's signature, and a call with one argument raises `TypeError: missing a required argument: 'weight_kg'`. The plain patch accepts the same call. A plain patch therefore lets a call with the wrong arguments pass silently, unless the patch copies the signature.
+With `autospec=True` the replacement has the real function's signature, and a call with one argument raises `TypeError: missing a required argument: 'weight_kg'`. The plain patch accepts the same call, so a call with the wrong arguments passes silently unless the patch copies the signature.
 
 ## Patches that miss
 

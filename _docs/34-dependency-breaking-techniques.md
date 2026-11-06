@@ -180,7 +180,7 @@ class _FakeCarrierRateEngine(_ExtractedCallsRateEngine):
 ```
 <!-- fmt:on -->
 
-The seam is a method name, and without `@override` nothing checks the name until it runs. A subclass that spells `_airco_prices` for `_airco_price` still constructs, and its quote reaches the real SDK (`test_a_misspelt_override_falls_through_to_the_real_carrier`). `@override` from `typing` closes the gap. A reduced model of the pattern, a base with `_fastline_quote` and a subclass that spells it `_fastline_qoute`, gives `[misc]` with "no base method was found with this name" when the method carries `@override`, and no error without it (`test_mypy_reports_a_misspelt_override_only_with_the_override_decorator`). The check applies where a method carries the decorator. [SRP, OCP, and LSP in Python]({{ '/docs/05-srp-ocp-lsp/' | relative_url }}) is the pointer for substitution. A callable parameter makes the same substitution visible at the call, where mypy checks the argument.
+The seam is a method name, and without `@override` nothing checks the name before the quote runs. A subclass that spells `_airco_prices` for `_airco_price` still constructs, and its quote reaches the real SDK (`test_a_misspelt_override_falls_through_to_the_real_carrier`). `@override` from `typing` closes the gap. A reduced model of the pattern, a base with `_fastline_quote` and a subclass that spells it `_fastline_qoute`, gives `[misc]` with "no base method was found with this name" when the method carries `@override`, and no error without it (`test_mypy_reports_a_misspelt_override_only_with_the_override_decorator`). [SRP, OCP, and LSP in Python]({{ '/docs/05-srp-ocp-lsp/' | relative_url }}) is the pointer for substitution. A callable parameter makes the same substitution visible at the call, where mypy checks the argument.
 
 ## Techniques Python makes unnecessary
 
@@ -197,7 +197,7 @@ Each move above has a Python form. The table gives the move in plain words, the 
 
 <blockquote class="ai-sidebar" markdown="1">
 
-**Breaking a dependency without changing behaviour.** "Make `RateEngine` testable" leaves the method open, and a rewrite can quietly change the tie-break or the timeout. Paste a prompt that fixes the order:
+**Breaking a dependency without changing behaviour.** "Make `RateEngine` testable" doesn't say how, and a rewrite can quietly change the tie-break or the timeout. Paste a prompt that fixes the order:
 
 > Before changing `RateEngine`, write a characterisation table: for each row, the carriers' answers and the `(carrier, total, calls)` the code produces today, including the tie-break and the gram truncation. Change one thing per step and run the table after each: carriers as keyword parameters defaulting to the real calls; then `airco_quote` wrapping the AIRCO SDK into `CarrierQuoter`; then a `quote` function taking `quoters`, bound with `functools.partial`. Don't fix behaviour in the same step.
 

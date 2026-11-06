@@ -16,7 +16,8 @@ The legacy engine, kept as found in `legacy.py`.
   follows the same rule.
 - `monkeypatch` refuses a misspelt name unless `raising=False`, which creates a name nothing
   reads. `patch` refuses a name the module lacks unless `create=True`. `autospec=True`
-  refuses a call with the wrong signature that a plain patch accepts. `monkeypatch.context()` undoes its changes.
+  refuses a call with the wrong signature that a plain patch accepts. `monkeypatch.context()`
+  undoes its changes.
 - A patched `MARGIN` misses the default captured when the class was defined. A reload, run in a
   fresh interpreter, overwrites a patch, leaves a `from`-import on the old object and leaves an
   old instance on the old class.
@@ -87,4 +88,5 @@ uv run mypy --strict src tests
 
 Mocks and `monkeypatch` appear in these tests because the patch is what is under test. They never
 appear in `src`. mypy checks no replacement passed to `monkeypatch.setattr`
-(`test_mypy_does_not_check_a_monkeypatched_replacement`), while a direct assignment to the module name is checked.
+(`test_mypy_does_not_check_a_monkeypatched_replacement`), while a direct assignment to the
+module name is checked.
