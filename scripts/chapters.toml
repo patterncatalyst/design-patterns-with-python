@@ -294,7 +294,7 @@ slug = "32-anti-patterns-and-pattern-misuse"
 title = "Anti-patterns and pattern misuse"
 part = 10
 kind = "argument"
-has_example = false
+has_example = true
 status = "stub"
 
 [[chapter]]

@@ -4,7 +4,7 @@ order: 32
 layout: tutorial
 sectionid: docs
 part: "patterns-in-the-wild"
-description: "Draft pending: Anti-patterns and pattern misuse."
+description: "Price the same consignments with a plain function and with a class for every role, and count what the extra structure costs."
 ---
 
 ## Learning objectives

@@ -4,7 +4,7 @@ order: 31
 layout: tutorial
 sectionid: docs
 part: "patterns-in-the-wild"
-description: "Draft pending: Shortcut patterns: dict dispatch, function tables, and EAFP."
+description: "Replace an if-chain with a table of callables, and read fields and shared state with one try instead of a check and a read."
 ---
 
 ## Learning objectives
