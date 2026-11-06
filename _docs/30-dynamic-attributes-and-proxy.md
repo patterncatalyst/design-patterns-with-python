@@ -81,7 +81,7 @@ The same table runs against a `cached_property` form that lives in the test fixt
 ```
 <!-- fmt:on -->
 
-That form needs one read-only property per field, so a fourth field is a fourth property. [Descriptors and properties]({{ '/docs/27-descriptors-and-properties/' | relative_url }}) owns `cached_property` and its mechanics. Both forms load once. After the load, the `cached_property` form still runs a property on every read, while the `__getattr__` form leaves plain instance attributes. It pays for that with the care the next sections describe, and it suits a record whose fields arrive together.
+That form needs one read-only property per field, so a fourth field is a fourth property. [Descriptors and properties]({{ '/docs/27-descriptors-and-properties/' | relative_url }}) owns `cached_property` and its mechanics. Both forms load once. After the load, the `cached_property` form still runs a property on every read, while the `__getattr__` form leaves plain instance attributes. The `__getattr__` form pays for that with the care the next sections describe, and it suits a record whose fields arrive together.
 
 ## When each hook runs
 

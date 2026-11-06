@@ -12,8 +12,8 @@ card_title: "Class keywords, refusals and imports"
 One shipping domain witnesses the registry that dissolves into `__init_subclass__`. A booking
 takes a carrier code and needs the gateway class for it, and other teams add carriers. Each test
 asserts the behaviour named in its title. No test registers a carrier in the test process: every
-class a test defines is refused before insertion, and a carrier that does register is checked in a
-fresh interpreter.
+class a test defines under `CarrierBase` is abstract or is refused before insertion, and a carrier
+that does register is checked in a fresh interpreter.
 
 ## A registry filled at class creation
 
