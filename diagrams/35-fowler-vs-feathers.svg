@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 660" font-family="'Red Hat Text', system-ui, sans-serif" role="img">
+<defs><marker id="a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#555"/></marker><marker id="am" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#b8650a"/></marker></defs>
+<rect x="620" y="30" width="440" height="70" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+<text x="840.0" y="63.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">legacy.RateEngine</text>
+<text x="840.0" y="80.0" font-size="11.5" fill="#555555" text-anchor="middle">carrier functions arrive as keyword parameters</text>
+<rect x="40" y="160" width="440" height="70" rx="9" fill="#ffffff" stroke="#999999" stroke-width="1.5"/>
+<text x="260.0" y="193.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">INTENT_ROWS</text>
+<text x="260.0" y="210.0" font-size="11.5" fill="#555555" text-anchor="middle">tests written from the requirement</text>
+<rect x="620" y="160" width="440" height="70" rx="9" fill="#fff8ef" stroke="#e8870c" stroke-width="2"/>
+<text x="840.0" y="193.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">rate_quotes.json</text>
+<text x="840.0" y="210.0" font-size="11.5" fill="#555555" text-anchor="middle">recorded from the legacy engine</text>
+<rect x="40" y="290" width="1020" height="80" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+<text x="550.0" y="320.5" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">two rounding refactors of refactored.RateEngine</text>
+<text x="550.0" y="337.5" font-size="11.5" fill="#555555" text-anchor="middle">Replace Primitive with Object: _CentFirstRateEngine</text>
+<text x="550.0" y="352.5" font-size="11.5" fill="#555555" text-anchor="middle">Substitute Algorithm: _RoundBuiltinRateEngine</text>
+<rect x="40" y="430" width="440" height="70" rx="9" fill="#ffffff" stroke="#999999" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="260.0" y="463.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">the intent rows pass both refactors</text>
+<text x="260.0" y="480.0" font-size="11.5" fill="#555555" text-anchor="middle">no failure names a changed total</text>
+<rect x="620" y="430" width="440" height="70" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+<text x="840.0" y="463.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">the golden quotes list the changed rows</text>
+<text x="840.0" y="480.0" font-size="11.5" fill="#555555" text-anchor="middle">the first row is named in the failure</text>
+<rect x="40" y="560" width="1020" height="70" rx="9" fill="#f1f5f9" stroke="#64748b" stroke-width="2"/>
+<text x="550.0" y="600.5" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">characterise first, then refactor in named steps; run the golden quotes after each</text>
+<path d="M840,100 L840,160" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<path d="M260,230 L260,290" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<path d="M840,230 L840,290" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<path d="M260,370 L260,430" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<path d="M840,370 L840,430" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<path d="M840,500 L840,560" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+</svg>

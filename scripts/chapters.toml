@@ -322,7 +322,7 @@ title = "Fowler vs Feathers, contrasted and combined"
 part = 11
 kind = "argument"
 has_example = true
-status = "stub"
+status = "drafted"
 
 [[chapter]]
 number = 36
@@ -331,7 +331,7 @@ title = "Refactor or rewrite"
 part = 11
 kind = "argument"
 has_example = true
-status = "stub"
+status = "drafted"
 
 [[chapter]]
 number = 37
