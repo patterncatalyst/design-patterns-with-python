@@ -328,7 +328,7 @@ The `match` form fails with the `AssertionError` for a `Delivered` event. The ac
 ## What you can do now
 
 - Choose by the set: `describe` is a `match` for a closed union, and a `singledispatch` function answers an unregistered `Delivered` with its fallback, as `test_a_singledispatch_visitor_gives_an_unregistered_event_its_fallback` shows.
-- Count what `accept` costs: a method on each event class, as `test_the_accept_form_puts_an_accept_method_on_every_event_class` finds, and a describer missing a `visit_` method is refused, as `test_mypy_reports_a_visitor_class_missing_a_visit_method` shows, the same gap mypy finds in a `match` (`test_mypy_reports_an_event_left_out_of_a_match`).
+- Count what `accept` costs: a method on each event class, as `test_the_accept_form_puts_an_accept_method_on_every_event_class` finds, and mypy refuses a describer missing a `visit_` method, as `test_mypy_reports_a_visitor_class_missing_a_visit_method` shows, which is the same gap it finds in a `match` (`test_mypy_reports_an_event_left_out_of_a_match`).
 - Roll back a failed batch: `rollback` restores the request and the documents from a `BookingSnapshot`, and `test_rollback_restores_the_attached_documents` checks it.
 - Decide what a memento captures: the request and a `frozenset`, and not the audit, as `test_a_deepcopy_memento_erases_the_audit_trail_on_rollback` and experiment one show.
 - Read one tariff two ways: `evaluate` and `explain` over `STANDARD_TARIFF`, with `test_closures_built_the_same_way_are_not_equal` showing what closures can't do.
