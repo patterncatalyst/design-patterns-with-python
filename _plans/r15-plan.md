@@ -879,7 +879,7 @@ Step ids are `R*` (see User decisions).
 | R4 | ch31-32 `status = "drafted"` (`kind` stays `pattern` and `argument`) | R3 | done |
 | R5 | Two prose agents in parallel. Each re-fetches its sources and quotes exactly; runs its two experiments in fresh scratch copies with the filter it states; quotes that filter's complete output through `python3 scripts/host_ids.py filter`; and hands back the sources checked plus a per-paragraph claims table that names, for each static-test citation, the mutation that fails it | R3, R4 | done |
 | R6 | Opus validation, with up to two repair rounds. After every cut: a seam scan and a dependent-sentence re-read. Also checks that close bullets map one to one to objectives, an excerpt check against decisions 4-10, a pointer-circularity check (criterion 11), and a cross-language word check (criterion 14) | R5 | done |
-| R7 | PR, `ci-ok` green, ask the owner before merge; squash-merge; tag `r15.x` on main; notes-only release | R6 | todo |
+| R7 | PR, `ci-ok` green, ask the owner before merge; squash-merge; tag `r15.x` on main; notes-only release | R6 | done |
 
 Reconciliation rows (step R0). The "How to verify" column uses resolvable tokens.
 

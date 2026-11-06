@@ -304,7 +304,7 @@ title = "Seams in Python: monkeypatch, injection, and duck typing"
 part = 11
 kind = "hands-on"
 has_example = true
-status = "stub"
+status = "drafted"
 
 [[chapter]]
 number = 34
@@ -313,7 +313,7 @@ title = "Dependency-breaking techniques for modern Python"
 part = 11
 kind = "hands-on"
 has_example = true
-status = "stub"
+status = "drafted"
 
 [[chapter]]
 number = 35
