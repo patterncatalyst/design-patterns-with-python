@@ -17,7 +17,7 @@ Exact chapter identities, from `scripts/chapters.toml` and the `_docs` front mat
 
 Work items: PDP-127a-c (ch27 example, figure, prose) and PDP-128a-c (ch28), `todo` in `_plans/iteration-plan.md`.
 
-## User decisions (pending owner confirmation)
+## User decisions (owner confirmed 2026-11-06: all ten as recommended; the `@property` over `@cache` slots failure is logged privately outside the repo, nothing filed)
 
 Standing, not a decision: step ids are `P*`. `validate.py --claims` resolves `run: <id>` against the steps table of every `_plans/r*-plan.md`, and `grep -nE '^\| P[0-9]' _plans/*.md` matched nothing before this file. The letters in use are A, G to N and S.
 
