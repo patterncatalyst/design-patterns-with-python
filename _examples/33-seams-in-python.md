@@ -15,16 +15,17 @@ reaches them fails.
 
 ## The inherited engine
 
-`RateEngine.quote` imports the FASTLINE function by name, reaches AIRCO through its module and
-captures the margin as a default argument. Python looks those names up when the call runs, so a
-test can rebind them without editing the engine.
+The legacy module imports the FASTLINE function by name and AIRCO as a module, and
+`RateEngine.quote` calls both. Python looks those two names up when the call runs, so a test can
+rebind them without editing the engine. The margin is captured as a default argument when the
+class is defined, so a patch can't reach it.
 
 ## Where a patch lands
 
 A patch on the module that defines the FASTLINE function leaves the engine calling the real
 carrier, because the engine holds its own name. AIRCO is patched on its own module.
 `monkeypatch` and `unittest.mock.patch` follow the same rule, and a misspelt name is refused
-unless the call says otherwise. Only `autospec=True` refuses a call with the wrong signature.
+unless the call says otherwise. `autospec=True` refuses a call with the wrong signature that a plain patch accepts.
 
 ## Patches that miss
 

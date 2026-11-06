@@ -1,4 +1,4 @@
-"""Skin and wrap the API: the AIRCO SDK is wrapped into the shape FASTLINE already has.
+"""Wrap the API: the AIRCO SDK is wrapped into the shape FASTLINE already has.
 
 ``airco_quote`` takes a zone and a weight in kilograms and answers in euros, so both carriers
 fit one ``CarrierQuoter`` type and the engine holds them as a mapping.

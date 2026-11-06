@@ -1,4 +1,4 @@
-"""Parameterize Constructor: the carriers become keyword parameters with the real calls as defaults.
+"""Parameterise the constructor: the carriers become keyword parameters defaulting to real calls.
 
 Existing callers construct ``RateEngine()`` as before. A test passes fakes as arguments.
 """

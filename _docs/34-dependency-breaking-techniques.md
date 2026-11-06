@@ -29,7 +29,7 @@ Read the figure from the top. Four boxes step down the left: `legacy` ("enabling
 
 ## Pin what the code does today
 
-A characterisation test records what code does, so that a change can be told apart from a fix. Michael Feathers's *Working Effectively with Legacy Code* takes up the idea in the chapter "I Need To Make a Change but I Don't Know What Tests To Write". Here the expectation in each row is what the engine returns, whether or not anyone would have chosen it. Two rows of the table for the legacy engine are behaviour a reviewer might call wrong:
+A characterisation test records what code does, so that a change can be told apart from a fix. Michael Feathers's *Working Effectively with Legacy Code* takes up the idea in the chapter "I Need To Make a Change but I Don't Know What Tests To Write". Here the expectation in each row is what the engine returns, whether or not anyone would have chosen it. Two rows of `CHARACTERISATION_ROWS`, the table for the legacy engine, are behaviour a reviewer might call wrong:
 
 <!-- fmt:off -->
 ```python
@@ -102,7 +102,7 @@ The legacy engine reaches its carriers by names it looks up in its own module, s
 ```
 <!-- fmt:on -->
 
-`RateEngine()` still builds the production engine, and the rows for `parameterised` pass with fakes passed as arguments and no patch. `AircoPrice` is a callback Protocol, declared in the same module, because the AIRCO SDK takes keyword-only arguments and a plain `Callable` can't say so. [Protocol, duck typing, and structural typing with mypy]({{ '/docs/09-protocol-and-structural-typing/' | relative_url }}) is the pointer for Protocols.
+`parameterised.RateEngine()` still builds the production engine, and the rows for `parameterised` pass with fakes passed as arguments and no patch. `AircoPrice` is a callback Protocol, declared in the same module, because the AIRCO SDK takes keyword-only arguments and [a plain `Callable` can't say so](https://docs.python.org/3/library/typing.html#annotating-callable-objects). [Protocol, duck typing, and structural typing with mypy]({{ '/docs/09-protocol-and-structural-typing/' | relative_url }}) is the pointer for Protocols.
 
 mypy now checks the fake. A replacement that takes `zone` and `grams` positionally is reported as `[arg-type]`, and the message names `AircoPrice` (`test_mypy_checks_a_fake_passed_as_a_constructor_argument`). A patch names its target by a string and mypy doesn't check the replacement, as [Seams in Python: monkeypatch, injection, and duck typing]({{ '/docs/33-seams-in-python/' | relative_url }}) shows. The price of the defaults is the other direction: a test that passes a FASTLINE fake and forgets AIRCO reaches the real SDK and fails with `AIRCO did not answer`. In this example the failure is loud, because the stand-in raises. A real SDK would open a connection.
 
@@ -150,11 +150,11 @@ quote_standard = partial(quote, quoters=STANDARD_QUOTERS)
 ```
 <!-- fmt:on -->
 
-`quoters` has no default. The parameterised engine kept defaults so existing callers still work, and the cost was the forgotten fake; the function form drops them. Omitting `quoters` is `[call-arg]` with `Missing named argument "quoters"` (`test_mypy_reports_a_missing_quoters_argument`), and at run time it is a `TypeError` (`test_the_function_form_needs_its_quoters`). `STANDARD_QUOTERS` names both carriers and refuses assignment (`test_standard_quoters_name_both_carriers`), and `quote_standard` is the one binding the root needs: `test_quote_standard_binds_the_standard_quoters` checks it wraps `quote` with `STANDARD_QUOTERS`. [ISP, DIP, and dependency injection without a framework]({{ '/docs/06-isp-dip-and-di-without-a-framework/' | relative_url }}) covers `functools.partial` at a composition root, and the [`functools.partial` entry](https://docs.python.org/3/library/functools.html) in the standard library documentation describes what the object holds, including the `func` and `keywords` attributes the test reads.
+The parameterised engine kept defaults so existing callers still work, and the cost was the forgotten fake; the function form drops them. Omitting `quoters` is `[call-arg]` with `Missing named argument "quoters"` (`test_mypy_reports_a_missing_quoters_argument`), and at run time it is a `TypeError` (`test_the_function_form_needs_its_quoters`). `STANDARD_QUOTERS` names both carriers and refuses assignment (`test_standard_quoters_name_both_carriers`), and `quote_standard` is the one binding the root needs: `test_quote_standard_binds_the_standard_quoters` checks it wraps `quote` with `STANDARD_QUOTERS`. [ISP, DIP, and dependency injection without a framework]({{ '/docs/06-isp-dip-and-di-without-a-framework/' | relative_url }}) covers `functools.partial` at a composition root, and the [`functools.partial` entry](https://docs.python.org/3/library/functools.html) in the standard library documentation describes what the object holds, including the `func` and `keywords` attributes the test reads.
 
 ## Subclass and override
 
-A different move gets the same result with the least change to the engine: move each SDK call into a method of its own, then subclass and override those methods in a test. The extraction is behaviour-preserving, and the subclass form passes the same table as a fifth `step` param (`test_every_step_matches_the_characterisation_table`). It's the one comparison form in the chapter, and it sits beside the parameterised constructor, which is the one to keep:
+A different move gets the same result with little change to the engine: move each SDK call into a method of its own, then subclass and override those methods in a test. The extraction is behaviour-preserving, and the subclass form passes the same table as a fifth `step` param (`test_every_step_matches_the_characterisation_table`). It's the one comparison form in the chapter, and it sits beside the parameter forms, which are the ones to keep:
 
 <!-- fmt:off -->
 ```python
@@ -180,7 +180,7 @@ class _FakeCarrierRateEngine(_ExtractedCallsRateEngine):
 ```
 <!-- fmt:on -->
 
-The seam is a method name, and nothing checks a name until it runs. A subclass that spells `_airco_prices` for `_airco_price` still constructs and still quotes, and the quote reaches the real SDK (`test_a_misspelt_override_falls_through_to_the_real_carrier`). `@override` from `typing` closes the gap. A reduced model of the pattern, a base with `_fastline_quote` and a subclass that spells it `_fastline_qoute`, gives `[misc]` with "no base method was found with this name" when the method carries `@override`, and no error without it (`test_mypy_reports_a_misspelt_override_only_with_the_override_decorator`). The check applies where a method carries the decorator. [SRP, OCP, and LSP in Python]({{ '/docs/05-srp-ocp-lsp/' | relative_url }}) is the pointer for substitution. A callable parameter makes the same substitution visible at the call, where mypy checks the argument.
+The seam is a method name, and without `@override` nothing checks the name until it runs. A subclass that spells `_airco_prices` for `_airco_price` still constructs, and its quote reaches the real SDK (`test_a_misspelt_override_falls_through_to_the_real_carrier`). `@override` from `typing` closes the gap. A reduced model of the pattern, a base with `_fastline_quote` and a subclass that spells it `_fastline_qoute`, gives `[misc]` with "no base method was found with this name" when the method carries `@override`, and no error without it (`test_mypy_reports_a_misspelt_override_only_with_the_override_decorator`). The check applies where a method carries the decorator. [SRP, OCP, and LSP in Python]({{ '/docs/05-srp-ocp-lsp/' | relative_url }}) is the pointer for substitution. A callable parameter makes the same substitution visible at the call, where mypy checks the argument.
 
 ## Techniques Python makes unnecessary
 
@@ -197,7 +197,7 @@ Each move above has a Python form. The table gives the move in plain words, the 
 
 <blockquote class="ai-sidebar" markdown="1">
 
-**Breaking a dependency without changing behaviour.** "Make `RateEngine` testable" invites a rewrite, and a rewrite can quietly change the tie-break or the timeout. Paste a prompt that fixes the order:
+**Breaking a dependency without changing behaviour.** "Make `RateEngine` testable" leaves the method open, and a rewrite can quietly change the tie-break or the timeout. Paste a prompt that fixes the order:
 
 > Before changing `RateEngine`, write a characterisation table: for each row, the carriers' answers and the `(carrier, total, calls)` the code produces today, including the tie-break and the gram truncation. Change one thing per step and run the table after each: carriers as keyword parameters defaulting to the real calls; then `airco_quote` wrapping the AIRCO SDK into `CarrierQuoter`; then a `quote` function taking `quoters`, bound with `functools.partial`. Don't fix behaviour in the same step.
 
@@ -207,7 +207,7 @@ If an expected value in the table changed in the diff, ask which step meant to c
 
 ## Build, run, observe
 
-From the example directory, `uv run pytest` runs 13 test functions as 42 cases, and `uv run mypy --strict src tests` checks the example. Each experiment changes a scratch copy and nothing else.
+From the example directory, `uv run pytest` runs 13 test functions as 42 cases, and `uv run mypy --strict src tests` checks the example. Each experiment below runs in a scratch copy of the repository: delete the copy's `.venv`, run `uv sync --locked --all-packages` from its root and check that `dependency_breaking.__file__` points into the copy.
 
 The first makes an "improvement" during the parameterise step. In `src/dependency_breaking/parameterised.py`, catch `CarrierTimeoutError` around the FASTLINE call and quote AIRCO alone when FASTLINE times out: import the error from `dependency_breaking.domain`, set the FASTLINE price to `None` in the `except` branch, and add `"FASTLINE"` to the `prices` mapping only when a price came back. Then:
 

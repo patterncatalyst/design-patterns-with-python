@@ -16,8 +16,8 @@ reaches them fails.
 ## Pin what the code does today
 
 A table of five consignments records the carrier, the total and the carrier calls the legacy
-engine produces: the cheaper carrier, a tie, half-up rounding, truncated grams, and a timeout
-that fails the whole quote. The same table runs against every step.
+engine produces: the cheaper carrier each way, a tie, half-up rounding and truncated grams. A
+separate test pins that a timeout fails the whole quote. The same table runs against every step.
 
 ## Three steps
 

@@ -31,7 +31,7 @@ Read the figure from the top. A blue box, "test", holds `monkeypatch.setattr("se
 
 Michael Feathers asks, in "The Seam Model" in *Working Effectively with Legacy Code*, where code you can't yet edit lets you change what it does. A seam is a place where that change can be made from outside. The enabling point is the separate spot where you make it. He describes other kinds of seam besides the one used here. In Python the one at hand comes from the language: a function reads a global name when it runs, so a global name is a seam, and rebinding it in the namespace the function reads from is the enabling point.
 
-The legacy engine already has three such names. Here it is as found:
+Three names in the legacy module matter to a test of its carriers. Here it is as found:
 
 ```python
 from decimal import ROUND_HALF_UP, Decimal
@@ -60,7 +60,7 @@ class RateEngine:
         return RateQuote(consignment.id, code, Money(total))
 ```
 
-`request_quote` is a function imported by name, so `seams.legacy` holds its own binding of it. `airco` is a module object, and `quote` reaches into it with `airco.price`. `MARGIN` is a constant, which `__init__` reads once, as a default. The first two are seams. The third looks like one, and the section on patches that miss shows why it isn't. The engine passes `mypy --strict`, ruff and the idiom scan unchanged, so no tool flags it. That shape is the subject, and it's kept as found.
+`request_quote` is a function imported by name, so `seams.legacy` holds its own binding of it. `airco` is a module object, and `quote` reaches into it with `airco.price`. `MARGIN` is a constant, which `__init__` reads once, as a default. The first two are seams. The third looks like one, and the section on patches that miss shows why it isn't. The engine passes `mypy --strict`, ruff and the idiom scan unchanged, so none of the three flags it. That shape is the subject, and it's kept as found.
 
 An object seam, a parameter a caller fills, is the subject of [ISP, DIP, and dependency injection without a framework]({{ '/docs/06-isp-dip-and-di-without-a-framework/' | relative_url }}), and [Protocol, duck typing, and structural typing with mypy]({{ '/docs/09-protocol-and-structural-typing/' | relative_url }}) covers how mypy checks its shape. The engine has no such parameter for either carrier yet.
 
@@ -85,7 +85,7 @@ def test_patching_the_name_where_it_is_looked_up_replaces_the_carrier(
     assert airco_grams == [12500]
 ```
 
-The first patch names the string `"seams.legacy.request_quote"`. The second passes the module object and the attribute name. Both forms rebind a name in a module namespace, and the engine then asks the replacements: FASTLINE answers 25.00, AIRCO 28.00, and the quote is FASTLINE at 27.50. Patching `seams.fastline.request_quote` instead rebinds the name in the module that defines it. `seams.legacy` holds its own binding from the `from` import, so the engine still calls the real carrier (`test_patching_where_a_from_import_was_defined_leaves_the_engine_calling_the_real_carrier`).
+Both forms rebind a name in a module namespace, and the engine then asks the replacements: FASTLINE answers 25.00, AIRCO 28.00, and the quote is FASTLINE at 27.50. Patching `seams.fastline.request_quote` instead rebinds the name in the module that defines it. `seams.legacy` holds its own binding from the `from` import, so the engine still calls the real carrier (`test_patching_where_a_from_import_was_defined_leaves_the_engine_calling_the_real_carrier`).
 
 AIRCO goes the other way. The engine doesn't hold a name for `price`. It holds the module `airco` and reads `price` from it on each call, so the patch goes on `seams.airco`, the module the attribute belongs to (`test_a_module_attribute_is_patched_on_the_module_it_belongs_to`). With a cheaper AIRCO fake the quote becomes AIRCO at 22.00.
 
@@ -93,14 +93,14 @@ AIRCO goes the other way. The engine doesn't hold a name for `price`. It holds t
 
 ## monkeypatch or mock.patch
 
-pytest's how-to says the fixture helps you to "safely set/delete an attribute, dictionary item or environment variable, or to modify sys.path for importing." Its changes are undone: "All modifications will be undone after the requesting test function or fixture has finished." For a narrower scope, `monkeypatch.context()` ends them at the end of a `with` block. After that block the engine's `request_quote` is again the function from `seams.fastline`, and `airco.price` is no longer the fake (`test_monkeypatch_undoes_its_changes_when_the_context_ends`). `mocker.patch` from pytest-mock takes the same string targets, and the tests below use it for the guards. `mock.patch` as a context manager appears once above, to show the rule holds for it. [Proving it works: pytest, pytest-mock, and mypy]({{ '/docs/11-testing-with-pytest-pytest-mock-and-mypy/' | relative_url }}) owns the table of doubles, and [Mocking reference: unittest.mock and pytest-mock]({{ '/docs/43-appendix-c-mocking/' | relative_url }}) has the rest of the API. Mocks and `monkeypatch` appear in this example's tests because the patch is what's under test, and nowhere in its `src`.
+pytest's how-to says the fixture helps you to "safely set/delete an attribute, dictionary item or environment variable, or to modify sys.path for importing." Its changes are undone: "All modifications will be undone after the requesting test function or fixture has finished." For a narrower scope, `monkeypatch.context()` ends them at the end of a `with` block. After that block the engine's `request_quote` is again the function from `seams.fastline`, and `airco.price` is no longer the fake (`test_monkeypatch_undoes_its_changes_when_the_context_ends`). `mocker.patch` from pytest-mock takes the same string targets, and the `patch` guard and the autospec test below use it. `mock.patch` as a context manager appears once above, to show the rule holds for it. [Proving it works: pytest, pytest-mock, and mypy]({{ '/docs/11-testing-with-pytest-pytest-mock-and-mypy/' | relative_url }}) owns the table of doubles, and the API is collected under [Mocking reference: unittest.mock and pytest-mock]({{ '/docs/43-appendix-c-mocking/' | relative_url }}). Mocks and `monkeypatch` appear in this example's tests because the patch is what's under test, and nowhere in its `src`.
 
 The choice between the two tools is the choice of guard. Each has a guard against a target the module doesn't have:
 
 - `monkeypatch.setattr("seams.legacy.request_qoute", fake)` raises `AttributeError` matching `has no attribute 'request_qoute'` (`test_monkeypatch_refuses_a_misspelt_name`). With `raising=False` it creates the name, and the engine still calls the real carrier, because nothing reads the new name (`test_monkeypatch_with_raising_false_creates_a_name_nothing_reads`).
 - `mocker.patch("seams.legacy.price")` raises `AttributeError` matching `does not have the attribute 'price'`, since `seams.legacy` holds `airco` and no `price`. With `create=True` the patch succeeds and the engine still calls the real carrier (`test_patch_refuses_a_name_the_module_does_not_have`).
 
-Both refuse by default, and each has a switch that turns the refusal into a silent miss. The test run used pytest 9.2.0, whose wording the matches above reflect.
+Both refuse by default, and each has a switch that turns the refusal into a silent miss. The matches reflect the wording of pytest 9.2.0 for `monkeypatch` and of Python 3.15.2's `unittest.mock` for `patch`.
 
 The same patch can also accept a call the real function would refuse. The mock documentation says "A more powerful form of spec is autospec." The test patches the carrier call twice, with `autospec=True` and without it:
 
@@ -128,7 +128,7 @@ def test_autospec_refuses_a_call_with_the_wrong_signature(
     assert result == outcome
 ```
 
-With `autospec=True` the replacement has the real function's signature, and a call with one argument raises `TypeError: missing a required argument: 'weight_kg'`. The plain patch accepts the same call. A fake that takes the wrong arguments therefore passes silently unless the patch copies the signature.
+With `autospec=True` the replacement has the real function's signature, and a call with one argument raises `TypeError: missing a required argument: 'weight_kg'`. The plain patch accepts the same call. A plain patch therefore lets a call with the wrong arguments pass silently, unless the patch copies the signature.
 
 ## Patches that miss
 
@@ -154,7 +154,7 @@ def test_patching_a_module_constant_misses_a_default_captured_at_definition(
 ```
 <!-- fmt:on -->
 
-The patched engine still quotes 27.50 because it holds the old value. Passing `margin=` quotes 50.00. A default argument is a value captured at definition, so a patch to the global it was copied from can't change it.
+Passing `margin=` quotes 50.00, where the patch leaves 27.50. A default argument is a value captured at definition, so a patch to the global it was copied from can't change it.
 
 A reload is the other miss. The `importlib` documentation says "When a module is reloaded, its dictionary (containing the module’s global variables) is retained." A reload re-runs the module body into that dictionary, which overwrites a live patch. The same page says "If a module imports objects from another module using from … import …, calling reload() for the other module does not redefine the objects imported from it". So after `fastline` is reloaded, `seams.legacy` still holds the pre-reload function. Reloading `seams.legacy` creates a new `RateEngine` class, and an instance made earlier isn't an instance of it. The test runs these steps in a fresh interpreter, which writes four facts, and compares them as a list: the patch is overwritten, teardown restores the pre-reload object, the `from`-import isn't rebound, and the old instance isn't an instance of the new class (`test_reload_discards_a_patch_and_keeps_old_bindings`). The reload doesn't run in the pytest process, so no other test sees a replaced class.
 
@@ -194,7 +194,7 @@ def patch_it(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(legacy, "request_quote", wrong)
 ```
 
-mypy exits 0 with no errors. The same patch makes `quote` raise `TypeError` matching `positional argument` at run time (`test_mypy_does_not_check_a_monkeypatched_replacement`). A misspelt target string passes mypy as well, and raises `AttributeError` when the call runs (`test_mypy_accepts_a_misspelt_monkeypatch_target_string`).
+mypy exits 0 with no errors. The same patch makes `quote` raise `TypeError` matching `positional argument` at run time (`test_mypy_does_not_check_a_monkeypatched_replacement`). A misspelt target string passes mypy as well, and raises `AttributeError` only when `monkeypatch.setattr` runs (`test_mypy_accepts_a_misspelt_monkeypatch_target_string`).
 
 A direct assignment is checked. `legacy.request_quote = wrong`, with the same one-parameter function, gives exit status 1:
 

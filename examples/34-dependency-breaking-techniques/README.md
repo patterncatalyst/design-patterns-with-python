@@ -11,7 +11,7 @@ are illustrative.
 The legacy engine in `legacy.py` is kept as found, and each step is a complete module that
 applies one technique to the module before it.
 
-- `parameterised.py` (Parameterize Constructor): `RateEngine` takes `fastline_quote`,
+- `parameterised.py` (parameterise the constructor): `RateEngine` takes `fastline_quote`,
   `airco_price` and `margin` as keyword parameters. The defaults are the real SDK calls, so
   existing callers do not change, and a test that forgets a fake reaches the real SDK.
   `AircoPrice` is a callback Protocol because the SDK takes keyword-only arguments.
@@ -28,9 +28,10 @@ The diff between neighbouring modules is the technique:
   fields become one mapping.
 - `wrapped.py` to `rating.py`: the class and its fields become a function and an argument.
 
-The table `CHARACTERISATION_ROWS` pins five behaviours: the cheaper carrier wins, a tie goes to
-AIRCO, the margin is rounded half up, grams are truncated, and a carrier timeout fails the whole
-quote. The `step` fixture in `tests/conftest.py` runs it against five forms of the engine: the
+The table `CHARACTERISATION_ROWS` pins the cheaper carrier winning in each direction, a tie going
+to AIRCO, the margin rounded half up and grams truncated.
+`test_every_step_lets_a_carrier_timeout_fail_the_quote` pins that a carrier timeout fails the
+whole quote. The `step` fixture in `tests/conftest.py` runs it against five forms of the engine: the
 legacy engine (the one place a patch appears), constructor keywords, the wrapped carriers, the
 function, and subclass and override, which is the comparison form. Two altered engines show the
 table can fail: grams rounded fail only the grams row, and a half-even margin fails only the
