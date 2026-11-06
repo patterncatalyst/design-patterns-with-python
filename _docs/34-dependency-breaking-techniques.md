@@ -4,7 +4,7 @@ order: 34
 layout: tutorial
 sectionid: docs
 part: "changing-inherited-code"
-description: "Draft pending: Dependency-breaking techniques for modern Python."
+description: "Break a legacy engine's hard-wired carrier calls one small step at a time, and use a single table of expected quotes to show that no step changed what the code does."
 ---
 
 ## Learning objectives

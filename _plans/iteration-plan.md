@@ -33,8 +33,8 @@ PR, squash-merge with branch deletion, an `rNN.x` tag and a notes-only release.
 | r12 | Ch 25-26: Visitor/Memento/Interpreter, decorators done right |
 | r13 | Ch 27-28: descriptors, singledispatch |
 | r14 | Ch 29-30: __init_subclass__/metaclasses, __getattr__/Proxy |
-| r15 (active) | Ch 31-32: dict dispatch + EAFP, anti-patterns |
-| r16 | Ch 33-34: seams, dependency-breaking |
+| r15 | Ch 31-32: dict dispatch + EAFP, anti-patterns |
+| r16 (active) | Ch 33-34: seams, dependency-breaking |
 | r17 | Ch 35-36: Fowler vs Feathers, refactor or rewrite |
 | r18 | Ch 37-38: the GIL and performance; asyncio and the patterns |
 | r19 | Ch 39-40: final project, working with AI and LLM tools |
@@ -160,18 +160,18 @@ PR, squash-merge with branch deletion, an `rNN.x` tag and a notes-only release.
 | PDP-130a | Ch30 Dynamic attributes and Proxy: example | r14 | done |
 | PDP-130b | Ch30 Dynamic attributes and Proxy: figure | r14 | done |
 | PDP-130c | Ch30 Dynamic attributes and Proxy: prose | r14 | done |
-| PDP-131a | Ch31 Shortcut patterns: dict dispatch and EAFP: example | r15 | active |
-| PDP-131b | Ch31 Shortcut patterns: dict dispatch and EAFP: figure | r15 | active |
-| PDP-131c | Ch31 Shortcut patterns: dict dispatch and EAFP: prose | r15 | active |
-| PDP-132a | Ch32 Anti-patterns and pattern misuse: example | r15 | active |
-| PDP-132b | Ch32 Anti-patterns and pattern misuse: figure | r15 | active |
-| PDP-132c | Ch32 Anti-patterns and pattern misuse: prose | r15 | active |
-| PDP-133a | Ch33 Seams in Python: example | r16 | todo |
-| PDP-133b | Ch33 Seams in Python: figure | r16 | todo |
-| PDP-133c | Ch33 Seams in Python: prose | r16 | todo |
-| PDP-134a | Ch34 Dependency-breaking techniques: example | r16 | todo |
-| PDP-134b | Ch34 Dependency-breaking techniques: figure | r16 | todo |
-| PDP-134c | Ch34 Dependency-breaking techniques: prose | r16 | todo |
+| PDP-131a | Ch31 Shortcut patterns: dict dispatch and EAFP: example | r15 | done |
+| PDP-131b | Ch31 Shortcut patterns: dict dispatch and EAFP: figure | r15 | done |
+| PDP-131c | Ch31 Shortcut patterns: dict dispatch and EAFP: prose | r15 | done |
+| PDP-132a | Ch32 Anti-patterns and pattern misuse: example | r15 | done |
+| PDP-132b | Ch32 Anti-patterns and pattern misuse: figure | r15 | done |
+| PDP-132c | Ch32 Anti-patterns and pattern misuse: prose | r15 | done |
+| PDP-133a | Ch33 Seams in Python: example | r16 | active |
+| PDP-133b | Ch33 Seams in Python: figure | r16 | active |
+| PDP-133c | Ch33 Seams in Python: prose | r16 | active |
+| PDP-134a | Ch34 Dependency-breaking techniques: example | r16 | active |
+| PDP-134b | Ch34 Dependency-breaking techniques: figure | r16 | active |
+| PDP-134c | Ch34 Dependency-breaking techniques: prose | r16 | active |
 | PDP-135a | Ch35 Fowler vs Feathers: example | r17 | todo |
 | PDP-135b | Ch35 Fowler vs Feathers: figure | r17 | todo |
 | PDP-135c | Ch35 Fowler vs Feathers: prose | r17 | todo |
@@ -221,3 +221,5 @@ PR, squash-merge with branch deletion, an `rNN.x` tag and a notes-only release.
 2026-11-06 (r14): PDP-129a to PDP-130c are active for r14 (chapters 29 and 30, Part 9). PDP-127a to PDP-128c are closed (r13 is tagged), r13 is closed and r14 is marked active in the roadmap. Earlier iterations keep their status.
 
 2026-11-06 (r15): PDP-131a to PDP-132c are active for r15 (chapters 31 and 32, Part 10). PDP-129a to PDP-130c are closed (r14 is tagged), r14 is closed and r15 is marked active in the roadmap. Earlier iterations keep their status.
+
+2026-11-06 (r16): PDP-133a to PDP-134c are active for r16 (chapters 33 and 34, Part 11). PDP-131a to PDP-132c are closed (r15 is tagged), r15 is closed and r16 is marked active in the roadmap. Earlier iterations keep their status.

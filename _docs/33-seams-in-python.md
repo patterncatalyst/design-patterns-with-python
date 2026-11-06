@@ -4,7 +4,7 @@ order: 33
 layout: tutorial
 sectionid: docs
 part: "changing-inherited-code"
-description: "Draft pending: Seams in Python: monkeypatch, injection, and duck typing."
+description: "Find the places in code you didn't write where a test can swap a dependency without editing it, and learn where a patch has to land for the swap to take effect."
 ---
 
 ## Learning objectives
