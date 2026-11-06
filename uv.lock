@@ -13,6 +13,7 @@ members = [
     "data-model",
     "decorator-proxy",
     "decorators-done-right",
+    "descriptors-properties",
     "design-patterns-with-python-workspace",
     "factories",
     "feature-spikes",
@@ -130,6 +131,11 @@ source = { editable = "examples/20-decorator-pattern-vs-decorator-syntax-and-pro
 name = "decorators-done-right"
 version = "0.1.0"
 source = { editable = "examples/26-decorators-done-right" }
+
+[[package]]
+name = "descriptors-properties"
+version = "0.1.0"
+source = { editable = "examples/27-descriptors-and-properties" }
 
 [[package]]
 name = "design-patterns-with-python-workspace"
