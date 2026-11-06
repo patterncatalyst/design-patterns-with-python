@@ -921,7 +921,7 @@ Step ids are `P*` (see User decisions).
 | P1b | ch28 member, card, README; one `uv lock` after P1a (sequenced for `uv.lock`); three green runs plus one reverse-order run; deletion table | P1a | done |
 | P2 | Witness results into rows 147-158 and rows 9-10 (both verified (r13)); the dated r13 note in `_plans/spikes.md` (evidence D, I, J). A failed witness changes the thesis before prose. Every message, count or value that differs from Planning evidence goes in "Corrections after the build" | P1b | done |
 | P3 | Two figures, specs `diagrams/specs/27-*.py` and `28-*.py`, `_data/diagrams.yml` (single owner; 29 entries); figures 00-26 unchanged; every name drawn exists in `src` or the standard library | P2 | done |
-| P4 | ch27-28 `status = "drafted"` (`kind` stays `pattern`) | P3 | todo |
+| P4 | ch27-28 `status = "drafted"` (`kind` stays `pattern`) | P3 | done |
 | P5 | Two prose agents in parallel. Each re-fetches its sources and quotes exactly, runs its two experiments in fresh scratch copies with the filter it states, quotes that filter's complete output through `python3 scripts/host_ids.py filter`, and hands back the sources checked plus a per-paragraph claims table that names, for each static-test citation, the mutation that fails it | P3, P4 | todo |
 | P6 | Opus validation; up to two repair rounds, with a seam scan and a dependent-sentence re-read after every cut, a check that close bullets map one to one to objectives, and an excerpt check against decisions 4, 7 and 9 | P5 | todo |
 | P7 | PR, `ci-ok` green, ask the owner before merge; squash-merge; tag `r13.x` on main; notes-only release | P6 | todo |
