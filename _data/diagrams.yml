@@ -285,3 +285,21 @@
     The same quote from one function and from a factory, strategy and visitor.
     They pass the same table and the same type check, but the engine spreads the
     fuel surcharge across five definitions where the function holds it in one.
+
+- name: 33-seams-in-python
+  section: "Ch. 33"
+  title: Where a patch lands, and where it misses
+  caption: >-
+    A patch replaces a name where the engine looks it up. The
+    legacy module holds its own name for the FASTLINE call, so patching the
+    carrier's module misses it, and so does patching the margin constant after
+    the class is defined.
+
+- name: 34-dependency-breaking-techniques
+  section: "Ch. 34"
+  title: Four steps under one characterisation table
+  caption: >-
+    Each step moves the enabling point from a patched name toward a
+    parameter mypy checks, and one characterisation table runs at every step.
+    Subclass and override passes it too, but a misspelt method reaches the real
+    carrier.
