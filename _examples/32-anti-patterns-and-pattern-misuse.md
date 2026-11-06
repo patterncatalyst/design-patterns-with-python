@@ -22,7 +22,7 @@ fee. Both quote `EU` 35.70 and `ASIA` 78.05.
 ## What the structure costs
 
 `ast` counts classes, functions and lines, and finds the fuel surcharge in one definition of the
-function and five of the engine. `sys.setprofile` counts one Python-level call for the function and
+function and five of the engine. `sys.setprofile` counts the Python functions a quote enters: one for the function and
 eleven for the engine. mypy `--strict` and ruff pass both, so none of this is reported by a tool. A
 new charge kind fails at run time in the visitor, and declaring its method makes every concrete
 visitor abstract.

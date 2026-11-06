@@ -1,7 +1,7 @@
 # Shortcut patterns: dict dispatch, function tables, and EAFP
 
 An if-chain that picks behaviour by a value dissolves into a read-only table of callables. What
-remains to design is totality, which mypy does not check, where the `try` goes, and how shared state
+remains to design is totality, which mypy doesn't check, where the `try` goes, and how shared state
 is read. A document issuer table and a duty-rate cache witness all three. HS codes and rates are
 illustrative.
 
@@ -10,7 +10,7 @@ illustrative.
 A table of callables.
 
 - `ISSUERS` is a `frozendict` typed `Mapping[DocumentKind, DocumentIssuer]`. It gives `BL-CN-1`,
-  `MF-CN-1` and `CD-CN-1`, refuses assignment, and is not a `dict`. `issue` takes another table by
+  `MF-CN-1` and `CD-CN-1`, refuses assignment, and isn't a `dict`. `issue` takes another table by
   keyword.
 - `issue` puts only the lookup inside `try`. A missing kind raises `UnsupportedDocumentError` with
   the `KeyError` suppressed. An issuer's own `KeyError` passes through, and a test-local form with
@@ -43,7 +43,7 @@ and `get` forms on a present and an absent key, and the chapter quotes a recorde
 version and date.
 
 The reduced-model snippets in `test_static.py` (the `match`, the chains and the string and enum
-literals) restate a shape and do not import the model.
+literals) restate a shape and don't import the model.
 
 ## Layout
 
@@ -52,7 +52,7 @@ literals) restate a shape and do not import the model.
   `issue`, `parse_kind`.
 - `src/shortcut_patterns/declarations.py`: `CustomsError`, `CustomsDeclaration`, `declaration_from`.
 - `src/shortcut_patterns/duties.py`: `DutyRateCache`, `duty_for`.
-- `bench/lookup_cost.py`: the `timeit` comparison. Pytest does not collect it.
+- `bench/lookup_cost.py`: the `timeit` comparison. Pytest doesn't collect it.
 
 ## Run it
 
@@ -78,7 +78,7 @@ uv run python -I bench/lookup_cost.py
 - `test_issue_gives_each_kind_its_reference`: three kinds.
 - `test_an_unsupported_kind_raises_unsupported_document_error`: the message, and the context is
   suppressed.
-- `test_the_issuer_table_is_read_only`: `TypeError`, and it is not a `dict`.
+- `test_the_issuer_table_is_read_only`: `TypeError`, and it isn't a `dict`.
 - `test_an_issuers_own_key_error_passes_through_issue`: `KeyError`.
 - `test_a_try_around_the_call_reports_an_issuers_bug_as_an_unsupported_kind`: the comparison form.
 - `test_a_table_passed_by_the_caller_replaces_the_default`: and the default is unchanged.
@@ -118,5 +118,5 @@ uv run python -I bench/lookup_cost.py
 - `test_ruff_flags_an_if_chain_over_literals_but_not_over_enum_members`: `SIM116` and none.
 - `test_ruff_suggests_get_suppress_and_plain_membership`: `SIM105`, `SIM118` and `SIM401`.
 
-Classes and functions named with a leading underscore in the tests are fixtures and are not part of
+Classes and functions named with a leading underscore in the tests are fixtures and aren't part of
 the model code.

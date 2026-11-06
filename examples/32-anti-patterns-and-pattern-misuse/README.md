@@ -22,7 +22,7 @@ What the structure costs.
   8 for `quote`, against 9, 17 and 57 for the nine engine classes in conftest.
 - The fuel surcharge is one definition of the function (`quote`) and five of the engine, found by
   reading each definition's own name and statements.
-- One quote makes one Python-level call in the function and eleven in the engine, counted with
+- One quote enters one Python function in the function form and eleven in the engine, counted with
   `sys.setprofile` and filtered by file, so generated dataclass `__init__` methods and the test's own
   frames are left out.
 - A new charge kind whose `accept` calls an undeclared visit method fails at run time with
@@ -37,10 +37,10 @@ Getters and setters, and a service locator.
   was already quoted. The frozen `Consignment` compares by value and refuses assignment.
 - `_LocatedRateEngine` constructs with nothing registered and fails with `KeyError` at its first
   quote. It quotes once `_ServiceLocator` holds a tariff. mypy needs an `isinstance` check to use
-  what the locator returns, does not see a missing registration, and reports a missing `tariff`
+  what the locator returns, doesn't see a missing registration, and reports a missing `tariff`
   argument to `quote` as `[call-arg]`.
 
-The mypy snippets that restate a shape (the locator and the visitor) are reduced models. They do not
+The mypy snippets that restate a shape (the locator and the visitor) are reduced models. They don't
 import the engine.
 
 ## Layout
@@ -100,5 +100,5 @@ uv run mypy --strict src tests
 - `test_mypy_reports_a_visitor_missing_a_new_visit_method`: `[abstract]` and `[attr-defined]`
   (reduced model).
 
-Classes and functions named with a leading underscore in the tests are fixtures and are not part of
+Classes and functions named with a leading underscore in the tests are fixtures and aren't part of
 the model code.

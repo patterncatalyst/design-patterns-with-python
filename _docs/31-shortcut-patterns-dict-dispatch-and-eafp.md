@@ -19,7 +19,7 @@ By the end of this chapter you can:
 
 ## Why this matters
 
-A consignment needs a bill of lading, a manifest and a customs declaration, and the document to issue depends on its kind. The duty rate on the declaration comes from a cache that other threads evict from. The usual first draft of the first job is an if-chain, and of the second a membership test followed by a read. Both work until something changes around them, and each fails in a way that tests and type checks don't report by default.
+A consignment needs a bill of lading, a manifest and a customs declaration, and the document to issue depends on its kind. The duty rate on the declaration comes from a cache that other threads evict from. The usual first draft of the first job is an if-chain, and of the second a membership test followed by a read. Both work until something changes around them, and mypy accepts each form after the change, so the failure shows only when the code runs or a test forces it.
 
 An if-chain whose last branch raises doesn't notice a kind that was added later, and mypy accepts it (`test_an_if_chain_whose_else_raises_misses_a_new_kind`, `test_mypy_accepts_an_if_chain_whose_else_raises`).
 
@@ -66,7 +66,7 @@ A table wins when the set is data. A caller supplies its own, as above, and a ki
 
 `singledispatch` dispatches on the type of the first argument, so it can't tell the members of one enum apart: all three `DocumentKind` members reach the same implementation, and the registry holds `DocumentKind` and `object` (`test_singledispatch_sends_every_document_kind_to_one_implementation`). It's the form for an open set of types, covered in [singledispatch: the Visitor the language gives you]({{ '/docs/28-singledispatch/' | relative_url }}).
 
-ruff 0.17.4 knows the shape. Its SIM116 suggests a dictionary for a chain over string literals and says nothing about the same chain over enum members (`test_ruff_flags_an_if_chain_over_literals_but_not_over_enum_members`). The linter is a hint for one spelling of the pattern, so it can't stand in for the totality test.
+ruff 0.17.4 checks one spelling of the shape. Its SIM116 suggests a dictionary for a chain over string literals and says nothing about the same chain over enum members (`test_ruff_flags_an_if_chain_over_literals_but_not_over_enum_members`). The linter is a hint for one spelling of the pattern, so it can't stand in for the totality test.
 
 Where the cases need different arguments, keep the branch: a table of callables assumes one call signature.
 
@@ -74,6 +74,7 @@ Where the cases need different arguments, keep the branch: a table of callables 
 
 The table lookup raises a `KeyError` on a miss, and the code that reads it has two choices: test first, or read and handle the failure. The glossary names the second one: "Easier to ask for forgiveness than permission. This common Python coding style assumes the existence of valid keys or attributes and catches exceptions if the assumption proves false." (Python documentation, [glossary](https://docs.python.org/3/glossary.html)). The value is one operation where there would be two, and the cost, covered at the end, is a slower miss.
 
+<!-- fmt:off -->
 ```python
     try:
         issuer = issuers[kind]
@@ -81,17 +82,20 @@ The table lookup raises a `KeyError` on a miss, and the code that reads it has t
         raise UnsupportedDocumentError(f"no issuer for {kind.value!r}") from None
     return issuer(consignment_id)
 ```
+<!-- fmt:on -->
 
 The `try` holds the lookup and nothing else. The call to the issuer comes after it, so a `KeyError` raised inside an issuer travels out of `issue` as itself (`test_an_issuers_own_key_error_passes_through_issue`). The same call inside the `try`, the form the test module keeps as `_issue_broadly`, reports that bug as "no issuer for 'manifest'" (`test_a_try_around_the_call_reports_an_issuers_bug_as_an_unsupported_kind`). The compound-statements reference gives the language-level version of the rule: "Exceptions in the else clause are not handled by the preceding except clauses." ([compound statements](https://docs.python.org/3/reference/compound_stmts.html)). Code that has to run only on success belongs in an `else` for that reason.
 
 Required fields are read the same way. `_required` names the missing field in a `CustomsError`:
 
+<!-- fmt:off -->
 ```python
     try:
         return record[name]
     except KeyError:
         raise CustomsError(f"declaration is missing {name!r}") from None
 ```
+<!-- fmt:on -->
 
 `declaration_from` calls it for `consignment_id`, `hs_code` and `declared_value` (`test_a_missing_required_field_names_the_field`) and reads the optional `origin` with `record.get("origin")`, which gives `None` when the field is absent (`test_declaration_from_reads_required_fields_and_an_optional_origin`). The built-in types page describes `get` as returning the value "if key is in the dictionary, else default", so that it "never raises a KeyError" ([built-in types](https://docs.python.org/3/library/stdtypes.html)). A missing optional field isn't an error, so `get` says so. A missing required one is, so the lookup raises and the handler names it.
 
@@ -103,7 +107,7 @@ A handler that's too broad turns a bug into a missing value. Two idioms do it by
 
 `contextlib.suppress` ends its block at the first exception it swallows, and the documentation says it "resumes execution with the first statement following the end of the with statement" ([contextlib](https://docs.python.org/3/library/contextlib.html)). A second statement in the same block doesn't run. In the test, a `del` of an absent key comes first, and the `del` of the present one after it is skipped, so the rate stays (`test_suppress_skips_the_rest_of_its_block_after_the_first_exception`). One `suppress` per statement, or the non-raising method that already exists, is the safer form. That's why `evict` calls `pop(hs_code, None)`. [Context managers: deterministic cleanup]({{ '/docs/10-context-managers/' | relative_url }}) covers narrowing `suppress` to one exception.
 
-ruff names the idioms that replace the hand-written versions. SIM118 flags `in cache.keys()`, SIM401 an `if` around a lookup that `.get` would do, and SIM105 a `try`/`except`/`pass` that `suppress` would do (`test_ruff_suggests_get_suppress_and_plain_membership`). Those are style hints. They don't know which handler is too wide.
+ruff names the idioms that replace the hand-written versions. SIM118 flags `in cache.keys()`, SIM401 an `if` around a lookup that `.get` would do, and SIM105 a `try`/`except`/`pass` that `suppress` would do (`test_ruff_suggests_get_suppress_and_plain_membership`). Those are style hints. Neither rule can tell which handler is too wide.
 
 ## The look-first race
 
@@ -111,6 +115,7 @@ The glossary entry for the other style says what goes wrong: "In a multi-threade
 
 `DutyRateCache` is the asking-forgiveness form. It reads once and loads on a miss:
 
+<!-- fmt:off -->
 ```python
     def rate_for(self, hs_code: str) -> Decimal:
         try:
@@ -120,9 +125,11 @@ The glossary entry for the other style says what goes wrong: "In a multi-threade
             self._rates[hs_code] = rate
             return rate
 ```
+<!-- fmt:on -->
 
 The comparison is a subclass in the test fixtures that looks first:
 
+<!-- fmt:off -->
 ```python
     def rate_for(self, hs_code: str) -> Decimal:
         if hs_code in self._rates:
@@ -131,6 +138,7 @@ The comparison is a subclass in the test fixtures that looks first:
         self._rates[hs_code] = rate
         return rate
 ```
+<!-- fmt:on -->
 
 On one table of cases, a hit, a miss and a key evicted first, both forms give the same rates and the same loads (`test_every_cache_form_reads_loads_and_evicts_the_same_way`), and evicting an absent code is no error in either (`test_evicting_an_absent_code_is_not_an_error`). A single thread sees no difference between them on these rows.
 
@@ -142,7 +150,7 @@ The cost differs by case, and the numbers are illustrative. On a recorded run on
 
 ## When not to use it
 
-Keep the branch when the cases need different arguments, or when they must run in a fixed order: a table has one call signature and no order to speak of. Use `match` with `assert_never` for a closed set where mypy should report a missing kind, and `singledispatch` for an open set extended by type. Look first when the operation does work before it fails, or when a miss is common and costly to handle, because the exception path on a miss is the slow one.
+Keep the branch when the cases need different arguments, or when they must run in a fixed order: a table has one call signature, and a lookup tries no cases in order. Use `match` with `assert_never` for a closed set where mypy should report a missing kind, and `singledispatch` for an open set extended by type. Look first when the operation does work before it fails, or when a miss is common and costly to handle, because the exception path on a miss is the slow one.
 
 <blockquote class="ai-sidebar" markdown="1">
 **Specifying a dispatch table.** "Handle each document kind" leaves open how the kinds are dispatched and where the exception handling goes. Paste a prompt that states the form:

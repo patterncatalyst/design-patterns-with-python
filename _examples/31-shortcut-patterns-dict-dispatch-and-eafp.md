@@ -17,7 +17,7 @@ counted and never timed.
 ## A table of callables
 
 `ISSUERS` is a `frozendict` of issuers keyed by `DocumentKind`. `issue` puts only the lookup inside
-`try` and calls the issuer after it, so an issuer's own `KeyError` is not reported as an unsupported
+`try` and calls the issuer after it, so an issuer's own `KeyError` isn't reported as an unsupported
 kind. mypy checks each entry's signature and the key type of a lookup, refuses assignment, and
 rejects calling the `None` that `.get` may return. It accepts a table that misses a kind and an
 if-chain whose `else` raises, so a test walks the enum.
