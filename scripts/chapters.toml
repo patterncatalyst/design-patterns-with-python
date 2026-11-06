@@ -321,7 +321,7 @@ slug = "35-fowler-vs-feathers"
 title = "Fowler vs Feathers, contrasted and combined"
 part = 11
 kind = "argument"
-has_example = false
+has_example = true
 status = "stub"
 
 [[chapter]]
@@ -330,7 +330,7 @@ slug = "36-refactor-or-rewrite"
 title = "Refactor or rewrite"
 part = 11
 kind = "argument"
-has_example = false
+has_example = true
 status = "stub"
 
 [[chapter]]
