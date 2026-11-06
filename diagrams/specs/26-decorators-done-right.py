@@ -1,0 +1,140 @@
+"""Decorators done right: stacking order, wraps and ParamSpec, and a class decorator's place."""
+
+from generate_diagram import emit
+
+emit(
+    "26-decorators-done-right",
+    1000,
+    980,
+    nodes=[
+        {
+            "x": 340,
+            "y": 30,
+            "w": 320,
+            "h": 60,
+            "style": "accent",
+            "lines": ["render_bill", "the function both stacks wrap"],
+        },
+        # Left stack: timer outside.
+        {
+            "x": 60,
+            "y": 170,
+            "w": 300,
+            "h": 60,
+            "style": "user",
+            "lines": ["timed_render", "outer"],
+        },
+        {
+            "x": 60,
+            "y": 290,
+            "w": 300,
+            "h": 60,
+            "style": "user",
+            "lines": ["cached_for", "inner"],
+        },
+        {
+            "x": 60,
+            "y": 400,
+            "w": 300,
+            "h": 50,
+            "style": "ink",
+            "lines": ["timer outside: every call timed"],
+        },
+        # Right stack: timer inside.
+        {
+            "x": 640,
+            "y": 170,
+            "w": 300,
+            "h": 60,
+            "style": "user",
+            "lines": ["cached_for", "outer"],
+        },
+        {
+            "x": 640,
+            "y": 290,
+            "w": 300,
+            "h": 60,
+            "style": "user",
+            "lines": ["timed_render", "inner"],
+        },
+        {
+            "x": 640,
+            "y": 400,
+            "w": 300,
+            "h": 50,
+            "style": "ink",
+            "lines": ["timer inside: only misses timed"],
+        },
+        # Runtime and static tools.
+        {
+            "x": 60,
+            "y": 530,
+            "w": 300,
+            "h": 70,
+            "style": "box",
+            "lines": ["functools.wraps", "copies name, doc, dict;", "adds __wrapped__"],
+        },
+        {
+            "x": 60,
+            "y": 660,
+            "w": 300,
+            "h": 60,
+            "style": "box",
+            "lines": ["inspect.signature", "follows __wrapped__"],
+        },
+        {
+            "x": 640,
+            "y": 530,
+            "w": 300,
+            "h": 70,
+            "style": "box",
+            "lines": ["ParamSpec", "keeps the signature"],
+        },
+        {
+            "x": 640,
+            "y": 660,
+            "w": 300,
+            "h": 60,
+            "style": "box",
+            "lines": ["mypy", "sees the original parameters"],
+        },
+        {
+            "x": 380,
+            "y": 530,
+            "w": 240,
+            "h": 90,
+            "style": "ghost",
+            "lines": [
+                "a decorator that supplies",
+                "an argument: the signature",
+                "misleads; use partial",
+            ],
+        },
+        # Class decorator.
+        {
+            "x": 340,
+            "y": 770,
+            "w": 320,
+            "h": 60,
+            "style": "accent",
+            "lines": ["document_kind", "above: registers the class the name holds"],
+        },
+        {
+            "x": 340,
+            "y": 880,
+            "w": 320,
+            "h": 60,
+            "style": "box",
+            "lines": ["dataclass(slots=True)", "returns a new class"],
+        },
+    ],
+    edges=[
+        {"x1": 500, "y1": 90, "x2": 210, "y2": 170},
+        {"x1": 500, "y1": 90, "x2": 790, "y2": 170},
+        {"x1": 210, "y1": 230, "x2": 210, "y2": 290},
+        {"x1": 790, "y1": 230, "x2": 790, "y2": 290},
+        {"x1": 210, "y1": 600, "x2": 210, "y2": 660},
+        {"x1": 790, "y1": 600, "x2": 790, "y2": 660},
+        {"x1": 500, "y1": 830, "x2": 500, "y2": 880},
+    ],
+)

@@ -794,8 +794,8 @@ Step ids are `M*` (see User decisions).
 | M3 | Two figures, specs `diagrams/specs/23-*.py` and `24-*.py`, `_data/diagrams.yml` (single owner; 25 entries); figures 00-22 unchanged; every name drawn exists in `src` or the standard library | M2 | done |
 | M4 | ch23-24 `status = "drafted"` (`kind` stays `pattern`) | M3 | done |
 | M5 | Two prose agents in parallel. Each re-fetches its sources and quotes exactly (stopping where the page's sentence stops), runs its two experiments in fresh scratch copies with the filter it states in the chapter, quotes that filter's complete output passed through `python3 scripts/host_ids.py filter`, and hands back the sources checked plus a per-paragraph claims table (claim, then test, run or source URL) | M3, M4 | done |
-| M6 | Opus validation; up to two repair rounds. Includes a seam scan after every cut (lost antecedents, a dangling "either" or "it") and a check that close bullets map one to one to objectives | M5 | todo |
-| M7 | PR, `ci-ok` green, ask the owner before merge; squash-merge; tag `r11.x` on main; notes-only release | M6 | todo |
+| M6 | Opus validation; up to two repair rounds. Includes a seam scan after every cut (lost antecedents, a dangling "either" or "it") and a check that close bullets map one to one to objectives | M5 | done |
+| M7 | PR, `ci-ok` green, ask the owner before merge; squash-merge; tag `r11.x` on main; notes-only release | M6 | done |
 
 Reconciliation rows (step M0). The "How to verify" column uses resolvable tokens.
 

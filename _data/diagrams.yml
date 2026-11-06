@@ -216,3 +216,20 @@
     A tracking history gives each loop a fresh iterator, so two walks both see
     every event. Pages are read one batch at a time, and closing a reader
     closes its file.
+
+- name: 25-visitor-memento-interpreter
+  section: "Ch. 25"
+  title: A match per operation, a snapshot, a tariff tree
+  caption: >-
+    Each operation over the closed event union is one match, and mypy reports
+    a kind it leaves out. A booking rolls back from a frozen snapshot that
+    leaves the audit alone, and one tariff tree is both priced and explained.
+
+- name: 26-decorators-done-right
+  section: "Ch. 26"
+  title: Stack order, wraps, and a class decorator
+  caption: >-
+    The order of a stack decides whether a timer sees a cache hit.
+    functools.wraps keeps a renderer's identity for runtime tools, ParamSpec
+    keeps its signature for mypy, and a class decorator belongs above a slotted
+    dataclass.

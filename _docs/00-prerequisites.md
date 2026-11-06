@@ -34,10 +34,10 @@ Five tools on one interpreter do all the work, and uv installs or drives each of
 | uv | 0.13.7 | Interpreter, environment, lockfile |
 | pytest | 9.2.0 | Test runner |
 | pytest-mock | 3.17.0 | `mocker` fixture over `unittest.mock` |
-| ruff | 0.17.3 | Lint and format |
+| ruff | 0.17.4 | Lint and format |
 | mypy | 2.4.1 | Static types, run with `--strict` |
 
-Verified 2026-11-04; re-verified before each release. The pins live in three places. `.python-version` holds `3.15.2`, which uv reads to pick the interpreter. The root `pyproject.toml` lists the four Python packages as exact `==` pins in a single `dev` dependency group, and `uv.lock` records the full resolution with hashes. Members of the repository carry no tool configuration of their own, so the root `[tool.ruff]`, `[tool.mypy]`, and `[tool.pytest.ini_options]` tables apply to every example. Strict mode, a 100-column line, and the selected lint rules are therefore identical everywhere.
+Verified 2026-11-05; re-verified before each release. The pins live in three places. `.python-version` holds `3.15.2`, which uv reads to pick the interpreter. The root `pyproject.toml` lists the four Python packages as exact `==` pins in a single `dev` dependency group, and `uv.lock` records the full resolution with hashes. Members of the repository carry no tool configuration of their own, so the root `[tool.ruff]`, `[tool.mypy]`, and `[tool.pytest.ini_options]` tables apply to every example. Strict mode, a 100-column line, and the selected lint rules are therefore identical everywhere.
 
 {% include excalidraw.html name="00-prerequisites" caption="Figure 0.1: The local build-and-test loop. One locked environment feeds lint, format, strict type checking and tests in order; a red step returns you to the source, and the prerequisites script gates the toolchain first." %}
 
@@ -173,7 +173,7 @@ TOOL     STATUS DETAIL
 uv       OK     uv 0.13.7 (x86_64-unknown-linux-gnu)
 python   OK     Python 3.15.2 (<repo>/.venv/bin/python)
 git      OK     git version 2.56.0
-ruff     OK     ruff 0.17.3
+ruff     OK     ruff 0.17.4
 mypy     OK     mypy 2.4.1 (compiled: yes)
 pytest   OK     pytest 9.2.0
 

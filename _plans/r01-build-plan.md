@@ -77,7 +77,7 @@ PDP-150..152 decks 101/201/301.
 | uv_build (PyPI `uv-build`) | 0.13.7, pin `>=0.13.7,<0.14` | 2026-11-03 | PyPI |
 | pytest | 9.2.0 | 2026-11-03 | PyPI |
 | pytest-mock | 3.17.0 | 2026-11-03 | PyPI |
-| ruff | 0.17.3 | 2026-11-03 | PyPI |
+| ruff | 0.17.4 | 2026-11-05 | PyPI |
 | mypy | 2.4.1 (supports 3.15) | 2026-11-04 | PyPI |
 | actions/checkout | v7 (7.0.1) | 2026-11-03 | GitHub releases |
 | astral-sh/setup-uv | v10 (10.3.3) | 2026-11-03 | GitHub releases |
