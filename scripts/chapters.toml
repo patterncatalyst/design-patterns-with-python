@@ -232,7 +232,7 @@ title = "Visitor, Memento, and Interpreter"
 part = 8
 kind = "pattern"
 has_example = true
-status = "stub"
+status = "drafted"
 
 [[chapter]]
 number = 26
@@ -241,7 +241,7 @@ title = "Decorators done right"
 part = 9
 kind = "pattern"
 has_example = true
-status = "stub"
+status = "drafted"
 
 [[chapter]]
 number = 27

@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 980" font-family="'Red Hat Text', system-ui, sans-serif" role="img">
+<defs><marker id="a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#555"/></marker><marker id="am" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#b8650a"/></marker></defs>
+<rect x="340" y="30" width="320" height="60" rx="9" fill="#fff8ef" stroke="#e8870c" stroke-width="2"/>
+<text x="500.0" y="58.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">render_bill</text>
+<text x="500.0" y="75.0" font-size="11.5" fill="#555555" text-anchor="middle">the function both stacks wrap</text>
+<rect x="60" y="170" width="300" height="60" rx="9" fill="#eef4fb" stroke="#2f6db5" stroke-width="2"/>
+<text x="210.0" y="198.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">timed_render</text>
+<text x="210.0" y="215.0" font-size="11.5" fill="#555555" text-anchor="middle">outer</text>
+<rect x="60" y="290" width="300" height="60" rx="9" fill="#eef4fb" stroke="#2f6db5" stroke-width="2"/>
+<text x="210.0" y="318.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">cached_for</text>
+<text x="210.0" y="335.0" font-size="11.5" fill="#555555" text-anchor="middle">inner</text>
+<rect x="60" y="400" width="300" height="50" rx="9" fill="#f1f5f9" stroke="#64748b" stroke-width="2"/>
+<text x="210.0" y="430.5" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">timer outside: every call timed</text>
+<rect x="640" y="170" width="300" height="60" rx="9" fill="#eef4fb" stroke="#2f6db5" stroke-width="2"/>
+<text x="790.0" y="198.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">cached_for</text>
+<text x="790.0" y="215.0" font-size="11.5" fill="#555555" text-anchor="middle">outer</text>
+<rect x="640" y="290" width="300" height="60" rx="9" fill="#eef4fb" stroke="#2f6db5" stroke-width="2"/>
+<text x="790.0" y="318.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">timed_render</text>
+<text x="790.0" y="335.0" font-size="11.5" fill="#555555" text-anchor="middle">inner</text>
+<rect x="640" y="400" width="300" height="50" rx="9" fill="#f1f5f9" stroke="#64748b" stroke-width="2"/>
+<text x="790.0" y="430.5" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">timer inside: only misses timed</text>
+<rect x="60" y="530" width="300" height="70" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+<text x="210.0" y="555.5" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">functools.wraps</text>
+<text x="210.0" y="572.5" font-size="11.5" fill="#555555" text-anchor="middle">copies name, doc, dict;</text>
+<text x="210.0" y="587.5" font-size="11.5" fill="#555555" text-anchor="middle">adds __wrapped__</text>
+<rect x="60" y="660" width="300" height="60" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+<text x="210.0" y="688.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">inspect.signature</text>
+<text x="210.0" y="705.0" font-size="11.5" fill="#555555" text-anchor="middle">follows __wrapped__</text>
+<rect x="640" y="530" width="300" height="70" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+<text x="790.0" y="563.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">ParamSpec</text>
+<text x="790.0" y="580.0" font-size="11.5" fill="#555555" text-anchor="middle">keeps the signature</text>
+<rect x="640" y="660" width="300" height="60" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+<text x="790.0" y="688.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">mypy</text>
+<text x="790.0" y="705.0" font-size="11.5" fill="#555555" text-anchor="middle">sees the original parameters</text>
+<rect x="380" y="530" width="240" height="90" rx="9" fill="#ffffff" stroke="#999999" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="500.0" y="565.5" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">a decorator that supplies</text>
+<text x="500.0" y="582.5" font-size="11.5" fill="#555555" text-anchor="middle">an argument: the signature</text>
+<text x="500.0" y="597.5" font-size="11.5" fill="#555555" text-anchor="middle">misleads; use partial</text>
+<rect x="340" y="770" width="320" height="60" rx="9" fill="#fff8ef" stroke="#e8870c" stroke-width="2"/>
+<text x="500.0" y="798.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">document_kind</text>
+<text x="500.0" y="815.0" font-size="11.5" fill="#555555" text-anchor="middle">above: registers the class the name holds</text>
+<rect x="340" y="880" width="320" height="60" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+<text x="500.0" y="908.0" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">dataclass(slots=True)</text>
+<text x="500.0" y="925.0" font-size="11.5" fill="#555555" text-anchor="middle">returns a new class</text>
+<path d="M500,90 L210,170" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<path d="M500,90 L790,170" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<path d="M210,230 L210,290" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<path d="M790,230 L790,290" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<path d="M210,600 L210,660" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<path d="M790,600 L790,660" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<path d="M500,830 L500,880" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+</svg>
