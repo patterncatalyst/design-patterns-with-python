@@ -30,7 +30,7 @@ Standing, not a decision: step ids are `R*`. `validate.py --claims` resolves `ru
 1. **Kinds and buckets.**
    - **ch31 is a pattern chapter that dissolves.** The three-way split chapter's table row reads "If-chain dispatch | Dissolves | A dict of callables, with EAFP", and domain row 31 says dissolve. EAFP is the idiom that comes with it. The outline lists "EAFP vs LBYL" in its disambiguation column, but the book's map is the three-way split chapter's table, so the bucket sentence says dissolves.
    - **ch32 stays `argument` with `has_example = true`**, as ch3 already is.
-     - Its H2s add `## Build, run, observe` and `## When the structure earns its place`.
+     - Its H2s add `## Build, run, observe` and `## When the structure is justified`.
      - No `## When not to use it`: ch32 isn't a pattern chapter.
 
    **Recommend: yes.** Alternative: make ch32 `pattern`. Anti-patterns have no bucket, and validate would demand "When not to use it".
@@ -447,7 +447,7 @@ The member's accessor class is `_AccessorConsignment` with a `zone`, and the mes
 - **What a new charge costs.** The visitor fails at run time, and declaring the method makes every concrete visitor abstract.
 - **Getters and setters.** An accessor consignment has no value equality and lets a quoted consignment change. PEP 8 says expose the attribute and grow it into a property.
 - **A service locator.** It moves a missing dependency from mypy to the first quote, and needs a type check to use what it returns.
-- **When the structure earns its place.** The forces from "Patterns as decisions under forces".
+- **When the structure is justified.** The forces from "Patterns as decisions under forces".
 
 ## Approach
 
@@ -646,7 +646,7 @@ Sections (about 2,400 prose words, max 2,500; at most six excerpts, at most one 
    - The located engine constructs with nothing registered and fails at its first quote (test 11). It quotes once a tariff is registered (test 12).
    - mypy needs a type check before using what the locator returns (test 13). It doesn't see a missing registration (test 14), but it reports a missing `tariff` argument to `quote` (test 15).
    - One pointer to "ISP, DIP, and dependency injection without a framework" for passing dependencies.
-9. `## When the structure earns its place` (~150):
+9. `## When the structure is justified` (~150):
    - the three shapes in "Patterns as decisions under forces" and the force behind each;
    - a Protocol when a participant holds state or offers several operations;
    - a Visitor-like split when many operations range over a stable set of kinds (and then `match`, per "Visitor, Memento, and Interpreter");
@@ -877,7 +877,7 @@ Step ids are `R*` (see User decisions).
 | R2 | Witness results into rows 174-186 and legacy row 28 (adjusted (r15)). The dated r15 note in `_plans/spikes.md` (evidence B's code difference, D, F, H, K). A failed witness changes the thesis before prose. Every message, count or value that differs from Planning evidence goes in "Corrections after the build" | R1b | done |
 | R3 | Two figures, specs `diagrams/specs/31-*.py` and `32-*.py`, and `_data/diagrams.yml` (single owner; 33 entries). Figures 00-30 unchanged. Every name drawn exists in `src`, conftest or the standard library | R2 | done |
 | R4 | ch31-32 `status = "drafted"` (`kind` stays `pattern` and `argument`) | R3 | done |
-| R5 | Two prose agents in parallel. Each re-fetches its sources and quotes exactly; runs its two experiments in fresh scratch copies with the filter it states; quotes that filter's complete output through `python3 scripts/host_ids.py filter`; and hands back the sources checked plus a per-paragraph claims table that names, for each static-test citation, the mutation that fails it | R3, R4 | todo |
+| R5 | Two prose agents in parallel. Each re-fetches its sources and quotes exactly; runs its two experiments in fresh scratch copies with the filter it states; quotes that filter's complete output through `python3 scripts/host_ids.py filter`; and hands back the sources checked plus a per-paragraph claims table that names, for each static-test citation, the mutation that fails it | R3, R4 | done |
 | R6 | Opus validation, with up to two repair rounds. After every cut: a seam scan and a dependent-sentence re-read. Also checks that close bullets map one to one to objectives, an excerpt check against decisions 4-10, a pointer-circularity check (criterion 11), and a cross-language word check (criterion 14) | R5 | todo |
 | R7 | PR, `ci-ok` green, ask the owner before merge; squash-merge; tag `r15.x` on main; notes-only release | R6 | todo |
 
@@ -904,6 +904,7 @@ Legacy row at R2:
 - Row 28 gets `test_a_look_first_read_raises_when_another_thread_evicts_between_check_and_read`, `test_an_eafp_read_reloads_when_another_thread_evicts_first`, `test_two_eafp_readers_that_both_miss_both_load` and `run: _plans/evidence/eafp-lookup-cost.md`, marked "adjusted (r15)". EAFP removes the gap between check and read, but doesn't make a miss load once. It's cheaper on a hit and dearer on a miss, and the speed is benchmark-only.
 
 ## Corrections after the build
+- Step R5: ch31 2,072 words, ch32 1,964. The ch32 heading "When the structure earns its place" became "When the structure is justified" because the voice ban tier flags "earns its place" (every mention in this plan updated). The O'Reilly search failed during ch31, so Ramalho and Slatkin are cited by author and title. ch32 attributes nothing to GoF's Visitor consequences; the cost rests on the tests.
 - Step R3: figures 31 and 32 (33 entries). The ch32 chain starts at `_PricingStrategyFactory` because the engine's constructor calls `create`; the dashed box says "a visit method the visitor does not yet have" (one concrete visitor is shown made abstract, not every one); counts are the measured ones. Captions name what the tests show ("reloads the rate instead of raising KeyError"; "five definitions").
 - Step R1b: member `pattern-misuse` (package `pattern_misuse`, no `[tool.*]` table), 16 test functions, 20 cases (2/6, 5/5, 5/5, 4/4); the plan's 21 was a sum error. Chapter 1 has no member, so `quote` is written fresh to the spec's numbers; chapter 1 describes a base price by zone and weight band, and this `quote` uses a flat fee per zone, so prose calls it the single function chapter 1 recommends for one carrier, never "the same function". `ast` counts (unparse without docstrings): `quote` 0 classes, 1 function, 8 lines; the engine 9, 17, 57 (the plan's 52 counted source lines). Fuel footprint: the function `["quote"]`; the engine five definitions (`_FuelCharge` renamed `_FuelSurcharge`). Calls: 1 against 11. Run-time messages name the real classes: `'_NetTotalVisitor' object has no attribute 'visit_remote_area'`, and the abstract `TypeError` names `_NetTotalWithRemoteArea`. Experiment (a) (an abstract `visit_remote_area` on `_ChargeVisitor`) fails 7 tests, and mypy adds `[unused-ignore]` and `[type-abstract]` to the predicted `[abstract]`; experiment (b) (`remote_area_fee` added to `quote`) passes all 20 with mypy clean, and the function's line count stays at 8. The visitor factory field is `Callable[[], _NetTotalVisitor]` because mypy rejects an abstract class as `type[...]`. The idiom scan reports 0 at every tier, including on the conftest engine.
 - Step R2: legacy row 28 adjusted (r15); rows 174-186 resolve to existing tests once the chapters link their sources; the dated r15 note is in `_plans/spikes.md`.
@@ -955,7 +956,7 @@ Lessons carried from r11-r14, which this plan applies up front:
    - at most 2,500 prose words each by `validate.py` (an error above; a warning below 1,900 is reported, not padded).
 9. Spine and sidebar:
    - **ch31:** `validate.py` passes the `pattern` spine; `grep -c '<blockquote class="ai-sidebar"'` is 1; `grep -c "^## When not to use it"` is 1; `grep -c "^## How it works"` is 0.
-   - **ch32:** `validate.py` passes the `argument` spine; it has `## Build, run, observe` and `## When the structure earns its place`; `grep -c '<blockquote class="ai-sidebar"'` is 1 (decision 2); `grep -c "^## The argument"` is 0.
+   - **ch32:** `validate.py` passes the `argument` spine; it has `## Build, run, observe` and `## When the structure is justified`; `grep -c '<blockquote class="ai-sidebar"'` is 1 (decision 2); `grep -c "^## The argument"` is 0.
    - In both:
      - `{: .ai-sidebar}` appears nowhere;
      - `## What you can do now` is the second-to-last H2, directly before `## For deeper coverage`, with as many bullets as the learning objectives;
@@ -1042,7 +1043,7 @@ Lessons carried from r11-r14, which this plan applies up front:
   None is filed. If the owner wants one reported, it goes through `lgtm-issue-reporting`.
 - **Word budgets.** ch31 carries two topics and runs close to 2,500.
   - ch31 shrinks first: the library FAQ quotation, then the `parse_kind` paragraph to a sentence, then the cost sentence.
-  - ch32 shrinks first: the "When the structure earns its place" list to two items, then the second Fowler quotation.
+  - ch32 shrinks first: the "When the structure is justified" list to two items, then the second Fowler quotation.
   - Their tests stay.
 - **Cross-language drift in ch32.** The outline's own words ("Java-in-Python") can't appear. Criterion 14 is the guard, and R6 reads for it.
 - **Stub pointers.** It's tempting to explain why the natural race is rare, or that `await` makes the gap easy to hit. Criterion 11 forbids describing those chapters.
