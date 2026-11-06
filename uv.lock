@@ -20,6 +20,7 @@ members = [
     "dynamic-attributes",
     "factories",
     "feature-spikes",
+    "fowler-feathers",
     "isp-dip-di",
     "iterator-protocol",
     "mediator-chain",
@@ -191,6 +192,11 @@ source = { editable = "examples/16-factory-method-and-abstract-factory" }
 name = "feature-spikes"
 version = "0.1.0"
 source = { editable = "spikes/feature-spikes" }
+
+[[package]]
+name = "fowler-feathers"
+version = "0.1.0"
+source = { editable = "examples/35-fowler-vs-feathers" }
 
 [[package]]
 name = "iniconfig"
