@@ -192,7 +192,11 @@ def test_implicit_special_method_lookup_bypasses_getattr() -> None:
 
 def test_dir_lists_the_lazy_fields_before_loading(recording_load: RecordingLoad) -> None:
     history = TrackingHistory(ConsignmentId("CN-1"), recording_load)
-    assert {"events", "last_port", "status"} <= set(dir(history))
+    assert sorted(set(dir(history)) & {"events", "last_port", "status"}) == [
+        "events",
+        "last_port",
+        "status",
+    ]
     assert recording_load.calls == []
 
 

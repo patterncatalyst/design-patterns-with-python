@@ -86,7 +86,11 @@ def test_a_loaded_history_reads_its_fields_from_the_instance_dict(
 ) -> None:
     history = TrackingHistory(ConsignmentId("CN-1"), recording_load)
     assert history.last_port == "SGSIN"
-    assert {"events", "last_port", "status"} <= set(vars(history))
+    assert sorted(set(vars(history)) & {"events", "last_port", "status"}) == [
+        "events",
+        "last_port",
+        "status",
+    ]
     assert vars(history)["status"] is ConsignmentStatus.IN_TRANSIT
 
 
