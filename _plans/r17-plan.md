@@ -19,7 +19,7 @@ Exact chapter identities, from `scripts/chapters.toml` and the `_docs` front mat
 
 Work items: PDP-135a-c (ch35 example, figure, prose) and PDP-136a-c (ch36), `todo` in `_plans/iteration-plan.md`.
 
-## User decisions (pending owner confirmation)
+## User decisions (owner confirmed 2026-11-06: all as recommended)
 
 0. **Step ids.** The steps are T0 to T7. `validate.py --claims` resolves `run: <id>` against the steps tables of every `_plans/r*-plan.md`. At planning time `grep -nE '^\| T[0-9]' _plans/*.md` and `grep -n 'run: T' _plans/*.md` both print nothing. Following r16's practice, only suffixed ids are cited as `run:` tokens: `T1a`, `T1b`, `T5a` and `T5b`. Plain T0, T2, T3, T4, T6 and T7 appear only in this plan's table.
 
