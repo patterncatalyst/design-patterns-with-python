@@ -4,7 +4,7 @@ order: 30
 layout: tutorial
 sectionid: docs
 part: "idiomatic-python"
-description: "Draft pending: Dynamic attributes: __getattr__ and Proxy as a feature."
+description: "An object that loads its own fields on first access, and how to keep __getattr__ out of recursion and consistent with dir, copy and mypy."
 ---
 
 ## Learning objectives

@@ -4,7 +4,7 @@ order: 29
 layout: tutorial
 sectionid: docs
 part: "idiomatic-python"
-description: "Draft pending: Metaclasses, __init_subclass__, and registries."
+description: "Register subclasses by a class keyword, refuse a bad class when it is defined, and see what only a metaclass can still do."
 ---
 
 ## Learning objectives
