@@ -94,7 +94,7 @@ That's the same protection, bought with a method on each class and a class per o
 
 ## Closed or open
 
-What survives of Visitor is a question the language doesn't answer for you: is the set of kinds closed or open? A closed set is a union that one team owns, and `match` with `assert_never` makes each function notice a new kind. An open set is one that other code extends, and there `functools.singledispatch` is the tool. A function registers one implementation per class, and callers that add a kind register their own. The open form has its own chapter, [singledispatch: the Visitor the language gives you]({{ '/docs/28-singledispatch/' | relative_url }}). Its cost shows in one test.
+What survives of Visitor is a question the language doesn't answer for you: is the set of kinds closed or open? A closed set is a union that one team owns, and `match` with `assert_never` makes each function notice a new kind. An open set is one that other code extends, and there `functools.singledispatch` is the tool. A function registers one implementation per class, and callers that add a kind register their own. The open form has its own chapter, [singledispatch: the Visitor the language gives you]({{ '/docs/28-singledispatch/' | relative_url }}). Two tests show its cost.
 
 `test_a_singledispatch_visitor_gives_an_unregistered_event_its_fallback` registers `Booked`, `Loaded`, `Departed` and `Cleared` on a fallback that takes any `object`. `Delivered` has no registration, so the call falls to the fallback and returns "unrecognised event", and nothing raises. mypy says nothing either: `test_mypy_accepts_a_singledispatch_visitor_that_misses_an_event` checks the same four registrations and exits 0 with empty output. An open set trades that check for extensibility.
 
@@ -328,7 +328,7 @@ The `match` form fails with the `AssertionError` for a `Delivered` event. The ac
 ## What you can do now
 
 - Choose by the set: `describe` is a `match` for a closed union, and a `singledispatch` function answers an unregistered `Delivered` with its fallback, as `test_a_singledispatch_visitor_gives_an_unregistered_event_its_fallback` shows.
-- Count what `accept` costs: a method on each event class, as `test_the_accept_form_puts_an_accept_method_on_every_event_class` finds, and a missing arm in `describe` is a type error, as `test_mypy_reports_an_event_left_out_of_a_match` shows.
+- Count what `accept` costs: a method on each event class, as `test_the_accept_form_puts_an_accept_method_on_every_event_class` finds, and a describer missing a `visit_` method is refused, as `test_mypy_reports_a_visitor_class_missing_a_visit_method` shows, the same gap mypy finds in a `match` (`test_mypy_reports_an_event_left_out_of_a_match`).
 - Roll back a failed batch: `rollback` restores the request and the documents from a `BookingSnapshot`, and `test_rollback_restores_the_attached_documents` checks it.
 - Decide what a memento captures: the request and a `frozenset`, and not the audit, as `test_a_deepcopy_memento_erases_the_audit_trail_on_rollback` and experiment one show.
 - Read one tariff two ways: `evaluate` and `explain` over `STANDARD_TARIFF`, with `test_closures_built_the_same_way_are_not_equal` showing what closures can't do.

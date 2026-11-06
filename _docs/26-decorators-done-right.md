@@ -198,7 +198,7 @@ class BillOfLading:
     port_of_discharge: str
 ```
 
-Importing the module fills `DOCUMENT_TYPES` with `BillOfLading` and `Manifest` (`test_document_kind_registers_the_class_at_definition`), and a second class for the same kind raises `DocumentKindError` (`test_document_kind_refuses_a_second_class_for_a_kind`). The signature says the class comes back unchanged. mypy doesn't apply a class decorator's return type, though: a decorated class keeps its own type whatever the decorator declares, so `BillOfLading.number` is a `str` either way (`test_mypy_keeps_the_class_type_through_document_kind`, beside a reduced model declared to return `int`). The mechanism is [PEP 3129](https://peps.python.org/pep-3129/), by Collin Winter, which extended the `@` form to classes.
+Importing the module fills `DOCUMENT_TYPES` with `BillOfLading` and `Manifest` (`test_document_kind_registers_the_class_at_definition`), and a second class for the same kind raises `DocumentKindError` (`test_document_kind_refuses_a_second_class_for_a_kind`). The signature says the class comes back unchanged. mypy doesn't apply a class decorator's return type, though: a decorated class keeps its own type whatever the decorator declares, so `BillOfLading.number` is a `str` either way (`test_mypy_keeps_the_class_type_through_document_kind`, beside a reduced model declared to return `int`). Class decorators themselves come from [PEP 3129](https://peps.python.org/pep-3129/), by Collin Winter, which extended the `@` form to classes.
 
 The order against `@dataclass(slots=True)` matters. The [dataclasses documentation](https://docs.python.org/3/library/dataclasses.html) says of `slots`: "If true (the default is False), __slots__ attribute will be generated and new class will be returned instead of the original one." `test_a_class_decorator_beneath_a_slotted_dataclass_registers_a_discarded_class` puts `document_kind` beneath it on a class `Beneath`: the registry holds a class without `__slots__`, and the name holds the slotted one. Put above, as on `BillOfLading` and `Manifest`, `document_kind` registers the class the name ends up holding, and the same test checks that order too.
 
@@ -333,7 +333,7 @@ tests/test_factories.py:123: error: Unused "type: ignore[call-arg]" comment  [un
 Found 1 error in 1 file (checked 9 source files)
 ```
 
-The bare `@cached_for` no longer fails at the `def`. It reaches `if seconds <= 0` with a function in place of a number, and the pytest report gives the actual message as "'<=' not supported between instances of 'function' and 'int'", which doesn't match "takes 0 positional arguments". mypy now reports only `[arg-type]`, so the code set changes, and the `# type: ignore[call-arg, arg-type]` on the decorator is half unused: member mypy exits 1 with `[unused-ignore]`.
+The bare `@cached_for` still fails at the `def`, but not with the refusal the test expects. It reaches `if seconds <= 0` with a function in place of a number, and the pytest report gives the actual message as "'<=' not supported between instances of 'function' and 'int'", which doesn't match "takes 0 positional arguments". mypy now reports only `[arg-type]`, so the code set changes, and the `# type: ignore[call-arg, arg-type]` on the decorator is half unused: member mypy exits 1 with `[unused-ignore]`.
 
 ## What you can do now
 
