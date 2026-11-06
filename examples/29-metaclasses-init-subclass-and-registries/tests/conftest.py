@@ -1,7 +1,8 @@
 """Fixtures. The comparison form lives here as a fixture parameter so that a metaclass registry
 runs the same table of bookings and refusals as ``CarrierBase``. Importing the two carrier modules
 once makes the in-process registry exactly AIRCO and FASTLINE for every test, and no test registers
-a carrier in this process: every class a test defines is refused before it reaches the registry."""
+a carrier in this process: every class a test defines under ``CarrierBase`` is abstract or is
+refused before it reaches the registry."""
 
 from abc import ABCMeta, abstractmethod
 from collections.abc import Iterator

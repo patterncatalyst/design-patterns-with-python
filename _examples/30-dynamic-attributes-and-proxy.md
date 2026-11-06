@@ -31,7 +31,7 @@ set before it reads anything, and two other fixes hold.
 ## Consistent with the rest of Python
 
 `__setattr__` refuses loaded fields, `__dir__` lists the lazy fields so `dir()` and the "Did you
-mean" hint work, and `__iter__` is explicit because `iter()` and `len()` reach neither hook.
+mean" hint work, and `__iter__` is explicit because `iter()` and `len()` don't reach `__getattr__`.
 `hasattr` loads. mypy types an unknown attribute by `__getattr__`'s return type, keeps the declared
 field types, and accepts assignments that `__setattr__` refuses.
 

@@ -90,7 +90,7 @@ emit(
                 "a metaclass comparison",
                 "the same rules in the metaclass __new__",
                 "its own registry",
-                "conflicts with another metaclass",
+                "can conflict with another metaclass",
                 "mypy skips its class keywords",
             ],
         },

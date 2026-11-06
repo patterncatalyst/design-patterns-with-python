@@ -1,6 +1,6 @@
 """Fixtures. The comparison form lives here as a fixture parameter so that a ``cached_property``
 history runs the same table of cases as ``TrackingHistory``. The loader records every call, so a
-test can count loads without a clock or a mock."""
+test can count loads without a clock."""
 
 from collections.abc import Callable, Iterable, Iterator
 from dataclasses import dataclass, field

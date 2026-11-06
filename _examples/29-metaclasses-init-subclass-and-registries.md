@@ -5,7 +5,7 @@ title: "Metaclasses, __init_subclass__, and registries"
 description: A carrier registry filled by a class keyword on __init_subclass__, with refusals at definition, registrations that depend on imports, a metaclass form on the same table of cases, and what mypy checks about each.
 github_path: examples/29-metaclasses-init-subclass-and-registries
 card_eyebrow: "Idiomatic Python · Class registries"
-card_blurb: "A carrier registers by a class keyword, and a bad class is refused before it reaches the registry. The metaclass form passes the same table and conflicts with other metaclasses."
+card_blurb: "A carrier registers by a class keyword, and a bad class is refused before it reaches the registry. The metaclass form passes the same table and can conflict with other metaclasses."
 card_title: "Class keywords, refusals and imports"
 ---
 
@@ -37,7 +37,7 @@ each carrier module is imported. A forgotten dict entry becomes a forgotten impo
 ## The same registry as a metaclass
 
 `_CarrierMeta` applies the same rules and passes the same table of bookings and refusals. A second
-metaclass conflicts with an `ABC` or a `Protocol` base. mypy does not check a metaclass's class
+metaclass that doesn't derive from `ABCMeta` conflicts with an `ABC` or a `Protocol` base. mypy does not check a metaclass's class
 keywords, and the reduced models show four more places where it differs. Only a metaclass gives
 the class object `in`, `list` and `len`.
 

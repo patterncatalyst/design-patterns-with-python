@@ -258,8 +258,8 @@
   caption: >-
     Creating a carrier class runs __set_name__ and then __init_subclass__, which
     refuses a bad class and registers a concrete one in a read-only view. A
-    metaclass can enforce the same rules, but it conflicts with another
-    metaclass.
+    metaclass can enforce the same rules, but it can conflict with another
+    library's metaclass.
 
 - name: 30-dynamic-attributes-and-proxy
   section: "Ch. 30"

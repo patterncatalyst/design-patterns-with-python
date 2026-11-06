@@ -33,7 +33,7 @@ Consistent with the rest of Python.
 
 - `dir()` lists the lazy fields without loading, and with `__dir__` a misspelt field gets the
   interpreter's "Did you mean" hint.
-- `iter()` and `len()` look on the type and reach neither `__getattr__` nor `__getattribute__`.
+- `iter()` and `len()` look on the type and don't reach `__getattr__`.
 - `hasattr` on a lazy name loads the history.
 
 A module-level `__getattr__`.

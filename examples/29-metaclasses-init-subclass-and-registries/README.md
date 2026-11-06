@@ -32,7 +32,8 @@ Imports and test isolation.
   empty until `airco` and then `fastline` are imported, and a concrete carrier under an abstract
   intermediate registers.
 - `tests/conftest.py` imports both carrier modules once, and no test registers a carrier in the
-  test process: every class a test defines is refused before insertion.
+  test process: every class a test defines under `CarrierBase` is abstract or is refused before
+  insertion.
 
 The metaclass form.
 
