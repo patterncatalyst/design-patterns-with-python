@@ -19,7 +19,7 @@ By the end of this chapter you can:
 
 ## Why this matters
 
-A consignment needs a bill of lading, a manifest and a customs declaration, and the document to issue depends on its kind. The duty rate on the declaration comes from a cache that other threads evict from. The usual first draft of the first job is an if-chain, and of the second a membership test followed by a read. Both work until something changes around them, and mypy accepts each form after the change, so the failure shows only when the code runs or a test forces it.
+A consignment needs a bill of lading, a manifest and a customs declaration, and the document to issue depends on its kind. The duty rate on the declaration comes from a cache that other threads evict from. The usual first draft of the first job is an if-chain, and of the second a membership test followed by a read. Both work until something changes around them, and mypy accepts both forms, so the failure shows only when the code runs or a test forces it.
 
 An if-chain whose last branch raises doesn't notice a kind that was added later, and mypy accepts it (`test_an_if_chain_whose_else_raises_misses_a_new_kind`, `test_mypy_accepts_an_if_chain_whose_else_raises`).
 
@@ -66,7 +66,7 @@ A table wins when the set is data. A caller supplies its own, as above, and a ki
 
 `singledispatch` dispatches on the type of the first argument, so it can't tell the members of one enum apart: all three `DocumentKind` members reach the same implementation, and the registry holds `DocumentKind` and `object` (`test_singledispatch_sends_every_document_kind_to_one_implementation`). It's the form for an open set of types, covered in [singledispatch: the Visitor the language gives you]({{ '/docs/28-singledispatch/' | relative_url }}).
 
-ruff 0.17.4 checks one spelling of the shape. Its SIM116 suggests a dictionary for a chain over string literals and says nothing about the same chain over enum members (`test_ruff_flags_an_if_chain_over_literals_but_not_over_enum_members`). The linter is a hint for one spelling of the pattern, so it can't stand in for the totality test.
+ruff 0.17.4 checks one spelling of the shape. Its SIM116 suggests a dictionary for a chain over string literals and says nothing about the same chain over enum members (`test_ruff_flags_an_if_chain_over_literals_but_not_over_enum_members`). The linter is a hint, so it can't stand in for the totality test.
 
 Where the cases need different arguments, keep the branch: a table of callables assumes one call signature.
 
@@ -107,7 +107,7 @@ A handler that's too broad turns a bug into a missing value. Two idioms do it by
 
 `contextlib.suppress` ends its block at the first exception it swallows, and the documentation says it "resumes execution with the first statement following the end of the with statement" ([contextlib](https://docs.python.org/3/library/contextlib.html)). A second statement in the same block doesn't run. In the test, a `del` of an absent key comes first, and the `del` of the present one after it is skipped, so the rate stays (`test_suppress_skips_the_rest_of_its_block_after_the_first_exception`). One `suppress` per statement, or the non-raising method that already exists, is the safer form. That's why `evict` calls `pop(hs_code, None)`. [Context managers: deterministic cleanup]({{ '/docs/10-context-managers/' | relative_url }}) covers narrowing `suppress` to one exception.
 
-ruff names the idioms that replace the hand-written versions. SIM118 flags `in cache.keys()`, SIM401 an `if` around a lookup that `.get` would do, and SIM105 a `try`/`except`/`pass` that `suppress` would do (`test_ruff_suggests_get_suppress_and_plain_membership`). Those are style hints. Neither rule can tell which handler is too wide.
+ruff names the idioms that replace the hand-written versions. SIM118 flags `in cache.keys()`, SIM401 an `if` around a lookup that `.get` would do, and SIM105 a `try`/`except`/`pass` that `suppress` would do (`test_ruff_suggests_get_suppress_and_plain_membership`). Those are style hints. None of the three can tell which handler is too wide.
 
 ## The look-first race
 

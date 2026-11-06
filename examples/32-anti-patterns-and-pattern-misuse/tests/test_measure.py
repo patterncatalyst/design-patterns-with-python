@@ -97,7 +97,7 @@ def _fuel_definitions(source: str, nodes: list[ast.stmt]) -> list[str]:
 
 
 def _python_calls(call: Callable[[], object], *files: str) -> list[str]:
-    """The ``co_qualname`` of every Python-level call made from the given files, in order."""
+    """The ``co_qualname`` of each Python-level call into code in the given files, in order."""
     names: list[str] = []
 
     def profile(frame: FrameType, event: str, _arg: object) -> None:
