@@ -233,3 +233,21 @@
     functools.wraps keeps a renderer's identity for runtime tools, ParamSpec
     keeps its signature for mypy, and a class decorator belongs above a slotted
     dataclass.
+
+- name: 27-descriptors-and-properties
+  section: "Ch. 27"
+  title: One descriptor, a lookup order, a cached property
+  caption: >-
+    One Positive descriptor validates six fields in three classes. A lookup
+    tries data descriptors, then the instance dictionary, then non-data
+    descriptors, so a cached property is read from the dictionary after its
+    first computation.
+
+- name: 28-singledispatch
+  section: "Ch. 28"
+  title: Most specific class, another module, a method
+  caption: >-
+    tariff_code picks the most specific registered class and falls back to a
+    function that raises. A registration made in another module exists only
+    after that module is imported, and a method dispatches on the argument
+    after self.

@@ -250,7 +250,7 @@ title = "Descriptors and properties"
 part = 9
 kind = "pattern"
 has_example = true
-status = "stub"
+status = "drafted"
 
 [[chapter]]
 number = 28
@@ -259,7 +259,7 @@ title = "singledispatch: the Visitor the language gives you"
 part = 9
 kind = "pattern"
 has_example = true
-status = "stub"
+status = "drafted"
 
 [[chapter]]
 number = 29
