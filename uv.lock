@@ -14,6 +14,7 @@ members = [
     "data-model",
     "decorator-proxy",
     "decorators-done-right",
+    "dependency-breaking",
     "descriptors-properties",
     "design-patterns-with-python-workspace",
     "dynamic-attributes",
@@ -142,6 +143,11 @@ source = { editable = "examples/20-decorator-pattern-vs-decorator-syntax-and-pro
 name = "decorators-done-right"
 version = "0.1.0"
 source = { editable = "examples/26-decorators-done-right" }
+
+[[package]]
+name = "dependency-breaking"
+version = "0.1.0"
+source = { editable = "examples/34-dependency-breaking-techniques" }
 
 [[package]]
 name = "descriptors-properties"
