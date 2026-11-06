@@ -2,10 +2,10 @@
 layout: example
 order: 35
 title: "Fowler vs Feathers, contrasted and combined"
-description: A rating engine refactored under golden quotes recorded from the inherited code, beside tests written from the requirement that pass a refactor which moves 18 of 120 totals by a cent.
+description: A rating engine refactored under golden quotes recorded from the inherited code, beside tests written from the requirement that pass a refactor that changes 18 of 120 totals.
 github_path: examples/35-fowler-vs-feathers
 card_eyebrow: "Changing inherited code · Fowler and Feathers"
-card_blurb: "Five tests written from the requirement pass a tidy-up that moves totals by a cent. Quotes recorded from the legacy engine list every row that moved."
+card_blurb: "Five rows written from the requirement pass a tidy-up that changes totals. Quotes recorded from the legacy engine list the rows it changed."
 card_title: "Intent rows and golden quotes"
 ---
 
@@ -26,7 +26,7 @@ engine and recorded in a JSON file. A test ties the file to the engine, and the 
 must match it. A failure is an ordered list of the rows that moved, because pytest prints the
 differing keys of a dict comparison in set order.
 
-## Two refactors that move a cent
+## Two refactors that change totals
 
 Rounding each carrier price when it becomes `Money` moves 18 of the 120 totals. Replacing the
 half-up quantise with `round(amount, 2)` moves two, because the default decimal context rounds

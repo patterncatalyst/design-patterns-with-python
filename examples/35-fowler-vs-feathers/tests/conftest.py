@@ -1,7 +1,7 @@
 """Fixtures: the rate cards, four forms of the engine and the option that rewrites the golden file.
 
 The rate cards stand in for the two carriers over the whole grid. The forms are the legacy engine,
-the refactored engine and two refactors that change a total by a cent; each is built from the same
+the refactored engine and two refactors that change totals; each is built from the same
 two plain functions.
 """
 

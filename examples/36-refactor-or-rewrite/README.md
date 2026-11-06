@@ -20,10 +20,11 @@ a difference, or a `RatingError`, is passed to `report` as a `Mismatch`. The sha
 served. `quote_routed` is the router bound at the module root, migrating ASIA only. It routes calls
 and converts no interface, so it is not the Adapter pattern.
 
-`PARITY_ROWS` in `tests/test_parity.py` puts weights either side of every limit, on it, and above
-the last band, for EU and ASIA, plus one AFRICA row. `ACCEPTED_DIFFERENCES` lists the row where the
+`PARITY_ROWS` in `tests/test_parity.py` puts weights on every limit (5, 20 and 50 kg), just above 5
+and 50 kg, and above the last band, for EU and ASIA, plus one AFRICA row. `ACCEPTED_DIFFERENCES` lists the row where the
 rewrite is meant to differ. The first draft of the rewrite, `_exclusive_limits_quote` in
-`tests/conftest.py`, uses `bisect_right` and moves a weight equal to a limit into the next band.
+`tests/conftest.py`, uses `bisect_right`, so a weight equal to a limit no longer
+lands in the band that limit closes.
 
 A parity failure is a list of row ids in table order.
 

@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 def _exclusive_limits_quote(
     consignment: Consignment, /, *, tariff: Tariff = STANDARD_TARIFF
 ) -> RateQuote:
-    """The rewrite as first drafted: a weight equal to a limit moves to the next band."""
+    """The rewrite as first drafted: a weight equal to a limit leaves the band that limit closes."""
     try:
         band_prices = tariff.prices[consignment.zone]
     except KeyError:

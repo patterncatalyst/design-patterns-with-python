@@ -12,7 +12,7 @@ from refactor_or_rewrite.rating import Tariff, quote
 if TYPE_CHECKING:
     type Quoter = Callable[[Consignment], RateQuote]
 
-# Weights sit either side of every limit (5, 20, 50 kg), on it, and well above the last band.
+# Weights sit on every limit (5, 20, 50 kg), just above 5 and 50 kg, and well above the last band.
 _WEIGHTS = ("0.5", "5", "5.001", "20", "20.5", "50", "50.001", "60")
 PARITY_ROWS = [(zone, kg) for zone in ("EU", "ASIA") for kg in _WEIGHTS] + [("AFRICA", "5")]
 

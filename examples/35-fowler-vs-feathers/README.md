@@ -15,7 +15,7 @@ requirement. `refactored.py` is the same engine after two catalogue refactorings
 - Replace Primitive with Object: carrier prices are `Money` at full precision, and only the total
   is rounded, once, half up. `CENT` names the quantum.
 
-Two more refactors live in `tests/conftest.py` as altered engines. They change a total by a cent.
+Two more refactors live in `tests/conftest.py` as altered engines. They change totals that the golden quotes record.
 
 - `_CentFirstRateEngine` rounds each carrier price to the cent when it becomes `Money`.
 - `_RoundBuiltinRateEngine` replaces the half-up quantise with `round(amount, 2)`.

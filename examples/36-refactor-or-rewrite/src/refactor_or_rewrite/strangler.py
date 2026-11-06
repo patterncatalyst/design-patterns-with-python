@@ -1,7 +1,7 @@
 """A strangler-style router: it sends each zone to the legacy engine or to the rewrite.
 
 It routes calls and converts no interface, so it is not the Adapter pattern. It is transitional
-code: once every zone is migrated, the router and the legacy engine can be deleted.
+code: once every zone is migrated, the legacy engine is never called.
 """
 
 from collections.abc import Callable, Container
