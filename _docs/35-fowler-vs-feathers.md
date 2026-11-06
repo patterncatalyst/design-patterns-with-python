@@ -192,7 +192,7 @@ FAILED tests/test_golden.py::test_the_golden_quotes_catch_a_refactor_that_change
 Success: no issues found in 9 source files
 ```
 
-All 22 intent cases pass, and mypy exits 0. The refactored engine fails against the golden file with the 18 rows. The second failure belongs to the `round(x, 2)` mutant, which extends the refactored engine and inherits the edit, so it now changes the cent-first rows as well and its exact list no longer matches.
+All 22 cases in `tests/test_intent.py` pass, and mypy exits 0. The refactored engine fails against the golden file with the 18 rows. The second failure belongs to the `round(x, 2)` mutant, which extends the refactored engine and inherits the edit, so it now changes the cent-first rows as well and its exact list no longer matches.
 
 Experiment two restores `refactored.py`, then replaces `(price.amount * self._margin).quantize(CENT, rounding=ROUND_HALF_UP)` in `_with_margin` with `round(price.amount * self._margin, 2)`.
 
@@ -221,7 +221,7 @@ The intent rows pass again and mypy exits 0. The golden file lists `EU-30` and `
 
 ## What you can do now
 
-- State each book's condition: the contrast table puts Fowler's self-testing code against Feathers's legacy system not yet under test, and says what each test records.
+- State each book's condition: the contrast table puts Fowler's self-testing code against Feathers's legacy system not yet under test, and sets each book's test beside the example's.
 - Write tests from the requirement: `INTENT_ROWS` fixes both carrier answers, and `test_the_intent_rows_pass_every_engine_and_both_rounding_refactors` shows they pass refactors that move totals.
 - Record golden values and compare them so a failure reads the same each run: `rate_quotes.json`, `_mismatches` and `--update-golden`, with the inline rows for review.
 - Apply catalogue refactorings and catch a bad one: `refactored.RateEngine` keeps `Money` at full precision, and `test_the_golden_quotes_catch_a_refactor_that_changes_rounding` lists the 18 rows and the two rows its mutants change.
