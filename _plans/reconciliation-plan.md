@@ -25,8 +25,8 @@ Status values: open, verified, adjusted, dropped.
 | 6 | 26 | A `functools.wraps`-less wrapper loses `__name__` and signature | `test_a_wrapper_without_wraps_reports_its_own_name_and_no_docstring`, `test_inspect_signature_follows_wrapped_to_the_original_parameters` | verified (r12) |
 | 7 | 25 | singledispatch, `match` and classic double dispatch give the same Visitor result over `Document` kinds | `test_every_visitor_form_describes_a_journey_the_same_way` | adjusted (r12): over `HandlingEvent` kinds, not `Document` kinds; r12 decision 3 |
 | 8 | 25 | `assert_never` makes a missing `match` arm a type error | `test_mypy_reports_an_event_left_out_of_a_match` | verified (r12) |
-| 9 | 28 | singledispatch registers on type annotations and works on 3.15 (including union types) | Spike 012 on the pinned interpreter | open (2026-11-04, r05: spike tests re-run green on 3.15.2; the first run was on 3.14.10). Carried by chapter 28 in r13; verification unchanged until P2 |
-| 10 | 28 | `singledispatchmethod` dispatches on the first non-self argument | Spike 012 | open. Carried by chapter 28 in r13; verification unchanged until P2 |
+| 9 | 28 | singledispatch registers on type annotations and works on 3.15 (including union types) | `test_every_fallback_form_gives_registered_commodities_their_codes`, `test_a_union_annotation_registers_each_member` | verified (r13) |
+| 10 | 28 | `singledispatchmethod` dispatches on the first non-self argument | `test_singledispatchmethod_dispatches_on_the_first_argument_after_self` | verified (r13) |
 | 11 | 30 | `__getattr__` is called only on failed normal lookup; `__getattribute__` on every access | Small experiment with a call counter | open |
 | 12 | 30 | `__getattr__` proxy avoids infinite recursion only when it uses `object.__getattribute__`/`__dict__` | Experiment: failing recursion case, then the fixed one | open |
 | 13 | 29 | `__init_subclass__` replaces most metaclass registries | Spike 013: same registry both ways, conflict case for metaclasses | open |
