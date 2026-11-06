@@ -6,6 +6,7 @@ requires-python = ">=3.15"
 members = [
     "adapter-facade-bridge",
     "builder-prototype",
+    "carrier-registry",
     "command-undo",
     "composite-flyweight",
     "consignments",
@@ -88,6 +89,11 @@ wheels = [
 name = "builder-prototype"
 version = "0.1.0"
 source = { editable = "examples/17-builder-dataclasses-and-prototype" }
+
+[[package]]
+name = "carrier-registry"
+version = "0.1.0"
+source = { editable = "examples/29-metaclasses-init-subclass-and-registries" }
 
 [[package]]
 name = "colorama"
