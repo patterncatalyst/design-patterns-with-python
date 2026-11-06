@@ -96,6 +96,7 @@ That's the same protection, bought with a method on each class and a class per o
 
 What survives of Visitor is a question the language doesn't answer for you: is the set of kinds closed or open? A closed set is a union that one team owns, and `match` with `assert_never` makes each function notice a new kind. An open set is one that other code extends, and there `functools.singledispatch` is the tool. A function registers one implementation per class, and callers that add a kind register their own. [singledispatch: the Visitor the language gives you]({{ '/docs/28-singledispatch/' | relative_url }}) is the place for registration itself. What matters here is what open costs:
 
+<!-- fmt:off -->
 ```python
 def test_a_singledispatch_visitor_gives_an_unregistered_event_its_fallback() -> None:
     @singledispatch
@@ -111,6 +112,7 @@ def test_a_singledispatch_visitor_gives_an_unregistered_event_its_fallback() -> 
     assert describe_event(Cleared(CN1, "SGSIN")) == "cleared"
     assert describe_event(Delivered(CN1, "SGSIN")) == "unrecognised event"
 ```
+<!-- fmt:on -->
 
 The `Booked`, `Loaded` and `Departed` registrations read the same way and are left out of the excerpt. `Delivered` has no registration, so the call falls to the function marked `@singledispatch` and returns "unrecognised event". Nothing raises (`test_a_singledispatch_visitor_gives_an_unregistered_event_its_fallback`). mypy says nothing either: `test_mypy_accepts_a_singledispatch_visitor_that_misses_an_event` checks a function with four registrations and exits 0 with empty output. A fallback that raises a `TypeError` instead surfaces the gap when the call is made, as a separate run on Python 3.15.2 showed. An open set trades that check for extensibility.
 
