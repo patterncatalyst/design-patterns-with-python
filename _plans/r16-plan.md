@@ -19,7 +19,7 @@ Exact chapter identities, from `scripts/chapters.toml` and the `_docs` front mat
 
 Work items: PDP-133a-c (ch33 example, figure, prose) and PDP-134a-c (ch34), `todo` in `_plans/iteration-plan.md`.
 
-## User decisions (owner to confirm)
+## User decisions (owner confirmed 2026-11-06: all as recommended, step letter S with distinct run ids)
 
 0. **Step ids.** The steps are S0 to S7, as the owner asked. r01's steps table already has S0 to S15, all `done`, and `validate.py --claims` resolves `run: <id>` against the steps tables of every plan. So a token such as `run: S5` would resolve against r01's row and could never fail. Every r16 `run:` token therefore uses an id r01 doesn't have: `S1a`, `S1b`, `S5a` and `S5b`. Plain S0, S2, S3, S4, S6 and S7 appear only in this plan's table and are never cited from the reconciliation plan.
 
