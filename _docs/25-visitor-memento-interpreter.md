@@ -83,7 +83,7 @@ class _AcceptingBooked(Booked):
         return visitor.visit_booked(self)
 ```
 
-The real events don't gain the method: `test_the_accept_form_puts_an_accept_method_on_every_event_class` finds `accept` on all five twins and on none of the five classes in `src`. The cost is a dispatch method on each kind. The form does catch one mistake the `match` catches differently. A visitor that lacks a `visit_` method is refused by mypy, and `test_mypy_reports_a_visitor_class_missing_a_visit_method` shows it on a reduced model, two event classes and a describer with one method:
+The real events don't gain the method: `test_the_accept_form_puts_an_accept_method_on_every_event_class` finds `accept` on all five twins and on none of the five classes in `src`. The cost is a dispatch method on each kind. The form does catch one mistake the `match` catches differently. A visitor that lacks a `visit_` method is refused by mypy, and `test_mypy_reports_a_visitor_class_missing_a_visit_method` shows it on a reduced model, a self-contained snippet with two event classes and a describer that has one method:
 
 ```text
 <string>:33: error: Argument 1 to "accept" of "Booked" has incompatible type "Describer"; expected "EventVisitor[Never]"  [arg-type]
@@ -94,37 +94,18 @@ That's the same protection, bought with a method on each class and a class per o
 
 ## Closed or open
 
-What survives of Visitor is a question the language doesn't answer for you: is the set of kinds closed or open? A closed set is a union that one team owns, and `match` with `assert_never` makes each function notice a new kind. An open set is one that other code extends, and there `functools.singledispatch` is the tool. A function registers one implementation per class, and callers that add a kind register their own. [singledispatch: the Visitor the language gives you]({{ '/docs/28-singledispatch/' | relative_url }}) is the place for registration itself. What matters here is what open costs:
+What survives of Visitor is a question the language doesn't answer for you: is the set of kinds closed or open? A closed set is a union that one team owns, and `match` with `assert_never` makes each function notice a new kind. An open set is one that other code extends, and there `functools.singledispatch` is the tool. A function registers one implementation per class, and callers that add a kind register their own. The open form has its own chapter, [singledispatch: the Visitor the language gives you]({{ '/docs/28-singledispatch/' | relative_url }}). Its cost shows in one test.
 
-<!-- fmt:off -->
-```python
-def test_a_singledispatch_visitor_gives_an_unregistered_event_its_fallback() -> None:
-    @singledispatch
-    def describe_event(event: object, /) -> str:
-        return "unrecognised event"
+`test_a_singledispatch_visitor_gives_an_unregistered_event_its_fallback` registers `Booked`, `Loaded`, `Departed` and `Cleared` on a fallback that takes any `object`. `Delivered` has no registration, so the call falls to the fallback and returns "unrecognised event", and nothing raises. mypy says nothing either: `test_mypy_accepts_a_singledispatch_visitor_that_misses_an_event` checks the same four registrations and exits 0 with empty output. An open set trades that check for extensibility.
 
-
-    @describe_event.register
-    def _(event: Cleared, /) -> str:
-        return "cleared"
-
-
-    assert describe_event(Cleared(CN1, "SGSIN")) == "cleared"
-    assert describe_event(Delivered(CN1, "SGSIN")) == "unrecognised event"
-```
-<!-- fmt:on -->
-
-The `Booked`, `Loaded` and `Departed` registrations read the same way and are left out of the excerpt. `Delivered` has no registration, so the call falls to the function marked `@singledispatch` and returns "unrecognised event". Nothing raises (`test_a_singledispatch_visitor_gives_an_unregistered_event_its_fallback`). mypy says nothing either: `test_mypy_accepts_a_singledispatch_visitor_that_misses_an_event` checks a function with four registrations and exits 0 with empty output. A fallback that raises a `TypeError` instead surfaces the gap when the call is made, as a separate run on Python 3.15.2 showed. An open set trades that check for extensibility.
-
-The functools documentation also says the dispatch is by one argument: "note that the dispatch happens on the type of the first argument". [PEP 443](https://peps.python.org/pep-0443/), by Łukasz Langa, defines the term: "When the implementation is chosen based on the type of a single argument, this is known as single dispatch." `test_singledispatch_dispatches_on_the_first_argument_only` registers `Booked` as the first parameter of a two-parameter function and shows that the second argument doesn't take part: `two(booked, 1)` and `two(booked, "x")` pick the same implementation, and `two(1, booked)` falls back. When an operation depends on two values, a `match` on a tuple reads both, as the sequence patterns of [PEP 634](https://peps.python.org/pep-0634/) allow. The [functools documentation](https://docs.python.org/3/library/functools.html) is the reference for the decorator.
+The functools documentation also says the dispatch is by one argument: "note that the dispatch happens on the type of the first argument". [PEP 443](https://peps.python.org/pep-0443/), by Łukasz Langa, defines the term: "When the implementation is chosen based on the type of a single argument, this is known as single dispatch." `test_singledispatch_dispatches_on_the_first_argument_only` registers `Booked` as the first parameter of a two-parameter function and shows that the second argument doesn't take part: `two(booked, 1)` and `two(booked, "x")` pick the same implementation, and `two(1, booked)` falls back. When an operation depends on two values, a `match` on a tuple reads both. [PEP 634](https://peps.python.org/pep-0634/), by Brandt Bucher and Guido van Rossum, specifies it: "A fixed-length sequence pattern matches the subpatterns to corresponding items of the subject sequence, from left to right." The [functools documentation](https://docs.python.org/3/library/functools.html) is the reference for the decorator.
 
 ## Memento: a frozen snapshot and a rollback
 
-Memento is for restoring an object to an earlier state without handing its insides to the code that does the restoring. *Design Patterns* has the object produce an opaque token of its own state, and a separate holder keeps the token and gives it back; the holder doesn't open it. Python shrinks the arrangement to two parts. The token is a frozen dataclass, and the holder is a context manager that restores on an exception. The bucket is survives, because two decisions stay with you: what to capture, and what must not roll back. [Command, undo, and command queues]({{ '/docs/15-command-undo-and-command-queues/' | relative_url }}) covers undo by inverse, where a frozen request is already a safe snapshot. A booking is the case that chapter hands over: state spread over fields, some of them mutable, where no single inverse exists.
+Memento is for putting an object back the way it was after a change fails, when the code that asks for the undo shouldn't reach into the object's fields. *Design Patterns* has the object produce an opaque token of its own state, and a separate holder keeps the token and gives it back; the holder doesn't open it. Python shrinks the arrangement to two parts. The token is a frozen dataclass, and the holder is a context manager that restores when the block raises an `Exception`. The bucket is survives, because two decisions stay with you: what to capture, and what must not roll back. [Command, undo, and command queues]({{ '/docs/15-command-undo-and-command-queues/' | relative_url }}) covers undo by inverse, where a frozen request is already a safe snapshot. A booking is the case that chapter hands over: state spread over fields, some of them mutable, where no single inverse exists.
 
 <!-- fmt:off -->
 ```python
-
 @dataclass(frozen=True, slots=True)
 class BookingSnapshot:
     """What a rollback needs: the request and an immutable copy of the documents."""
@@ -156,7 +137,7 @@ def rollback(booking: Booking) -> Iterator[None]:
 
 `Booking` holds a frozen `BookingRequest`, a working set of documents and an append-only audit list. The snapshot captures the request and a `frozenset` of the documents, so the live set and the saved one are different objects. It leaves the audit out, because a record that an amendment was refused must survive the rollback of that amendment.
 
-The test batch attaches a dangerous goods declaration, reweighs to 1,200 kg and redirects to "Hamburg", which isn't a five-letter UN/LOCODE and is refused. After the rollback the request is back to 100 kg and `SGSIN`, in all three forms of the restore table (`test_rollback_restores_the_request_after_a_failed_amendment`), and the documents are the commercial invoice alone (`test_rollback_restores_the_attached_documents`). The `AmendmentError` leaves the block, so the caller still learns the batch failed (`test_rollback_re_raises_the_amendment_error`). A batch that succeeds keeps its changes (`test_a_block_that_succeeds_keeps_its_changes`). The audit holds four entries: the attachment, the reweigh, the refusal and `"rolled back"` (`test_rollback_keeps_the_audit_trail`).
+The test batch attaches a dangerous goods declaration, reweighs to 1,200 kg and redirects to "Hamburg", which isn't a five-letter UN/LOCODE and is refused. After the rollback the request is back to 100 kg and `SGSIN`, in all three forms of the restore table (`test_rollback_restores_the_request_after_a_failed_amendment`), and with the snapshot the documents are the commercial invoice alone (`test_rollback_restores_the_attached_documents`). The `AmendmentError` leaves the block, so the caller still learns the batch failed (`test_rollback_re_raises_the_amendment_error`). A batch that succeeds keeps its changes (`test_a_block_that_succeeds_keeps_its_changes`). The audit holds four entries: the attachment, the reweigh, the refusal and `"rolled back"` (`test_rollback_keeps_the_audit_trail`).
 
 Two other ways to take the memento fail differently. Saving `copy.copy(booking)` is shallow, so the copy's `documents` is the live set. A document attached inside the failed block stays attached after the restore (`test_a_shallow_memento_keeps_a_document_attached_after_rollback`). Saving `copy.deepcopy(booking)` copies the audit list as well, and restoring it throws away the refused attempt: the audit ends as `["rolled back"]` (`test_a_deepcopy_memento_erases_the_audit_trail_on_rollback`). The copy documentation puts the risk in general terms: "Because deep copy copies everything it may copy too much, such as data which is intended to be shared between copies." Here the request is such data. A snapshot shares the frozen request with the booking, since a value that can't change is safe to share, and a deep copy makes a new equal one (`test_a_snapshot_shares_the_frozen_request_and_a_deepcopy_copies_it`). The [copy module documentation](https://docs.python.org/3/library/copy.html) describes both functions.
 
@@ -169,8 +150,9 @@ The snapshot can't be changed afterwards. At run time, assigning to a field rais
 
 ## Interpreter: a tariff as a tree
 
-Interpreter is for rules that people write as sentences in a small language and that the program must act on. *Design Patterns* gives each rule of the grammar a class, represents a sentence as a tree of instances, and puts the reading in a method on them. The classes stay in Python. What dissolves is a method on each node: a reading is a function with one `match`, the same move as the visitor above. The bucket is survives, because the grammar and its readings are still design. The question is how many readings one rule gets.
+Interpreter is for rules that people write down and the program must apply. In *Design Patterns* a rule is a tree of objects with one class per kind of node, and each class carries the method that evaluates it. The classes stay in Python, as a small grammar of frozen nodes. What dissolves is a method on each node: a reading is a function with one `match`, the same move as the visitor above. The bucket is survives, because the grammar and its readings are still design. The question is how many readings one rule gets.
 
+<!-- fmt:off -->
 ```python
 @dataclass(frozen=True, slots=True)
 class Add:
@@ -207,10 +189,11 @@ def evaluate(expr: Expr, consignment: Consignment, /) -> Money:
         case _:
             assert_never(expr)
 ```
+<!-- fmt:on -->
 
-`Max` has the same two fields as `Add`, and `PerKg` and `Flat` carry a `Money`. The recursive fields name `Expr` before the alias exists. Annotations are evaluated lazily since 3.14, as [PEP 749](https://peps.python.org/pep-0749/) by Jelle Zijlstra specifies, so the fields need no quotes. The standard tariff, `STANDARD_TARIFF`, is one tree: over 1,000 kg, 1.10 EUR per kg plus 25.00 EUR, and otherwise the larger of 1.20 EUR per kg and 45.00 EUR. The rates are illustrative.
+`Max` has the same two fields as `Add`, and `PerKg` and `Flat` carry a `Money`. The recursive fields name `Expr` before the alias exists. Annotations are evaluated lazily since 3.14, as [PEP 649](https://peps.python.org/pep-0649/) by Larry Hastings specifies and [PEP 749](https://peps.python.org/pep-0749/) by Jelle Zijlstra refines, so the fields need no quotes. The standard tariff, `STANDARD_TARIFF`, is one tree: over 1,000 kg, 1.10 EUR per kg plus 25.00 EUR, and otherwise the larger of 1.20 EUR per kg and 45.00 EUR. The rates are illustrative.
 
-A tree and a set of closures built from the same rules price the same consignments. `test_every_rule_form_prices_the_same_consignments` runs both at 10, 100, 100.333, 1,000 and 2,000 kg and gets 45.00, 120.00, 120.40, 1,200.00 and 2,225.00 EUR. At 10 kg the minimum charge of 45.00 applies. At 1,000 kg the limit isn't passed, because `OverWeight` compares with `>`, so the second branch prices it at 1,200.00. The closure form agrees on all five weights and loses two things. The first is that a closure can't be read back. `explain` writes the same tree as a sentence (`test_explain_writes_the_tariff_as_text`):
+A tree and a set of closures built from the same rules price the same consignments. `test_every_rule_form_prices_the_same_consignments` runs both at 10, 100, 100.333, 1,000 and 2,000 kg and gets 45.00, 120.00, 120.40, 1,200.00 and 2,225.00 EUR. At 10 kg the minimum charge of 45.00 applies. At 1,000 kg the limit isn't passed, because `OverWeight` compares with `>`, so the second branch prices it at 1,200.00. The closure form agrees on all five weights and loses two things. The first is that only the tree has a second reading. `explain` writes the same tree as a sentence (`test_explain_writes_the_tariff_as_text`):
 
 ```text
 over 1000 kg: 1.10 EUR per kg + 25.00 EUR; otherwise the larger of 1.20 EUR per kg and 45.00 EUR
@@ -328,7 +311,7 @@ FAILED tests/test_memento.py::test_rollback_keeps_the_audit_trail - Assertion...
 Success: no issues found in 10 source files
 ```
 
-Only the audit test fails: the restore returns the audit as it was before the batch, so the refusal disappears and `"rolled back"` is all that remains. The tests for the request, the documents, re-raising and the successful block don't read the audit. mypy exits 0, because the change is type-correct.
+Only the audit test fails: the restore returns the audit as it was before the batch, so the refusal disappears and `"rolled back"` is all that remains. The tests for the request, the documents and re-raising don't read the audit, and the successful block never restores it. mypy exits 0, because the change is type-correct.
 
 **Experiment two: delete the `Delivered` arm.** In a fresh scratch copy, delete the two lines of the `Delivered` case from `describe`. The same filter, then mypy, prints:
 

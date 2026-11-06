@@ -18,21 +18,21 @@ named in its title.
 `describe` and `status_after` are each one `match` over `HandlingEvent`, ending in `assert_never`,
 so mypy reports an event left out and the run time refuses an object outside the union. A
 singledispatch visitor and the accept form describe the same journey as comparisons. The
-singledispatch form gives an unregistered event its fallback's answer, silently, and mypy accepts
+singledispatch form gives an unregistered event its fallback's answer without an error, and mypy accepts
 it. The accept form puts a method on every event class.
 
 ## The memento
 
-`rollback(booking)` restores a frozen `BookingSnapshot` when a block raises, appends a record and
-re-raises. The audit is not captured, so a refused amendment survives. A shallow copy shares the
+`rollback(booking)` restores a frozen `BookingSnapshot` when a block raises an `Exception`, appends a record and
+re-raises. The audit isn't captured, so a refused amendment survives. A shallow copy shares the
 document set and keeps a document attached inside the failed block. A deep copy restores the audit
 and erases the refused attempt.
 
 ## The interpreter
 
 `Expr` is a tree of frozen nodes. `evaluate` prices a consignment and `explain` writes the rule
-back as a sentence. Equal trees compare and hash equal, closures built the same way do not, and
-currencies do not mix. mypy reports a node left out of `evaluate`.
+back as a sentence. Equal trees compare and hash equal, closures built the same way don't, and
+currencies don't mix. mypy reports a node left out of `evaluate`.
 
 ## Build, run, observe
 

@@ -18,7 +18,7 @@ title, and no test sleeps: every clock is injected.
 `timed_render` uses `functools.wraps`, so the renderer keeps its name, docstring and `__wrapped__`.
 A bare wrapper renders the same text and loses all three, yet mypy still sees the signature through
 `ParamSpec`. A decorator that supplies an argument shows where `wraps` misleads: `inspect.signature`
-reports parameters the wrapper does not take, and `functools.partial` reports the ones that remain.
+reports parameters the wrapper doesn't take, and `functools.partial` reports the ones that remain.
 
 ## Factories and stacking
 
@@ -30,7 +30,7 @@ error. With the timer outside the cache every call is timed, and inside it only 
 
 `document_kind` registers `BillOfLading` and `Manifest` and is placed above `@dataclass(slots=True)`,
 because beneath it the registered class is the one that is thrown away. A function wrapper binds
-`self` on a method and a class-based wrapper does not. `functools.cache` on a method keeps the
+`self` on a method and a class-based wrapper doesn't. `functools.cache` on a method keeps the
 instance alive.
 
 ## Build, run, observe

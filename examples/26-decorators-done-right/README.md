@@ -28,7 +28,7 @@ Factories and stacking.
 
 - `cached_for(*, seconds, clock=...)` serves a result for the window, one entry per distinct
   arguments, with the clock injected, so no test sleeps. It refuses an unhashable argument and a window
-  that is not positive.
+  that isn't positive.
 - The window is keyword-only, so `@cached_for` used bare is a `TypeError` at definition. The
   comparison `_cached_for_positional(seconds)` in `tests/conftest.py` takes it positionally, and used
   bare it binds the name to its inner decorator and returns a function where text was expected, with no
@@ -39,11 +39,11 @@ Factories and stacking.
 Class decorators and methods.
 
 - `document_kind(kind, *, registry=DOCUMENT_TYPES)` registers `BillOfLading` and `Manifest` at
-  definition, refuses a second class for a kind with `DocumentKindError`, and keeps the class's type
-  for mypy. Beneath `@dataclass(slots=True)` it registers a class that is thrown away. Forgetting
+  definition, refuses a second class for a kind with `DocumentKindError`, and mypy keeps the class's
+  type, as it does through any class decorator. Beneath `@dataclass(slots=True)` it registers a class that is thrown away. Forgetting
   `return cls` binds the name to `None`, and mypy reports `[return]`.
 - A function wrapper binds `self` on a method, because functions are descriptors. A class-based
-  wrapper without `__get__` does not. `functools.cache` on a method keeps the instance alive until the
+  wrapper without `__get__` doesn't. `functools.cache` on a method keeps the instance alive until the
   cache is cleared (ruff B019).
 
 ## Layout
@@ -120,5 +120,5 @@ uv run mypy --strict src tests
 - `test_mypy_reports_a_class_decorator_that_forgets_to_return`: `[return]` (a reduced model).
 - `test_mypy_keeps_the_class_type_through_document_kind`: clean.
 
-Classes and functions named with a leading underscore in the tests are fixtures and are not part
+Classes and functions named with a leading underscore in the tests are fixtures and aren't part
 of the model code.

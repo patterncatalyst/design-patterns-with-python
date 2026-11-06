@@ -23,7 +23,7 @@ A booking portal renders bills of lading, caches each rendering for five minutes
 
 A renderer reports itself as `wrapper` and has no docstring, so a log line or a help page names a function nobody wrote.
 
-A cache factory takes its window as a positional argument, and someone writes `@cached_for` with no call. Nothing fails. The name is bound to the factory's inner function, and calling it returns a function where text was expected.
+A cache factory takes its window as a positional argument and never checks it, and someone writes `@cached_for` with no call. Nothing fails. The name is bound to the factory's inner function, and calling it returns a function where text was expected.
 
 A document class is registered by a decorator and then wrapped by `@dataclass(slots=True)` above it. The registry holds a class that the code never uses.
 
@@ -35,7 +35,7 @@ Read the figure from the top down. `render_bill`, "the function both stacks wrap
 
 ## What wraps copies
 
-A decorator replaces a function with another one, and everything that reads the function afterwards reads the replacement: a log line, a help page, a debugger, a signature check. `functools.wraps` makes the replacement look like the original. The rebinding itself, and the factories that sit around it, are in [Decorator the pattern vs @decorator the syntax, and Proxy]({{ '/docs/20-decorator-pattern-vs-decorator-syntax-and-proxy/' | relative_url }}); this chapter starts from the wrapper.
+A decorator replaces a function with another one, and everything that reads the function afterwards reads the replacement: a log line, a help page, a debugger, a signature check. `functools.wraps` makes the replacement look like the original. The rebinding itself, and the factories that sit around it, are in [Decorator the pattern vs @decorator the syntax, and Proxy]({{ '/docs/20-decorator-pattern-vs-decorator-syntax-and-proxy/' | relative_url }}).
 
 ```python
 def timed_render[**P, R](
@@ -114,9 +114,9 @@ Used bare, as `@positional_factory` with no call, it fails without an error:
 ```
 <!-- fmt:on -->
 
-`render` is now the factory's inner `decorate`, and calling it with a bill returns the wrapper (`test_a_positional_factory_used_bare_binds_the_name_to_its_inner_decorator`). mypy refuses the bare use (`[arg-type]`, `test_mypy_refuses_a_positional_factory_used_bare`), but only where mypy runs.
+`render` is now the factory's inner `decorate`, and calling it with a bill returns the wrapper (`test_a_positional_factory_used_bare_binds_the_name_to_its_inner_decorator`). mypy refuses the bare use on a reduced model (`[arg-type]`, `test_mypy_refuses_a_positional_factory_used_bare`), but only where mypy runs.
 
-The factory in the example puts a `*` before `seconds`. Bare `@cached_for` then raises `TypeError` with "takes 0 positional arguments" when the module loads (`test_a_keyword_only_factory_used_bare_fails_at_definition`), and mypy reports `[call-arg]` and `[arg-type]` (`test_mypy_refuses_a_keyword_only_factory_used_bare`). One character moves the failure from a call somewhere downstream to the line that caused it.
+The factory in the example puts a `*` before `seconds`. Bare `@cached_for` then raises `TypeError` with "takes 0 positional arguments" when the module loads (`test_a_keyword_only_factory_used_bare_fails_at_definition`), and mypy reports `[call-arg]` and `[arg-type]` (`test_mypy_refuses_a_keyword_only_factory_used_bare`). Without the `*` the bare use still fails at the `def`, as experiment two shows, but only because the window check compares a function with `0`.
 
 ## A cache with a clock, and the order of the stack
 
@@ -152,7 +152,7 @@ def cached_for[**P, R](
     return decorate
 ```
 
-Two calls inside the window render once (`test_cached_for_returns_the_cached_text_within_the_window`). The entry is stamped when the call starts, so the render's own two seconds of clock time count against the window: a call exactly one window later, and one past it, render again (`test_cached_for_renders_again_once_the_window_has_passed`). Each distinct argument has its own entry, including a keyword argument such as `width=30` (`test_cached_for_keeps_one_entry_per_argument`). A list argument fails with `TypeError` and the message "cannot use 'tuple' as a dict key (unhashable type: 'list')" on 3.15.2 (`test_cached_for_refuses_an_unhashable_argument`). A window of zero or less is a `ValueError` (`test_cached_for_refuses_a_window_that_is_not_positive`). The cache is single-threaded, as its docstring says. `timed_render` reports the elapsed clock time, `2.0` in the tests, whether the render returns or raises (`test_timed_render_reports_the_elapsed_clock_time`).
+Two calls inside the window render once (`test_cached_for_returns_the_cached_text_within_the_window`). The entry is stamped when the call starts, so the render's own two seconds of clock time count against the window: a call exactly one window later, and one past it, render again (`test_cached_for_renders_again_once_the_window_has_passed`). Each distinct argument has its own entry, including a keyword argument such as `width=30` (`test_cached_for_keeps_one_entry_per_argument`). A list passed positionally fails with `TypeError` and the message "cannot use 'tuple' as a dict key (unhashable type: 'list')" on 3.15.2 (`test_cached_for_refuses_an_unhashable_argument`). A window of zero or less is a `ValueError` (`test_cached_for_refuses_a_window_that_is_not_positive`). The cache is single-threaded, as its docstring says. `timed_render` reports the elapsed clock time, `2.0` in the tests, whether the render returns or raises (`test_timed_render_reports_the_elapsed_clock_time`).
 
 Stacking decides what the timer sees. The compound statements reference says "Multiple decorators are applied in nested fashion", and its example reads `@f1(arg)` over `@f2` as `f1(arg)(f2(func))`: the decorator nearest the `def` applies first. These two orders are written as calls in the test:
 
@@ -162,29 +162,45 @@ Stacking decides what the timer sees. The compound statements reference says "Mu
 ```
 <!-- fmt:on -->
 
-Called twice with the same bill, both orders render once. With the timer outside, the sink receives `("render", 2.0)` and then `("render", 0.0)`, the hit counted as a call that took no clock time. With the timer inside, it receives only `("render", 2.0)`, because a hit never reaches it (`test_stacking_order_decides_whether_a_cache_hit_is_timed`). The inside order measures the renderer. The outside order measures what the caller waited, hits included. A dashboard of renderer cost wants the first, and one of response time wants the second.
+Called twice with the same bill, both orders render once. With the timer outside, the sink receives `("render", 2.0)` and then `("render", 0.0)`, the hit counted as a call that took no clock time. With the timer inside, it receives only `("render", 2.0)`, because a hit never reaches it (`test_stacking_order_decides_whether_a_cache_hit_is_timed`). The inside order measures the renderer. The outside order measures what the caller waited, hits included. A dashboard of renderer cost wants the timer inside, and one of response time wants it outside.
 
 ## Class decorators
 
-A registry of document classes shouldn't depend on someone remembering to call `register(BillOfLading)`. `document_kind(kind, *, registry=DOCUMENT_TYPES)` is a class decorator that registers at definition: importing the module fills `DOCUMENT_TYPES` with `BillOfLading` and `Manifest` (`test_document_kind_registers_the_class_at_definition`), and a second class for the same kind raises `DocumentKindError` (`test_document_kind_refuses_a_second_class_for_a_kind`). Its signature, `[C: type](...) -> Callable[[C], C]`, hands the class back with its own type, so mypy still sees `BillOfLading.number` as a `str` (`test_mypy_keeps_the_class_type_through_document_kind`). The mechanism is [PEP 3129](https://peps.python.org/pep-3129/), by Collin Winter, which "proposes class decorators, an extension to the function and method decorators introduced in PEP 318."
+A registry of document classes shouldn't depend on someone remembering to call `register(BillOfLading)`. `document_kind` is a class decorator that registers at definition:
 
-The order against `@dataclass(slots=True)` matters. The [dataclasses documentation](https://docs.python.org/3/library/dataclasses.html) says of `slots`: "If true (the default is False), __slots__ attribute will be generated and new class will be returned instead of the original one." A decorator beneath it registers the original:
-
-<!-- fmt:off -->
 ```python
-    @dataclass(frozen=True, slots=True)
-    @document_kind(DocumentKind.BILL_OF_LADING, registry=registry)
-    class Beneath:
-        number: str
+def document_kind[C: type](
+    kind: DocumentKind, *, registry: dict[DocumentKind, type] = DOCUMENT_TYPES
+) -> Callable[[C], C]:
+    """Register the decorated class for ``kind`` and return it unchanged.
 
-    registered = registry[DocumentKind.BILL_OF_LADING]
-    assert registered is not Beneath
-    assert "__slots__" in vars(Beneath)
-    assert "__slots__" not in vars(registered)
+    Put it above ``@dataclass(slots=True)``: that decorator returns a new class, and a
+    decorator beneath it would register the class that is thrown away.
+    """
+
+    def register(cls: C) -> C:
+        if kind in registry:
+            raise DocumentKindError(
+                f"{kind.name} is already registered to {registry[kind].__qualname__}"
+            )
+        registry[kind] = cls
+        return cls
+
+    return register
+
+
+@document_kind(DocumentKind.BILL_OF_LADING)
+@dataclass(frozen=True, slots=True)
+class BillOfLading:
+    number: str
+    consignment_id: ConsignmentId
+    port_of_loading: str
+    port_of_discharge: str
 ```
-<!-- fmt:on -->
 
-The registry holds a class without `__slots__`, and the name holds the slotted one. Put above the dataclass, `document_kind` registers the class the name ends up holding (`test_a_class_decorator_beneath_a_slotted_dataclass_registers_a_discarded_class` checks both orders), which is why `BillOfLading` and `Manifest` are written that way round.
+Importing the module fills `DOCUMENT_TYPES` with `BillOfLading` and `Manifest` (`test_document_kind_registers_the_class_at_definition`), and a second class for the same kind raises `DocumentKindError` (`test_document_kind_refuses_a_second_class_for_a_kind`). The signature says the class comes back unchanged. mypy doesn't apply a class decorator's return type, though: a decorated class keeps its own type whatever the decorator declares, so `BillOfLading.number` is a `str` either way (`test_mypy_keeps_the_class_type_through_document_kind`, beside a reduced model declared to return `int`). The mechanism is [PEP 3129](https://peps.python.org/pep-3129/), by Collin Winter, which extended the `@` form to classes.
+
+The order against `@dataclass(slots=True)` matters. The [dataclasses documentation](https://docs.python.org/3/library/dataclasses.html) says of `slots`: "If true (the default is False), __slots__ attribute will be generated and new class will be returned instead of the original one." `test_a_class_decorator_beneath_a_slotted_dataclass_registers_a_discarded_class` puts `document_kind` beneath it on a class `Beneath`: the registry holds a class without `__slots__`, and the name holds the slotted one. Put above, as on `BillOfLading` and `Manifest`, `document_kind` registers the class the name ends up holding, and the same test checks that order too.
 
 A class decorator that doesn't return the class binds the name to `None`. A test-local one that registers and falls off the end leaves `Forgotten` as `None` (`test_a_class_decorator_that_forgets_to_return_binds_the_name_to_none`), and a reduced model shows mypy reporting `[return]`, `Missing return statement` (`test_mypy_reports_a_class_decorator_that_forgets_to_return`). Registering classes by other means is the business of [Metaclasses, __init_subclass__, and registries]({{ '/docs/29-metaclasses-init-subclass-and-registries/' | relative_url }}).
 
@@ -301,7 +317,7 @@ FAILED tests/test_wraps.py::test_wraps_copies_annotate_rather_than_annotations
 Success: no issues found in 9 source files
 ```
 
-The sed masks an object address the pytest message carries. Five metadata tests fail, one for each thing `wraps` copies. The table that compares rendered text still passes, because the timer returns the same string, and mypy exits 0, because `ParamSpec` still carries the signature.
+The sed masks an object address the pytest message carries. Five metadata tests fail: the name, the signature, the copied dictionary, `__wrapped__` and the annotations. The table that compares rendered text still passes, because the timer returns the same string, and mypy exits 0, because `ParamSpec` still carries the signature.
 
 **Experiment two: make `seconds` positional.** In a fresh scratch copy, delete the `*,` from `cached_for`'s parameters. The same filter, then mypy, prints:
 
@@ -309,7 +325,7 @@ The sed masks an object address the pytest message carries. Five metadata tests 
 E       AssertionError: Regex pattern did not match.
 tests/test_factories.py:121: AssertionError
 E       AssertionError: assert {'arg-type'} == {'arg-type', 'call-arg'}
-tests/test_static.py:169: AssertionError
+tests/test_static.py:185: AssertionError
 FAILED tests/test_factories.py::test_a_keyword_only_factory_used_bare_fails_at_definition
 FAILED tests/test_static.py::test_mypy_refuses_a_keyword_only_factory_used_bare
 2 failed, 38 passed in 3.16s

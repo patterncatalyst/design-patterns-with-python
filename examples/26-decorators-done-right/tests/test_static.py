@@ -129,11 +129,27 @@ def register[C: type](cls: C) -> C:
     registry.append(cls)
 """
 
+# A reduced model sits beside the src class: a decorator declared to return int. mypy doesn't
+# apply a class decorator's return type, so both classes keep their own type.
 _CLASS_TYPE_THROUGH_DOCUMENT_KIND = """
+from typing import assert_type
+
 from decorators_done_right.domain import BillOfLading, ConsignmentId
 
 bill = BillOfLading("BL-1", ConsignmentId("CN-1"), "NLRTM", "SGSIN")
-number: str = bill.number
+assert_type(bill.number, str)
+
+
+def to_int(cls: type) -> int:
+    return 1
+
+
+@to_int
+class CustomsDeclaration:
+    number: str = "CD-1"
+
+
+assert_type(CustomsDeclaration, type[CustomsDeclaration])
 """
 
 

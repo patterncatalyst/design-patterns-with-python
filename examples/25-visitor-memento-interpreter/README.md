@@ -3,7 +3,7 @@
 Three patterns over one shipping domain: tracking events, booking amendments and tariff rules. The
 chapter's thesis is that Visitor dissolves while Memento and Interpreter survive. Python removes
 the `accept` method on every element class and the visitor class per operation: an operation is a
-function with a `match` over a closed union. What remains is a choice the language does not make
+function with a `match` over a closed union. What remains is a choice the language doesn't make
 for you, closed set or open set. A frozen snapshot is the memento and a context manager is the
 caretaker, and two decisions remain: what to capture, and what must not roll back. Frozen node
 dataclasses are the grammar, and a grammar with more than one reading stays design. Port codes,
@@ -27,7 +27,7 @@ The memento.
 
 - `Booking` is an entity with a frozen `BookingRequest`, a working `documents` set and an
   append-only `audit` list. `BookingSnapshot(request, documents: frozenset[DocumentKind])` is frozen.
-  `rollback(booking)` restores on an exception, appends `"rolled back"` and re-raises. The audit is
+  `rollback(booking)` restores when the block raises an `Exception`, appends `"rolled back"` and re-raises. The audit is
   left out of the snapshot, so a refused amendment survives the rollback.
 - `memento_form` is `snapshot`, `shallow` (`copy.copy`) or `deepcopy`, all run on one failed
   amendment. The shallow form shares the document set and keeps a document attached inside the failed
@@ -38,14 +38,14 @@ The memento.
 The interpreter.
 
 - `type Expr = PerKg | Flat | Add | Max | OverWeight`, frozen slotted nodes. With deferred
-  annotations the recursive fields name `Expr` before it is defined. `evaluate` and `explain` are
+  annotations the recursive fields name `Expr` before it's defined. `evaluate` and `explain` are
   two readings of one tree, each a `match` ending in `assert_never`.
 - `STANDARD_TARIFF`: over 1,000 kg, 1.10 EUR per kg plus 25.00 EUR; otherwise the larger of
   1.20 EUR per kg and 45.00 EUR.
 - `rule_form` is `tree` or `closure`, pricing the same consignments. Equal trees compare and hash
-  equal, and two closures built the same way are not equal. Currencies do not mix. mypy reports a
-  node left out of `evaluate` and a child that is not an expression. Parsing a rule language is a
-  separate problem and is not built here.
+  equal, and two closures built the same way aren't equal. Currencies don't mix. mypy reports a
+  node left out of `evaluate` and a child that isn't an expression. Parsing a rule language is a
+  separate problem and isn't built here.
 
 ## Layout
 
@@ -82,7 +82,7 @@ uv run mypy --strict src tests
 - `test_a_singledispatch_visitor_gives_an_unregistered_event_its_fallback`: `Delivered` gets the
   fallback's answer.
 - `test_describe_refuses_an_object_outside_the_union`: `AssertionError`.
-- `test_singledispatch_dispatches_on_the_first_argument_only`: a second argument does not dispatch.
+- `test_singledispatch_dispatches_on_the_first_argument_only`: a second argument doesn't dispatch.
 - `test_the_accept_form_puts_an_accept_method_on_every_event_class`: five twins have it, no `src`
   class does.
 
@@ -103,7 +103,7 @@ uv run mypy --strict src tests
 - `test_every_rule_form_prices_the_same_consignments`: tree and closure at 10, 100, 100.333, 1,000
   and 2,000 kg.
 - `test_explain_writes_the_tariff_as_text`: the tariff as one sentence.
-- `test_equal_tariff_trees_compare_and_hash_equal`: and a different tree does not.
+- `test_equal_tariff_trees_compare_and_hash_equal`: and a different tree doesn't.
 - `test_closures_built_the_same_way_are_not_equal`: a closure equals only itself.
 - `test_a_rule_in_another_currency_is_refused`: `cannot add USD to EUR`.
 - `test_the_larger_of_two_rules_in_different_currencies_is_refused`: `cannot compare USD with EUR`.
