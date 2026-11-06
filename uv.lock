@@ -16,6 +16,7 @@ members = [
     "decorators-done-right",
     "descriptors-properties",
     "design-patterns-with-python-workspace",
+    "dynamic-attributes",
     "factories",
     "feature-spikes",
     "isp-dip-di",
@@ -166,6 +167,11 @@ dev = [
     { name = "pytest-mock", specifier = "==3.17.0" },
     { name = "ruff", specifier = "==0.17.4" },
 ]
+
+[[package]]
+name = "dynamic-attributes"
+version = "0.1.0"
+source = { editable = "examples/30-dynamic-attributes-and-proxy" }
 
 [[package]]
 name = "factories"
