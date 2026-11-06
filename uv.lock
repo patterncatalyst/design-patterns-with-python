@@ -6,6 +6,7 @@ requires-python = ">=3.15"
 members = [
     "adapter-facade-bridge",
     "builder-prototype",
+    "carrier-registry",
     "command-undo",
     "composite-flyweight",
     "consignments",
@@ -15,6 +16,7 @@ members = [
     "decorators-done-right",
     "descriptors-properties",
     "design-patterns-with-python-workspace",
+    "dynamic-attributes",
     "factories",
     "feature-spikes",
     "isp-dip-di",
@@ -90,6 +92,11 @@ version = "0.1.0"
 source = { editable = "examples/17-builder-dataclasses-and-prototype" }
 
 [[package]]
+name = "carrier-registry"
+version = "0.1.0"
+source = { editable = "examples/29-metaclasses-init-subclass-and-registries" }
+
+[[package]]
 name = "colorama"
 version = "0.4.6"
 source = { registry = "https://pypi.org/simple" }
@@ -160,6 +167,11 @@ dev = [
     { name = "pytest-mock", specifier = "==3.17.0" },
     { name = "ruff", specifier = "==0.17.4" },
 ]
+
+[[package]]
+name = "dynamic-attributes"
+version = "0.1.0"
+source = { editable = "examples/30-dynamic-attributes-and-proxy" }
 
 [[package]]
 name = "factories"

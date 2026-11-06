@@ -31,8 +31,8 @@ PR, squash-merge with branch deletion, an `rNN.x` tag and a notes-only release.
 | r10b | Retrofit chapters 0-20 to lgtm-professional-voice #94-#96 (owner decision 2026-11-05): AI sidebars to problem + ready-to-paste prompt + one review line; objective-payoff closers; intent-before-mechanism and no re-narrated code where a chapter falls short. Its own plan, validation and PR |
 | r11 | Ch 23-24: Mediator/CoR, Iterator |
 | r12 | Ch 25-26: Visitor/Memento/Interpreter, decorators done right |
-| r13 (active) | Ch 27-28: descriptors, singledispatch |
-| r14 | Ch 29-30: __init_subclass__/metaclasses, __getattr__/Proxy |
+| r13 | Ch 27-28: descriptors, singledispatch |
+| r14 (active) | Ch 29-30: __init_subclass__/metaclasses, __getattr__/Proxy |
 | r15 | Ch 31-32: dict dispatch + EAFP, anti-patterns |
 | r16 | Ch 33-34: seams, dependency-breaking |
 | r17 | Ch 35-36: Fowler vs Feathers, refactor or rewrite |
@@ -148,18 +148,18 @@ PR, squash-merge with branch deletion, an `rNN.x` tag and a notes-only release.
 | PDP-126a | Ch26 Decorators done right: example | r12 | done |
 | PDP-126b | Ch26 Decorators done right: figure | r12 | done |
 | PDP-126c | Ch26 Decorators done right: prose | r12 | done |
-| PDP-127a | Ch27 Descriptors and properties: example | r13 | active |
-| PDP-127b | Ch27 Descriptors and properties: figure | r13 | active |
-| PDP-127c | Ch27 Descriptors and properties: prose | r13 | active |
-| PDP-128a | Ch28 singledispatch: example | r13 | active |
-| PDP-128b | Ch28 singledispatch: figure | r13 | active |
-| PDP-128c | Ch28 singledispatch: prose | r13 | active |
-| PDP-129a | Ch29 Metaclasses, __init_subclass__, and registries: example | r14 | todo |
-| PDP-129b | Ch29 Metaclasses, __init_subclass__, and registries: figure | r14 | todo |
-| PDP-129c | Ch29 Metaclasses, __init_subclass__, and registries: prose | r14 | todo |
-| PDP-130a | Ch30 Dynamic attributes and Proxy: example | r14 | todo |
-| PDP-130b | Ch30 Dynamic attributes and Proxy: figure | r14 | todo |
-| PDP-130c | Ch30 Dynamic attributes and Proxy: prose | r14 | todo |
+| PDP-127a | Ch27 Descriptors and properties: example | r13 | done |
+| PDP-127b | Ch27 Descriptors and properties: figure | r13 | done |
+| PDP-127c | Ch27 Descriptors and properties: prose | r13 | done |
+| PDP-128a | Ch28 singledispatch: example | r13 | done |
+| PDP-128b | Ch28 singledispatch: figure | r13 | done |
+| PDP-128c | Ch28 singledispatch: prose | r13 | done |
+| PDP-129a | Ch29 Metaclasses, __init_subclass__, and registries: example | r14 | active |
+| PDP-129b | Ch29 Metaclasses, __init_subclass__, and registries: figure | r14 | active |
+| PDP-129c | Ch29 Metaclasses, __init_subclass__, and registries: prose | r14 | active |
+| PDP-130a | Ch30 Dynamic attributes and Proxy: example | r14 | active |
+| PDP-130b | Ch30 Dynamic attributes and Proxy: figure | r14 | active |
+| PDP-130c | Ch30 Dynamic attributes and Proxy: prose | r14 | active |
 | PDP-131a | Ch31 Shortcut patterns: dict dispatch and EAFP: example | r15 | todo |
 | PDP-131b | Ch31 Shortcut patterns: dict dispatch and EAFP: figure | r15 | todo |
 | PDP-131c | Ch31 Shortcut patterns: dict dispatch and EAFP: prose | r15 | todo |
@@ -217,3 +217,5 @@ PR, squash-merge with branch deletion, an `rNN.x` tag and a notes-only release.
 2026-11-05 (r12): PDP-125a to PDP-126c are active for r12 (chapters 25 and 26, Parts 8 and 9). PDP-123a to PDP-124c are closed (r11 is tagged), r11 is closed and r12 is marked active in the roadmap. Earlier iterations keep their status.
 
 2026-11-06 (r13): PDP-127a to PDP-128c are active for r13 (chapters 27 and 28, Part 9). PDP-125a to PDP-126c are closed (r12 is tagged), r12 is closed and r13 is marked active in the roadmap. Earlier iterations keep their status.
+
+2026-11-06 (r14): PDP-129a to PDP-130c are active for r14 (chapters 29 and 30, Part 9). PDP-127a to PDP-128c are closed (r13 is tagged), r13 is closed and r14 is marked active in the roadmap. Earlier iterations keep their status.

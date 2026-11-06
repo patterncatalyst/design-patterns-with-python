@@ -268,7 +268,7 @@ title = "Metaclasses, __init_subclass__, and registries"
 part = 9
 kind = "pattern"
 has_example = true
-status = "stub"
+status = "drafted"
 
 [[chapter]]
 number = 30
@@ -277,7 +277,7 @@ title = "Dynamic attributes: __getattr__ and Proxy as a feature"
 part = 9
 kind = "pattern"
 has_example = true
-status = "stub"
+status = "drafted"
 
 [[chapter]]
 number = 31
