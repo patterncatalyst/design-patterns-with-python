@@ -143,4 +143,4 @@ def test_the_golden_writer_sorts_and_indents(tmp_path: Path) -> None:
     assert path.read_text(encoding="utf-8") == (
         '{\n  "ASIA-0.5": "AIRCO 9.57",\n  "EU-1": "AIRCO 4.36"\n}\n'
     )
-    assert _read_golden(path) == golden
+    assert list(_read_golden(path).items()) == [("ASIA-0.5", "AIRCO 9.57"), ("EU-1", "AIRCO 4.36")]

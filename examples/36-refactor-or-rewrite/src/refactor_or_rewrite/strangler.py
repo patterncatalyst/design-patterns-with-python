@@ -28,8 +28,8 @@ class Router:
     """Serve migrated zones from the rewrite and every other zone from the legacy engine.
 
     With ``report`` set, the rewrite also runs on the zones it has not taken over. Its answer is
-    compared with the legacy one and never served. Only a ``RatingError`` from the rewrite is
-    caught: an error from the legacy engine propagates, because that engine is the one serving.
+    compared with the legacy one and never served, and a ``RatingError`` from it is reported as a
+    mismatch.
     """
 
     legacy: RateQuoter

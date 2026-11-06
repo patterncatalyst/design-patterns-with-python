@@ -21,7 +21,7 @@ By the end of this chapter you can:
 
 Refactoring and working with inherited code are one activity seen from two starting points. Both change the structure of a program and hold what it does fixed. Fowler's method needs tests that notice a change in behaviour. Feathers's method is for the case where nobody has written them. A team that has the first and inherits the second has to decide which book to follow, and the example below puts a number on what the choice costs.
 
-The example is the rating engine from [Dependency-breaking techniques for modern Python]({{ '/docs/34-dependency-breaking-techniques/' | relative_url }}), after its constructor was given keyword parameters. It asks two carriers for a price, takes the cheaper and adds a margin. Five tests written from the requirement describe it. One way of making carrier prices `Money` passes all five and still changes 18 of 120 recorded quotes (`test_the_intent_rows_pass_every_engine_and_both_rounding_refactors` and `test_the_golden_quotes_catch_a_refactor_that_changes_rounding`).
+The example is the rating engine from [Dependency-breaking techniques for modern Python]({{ '/docs/34-dependency-breaking-techniques/' | relative_url }}), after its constructor was given keyword parameters. It asks two carriers for a price, takes the cheaper and adds a margin. Five rows written from the requirement describe it. One way of making carrier prices `Money` passes all five and still changes 18 of 120 recorded quotes (`test_the_intent_rows_pass_every_engine_and_both_rounding_refactors` and `test_the_golden_quotes_catch_a_refactor_that_changes_rounding`).
 
 {% include excalidraw.html name="35-fowler-vs-feathers" caption="Figure 35.1: The same two rounding refactors under two kinds of test. Rows written from the requirement pass both, while golden quotes recorded from the legacy engine list the rows each refactor changed." %}
 
@@ -29,9 +29,9 @@ Read the figure from the top. On the right, `legacy.RateEngine` ("carrier functi
 
 ## Two books, one activity
 
-Fowler defines the noun in the Definition Of Refactoring entry on his bliki: "Refactoring (noun): a change made to the internal structure of software to make it easier to understand and cheaper to modify without changing its observable behavior." On [refactoring.com](https://refactoring.com/) he adds: "Its heart is a series of small behavior preserving transformations." The method is a sequence of named moves, each too small to go badly wrong. It relies on something you have to bring along. His Self Testing Code entry says: "Self-Testing Code is the name I used in Refactoring to refer to the practice of writing comprehensive automated tests in conjunction with the functional software." The catalogue's safety depends on a suite that would fail when behaviour moved, and that suite is the condition his method assumes.
+Fowler defines the noun in the Definition Of Refactoring entry on his bliki: "Refactoring (noun): a change made to the internal structure of software to make it easier to understand and cheaper to modify without changing its observable behavior." On [refactoring.com](https://refactoring.com/) he adds: "Its heart is a series of small behavior preserving transformations." The method is a sequence of named moves, each small enough to be less likely to go wrong. It relies on something you have to bring along. His Self Testing Code entry says: "Self-Testing Code is the name I used in Refactoring to refer to the practice of writing comprehensive automated tests in conjunction with the functional software." The catalogue's safety depends on a suite that would fail when behaviour moved, and that suite is the condition his method assumes.
 
-Feathers's *Working Effectively with Legacy Code* opens with a chapter called "Changing Software". In it, refactoring and optimisation are two ways of holding functionality invariant while something else changes: structure in one case, resource use in the other. The book then spends its length on the case Fowler's condition rules out. A chapter is titled "I Need To Make a Change but I Don't Know What Tests To Write", another "Dependency Breaking Techniques", and the book has an appendix called "Refactoring". Fowler's Legacy Seam entry summarises the emphasis in one sentence: "Feathers's book focuses primarily on getting a legacy system under test, as that is often the key to being able to work with it in a sane way." The same entry quotes the opening of the idea this book builds on: "When working with a legacy system it is valuable to identify and create seams: places where we can alter the behavior of the system without editing source code." Fowler credits Feathers with the term. Fowler's own entry cites Feathers, so the two books describe the same work in a different order.
+Feathers's *Working Effectively with Legacy Code* opens with a chapter called "Changing Software". In it, refactoring and optimisation are two ways of holding functionality invariant while something else changes: structure in one case, resource use in the other. The book then spends its length on the case Fowler's condition rules out. A chapter is titled "I Need To Make a Change but I Don't Know What Tests To Write", another "Dependency Breaking Techniques", and the book has an appendix called "Refactoring". Fowler's Legacy Seam entry summarises the emphasis in one sentence: "Feathers's book focuses primarily on getting a legacy system under test, as that is often the key to being able to work with it in a sane way." The same entry opens: "When working with a legacy system it is valuable to identify and create seams: places where we can alter the behavior of the system without editing source code." It credits Feathers with coining the term "seam", so Fowler's account of legacy work starts from Feathers's vocabulary.
 
 The seam half of that work is covered by [Seams in Python: monkeypatch, injection, and duck typing]({{ '/docs/33-seams-in-python/' | relative_url }}) and [Dependency-breaking techniques for modern Python]({{ '/docs/34-dependency-breaking-techniques/' | relative_url }}). Here the engine arrives with its seam already cut, and the question is what protects the next change.
 
@@ -39,8 +39,8 @@ The seam half of that work is covered by [Seams in Python: monkeypatch, injectio
 
 | | Fowler | Feathers | This example |
 | --- | --- | --- | --- |
-| Starting condition | Self-testing code | Code without tests; getting it under test is the first job | `legacy.RateEngine`: a constructor seam and the intent rows |
-| What a test records | Intended behaviour, written alongside the code | What the code does now, right or wrong | `INTENT_ROWS` against `rate_quotes.json` |
+| Starting condition | Self-testing code | A legacy system not yet under test; getting it under test is the first job | `legacy.RateEngine`: a constructor seam and the intent rows |
+| What a test records | Intended behaviour, written alongside the code | The subject of the Feathers chapter "I Need To Make a Change but I Don't Know What Tests To Write" | `INTENT_ROWS` against `rate_quotes.json` |
 | First move | A named refactoring | Break the dependency that stops a test running | Parameterised carriers, then recorded quotes |
 | Unit of change | A small behaviour-preserving transformation | The same, after the code is under test | Extract Function, Replace Primitive with Object |
 | Done when | The suite passes | You can show that nothing was broken | The intent rows and the golden quotes both pass |
@@ -112,7 +112,7 @@ A golden value pins whatever the code did, including behaviour you would call wr
 <!-- fmt:off -->
 ```python
 def _cheapest(prices: Mapping[str, Money]) -> tuple[str, Money]:
-    """The lowest price, a tie going to the lower carrier code."""
+    """The carrier with the lowest price."""
     return min(prices.items(), key=lambda item: (item[1].amount, item[0]))
 
     def _with_margin(self, price: Money) -> Money:
@@ -141,7 +141,7 @@ The `Money` in `_prices` keeps the carrier's price at full precision, and the to
 
 `_CentFirstRateEngine` rounds each carrier price to the cent and then adds the margin. It passes the five intent rows. The golden quotes list 18 of the 120 rows, from `EU-11` to `ASIA-26.5`, in grid order (`test_the_golden_quotes_catch_a_refactor_that_changes_rounding`). The first reads `EU-11: golden FASTLINE 14.84, now FASTLINE 14.85`. Nobody chose `EU-11` as a row.
 
-The second mutant is [Substitute Algorithm](https://refactoring.com/catalog/substituteAlgorithm.html): `_RoundBuiltinRateEngine` replaces the half-up quantise with `round(amount, 2)`. The Python documentation for [`round` on a `Decimal`](https://docs.python.org/3/library/decimal.html) says that with an integer second argument "the context’s rounding mode is respected". The default context rounds half to even, so a total of 32.505 becomes 32.50 where the engine's rule gives 32.51 (`test_round_with_two_digits_rounds_half_to_even_in_the_default_context`). Two grid rows land exactly on a half cent, and the golden quotes list those two and no others: `EU-30` and `ASIA-30`. The intent rows pass this refactor as well. A reviewer who sees `round(x, 2)` replace a `quantize` call has to know the half-even rule to object, whereas the grid objects without anyone knowing it.
+The second mutant is [Substitute Algorithm](https://refactoring.com/catalog/substituteAlgorithm.html): `_RoundBuiltinRateEngine` replaces the half-up quantise with `round(amount, 2)`. The Python documentation for [`round` on a `Decimal`](https://docs.python.org/3/library/decimal.html) says that with an integer second argument "the context’s rounding mode is respected". The default context rounds half to even, so a total of 32.505 becomes 32.50 where the engine's rule gives 32.51 (`test_round_with_two_digits_rounds_half_to_even_in_the_default_context`). Two grid rows round differently under the two rules, and the golden quotes list those two and no others: `EU-30` and `ASIA-30`. The intent rows pass this refactor as well. A reviewer who sees `round(x, 2)` replace a `quantize` call has to know the half-even rule to object, whereas the grid objects without anyone knowing it.
 
 ## Characterise, then refactor
 
@@ -221,7 +221,7 @@ The intent rows pass again and mypy exits 0. The golden file lists `EU-30` and `
 
 ## What you can do now
 
-- State each book's condition: the contrast table puts Fowler's self-testing code against Feathers's code with no tests worth trusting, and says what each test records.
+- State each book's condition: the contrast table puts Fowler's self-testing code against Feathers's legacy system not yet under test, and says what each test records.
 - Write tests from the requirement: `INTENT_ROWS` fixes both carrier answers, and `test_the_intent_rows_pass_every_engine_and_both_rounding_refactors` shows they pass refactors that move totals.
 - Record golden values and compare them so a failure reads the same each run: `rate_quotes.json`, `_mismatches` and `--update-golden`, with the inline rows for review.
 - Apply catalogue refactorings and catch a bad one: `refactored.RateEngine` keeps `Money` at full precision, and `test_the_golden_quotes_catch_a_refactor_that_changes_rounding` lists the 18 rows and the two rows its mutants change.

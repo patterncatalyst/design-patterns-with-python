@@ -1,4 +1,4 @@
-"""The rating engine after its constructor was parameterised, inherited with no tests.
+"""The rating engine after its constructor was parameterised, inherited with only intent tests.
 
 The carriers are keyword parameters whose defaults are the real SDK calls, so a test passes plain
 functions. Nothing else about the engine has been touched: the only tests it comes with are the

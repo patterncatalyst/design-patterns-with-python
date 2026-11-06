@@ -24,7 +24,7 @@ and two refactors that change a total. A carrier timeout fails the quote.
 A generated grid of 120 consignments, two zones and 0.5 kg to 30 kg, is quoted by the inherited
 engine and recorded in a JSON file. A test ties the file to the engine, and the refactored engine
 must match it. A failure is an ordered list of the rows that moved, because pytest prints the
-differing keys of a dict comparison in set order.
+differing keys of a dict comparison in set order under pytest 9.2.0.
 
 ## Two refactors that change totals
 

@@ -19,7 +19,7 @@ CENT = Decimal("0.01")
 
 
 def _cheapest(prices: Mapping[str, Money]) -> tuple[str, Money]:
-    """The lowest price, a tie going to the lower carrier code."""
+    """The carrier with the lowest price."""
     return min(prices.items(), key=lambda item: (item[1].amount, item[0]))
 
 

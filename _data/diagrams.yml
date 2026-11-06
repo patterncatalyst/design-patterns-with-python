@@ -306,7 +306,7 @@
 
 - name: 35-fowler-vs-feathers
   section: "Ch. 35"
-  title: The same refactoring under two kinds of test
+  title: Two rounding refactors under intent rows and golden quotes
   caption: >-
     The same two rounding refactors under two kinds of test. Rows written from
     the requirement pass both, while golden quotes recorded from the legacy
@@ -317,5 +317,5 @@
   title: A router between the legacy engine and its rewrite
   caption: >-
     A router serves migrated zones from the rewrite and the rest from the legacy
-    engine, with the rewrite run in shadow. A parity table holds the two to the
+    engine, and can run the rewrite in shadow. A parity table holds the two to the
     same quotes, and a first draft with exclusive band limits fails it.
