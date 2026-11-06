@@ -12,6 +12,7 @@ members = [
     "context-managers",
     "data-model",
     "decorator-proxy",
+    "decorators-done-right",
     "design-patterns-with-python-workspace",
     "factories",
     "feature-spikes",
@@ -124,6 +125,11 @@ source = { editable = "examples/07-the-data-model" }
 name = "decorator-proxy"
 version = "0.1.0"
 source = { editable = "examples/20-decorator-pattern-vs-decorator-syntax-and-proxy" }
+
+[[package]]
+name = "decorators-done-right"
+version = "0.1.0"
+source = { editable = "examples/26-decorators-done-right" }
 
 [[package]]
 name = "design-patterns-with-python-workspace"
