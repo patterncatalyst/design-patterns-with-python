@@ -1,6 +1,6 @@
 """Customs area: one generic function with an implementation per commodity kind.
 
-The fallback raises on purpose: a kind that nobody registered is a declaration the customs team
+The fallback raises, because a kind that nobody registered is a declaration the customs team
 cannot file, and a silent default would file it under the wrong heading. Codes are illustrative.
 This module imports nothing from ``dangerous_goods``, which registers its own kind.
 """

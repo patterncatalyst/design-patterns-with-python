@@ -101,7 +101,7 @@ def test_one_descriptor_class_validates_every_field() -> None:
         vars(Container)["max_payload_kg"],
     ]
 
-    assert {type(entry) for entry in fields} == {Positive}
+    assert [type(entry).__name__ for entry in fields] == [Positive.__name__] * 6
     assert len({id(entry) for entry in fields}) == 6
 
 

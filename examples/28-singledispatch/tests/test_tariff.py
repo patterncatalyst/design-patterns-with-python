@@ -58,7 +58,12 @@ def test_an_unregistered_subclass_gets_its_base_class_code(
 
 
 def test_dispatch_and_registry_show_the_chosen_implementation() -> None:
-    assert set(tariff_code.registry) == {object, Coffee, InstantCoffee, TShirt}
+    assert sorted(kind.__name__ for kind in tariff_code.registry) == [
+        "Coffee",
+        "InstantCoffee",
+        "TShirt",
+        "object",
+    ]
     assert tariff_code.dispatch(bool) is tariff_code.registry[object]
 
 
