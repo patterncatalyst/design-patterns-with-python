@@ -251,3 +251,21 @@
     function that raises. A registration made in another module exists only
     after that module is imported, and a method dispatches on the argument
     after self.
+
+- name: 29-metaclasses-init-subclass-and-registries
+  section: "Ch. 29"
+  title: Class creation, one hook, a read-only registry
+  caption: >-
+    Creating a carrier class runs __set_name__ and then __init_subclass__, which
+    refuses a bad class and registers a concrete one in a read-only view. A
+    metaclass can enforce the same rules, but it conflicts with another
+    metaclass.
+
+- name: 30-dynamic-attributes-and-proxy
+  section: "Ch. 30"
+  title: A failed lookup, one load, a refused name
+  caption: >-
+    A read that ordinary lookup can't answer reaches __getattr__, which loads
+    the declared fields once into the instance dictionary and refuses any other
+    name. Later reads skip it, and a class that relies on forwarding fails
+    iter() and len().

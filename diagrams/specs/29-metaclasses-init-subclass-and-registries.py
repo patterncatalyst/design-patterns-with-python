@@ -1,0 +1,107 @@
+"""Metaclasses, __init_subclass__ and registries: class creation, the hook, the registry."""
+
+from generate_diagram import emit
+
+emit(
+    "29-metaclasses-init-subclass-and-registries",
+    1000,
+    1060,
+    nodes=[
+        {
+            "x": 130,
+            "y": 30,
+            "w": 400,
+            "h": 60,
+            "style": "user",
+            "lines": ["FastlineGateway", 'class FastlineGateway(CarrierBase, code="FASTLINE")'],
+        },
+        {
+            "x": 130,
+            "y": 150,
+            "w": 400,
+            "h": 60,
+            "style": "ghost",
+            "lines": ["__prepare__", "a metaclass can supply the class namespace"],
+        },
+        {
+            "x": 130,
+            "y": 270,
+            "w": 400,
+            "h": 60,
+            "style": "box",
+            "lines": ["class body runs", "defines book in the namespace"],
+        },
+        {
+            "x": 130,
+            "y": 390,
+            "w": 400,
+            "h": 75,
+            "style": "box",
+            "lines": [
+                "type.__new__",
+                "creates the class object, then calls",
+                "__set_name__ and __init_subclass__",
+            ],
+        },
+        {
+            "x": 130,
+            "y": 525,
+            "w": 400,
+            "h": 60,
+            "style": "box",
+            "lines": ["__set_name__", "each attribute that defines it learns its name"],
+        },
+        {
+            "x": 130,
+            "y": 645,
+            "w": 400,
+            "h": 105,
+            "style": "accent",
+            "lines": [
+                "CarrierBase.__init_subclass__",
+                "inspect.isabstract: abstract takes no code, is not registered",
+                "concrete: needs a code",
+                "duplicate code: raises DuplicateCarrierError",
+            ],
+        },
+        {
+            "x": 130,
+            "y": 810,
+            "w": 400,
+            "h": 60,
+            "style": "box",
+            "lines": ["class decorators", "wrap the finished class"],
+        },
+        {
+            "x": 650,
+            "y": 660,
+            "w": 300,
+            "h": 75,
+            "style": "box",
+            "lines": ["registry", "CarrierBase.registry", "read-only view: FASTLINE, AIRCO"],
+        },
+        {
+            "x": 130,
+            "y": 925,
+            "w": 400,
+            "h": 105,
+            "style": "ghost",
+            "lines": [
+                "a metaclass comparison",
+                "the same rules in the metaclass __new__",
+                "its own registry",
+                "conflicts with another metaclass",
+                "mypy skips its class keywords",
+            ],
+        },
+    ],
+    edges=[
+        {"x1": 330, "y1": 90, "x2": 330, "y2": 150},
+        {"x1": 330, "y1": 210, "x2": 330, "y2": 270},
+        {"x1": 330, "y1": 330, "x2": 330, "y2": 390},
+        {"x1": 330, "y1": 465, "x2": 330, "y2": 525},
+        {"x1": 330, "y1": 585, "x2": 330, "y2": 645},
+        {"x1": 330, "y1": 750, "x2": 330, "y2": 810},
+        {"x1": 530, "y1": 697, "x2": 650, "y2": 697, "label": "if concrete", "ly": -8},
+    ],
+)
