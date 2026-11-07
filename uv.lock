@@ -27,6 +27,7 @@ members = [
     "isp-dip-di",
     "iterator-protocol",
     "mediator-chain",
+    "mocking-reference",
     "observer",
     "pattern-misuse",
     "pytest-reference",
@@ -281,6 +282,11 @@ wheels = [
 name = "mediator-chain"
 version = "0.1.0"
 source = { editable = "examples/23-mediator-and-chain-of-responsibility" }
+
+[[package]]
+name = "mocking-reference"
+version = "0.1.0"
+source = { editable = "examples/43-appendix-c-mocking" }
 
 [[package]]
 name = "mypy"
