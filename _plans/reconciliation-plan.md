@@ -11,7 +11,7 @@ mirror, so this follows the same log style as the spikes report. A claim in a ðŸ
 chapter is not asserted until a runnable experiment confirms it; the result is then
 recorded here and the chapter quotes real, scrubbed output. Performance claims live in
 a benchmark script with recorded output, never in test assertions. Free-threaded
-Python is out of scope.
+Python is out of scope (but see the 2026-11-06 r18 note at the end of the log: bounded change, chapter 37 only).
 
 Status values: open, verified, adjusted, dropped.
 
@@ -33,13 +33,13 @@ Status values: open, verified, adjusted, dropped.
 | 14 | 33 | A patch must target the namespace where the name is looked up, not where it is defined | `test_patching_the_name_where_it_is_looked_up_replaces_the_carrier`, `test_patching_where_a_from_import_was_defined_leaves_the_engine_calling_the_real_carrier`, `test_unittest_mock_patch_follows_the_same_lookup_rule`, `test_a_module_attribute_is_patched_on_the_module_it_belongs_to` | verified (r16) |
 | 15 | 33 | Names looked up at call time in a module namespace are seams that need no source change; a constant captured as a default argument is out of a patch's reach, and an injected callable is a seam only once a parameter exists | `test_patching_the_name_where_it_is_looked_up_replaces_the_carrier`, `test_a_module_attribute_is_patched_on_the_module_it_belongs_to`, `test_an_object_with_the_right_method_can_stand_in_for_a_module`, `test_patching_a_module_constant_misses_a_default_captured_at_definition`, `test_a_parameterised_engine_keeps_the_real_carriers_as_defaults` | adjusted (r16): "injected callables" need a parameter first (dependency-breaking chapter); default arguments are not seams |
 | 16 | 34 | Each dependency-breaking technique preserves behaviour | `test_every_step_matches_the_characterisation_table`, `test_every_step_lets_a_carrier_timeout_fail_the_quote`, `test_the_table_catches_a_step_that_changes_behaviour` | verified (r16) |
-| 17 | 37 | Under the GIL, threads do not speed up CPU-bound work but do help I/O-bound work | Benchmark script, scrubbed recorded output; tests assert correctness only | open |
-| 18 | 37 | Processes speed up CPU-bound work at a pickling and startup cost | Same benchmark script, three batch sizes | open |
-| 19 | 37 | asyncio helps I/O-bound work and does not help CPU-bound work; a blocking call stalls the loop | Benchmark script; a deterministic test that a blocking callback delays an `Event`-gated task, ordering only | open |
-| 20 | 38 | An async generator is the async form of the Iterator pattern (`async for`) | Spike 015: ordering asserted with `asyncio.Event` and `gather`, no sleep | open |
-| 21 | 38 | `async with` is the async Context Manager; cancellation still runs `__aexit__` | Spike 015 cancellation test | open |
-| 22 | 38 | A coroutine can be a Command (create, queue, await later) and a forgotten `await` is detectable | Spike 015 plus mypy/warning output | open |
-| 23 | 38 | Deterministic async tests need no sleep | Run the suite 3 times consecutively; grep tests for `sleep` | open |
+| 17 | 37 | Under the GIL, threads do not speed up CPU-bound work but do help I/O-bound work | Benchmark script, scrubbed recorded output; tests assert correctness only | open (r18) |
+| 18 | 37 | Processes speed up CPU-bound work at a pickling and startup cost | Same benchmark script, three batch sizes | open (r18) |
+| 19 | 37 | asyncio helps I/O-bound work and does not help CPU-bound work; a blocking call stalls the loop | Benchmark script; a deterministic test that a blocking callback delays an `Event`-gated task, ordering only | open (r18) |
+| 20 | 38 | An async generator is the async form of the Iterator pattern (`async for`) | Spike 015: ordering asserted with `asyncio.Event` and `gather`, no sleep | open (r18) |
+| 21 | 38 | `async with` is the async Context Manager; cancellation still runs `__aexit__` | Spike 015 cancellation test | open (r18) |
+| 22 | 38 | A coroutine can be a Command (create, queue, await later) and a forgotten `await` is detectable | Spike 015 plus mypy/warning output | open (r18) |
+| 23 | 38 | Deterministic async tests need no sleep | Run the suite 3 times consecutively; grep tests for `sleep` | open (r18) |
 | 24 | 39 | The final project integrates all seven domain areas without a framework | End-to-end acceptance test; idiom scan | open |
 | 25 | 40 | Typical LLM output for patterns is Java-in-Python and fails strict mypy or the idiom scan | Collect sample outputs, run the scan, record results | open |
 | 26 | 14 | A probabilistic state machine is reproducible with an injected seeded RNG | Seeded run equality test | open |
@@ -228,6 +228,26 @@ Status values: open, verified, adjusted, dropped.
 | 209 | 36 | Feature Parity and Transitional Architecture as their authors define them | `source: https://martinfowler.com/articles/patterns-legacy-displacement/feature-parity.html`, `source: https://martinfowler.com/articles/patterns-legacy-displacement/transitional-architecture.html` | open |
 | 210 | 35-36 | mypy `--strict`, ruff and the idiom scan pass both members, including the legacy modules | `run: T1a`, `run: T1b` | open |
 | 211 | 35-36 | The "Build, run, observe" experiments behave as quoted, and mypy exits 0 on each | `run: T5a`, `run: T5b` | open |
+| 212 | 37 | The build flag and the runtime GIL state agree, and `sys.version` names the free-threading build only on that build | `test_the_build_flag_and_the_runtime_gil_state_agree`, `test_sys_version_names_the_free_threading_build_only_on_that_build`, `source: https://docs.python.org/3/howto/free-threading-python.html`, `source: https://docs.python.org/3/library/sys.html` | open |
+| 213 | 37 | An attribute increment is a separate load, add and store, and two threads parked between read and write take the same slot on either build | `test_an_attribute_increment_is_a_separate_load_add_and_store`, `test_two_threads_parked_between_read_and_write_take_the_same_slot`, `run: U1a` | open |
+| 214 | 37 | A lock held across the read and the write gives each thread its own slot | `test_a_lock_across_read_and_write_gives_each_thread_its_own_slot` | open |
+| 215 | 37 | Thread, process and interpreter pools rate a batch as the serial loop does; threads share the argument, processes and interpreters receive a copy | `test_every_pool_rates_the_batch_as_the_serial_loop_does`, `test_threads_share_the_argument_and_processes_and_interpreters_copy_it`, `source: https://docs.python.org/3/library/concurrent.futures.html` | open |
+| 216 | 37 | A process pool can't send a lambda | `test_a_process_pool_cannot_send_a_lambda`, `source: https://docs.python.org/3/library/concurrent.futures.html` | open |
+| 217 | 37 | A coroutine that never awaits holds the event loop until it returns | `test_a_coroutine_that_never_awaits_holds_the_loop_until_it_returns`, `source: https://docs.python.org/3/library/asyncio-dev.html` | open |
+| 218 | 37 | mypy types the build flag as `Any`, so the check wraps it in `bool` | `test_mypy_types_the_build_flag_as_any` | open |
+| 219 | 37 | In the recorded example runs, threads don't speed up the CPU-bound batch on the default build and do on the free-threaded build; process and interpreter pools do on both | `run: _plans/evidence/r18-gil-benchmark.md`, `source: https://docs.python.org/3/library/threading.html` | open |
+| 220 | 37 | What the GIL is, and that the free-threaded build is supported | `source: https://docs.python.org/3/glossary.html`, `source: https://docs.python.org/3/whatsnew/3.14.html` | open |
+| 221 | 38 | A coroutine called without `await` is a coroutine, and one never awaited warns, which fails the run under `filterwarnings = ["error"]` | `test_calling_a_coroutine_function_without_await_gives_a_coroutine_not_a_quote`, `test_a_quote_that_is_never_awaited_warns_when_it_is_collected`, `source: https://docs.python.org/3/library/asyncio-dev.html` | open |
+| 222 | 38 | The feed yields in order and closes at the end; `break` leaves it open; `aclosing` closes it | `test_the_feed_yields_events_in_order_and_closes_at_the_end`, `test_breaking_out_of_async_for_leaves_the_feed_open`, `test_first_departure_closes_the_feed_when_it_stops_early` | open |
+| 223 | 38 | The carrier session closes the feed when its body raises and when its task is cancelled | `test_the_session_closes_the_feed_when_its_body_raises`, `test_the_session_closes_the_feed_when_its_task_is_cancelled`, `source: https://docs.python.org/3/library/asyncio-task.html` | open |
+| 224 | 38 | The cheapest quote wins across an async source and a blocking SDK adapted with `to_thread`, and the loop runs while the SDK blocks | `test_the_cheapest_quote_wins_across_an_async_and_an_adapted_source`, `test_the_adapter_runs_the_blocking_sdk_in_a_thread_while_the_loop_runs` | open |
+| 225 | 38 | A failing carrier cancels the other quote, the first answer cancels the rest with `TaskGroup.cancel()`, and a zero timeout cancels a quote that never answers | `test_a_failing_carrier_cancels_the_other_quote`, `test_the_first_answer_cancels_the_rest_of_the_group`, `test_a_zero_timeout_cancels_a_quote_that_never_answers`, `source: https://docs.python.org/3/whatsnew/3.15.html` | open |
+| 226 | 38 | An async signal delivers in subscription order and keeps delivering past a failing subscriber; a task-group publisher cancels the others; unsubscribing stops delivery | `test_every_subscriber_hears_each_event_in_subscription_order`, `test_a_failing_subscriber_does_not_stop_the_others`, `test_a_task_group_publisher_cancels_the_other_subscribers_when_one_fails`, `test_an_unsubscribed_subscriber_hears_nothing` | open |
+| 227 | 38 | Queued commands run in order with failures recorded; shutdown drains then stops the worker, an immediate shutdown drops the rest, and a shut-down queue refuses a command | `test_queued_commands_run_in_order_and_a_failure_is_recorded`, `test_shutdown_lets_the_worker_drain_the_queue_then_stop`, `test_an_immediate_shutdown_drops_the_pending_commands`, `test_a_shut_down_queue_refuses_a_new_command`, `source: https://docs.python.org/3/library/asyncio-queue.html` | open |
+| 228 | 38 | An `await` between read and write double-books a slot, and `asyncio.Lock` gives each task its own | `test_an_await_between_read_and_write_double_books_a_slot`, `test_an_asyncio_lock_gives_each_task_its_own_slot` | open |
+| 229 | 38 | mypy reports a quote returned without `await`, an unused coroutine and a blocking source, and accepts a coroutine bound to `_` | `test_mypy_reports_a_quote_returned_without_await`, `test_mypy_reports_a_quote_call_whose_result_is_never_used`, `test_mypy_refuses_a_blocking_source_where_a_rate_source_is_expected`, `test_mypy_accepts_a_coroutine_bound_to_underscore` | open |
+| 230 | 37-38 | mypy `--strict`, ruff and the idiom scan pass both members, and both members pass on the free-threaded build | `run: U1a`, `run: U1b` | open |
+| 231 | 37-38 | The "Build, run, observe" experiments behave as quoted, and mypy exits 0 on each | `run: U5a`, `run: U5b` | open |
 
 2026-11-04 (r05): Python 3.15.2. Rows 47 to 64 are added at the move to 3.15.2 and start `open`; the r05 steps fill in their evidence. Rows 1 to 46 were verified on 3.14.10 and keep that evidence; row 47 covers the re-run of their quoted output on 3.15.2.
 
@@ -253,6 +273,8 @@ Status values: open, verified, adjusted, dropped.
 2026-11-06 (r16): Rows 188 to 198 are added for chapters 33 and 34 and start `open`; the r16 steps fill in their evidence. Rows 14 to 16 (a patch must target the namespace where the name is looked up; seams that need no source change; each dependency-breaking technique preserves behaviour) are carried by chapters 33 and 34 and are noted "r16". Rows 14 and 16 are expected to close verified; row 15 is expected to close adjusted, because the seams that need no source change are names looked up at call time (a `from`-imported function, a module attribute, the module object), and an injected callable is a seam only once the code takes a parameter. Their verification is unchanged until S2.
 
 2026-11-06 (r17): Rows 199 to 211 are added for chapters 35 and 36 and start `open`; the r17 steps fill in their evidence. No earlier row is carried by these chapters.
+
+2026-11-06 (r18): Rows 212 to 231 are added for chapters 37 and 38 and start `open`; the r18 steps fill in their evidence. Rows 17 to 23 (threads and CPU-bound against I/O-bound work; processes; asyncio and a blocking call; async generator; `async with` and cancellation; a coroutine as Command; deterministic async tests) are carried by chapters 37 and 38 and are noted "r18". Rows 17 and 18 are expected to close adjusted, scoped to the default build and witnessed by row 219's recorded runs; rows 19 to 23 are expected to close verified. Their verification is unchanged until U2. Decision 2, option B (owner confirmed 2026-11-06): the header sentence "Free-threaded Python is out of scope" is bounded, not removed. Chapter 37 names both builds, its tests hold on both, and a `free-threaded` CI job runs the chapter 37 and 38 members on `cpython-3.15.2+freethreaded`. Nothing else in the book changes.
 
 ## Process
 
