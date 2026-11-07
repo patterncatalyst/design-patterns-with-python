@@ -14,11 +14,14 @@ from collections.abc import Callable
 from concurrent.futures import Executor, ThreadPoolExecutor
 from datetime import date
 from decimal import Decimal
+from functools import partial
 
 from gil_and_performance.build import gil_disabled_build, gil_enabled
-from gil_and_performance.domain import Consignment, ConsignmentId
+from gil_and_performance.domain import Consignment, ConsignmentId, Money, RateQuote
 from gil_and_performance.pools import POOLS
 from gil_and_performance.rating import quote
+
+type Rate = Callable[[Consignment], RateQuote]
 
 WORKERS = 4
 REPEATS = 3
@@ -26,8 +29,25 @@ BATCH = tuple(
     Consignment(ConsignmentId(f"CN-{n}"), "EU" if n % 2 else "ASIA", Decimal(60000))
     for n in range(WORKERS)
 )
+_STEP = Decimal("0.1")
+# Illustrative prices per 100 g step, in millionths of a euro.
+_MICRO_PER_STEP = {"EU": 4200, "ASIA": 5700}
 WAITS = 4
 WAIT_SECONDS = 0.2
+
+
+def quote_cents(consignment: Consignment, /) -> RateQuote:
+    """Rate a consignment with integer arithmetic.
+
+    Exists only to compare arithmetic types in this example run: it mirrors the loop in
+    ``rating.quote`` with ``int`` in place of ``Decimal`` and is not part of the example.
+    """
+    price = _MICRO_PER_STEP[consignment.zone]
+    total = 0
+    for step in range(int(consignment.weight_kg / _STEP)):
+        total += price * (100 + step % 7) // 100
+    cents = (total + 5000) // 10000
+    return RateQuote(consignment.id, Money(Decimal(cents) / 100))
 
 
 def best_of(run: Callable[[], object]) -> float:
@@ -39,23 +59,23 @@ def best_of(run: Callable[[], object]) -> float:
     return min(times)
 
 
-def serial() -> object:
-    return [quote(consignment) for consignment in BATCH]
+def serial(rate: Rate) -> object:
+    return [rate(consignment) for consignment in BATCH]
 
 
-def warm(factory: Callable[[int], Executor]) -> float:
+def warm(factory: Callable[[int], Executor], rate: Rate) -> float:
     """Time the batch on a pool that has already started its workers."""
     with factory(WORKERS) as executor:
-        list(executor.map(quote, BATCH))
-        return best_of(lambda: list(executor.map(quote, BATCH)))
+        list(executor.map(rate, BATCH))
+        return best_of(lambda: list(executor.map(rate, BATCH)))
 
 
-def cold(factory: Callable[[int], Executor]) -> float:
+def cold(factory: Callable[[int], Executor], rate: Rate) -> float:
     """Time the batch including the pool's start-up and shut-down."""
 
     def run() -> object:
         with factory(WORKERS) as executor:
-            return list(executor.map(quote, BATCH))
+            return list(executor.map(rate, BATCH))
 
     return best_of(run)
 
@@ -88,15 +108,20 @@ def main() -> None:
     print(f"workers: {WORKERS}, batch: {len(BATCH)} consignments, best of {REPEATS}")
     print(f"date: {date.today().isoformat()}, machine: {args.cpu_class}")
     print()
-    base = best_of(serial)
-    print(f"{'serial':<26}{base:6.3f} s")
-    for name, factory in POOLS.items():
-        warm_s, cold_s = warm(factory), cold(factory)
-        print(
-            f"{name + ' pool':<26}warm {warm_s:6.3f} s ({base / warm_s:.1f}x)"
-            f"   cold {cold_s:6.3f} s ({base / cold_s:.1f}x)"
-        )
-    print()
+    for title, rate in (
+        ("Decimal rating (rating.quote)", quote),
+        ("integer-cents loop", quote_cents),
+    ):
+        print(title)
+        base = best_of(partial(serial, rate))
+        print(f"{'serial':<26}{base:6.3f} s")
+        for name, factory in POOLS.items():
+            warm_s, cold_s = warm(factory, rate), cold(factory, rate)
+            print(
+                f"{name + ' pool':<26}warm {warm_s:6.3f} s ({base / warm_s:.1f}x)"
+                f"   cold {cold_s:6.3f} s ({base / cold_s:.1f}x)"
+            )
+        print()
     io_base = best_of(io_serial)
     print(f"{'waits, serial':<26}{io_base:6.3f} s")
     for label, run in (("waits, threads", io_threads), ("waits, asyncio", io_asyncio)):
