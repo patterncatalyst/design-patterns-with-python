@@ -128,7 +128,7 @@ Tally of the 26 pages: 24 have at least one instance (Automated Teardown, Custom
 - Summary (exact, whitespace collapsed): "Replace an object the system under test (SUT) depends on with a test-specific object that verifies it is being used correctly by the SUT."
 - Verdict: **contrast only (no instance)**
 - Tests: none.
-- Note: The page defines an object that "verifies it is being used correctly" as calls arrive and fails the test itself. No existing test sets expectations on a double before the exercise step and lets the double fail the test; every `Mock` in the repo is asserted afterwards. The row has no witness and is kept as the contrast the appendix needs (decision 4), not as a pattern the book instantiates.
+- Note: The page defines an object that "verifies it is being used correctly" as calls arrive and fails the test itself. No `Mock` in the repo is given expectations before the exercise step and left to fail the test; every `Mock` is asserted afterwards. (ch14's `_CountingRandom` raises on a runaway draw count, a guard rather than a checked call sequence.) The row has no witness and is kept as the contrast the appendix needs (decision 4), not as a pattern the book instantiates.
 
 ### Fake Object
 

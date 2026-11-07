@@ -156,7 +156,7 @@ In the entries below, a bare test name lives in the file of its principle's chap
 - **Chapter:** "Adapter, Facade, and Bridge" (line 166: two things that vary "so each can change without disturbing the other").
 - **Source:** https://pragprog.com/tips/ (HTTP 200). Raw, once: "Design components that are self-contained, independent, and have a single, well-defined purpose."
 - **Witnesses:**
-  - `test_a_new_booking_kind_needs_no_gateway_change` (`19-.../tests/test_bridge.py`, 2 cases): a booking kind defined only in the test (`_ExpressBooking`) runs on either carrier through the two existing gateway primitives, so the kind axis and the carrier axis vary independently.
+  - `test_a_new_booking_kind_needs_no_gateway_change` (`19-.../tests/test_bridge.py`, 2 cases): a booking kind defined in the test module (`_ExpressBooking`, test_bridge.py:86) runs on either carrier through the two existing gateway primitives, so the kind axis and the carrier axis vary independently.
   - `test_each_change_moves_only_the_fields_it_feeds` (`05-.../tests/test_srp.py`, 3 cases): the same test cited for SRP; for orthogonality the point is that three components change independently with no effect on the fields they do not feed.
 - **Flag:** the second witness is shared with SRP. It is a fair instance of both but F must not present it as two independent proofs; the Bridge test is the primary one.
 - **Result:** passes.

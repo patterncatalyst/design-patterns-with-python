@@ -1,10 +1,10 @@
 # Programming principles reviewed
 
-This example witnesses the Law of Demeter, the one principle in the programming-principles appendix that no other chapter's tests already witness. A
-shipment answers `amount_due()`. The reader the package ships, `remittance_line`, asks the shipment
-for it. The comparison reader reaches through the shipment to its invoice. The two give the same
-line until a credit is granted; after that, only the reader that asks the shipment reports the
-amount due.
+This example witnesses the Law of Demeter, the one principle in the programming-principles appendix
+that no other chapter's tests already witness. A shipment answers `amount_due()`. The reader the
+package ships, `remittance_line`, asks the shipment for it. The comparison reader reaches through
+the shipment to its invoice. The two give the same line until a credit is granted; after that, only
+the reader that asks the shipment reports the amount due.
 
 The comparison reader, `_chained_remittance`, lives in `tests/conftest.py` and is not part of the
 package. A conftest fixture, `reader_form`, runs the tests that take it once with each reader.

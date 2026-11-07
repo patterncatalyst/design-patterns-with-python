@@ -84,7 +84,7 @@ def test_an_insured_booking_without_a_declared_value_is_a_booking_error(
 
 @dataclass(frozen=True, slots=True)
 class _ExpressBooking:
-    """A booking kind that exists only in this test: it calls the same two primitives."""
+    """A booking kind that exists only in this test module: it calls the same two primitives."""
 
     gateway: CarrierGateway
     declared_value: Money

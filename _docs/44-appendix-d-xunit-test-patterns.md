@@ -111,7 +111,7 @@ The difference between a Configurable and a Hard-Coded Test Double is where the 
 
 `FakeGateway` carries the word fake in its name. In Meszaros's terms it is a Configurable Test Double used as a stub and a spy: it's built with its `amount` and `times_out`, which feed the engine's inputs, and it appends to `booked`, which records an output. The [Fake Object](http://xunitpatterns.com/Fake%20Object.html) page says a fake differs from a Test Stub in that a stub is "a control point to inject indirect inputs into the SUT" and a fake isn't one. A double configured with its answers is that control point, so the class keeps its name `FakeGateway` and isn't given a Fake Object row.
 
-Mock Object is the contrast and has no instance. The page defines a double that checks, as the code under test calls it, that it is being used correctly. In `test_book_best_books_only_the_winner` the mocks are asserted after the exercise step:
+Mock Object is the contrast: none of the book's mocks is one. The page defines a double that checks, as the code under test calls it, that it is being used correctly. In `test_book_best_books_only_the_winner` the mocks are asserted after the exercise step:
 
 <!-- fmt:off -->
 ```python

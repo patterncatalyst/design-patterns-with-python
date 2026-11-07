@@ -513,7 +513,7 @@ Step ids are `X*` (decision 0). Only `X1a`, `X1b`, `X1c`, `X1d`, `X4a`, `X4b` an
 | X4a | D prose agent, plus decision 4's qualifier in C (one sentence): re-fetch every page and quote exactly; hand back witness table D filled and a per-paragraph claims table | X3 | done |
 | X4b | E prose agent, in parallel, plus decision 7's clause in ch26: every cell re-checked with `grep -F` against the census; witness table E filled | X3 | done |
 | X4c | F prose agent, in parallel, with the same duties for witness table F; excerpts byte-exact; the member's summary line quoted from a fresh scrubbed run | X3 | done |
-| X5 | Opus validation, with up to two repair rounds. After every cut: a seam scan and a dependent-sentence re-read. Also: every witness row checked (at least one in three re-run or re-fetched by the validator; every E cell re-grepped), the excerpt check, the overlap check (criterion 11), the cross-language, outcome and stale-version greps, and the "grep everywhere" sweep (criterion 27) | X4a, X4b, X4c | todo |
+| X5 | Opus validation, with up to two repair rounds. After every cut: a seam scan and a dependent-sentence re-read. Also: every witness row checked (at least one in three re-run or re-fetched by the validator; every E cell re-grepped), the excerpt check, the overlap check (criterion 11), the cross-language, outcome and stale-version greps, and the "grep everywhere" sweep (criterion 27) | X4a, X4b, X4c | done |
 | X6 | PR, `ci-ok` green, ask the owner before merge; squash-merge; tag `r21.x` on main; notes-only release; after merge and with the owner's approval, the hub PR of decision 6 | X5 | todo |
 
 Reconciliation rows (step X0). The "How to verify" column uses resolvable tokens. Ch `44` is D, `45` E, `46` F.
@@ -558,6 +558,7 @@ Reconciliation rows (step X0). The "How to verify" column uses resolvable tokens
 No legacy rows are carried. Rows 199 to 211 change status only (decision 14). Rows 307 to 312 were added 2026-11-07 (O1).
 
 ## Corrections after the build
+- Step X5 round 2 (PASS; the orchestrator applied the should-fix items and nits). F's frozen sentence now attaches each object to its true holder; F's Demeter test sentence no longer overclaims. Two claims that the round-1 fixes had missed are fixed: "defined only in the test" in the evidence file and the ch19 docstring, and D's unqualified "no instance" (with ch14's `_CountingRandom` named in the evidence as a guard). Also fixed: a verbless sentence, an excerpt's trailing blank line, and the README wrap. Rows 279 to 289, 295, 299, 300, 302, 303 and 305 to 307, 309 are closed.
 - Step X5 round 1 (FAIL, 4 blocking; the orchestrator applied the fixes).
   - D's "three instances" now reads "three of the book's tests show it".
   - F's frozen claim now excepts the desk's stowage plan.
