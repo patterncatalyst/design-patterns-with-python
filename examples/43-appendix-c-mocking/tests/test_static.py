@@ -67,8 +67,8 @@ def check(mocker: MockerFixture) -> None:
     ],
 )
 def test_mypy_types_mocker_objects_as_mocks(call: str, revealed: str, tmp_path: Path) -> None:
-    """Credits pytest-mock's annotations: the three patch forms are a union of mock classes,
-    ``spy`` is ``SpyType``, ``stub`` is ``MagicMock`` and ``Mock`` is ``Any``."""
+    """Credits pytest-mock's annotations: ``patch`` and ``patch.object`` are a union of mock
+    classes, ``spy`` is ``SpyType``, ``stub`` is ``MagicMock`` and ``Mock`` is ``Any``."""
     stdout, status = _run(_SNIPPET.format(call=call), tmp_path)
 
     assert _revealed(stdout) == [revealed]

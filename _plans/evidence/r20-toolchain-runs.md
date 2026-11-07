@@ -796,3 +796,29 @@ Exit 1. The line is 3 here because of this file's layout; the plan's `n.py:1` wa
 - Row 9: `1 file would be reformatted, 610 files already formatted` where the plan recorded 609 (the copy holds one more tracked or untracked Python file than the planning copy; the counts are the copy's).
 - Row 14: `ruff check --diff` exits 1 when it finds diffs and says `Would fix 5 errors` against 4 reported by `check`.
 - Row 21: the deprecated call is reported at `n.py:3`, a layout difference only.
+
+## Addendum 2026-11-07 (after W1b and W1c; W4)
+
+Two updates, recorded on pytest 9.2.0, uv 0.13.7 and Python 3.15.2.
+
+### Workspace counts after the new members
+
+The workspace now has 41 members. Rows 1 to 3, 5 and 8 above were recorded before the 42 and 43 members existed. Their behaviour still holds, but their counts have changed:
+
+- `uv sync --locked --all-packages` installs 54 distributions.
+- A plain `uv sync --locked` removes all 41 members and leaves 13 distributions.
+- `uv lock` reports `Resolved 56 packages`.
+
+Appendix A uses these figures. They were reproduced in a fresh copy during W4a.
+
+### pytest help lines (Appendix B options table)
+
+`uv run pytest --help` prints these lines for the options the table names:
+
+```text
+  -p name               Early-load given plugin module name or entry point
+  -q, --quiet           Decrease verbosity
+  -s                    Shortcut for --capture=no
+  --tb=style            Traceback print mode (auto/long/short/line/native/no)
+  -v, --verbose         Increase verbosity
+```

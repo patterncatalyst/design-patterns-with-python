@@ -43,6 +43,8 @@ def test_an_assertion_typo_raises_instead_of_passing(mocker: MockerFixture) -> N
 
     unchecked.assret_called_once()
     assert unchecked.assret_called_once.call_count == 1
+    with pytest.raises(AttributeError, match="assret_called_once"):
+        unchecked.book.assret_called_once()
 
 
 def test_a_magic_mock_supports_the_magic_methods_a_mock_lacks(mocker: MockerFixture) -> None:
