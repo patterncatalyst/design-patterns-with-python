@@ -27,8 +27,10 @@ members = [
     "isp-dip-di",
     "iterator-protocol",
     "mediator-chain",
+    "mocking-reference",
     "observer",
     "pattern-misuse",
+    "pytest-reference",
     "refactor-or-rewrite",
     "review-gate",
     "seams",
@@ -282,6 +284,11 @@ version = "0.1.0"
 source = { editable = "examples/23-mediator-and-chain-of-responsibility" }
 
 [[package]]
+name = "mocking-reference"
+version = "0.1.0"
+source = { editable = "examples/43-appendix-c-mocking" }
+
+[[package]]
 name = "mypy"
 version = "2.4.1"
 source = { registry = "https://pypi.org/simple" }
@@ -392,6 +399,11 @@ sdist = { url = "https://files.pythonhosted.org/packages/97/c2/28b9f5b955ff2bcd4
 wheels = [
     { url = "https://files.pythonhosted.org/packages/e8/ea/47fbdc8f37410956fd445720e927589b1e2a47772c5f28109f0ce2fa26d9/pytest_mock-3.17.0-py3-none-any.whl", hash = "sha256:1b82aa4b37137248bd687055e109723debeb07b489de1565297dc9589c5f2d6b", size = 11248, upload-time = "2026-10-17T16:21:41.265Z" },
 ]
+
+[[package]]
+name = "pytest-reference"
+version = "0.1.0"
+source = { editable = "examples/42-appendix-b-pytest" }
 
 [[package]]
 name = "refactor-or-rewrite"

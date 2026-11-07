@@ -464,8 +464,8 @@ Step ids are `V*` (decision 0). Only `V1a`, `V1b`, `V5a` and `V5b` are cited as 
 | V4 | ch39-40 `status = "drafted"` (kinds unchanged) | V3 | done |
 | V5a | ch39 prose agent: re-fetch every source and quote exactly; run both experiments twice in fresh scratch copies with the stated filter; scrub before quoting; hand back the sources checked and a per-paragraph claims table that marks each sentence as test, source or run | V3, V4 | done |
 | V5b | ch40 prose agent, in parallel with V5a, with the same duties, plus a per-sentence check against decision 5's list: every sentence that mentions a model, an assistant or a reply is either about the book's own code and drafts or an attributed OWASP quotation | V3, V4 | done |
-| V6 | Opus validation, with up to two repair rounds. After every cut: a seam scan and a dependent-sentence re-read. Also: close-to-objective mapping, the excerpt check, the not-re-teaching check (criterion 11), decision 5's grep (criterion 20), the cross-language and outcome greps | V5a, V5b | todo |
-| V7 | PR, `ci-ok` green, ask the owner before merge; squash-merge; tag `r19.x` on main; notes-only release | V6 | todo |
+| V6 | Opus validation, with up to two repair rounds. After every cut: a seam scan and a dependent-sentence re-read. Also: close-to-objective mapping, the excerpt check, the not-re-teaching check (criterion 11), decision 5's grep (criterion 20), the cross-language and outcome greps | V5a, V5b | done (2026-11-07) |
+| V7 | PR, `ci-ok` green, ask the owner before merge; squash-merge; tag `r19.x` on main; notes-only release | V6 | done (2026-11-07) |
 
 Reconciliation rows (step V0). The "How to verify" column uses resolvable tokens.
 
