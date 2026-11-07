@@ -58,7 +58,7 @@ function divider(code, title, subtitle, text) {
   });
   s.addText(title, {
     x: 6.24, y: 2.84, w: 6.70, h: 1.60,
-    fontFace: FONT.title, fontSize: title.length > 18 ? 36 : 44, bold: true, color: COLOR.white,
+    fontFace: FONT.title, fontSize: title.length > 28 ? 32 : title.length > 18 ? 36 : 44, bold: true, color: COLOR.white,
     align: "left", valign: "top",
   });
   s.addText(subtitle, {
@@ -143,7 +143,8 @@ function codeSlide(eyebrow, title, file, first, last, anchor, caption, text) {
   const fontSize = Math.min(lines.length <= 4 ? 22 : 18, byWidth, byHeight);
   const h = Math.min(4.55, Math.max(1.0, (lines.length * fontSize * 1.4) / 72 + 0.45));
   const s = S();
-  addCodeSlide(s, eyebrow, title, "PYTHON", lines, caption, { fontSize, h });
+  addCodeSlide(s, eyebrow, title, "PYTHON", lines, null, { fontSize, h });
+  addCaption(s, caption, Math.min(6.50, 1.85 + h + 0.15));
   notes(s, text, 90, "code");
   return { file, first, last, longest, fontSize };
 }
@@ -204,7 +205,7 @@ function figSlide(eyebrow, title, png, caption, text) {
     ["What 1994 assumed:", " the sort into dissolves, survives and shares a name."],
     ["SOLID in Python:", " five principles, met with functions, Protocols and modules."],
     ["Selecting and varying behaviour:", " Strategy, Template Method, State, Command."],
-    ["Creating objects under control:", " factories, Builder, Singleton."],
+    ["Object creation:", " factories, Builder, Singleton."],
   ];
   const right = [
     ["Composing and adapting structure:", " Adapter, Facade, Bridge, the two Decorators, Proxy, Composite, Flyweight."],
@@ -290,7 +291,7 @@ tableSlide("WHAT 1994 ASSUMED", "Surviving patterns",
     ["Interpreter", "A grammar and its evaluator remain design"],
     ["Resource acquisition", "The with statement and context managers"],
   ], [3.0, 9.09],
-  `Fourteen rows where the language helps but the decision remains. State survives as a transition table, Command survives because undo and queues need an object with an identity, and Observer survives because callbacks don't decide order, failure or lifetime. In these rows the second column says what Python offers and what stays design. Command has a witness in the sorting example, a test that undo needs a command object. The other rows are witnessed in the example that develops the pattern, for instance the read-only transition table for State, the weak pool for Flyweight, the audit trail kept on rollback for Memento, and the with statement closing a writer on an exception. What to show: any one of those tests. Fallback: the second column names what stays design in each row.`, { fontSize: 11.5, rowH: 0.31 });
+  `Fourteen rows where the language helps but the decision remains. State survives as a transition table, Command survives because undo and queues need an object with an identity, and Observer survives because callbacks don't decide order, failure or lifetime. In these rows the second column says what Python offers and what stays design. Command has a witness in the sorting example, a test that undo needs a command object. The other rows are witnessed in the example that develops the pattern, for instance the read-only transition table for State, the weak pool for Flyweight, the audit trail kept on rollback for Memento, and the with statement closing a writer on an exception. What to show: any one of those tests. Fallback: the second column carries the claim row by row.`, { fontSize: 11.5, rowH: 0.31 });
 
 tableSlide("WHAT 1994 ASSUMED", "One name, two meanings",
   ["Name", "What Python gives you"], [
@@ -318,7 +319,7 @@ bulletSlide("WHAT 1994 ASSUMED", "Names for assistants", [
 // Section: SOLID in Python
 // ===========================================================================
 divider("03", "SOLID in Python", "Five principles, met with functions, Protocols and modules",
-  `SOLID names five forces that keep code cheap to change: one reason to change, extension without editing, substitutability, narrow roles and dependence on abstractions. Python meets them with light tools. A function and a read-only mapping carry the first two, a docstring and a contract suite carry the third, a Protocol per role carries the fourth, and one composition function carries the fifth. Principles beyond SOLID, such as composition over inheritance, DRY, YAGNI and the Law of Demeter, are tested by the same examples.`);
+  `SOLID names five forces that keep code cheap to change: one reason to change, extension without editing, substitutability, narrow roles and dependence on abstractions. Python meets them with light tools. A function and a read-only mapping carry the first two, a docstring and a contract suite carry the third, a Protocol per role carries the fourth, and one composition function carries the fifth. Principles beyond SOLID, such as composition over inheritance, DRY, YAGNI and the Law of Demeter, are tested in the pattern examples that exercise them.`);
 
 bulletSlide("SOLID IN PYTHON", "One reason to change", [
   ["Pricing, tax and audit", " change for different reasons and under different tests, so they're separate pieces."],
@@ -413,30 +414,30 @@ codeSlide("SELECTING AND VARYING BEHAVIOUR", "Command with undo",
   `Command survives, with the deferred call dissolving. A deferred call is a functools.partial. What survives is the force that a change needs an identity of its own: something to undo, redo and queue. amend applies an amendment, which returns the amendment that reverses it, and pushes that inverse on the undo stack. undo applies the inverse and pushes the redo. Harry Percival and Bob Gregory's Architecture Patterns with Python, which treats commands as messages with one handler, is the credit for that idea. Three tests back it: apply returns the reversing amendment, a failing batch leaves the booking unchanged, and amendments compare by value where partials don't. What to show: the batch test. Fallback: call the function when a change is never undone or queued.`);
 
 // ===========================================================================
-// Section: Creating objects under control
+// Section: Object creation
 // ===========================================================================
 divider("05", "Object creation", "Factories, Builder and Singleton",
   `Creational patterns decide who builds an object and how many exist. Factory Method dissolves into a value in a dict, while Abstract Factory survives as a kit of products that have to match. Builder dissolves into a keyword-only dataclass, and Prototype into dataclasses.replace. Singleton is a name that needs disambiguating, and the default answer is a module. The listings are short because the language does most of the work.`);
 
-codeSlide("CREATING OBJECTS UNDER CONTROL", "Factories in a dict",
+codeSlide("OBJECT CREATION", "Factories in a dict",
   "examples/16-factory-method-and-abstract-factory/src/factories/factories.py", 8, 15,
   "type GatewayFactory = Callable[[CarrierSettings], CarrierGateway[str]]",
   "The creator subclass becomes a value in a slot: a mapping from carrier code to a constructor.",
   `Factory Method dissolves. The force is present: the caller wants a gateway for a carrier and shouldn't know which gateway class that is. A mapping from carrier code to a constructor resolves it, and the type alias GatewayFactory, written with the type statement, names what the values are. Three tests witness the claim: a registered constructor builds the carrier gateways, the creator design declares three classes where the registry declares none, and an unknown carrier code is an unknown-carrier error. Brandon Rhodes's page on the Factory Method pattern is the source for reading the catalogue this way. What to show: the class-count test. Fallback: the listing is the entire registry.`);
 
-codeSlide("CREATING OBJECTS UNDER CONTROL", "A family of gateways",
+codeSlide("OBJECT CREATION", "A family of gateways",
   "examples/16-factory-method-and-abstract-factory/src/factories/kits.py", 49, 60,
   "FASTLINE_KIT = CarrierKit(",
   "A kit bundles a carrier's gateway, label printer and rates, so the products come from one family.",
   `Abstract Factory survives. The force is that products must come from the same family, and a language that stores callables doesn't choose the family. A kit holds a gateway constructor, a label printer and a rates source for one carrier, and KITS maps a carrier code to its kit. The claim rests on three tests: a kit ships with its own carrier's products, a kit is a frozen value, and mypy rejects a kit that mixes reference types. Rhodes's page on the Abstract Factory pattern gives the Python reading. The skip condition: if the products don't have to match, pass them separately. What to show: the mypy rejection test, which is the family constraint enforced before the code runs. Fallback: the two kits on the slide differ in the carrier.`);
 
-codeSlide("CREATING OBJECTS UNDER CONTROL", "Builder as a dataclass",
+codeSlide("OBJECT CREATION", "Builder as a dataclass",
   "examples/17-builder-dataclasses-and-prototype/src/builder_prototype/booking.py", 14, 23,
   "@dataclass(frozen=True, slots=True, kw_only=True)",
   "Named, keyword-only fields with defaults do a builder's work, and dataclasses.replace makes a variant.",
   `Builder dissolves. A keyword-only frozen dataclass takes named arguments, supplies defaults and validates once in its post-init, which is what a builder was for. Prototype dissolves too: a template request and dataclasses.replace give a new request. Three tests witness the claim: both constructors pass the booking table, a positional constructor accepts a swapped origin and destination, and a template and replace give a new request. The second test is the reason for keyword-only fields. Rhodes's pages on Builder and on Prototype are the credit for reading both patterns this way. The skip condition: a value with three fields doesn't need this treatment. What to show: the swapped-argument test. Fallback: the listing shows the defaults.`);
 
-codeSlide("CREATING OBJECTS UNDER CONTROL", "Singleton as a module",
+codeSlide("OBJECT CREATION", "Singleton as a module",
   "examples/18-singleton-module-borg-metaclass/src/singleton/quoting.py", 3, 16,
   "from decimal import Decimal",
   "lazy from imports the tariff module on first use, so callers share one table and a test can pass its own.",
@@ -446,7 +447,7 @@ codeSlide("CREATING OBJECTS UNDER CONTROL", "Singleton as a module",
 // Section: Composing and adapting structure
 // ===========================================================================
 divider("06", "Composing and adapting structure", "Adapter, Facade, Bridge, the Decorators, Proxy, Composite and Flyweight",
-  `Structural patterns join parts that were written apart. Adapter, Facade and Bridge all survive: duck typing removes an adapter only where shapes already match, a facade narrows a subsystem, and a bridge keeps two axes of variation independent. The name Decorator needs the most care here, because the pattern and the at-sign syntax are different things. Proxy covers a surrogate object and attribute interception. Composite and Flyweight close the section with a tree and a pool.`);
+  `Structural patterns join parts that were written apart. Adapter, Facade and Bridge all survive: duck typing removes an adapter only where shapes already match, a facade narrows a subsystem, and a bridge keeps two axes of variation independent. The name Decorator needs the most care here, because the pattern and the at-sign syntax are different things. Proxy covers a surrogate object and attribute interception. Composite and Flyweight survive as a tree and a pool.`);
 
 bulletSlide("COMPOSING AND ADAPTING STRUCTURE", "Adapter, Facade and Bridge", [
   ["All three survive.", " Duck typing removes an adapter where the shapes already match, and the type checker says where they don't."],
@@ -507,7 +508,7 @@ figSlide("COMPOSING AND ADAPTING STRUCTURE", "Shared commodities", "21-composite
 // Section: Coordinating and traversing
 // ===========================================================================
 divider("07", "Coordinating and traversing", "Observer, Mediator, Chain, Iterator, Visitor, Memento and Interpreter",
-  `The last catalogue section covers patterns that coordinate parties and walk structures. Observer, Mediator and Chain of Responsibility survive, for forces that callbacks and loops don't settle. Iterator dissolves into a generator, leaving three decisions about passes, reading and closing. Visitor dissolves into a match over a closed set. Memento survives as a snapshot with a choice of what to capture, and Interpreter survives as a small grammar with more than one reading.`);
+  `These patterns coordinate parties and walk structures. Observer, Mediator and Chain of Responsibility survive, for forces that callbacks and loops don't settle. Iterator dissolves into a generator, leaving three decisions about passes, reading and closing. Visitor dissolves into a match over a closed set. Memento survives as a snapshot with a choice of what to capture, and Interpreter survives as a small grammar with more than one reading.`);
 
 codeSlide("COORDINATING AND TRAVERSING", "Signal delivery",
   "examples/22-observer/src/observer/signal.py", 66, 81,
@@ -585,7 +586,7 @@ tableSlide("CHOOSING WELL", "Pattern to force",
     ["Visitor (closed set)", "Visitor is for a fixed family of kinds that gets new operations over time."],
     ["Interpreter", "Interpreter is for rules that people write down and the program must apply."],
   ], [2.5, 9.59],
-  `A pattern answers one force, and the quickest way into the catalogue is to start from the force you have. Ten rows are shown, each with its force stated in one sentence. Start from a caller who must choose among several ways of computing one result, and the row says Strategy; start from legal transitions as a business rule, and it says State. The column is read from the force back to the pattern, which is the direction a design review travels. Design Patterns names the patterns. What to show: cover the left column and name the pattern from the right. Fallback: read two rows and the direction of travel is clear.`, { rowH: 0.47, fontSize: 12, y: 1.5 });
+  `A pattern answers one force, and the quickest way into the catalogue is to start from the force you have. Ten rows are shown, each beside the force it answers. Start from a caller who must choose among several ways of computing one result, and the row says Strategy; start from legal transitions as a business rule, and it says State. The column is read from the force back to the pattern, which is the direction a design review travels. Design Patterns names the patterns. What to show: cover the left column and name the pattern from the right. Fallback: read two rows and the direction of travel is clear.`, { rowH: 0.47, fontSize: 12, y: 1.5 });
 
 {
   const s = S();
@@ -609,7 +610,7 @@ tableSlide("CHOOSING WELL", "Pattern to force",
 // Section: Reference
 // ===========================================================================
 divider("09", "Reference", "Versions, sources and further reading",
-  `The pinned versions the examples were built and checked with come first, then the online sources and the books behind the catalogue and the principles. The listings passed under those versions. A site address and a repository address close the section, and the repository holds the tested examples.`);
+  `The pinned versions the examples were built and checked with are recorded here, with the online sources and the books behind the catalogue and the principles. The listings passed under those versions. A site address and a repository address are given as well, and the repository holds the tested examples.`);
 
 tableSlide("REFERENCE", "The toolchain",
   ["Tool", "Version", "Role"], [

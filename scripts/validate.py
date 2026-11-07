@@ -120,8 +120,10 @@ DECK_BANNED = (
     (re.compile(r"\bslides?\s*\d+\b", re.IGNORECASE), "slide number reference"),
     (
         re.compile(
-            r"\b(next|previous|following|closing|last|earlier|later)\s+(slides?|sections?)\b"
-            r"|\bthat follows?\b|\bbefore it\b",
+            r"\b(next|previous|following|closing|last|earlier|later)\s+(\w+\s+)?(slides?|sections?)\b"
+            r"|\b(that|which)\s+follows?\b(?!\s+from)"
+            r"|\b(listings?|slides?|figures?|tables?|sections?)\s+(before|after)\s+it\b"
+            r"|\bclose\s+the\s+section\b",
             re.IGNORECASE,
         ),
         "positional slide reference",
@@ -1379,6 +1381,22 @@ def deck_self_test(expect: Callable[[str, bool], None]) -> None:
     )
     expect("deck slide ref", bool(run([*good[:2], ("Body", long + " on slide 4")])))
     expect("deck positional ref", bool(run([*good[:2], ("Body", long + " the next slide shows")])))
+    expect(
+        "deck positional ref 2",
+        bool(run([*good[:2], ("Body", long + " the last catalogue section covers")])),
+    )
+    expect(
+        "deck positional ok",
+        not run(
+            [
+                *good[:2],
+                (
+                    "Body",
+                    long + " a rule that follows from the force; it validates before it saves",
+                ),
+            ]
+        ),
+    )
     expect(
         "deck chapter pointer",
         bool(run([*good[:2], ("Body", long + " as the Observer chapter shows")])),

@@ -228,3 +228,25 @@ Applied from the Y5 validation of e6ebaeb.
 - Validator: a "positional slide reference" deck check and its self-test.
 - Pages viewed: 1, 6, 10, 11, 14, 16, 22, 30, 41, 47, 53, 54, 56, 60. Pages 21, 26, 29, 38, 43, 44, 49, 55 and 57 were checked through the XML aspect test and the text scan, not by eye.
 - Build: 62 slides, 62 notes, content slides at 90 words or more, dividers and cover at 45 or more (smallest 48).
+
+## Repair round 2 (2026-11-07, orchestrator)
+
+Round 2 of the Y5 validation, at 0aac85e, failed on a single blocking item: three divider notes still pointed by position. The fixes:
+
+- Slide 35: "Composite and Flyweight close the section with a tree and a pool." is now "Composite and Flyweight survive as a tree and a pool."
+- Slide 45: "The last catalogue section covers patterns that coordinate parties and walk structures." is now "These patterns coordinate parties and walk structures."
+- Slide 58: "come first, then" is now "are recorded here, with", and "close the section" is now "are given as well".
+
+Should-fix items and nits:
+
+- **Slide 30 alignment:** the route entry, the section comment and the four eyebrows now read "Object creation", to match the divider title.
+- **Slide 14 notes:** "are tested by the same examples." is now "are tested in the pattern examples that exercise them.", because the composition witness lives in the adapter example.
+- **Slide 56 notes:** "each beside the force it answers."
+- **Slide 10 notes:** the fallback is now "the second column carries the claim row by row."
+- **Code captions:** `codeSlide` passes a null caption to the helper and places the caption 0.15 in below the box, capped at 6.50. Short listings no longer leave a gap above the caption.
+- **Divider titles:** titles over 28 characters render at 32 pt. Slide 24 still wraps "behaviour" alone onto the second line. That is accepted as a nit.
+- **`check_decks()` positional regex:** it now allows an optional word between the position and slide or section, a "that or which follows" that isn't followed by "from", "listing, slide, figure, table or section before or after it", and "close the section". Three self-tests cover it: "deck positional ref 2" must fail, and "deck positional ok" ("a rule that follows from the force; it validates before it saves") must pass.
+
+Pages viewed after the rebuild: 24, 30, 31, 41, 47 and 49. Captions sit under their boxes, the eyebrows match, and the logo and footer are present.
+
+The rebuild gives 62 slides, with a minimum of 50 words of notes. `validate.py` reports 0 errors, and `--self-test` reports ok.
