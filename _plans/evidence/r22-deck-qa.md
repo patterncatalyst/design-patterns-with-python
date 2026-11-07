@@ -127,3 +127,89 @@ The triad candidates are lists of named items (patterns, tests, source names) ra
 ## Corrections found while building
 
 - `validate.py --claims` and the plain `validate.py` read `git config user.name` as an owner name. Here that value is the organisation name `PatternCatalyst`, which is also the required creator and appears in the repository URL on the closing slide, so the check reports three false hits. The gates were run with the global git configuration neutralised (`GIT_CONFIG_GLOBAL` and `GIT_CONFIG_SYSTEM` set to `/dev/null`), and the deck then passes. The check needs an exemption for the sanctioned creator string before a local run with that git name is clean.
+
+## Voice pass (2026-11-07, Y4b)
+
+Rules applied: rule of three, meta-narration, confessional or defensive phrasing, hedges and flourishes, unproven scope words, title shape, bullet shape, stiff expanded forms, slide-order pointers, accuracy slips found while reading. No chapter or appendix pointer was found. `scan.sh --stats` before: notes 7284 words, 33/35 contractions, 48 triad candidates; slides 3951 words, 9/13, 34. After: notes 7095, 32/32, 47; slides 3930, 11/13, 32. Triad candidates that remain are lists of named items. Rebuilt, re-rendered (62 pages, fonts unchanged); pages 4, 7, 8, 9, 10, 13, 15, 16, 17, 23, 42, 46, 55 and 62 viewed, no wrap or overflow. Minimum notes words after the pass: 49 (divider 58), content 62 or more.
+
+| Rule | Before | After |
+| --- | --- | --- |
+| title | "Open to a new tax" | "Extension by table entry" |
+| title | "How a quote flows" | "The quote flow" |
+| title | "Ask the shipment" | "Asking the shipment" |
+| title | "What a signal decides" | "Signal delivery" |
+| title | "A proxy keeps the interface" | "Proxy as stand-in" |
+| title | "Take it with you" | "Site and repository" |
+| title | "When not to" | "Skip conditions" |
+| title | "What dissolves", | "Dissolved patterns", |
+| title | "What survives", | "Surviving patterns", |
+| triad / flourish | " is the shortest design review comment there is: "this should be a Strategy" packs a family, a selector and a promise." | " is a compact design review comment: "this should be a Strategy" asserts interchangeable rules and a caller that selects one." |
+| triad / uniform shape | ["Replacing the tariff", " changes net and tax. Replacing the SG tax rule changes tax alone. Replacing the audit sink changes no field."] | ["A change", " moves the fields it feeds: a new tariff changes net and tax, the SG tax rule changes tax, and the audit sink changes none."] |
+| flourish kicker | ["The audit sink", " receives exactly the quote that was returned, nothing added and nothing held back."] | ["The audit sink", " receives the quote that was returned."] |
+| flourish | A hook for variation that never varies is pure cost."] | A hook for variation that never varies buys nothing."] |
+| flourish | " never means forget it. The force remains, and the name stays useful when a team talks about it."] | " never means forget it: the force remains, and the name stays useful in a design conversation."] |
+| defensive kicker | " counts as resolving a force when it resolves the whole of it, not the easy half."] | " resolves a force when it resolves the whole force; a partial fix leaves the pattern in place."] |
+| stiff / uniform shape | " could not be passed around. In Python they're objects that can be stored, passed and returned."] | " couldn't be passed around. In Python they're objects: stored, passed and returned."] |
+| stiff / uniform shape | " could not suspend. A Python function containing yield suspends and resumes."] | " couldn't suspend; a Python function containing yield can."] |
+| meta-narration / triad | The order is the decision, then the principles, then the patterns grouped by what they do. | It starts from the decision a pattern represents and then takes the patterns by what they do. |
+| meta-narration | Nine sections, opened by dividers. The first two set up the question: | The deck runs in nine sections. The first two set up the question: |
+| triad | and the reference section closes with versions, sources and where to go next. | and the reference section closes with versions and reading. |
+| meta-narration | This section sets that frame and shows the standard the code was held to: it ran, under a linter, a formatter, a strict type checker and a test suite, before it was put on a slide. | The code in the deck was held to a standard before it reached a slide: it ran under a linter, a formatter, a strict type checker and a test suite. |
+| kicker | No code appears here because the claim rests on that reading of the catalogue, not on a test. | No code appears here: the claim rests on that reading of the catalogue, and no test backs it. |
+| meta-narration | Python 3.15 differs on these counts. This section lists those assumptions, then sorts the patterns by two questions: does the name mean one thing, and does a language feature resolve the force without the structure. Three tables hold the result, and one short listing shows a dissolved pattern at its smallest. | Python 3.15 differs on functions, loops, types and modules. Two questions sort the patterns that follow: does the name mean one thing, and does a language feature resolve the force without the structure. Three tables hold the result, and one short listing shows a dissolved pattern at its smallest. |
+| vague scope | that is a sound description of the tools. Python 3.15 differs on these counts. The same description adds that X \| None is a type the checker tracks through its branches. | that is a sound description of the tools. Python 3.15 differs on functions, loops, types and modules, and X \| None adds a type the checker follows through its branches. |
+| kicker | What dissolves is the class structure the catalogue drew around the force, not the force itself. | What dissolves is the class structure the catalogue drew around the force; the force remains. |
+| flourish | Ten of the rows have a test in the sorting example, a test apiece, such as the lazy generator test and the test that a keyword-only dataclass is a builder. | Ten of the rows have a test of their own in the sorting example, such as the lazy generator test and the test that a keyword-only dataclass is a builder. |
+| triad | A strategy becomes a callable, an iterator becomes a generator, a factory method becomes a class or function in a dict, a builder becomes a keyword-only dataclass, and so on down the table. | A strategy becomes a callable and a builder becomes a keyword-only dataclass; the other nine rows read the same way. |
+| kicker | Dissolving removes the class structure, not the force, so the rows still name a decision. | The force remains after a dissolve, so the rows still name a decision. |
+| accuracy (one test, four named) | One test from the sorting example witnesses the rows: | Four tests from the sorting example witness the rows: |
+| triad | There's no abstract class, no subclass per rule and no interface to import. | There's no abstract class and no subclass per rule. |
+| hedge | A reviewer can test those three assertions in a minute. | A reviewer can check those assertions against the code. |
+| kicker | This rests on prose, not a test. | No test backs this slide; it rests on prose. |
+| meta-narration | The listings in this section show how Python meets them. A function | Python meets them with light tools. A function |
+| meta-narration | The section ends on the principles beyond SOLID that the same examples can test. | Principles beyond SOLID follow, tested by the same examples. |
+| clarity | A request that arrives has a different author and a different test that ought to move, which is the practical test for a reason to change. | A change request that arrives has its own author and moves its own test, which is the practical check for a separate reason to change. |
+| defensive | , and nothing in the figure is drawn that the code doesn't compose. | . |
+| slide-order pointer | The figure is the shape behind the next three listings. | The figure is the shape behind the listings that follow. |
+| redundancy / flourish | which is structural typing at work. The second shows the opposite failure: a fat Protocol forces fakes to stub methods their consumer never calls. The rule of thumb is that if a fake has to stub a method its consumer never calls, the Protocol should be narrower. | which is structural typing. The second shows what a fat Protocol costs: fakes have to stub methods their consumer never calls, and that's the sign the Protocol should be narrower. |
+| filler | raises a clear error for an unknown carrier | raises an error naming the known carriers for an unknown carrier |
+| jargon | The witnesses come from several examples, since the principles appear wherever the pattern examples exercise them. | The tests come from several examples, because the principles show up in the pattern examples that exercise them. |
+| slide-order pointer | The Demeter row has a listing of its own after this table. | The Demeter row gets a listing of its own. |
+| meta-narration | Each pattern gets a sentence of force, a listing and the tests that witness it. | (sentence removed) |
+| filler | The skip condition is plain: a single rule | The skip condition: a single rule |
+| filler | The skip condition is small: a two-state flag is a bool. | The skip condition: a two-state flag is a bool. |
+| defensive | an idea this example acknowledges and doesn't copy. | is the credit for that idea. |
+| stiff | amendments compare by value where partials do not. | amendments compare by value where partials don't. |
+| meta-narration | , and the notes say what remains a decision. | . |
+| filler | Builder dissolves, so the bucket is dissolves. A keyword-only | Builder dissolves. A keyword-only |
+| flourish | The listing shows two rungs of a ladder. A tariff module | The listing shows two forms. A tariff module |
+| flourish |  A class whose reason to exist is to be single is a module. | (sentence removed) |
+| stiff | mypy reports where they do not. | mypy reports where they don't. |
+| accuracy (truncated) | a decorated function has no price and a layer has no wrapped, and mypy | a decorated function has no price and a layer has no wrapped function, and mypy |
+| deflection | , and writing decorators well is a separate subject. | . |
+| accuracy | Both patterns in this section survive. | Composite and Flyweight both survive. |
+| confessional | The figure is an illustration: the tree it draws is smaller than the one the tests build, with two top-level parts against three and one commodity against two. | The tree it draws is smaller than the one the tests build, with two top-level parts against three and one commodity against two. |
+| scope word | and Signal decides each. | and Signal settles those four. |
+| accuracy | Both Mediator and Chain survive because Python's syntax doesn't make those decisions for you. | What remains as design is the order of the stages and which stage may be last. |
+| delivery / meta | At full width the small labels are legible, which they aren't beside bullets. | The figure has its own slide because its small labels need the full width. |
+| meta-narration | A catalogue is useful if it can say no. This section collects the conditions under which a pattern is the wrong answer, reads the catalogue back by force rather than by name, and shows a prompt that names the decision before it asks for code. | A catalogue is useful if it can say no. Skip conditions say when a pattern is the wrong answer, the force table reads the catalogue back by force rather than by name, and a sample prompt names the decision before it asks for code. |
+| grammar | The rows are sentences that open or closes a pattern's discussion of when to leave it out. | The rows are sentences that open or close a pattern's discussion of when to leave it out. |
+| defensive | These sentences rest on the book's reasoning and not on a test, since the discussion of when not to use a pattern gives none, and the table claims no more than the sentences do. | No test backs these rows. They rest on the book's reasoning, and the table claims what the sentences claim. |
+| triad (anaphora) | Start from a caller who must choose among several ways of computing one result, and the row says Strategy. Start from a sequence that must hold while a few steps vary, and it says Template Method. Start from legal transitions as a business rule, and it says State. | Start from a caller who must choose among several ways of computing one result, and the row says Strategy; start from legal transitions as a business rule, and it says State. |
+| kicker | This rests on the prompt and the review line as written, not on a test of its own. | No test backs this slide; the prompt and the review line stand as written. |
+| meta-narration | The reference section lists what the examples were built and checked with, the online sources the discussion draws on, and the books behind the catalogue and the principles. Versions are pinned exactly, and the listings passed under them. | The pinned versions the examples were built and checked with come first, then the online sources and the books behind the catalogue and the principles. The listings passed under those versions. |
+| defensive | Sources are credited where an idea leans on them, and nothing here is copied; the wording and examples are new, and the few short quotations are attributed. | Sources are credited where an idea leans on them. The wording and the examples are new, and the short quotations are attributed. |
+| flourish | Liskov and Wing and Meyer are credited in print, as the principles they introduced. | Liskov and Wing, and Meyer, are credited for the principles they introduced. |
+| unproven superlative | are the best companions to the language features | are companions to the language features |
+| grammar | The Pragmatic Programmer is the source for DRY, Clean Code and Refactoring are cited | The Pragmatic Programmer is the source for DRY; Clean Code and Refactoring are cited |
+| flourish | so a claim can be re-run rather than taken on trust. | so a claim can be re-run. |
+| cadence | Three tests witness the claim: a change moves | Three tests back the claim: a change moves |
+| cadence | Three tests witness the claim: a calculator honours | The claim rests on three tests: a calculator honours |
+| cadence | Three tests witness the claim: the function runs | Three tests cover it: the function runs |
+| cadence | Three tests witness the claim: apply returns | Three tests back it: apply returns |
+| cadence | Three tests witness the claim: a kit ships | The claim rests on three tests: a kit ships |
+| cadence | Three tests witness the claim: every booking kind | Three tests cover it: every booking kind |
+| cadence | Three tests witness the claim: the at sign rebinds | Three tests back it: the at sign rebinds |
+| cadence | Five tests witness the claim: subscribers are called | Five tests cover it: subscribers are called |
+| cadence | Three tests witness the claim: the mediator releases | The claim rests on three tests: the mediator releases |
+| cadence | Three tests witness the claim: rollback keeps | Three tests cover it: rollback keeps |
