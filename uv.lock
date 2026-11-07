@@ -21,6 +21,7 @@ members = [
     "dynamic-attributes",
     "factories",
     "feature-spikes",
+    "final-project",
     "fowler-feathers",
     "gil-and-performance",
     "isp-dip-di",
@@ -200,6 +201,11 @@ source = { editable = "examples/16-factory-method-and-abstract-factory" }
 name = "feature-spikes"
 version = "0.1.0"
 source = { editable = "spikes/feature-spikes" }
+
+[[package]]
+name = "final-project"
+version = "0.1.0"
+source = { editable = "examples/39-final-project" }
 
 [[package]]
 name = "fowler-feathers"
