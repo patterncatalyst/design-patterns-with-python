@@ -1,0 +1,19 @@
+Python 3.15.2, default build, GIL enabled: True
+workers: 4, batch: 4 consignments, best of 3
+date: 2026-11-06, machine: 16-thread x86-64 CPU
+
+Decimal rating (rating.quote)
+serial                     0.727 s
+thread pool               warm  0.703 s (1.0x)   cold  0.740 s (1.0x)
+process pool              warm  0.203 s (3.6x)   cold  0.209 s (3.5x)
+interpreter pool          warm  0.211 s (3.4x)   cold  0.248 s (2.9x)
+
+integer-cents loop
+serial                     0.132 s
+thread pool               warm  0.130 s (1.0x)   cold  0.132 s (1.0x)
+process pool              warm  0.039 s (3.4x)   cold  0.048 s (2.8x)
+interpreter pool          warm  0.038 s (3.5x)   cold  0.102 s (1.3x)
+
+waits, serial              0.800 s
+waits, threads             0.201 s (4.0x)
+waits, asyncio             0.201 s (4.0x)

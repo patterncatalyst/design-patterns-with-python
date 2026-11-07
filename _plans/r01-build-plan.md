@@ -17,7 +17,9 @@ status. **Executors never edit this file; the orchestrator updates the status bo
 - Concurrency is TWO asyncio-centred chapters (37 GIL and performance; 38 asyncio and
   the patterns). Book is 41 chapters (0-40) + appendices A-F (docs 41-46).
 - Skip free-threaded Python (PEP 703). Do discuss GIL performance impact and its
-  relation to async code.
+  relation to async code. (2026-11-06, r18 decision 2, option B, confirmed by the owner:
+  bounded change. Chapter 37 names the free-threaded build, its tests hold on both builds and a
+  `free-threaded` CI job runs the chapter 37 and 38 members. The skip stands for everything else.)
 - Hub: "GoF Design Patterns and SOLID Principles" section.
 - Accent: **series red `#c0392b`** (same as C++/Java). Diagrams keep house amber.
 - Keep "Figure N.1:" prefix on HTML captions; never numbers inside SVGs or body prose.

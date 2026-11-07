@@ -47,10 +47,26 @@ jobs:
       - name: No host identifiers in tracked files
         run: python3 scripts/host_ids.py check
 
+  # The two concurrency examples also run on the free-threaded build of the pinned interpreter.
+  free-threaded:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.3
+        with:
+          enable-cache: true
+          version: "0.13.7"
+      - name: Install the free-threaded interpreter
+        run: uv python install 3.15.2t
+      - name: Build a second environment from the same lockfile
+        run: UV_PROJECT_ENVIRONMENT=.venv-ft uv sync --python 3.15.2t --locked --all-packages
+      - name: GIL and asyncio examples on the free-threaded build
+        run: .venv-ft/bin/python -m pytest examples/37-the-gil-and-performance examples/38-asyncio-and-the-patterns
+
   # The one check the ruleset requires. Passes only when every needed job succeeded.
   ci-ok:
     if: always()
-    needs: [python, validate, host-ids]
+    needs: [python, validate, host-ids, free-threaded]
     runs-on: ubuntu-latest
     steps:
       - env:

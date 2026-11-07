@@ -340,7 +340,7 @@ title = "The GIL and performance"
 part = 12
 kind = "hands-on"
 has_example = true
-status = "stub"
+status = "drafted"
 
 [[chapter]]
 number = 38
@@ -349,7 +349,7 @@ title = "asyncio and the patterns"
 part = 12
 kind = "hands-on"
 has_example = true
-status = "stub"
+status = "drafted"
 
 [[chapter]]
 number = 39

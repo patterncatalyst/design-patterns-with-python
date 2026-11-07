@@ -8,6 +8,7 @@ vendor/
 
 # Python
 .venv/
+.venv-ft/
 __pycache__/
 *.py[cod]
 .pytest_cache/

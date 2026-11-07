@@ -595,8 +595,8 @@ Step ids are `T*` (decision 0). Only `T1a`, `T1b`, `T5a` and `T5b` are cited as 
 | T4 | ch35-36 `status = "drafted"` (`kind` stays `argument`) | T3 | done |
 | T5a | ch35 prose agent: re-fetch every source and quote exactly; verify or drop the bracketed titles (decision 9); run both experiments twice in fresh scratch copies with the stated filter; scrub before quoting; hand back the sources checked and a per-paragraph claims table | T3, T4 | done |
 | T5b | ch36 prose agent, in parallel with T5a, with the same duties, plus checking that no outcome sentence from the fetched pages appears (decision 8) | T3, T4 | done |
-| T6 | Opus validation, with up to two repair rounds. After every cut: a seam scan and a dependent-sentence re-read. Also: close-to-objective mapping, the excerpt check against decisions 3-7, pointer circularity (criterion 11), the cross-language and outcome greps (criteria 14 and 20), and the scope of the no-mock rule (criterion 2) | T5a, T5b | todo |
-| T7 | PR, `ci-ok` green, ask the owner before merge; squash-merge; tag `r17.x` on main; notes-only release | T6 | todo |
+| T6 | Opus validation, with up to two repair rounds. After every cut: a seam scan and a dependent-sentence re-read. Also: close-to-objective mapping, the excerpt check against decisions 3-7, pointer circularity (criterion 11), the cross-language and outcome greps (criteria 14 and 20), and the scope of the no-mock rule (criterion 2) | T5a, T5b | done |
+| T7 | PR, `ci-ok` green, ask the owner before merge; squash-merge; tag `r17.x` on main; notes-only release | T6 | done |
 
 Reconciliation rows (step T0). The "How to verify" column uses resolvable tokens.
 
