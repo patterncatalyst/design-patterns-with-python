@@ -303,3 +303,19 @@
     parameter mypy checks, and one characterisation table runs at every step.
     Subclass and override passes it too, but a misspelt method reaches the real
     carrier.
+
+- name: 35-fowler-vs-feathers
+  section: "Ch. 35"
+  title: Two rounding refactors under intent rows and golden quotes
+  caption: >-
+    The same two rounding refactors under two kinds of test. Rows written from
+    the requirement pass both, while golden quotes recorded from the legacy
+    engine list the rows each refactor changed.
+
+- name: 36-refactor-or-rewrite
+  section: "Ch. 36"
+  title: A router between the legacy engine and its rewrite
+  caption: >-
+    A router serves migrated zones from the rewrite and the rest from the legacy
+    engine, and can run the rewrite in shadow. A parity table holds the two to the
+    same quotes, and a first draft with exclusive band limits fails it.

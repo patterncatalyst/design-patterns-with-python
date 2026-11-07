@@ -20,11 +20,13 @@ members = [
     "dynamic-attributes",
     "factories",
     "feature-spikes",
+    "fowler-feathers",
     "isp-dip-di",
     "iterator-protocol",
     "mediator-chain",
     "observer",
     "pattern-misuse",
+    "refactor-or-rewrite",
     "seams",
     "shortcut-patterns",
     "singledispatch-visitor",
@@ -191,6 +193,11 @@ source = { editable = "examples/16-factory-method-and-abstract-factory" }
 name = "feature-spikes"
 version = "0.1.0"
 source = { editable = "spikes/feature-spikes" }
+
+[[package]]
+name = "fowler-feathers"
+version = "0.1.0"
+source = { editable = "examples/35-fowler-vs-feathers" }
 
 [[package]]
 name = "iniconfig"
@@ -366,6 +373,11 @@ sdist = { url = "https://files.pythonhosted.org/packages/97/c2/28b9f5b955ff2bcd4
 wheels = [
     { url = "https://files.pythonhosted.org/packages/e8/ea/47fbdc8f37410956fd445720e927589b1e2a47772c5f28109f0ce2fa26d9/pytest_mock-3.17.0-py3-none-any.whl", hash = "sha256:1b82aa4b37137248bd687055e109723debeb07b489de1565297dc9589c5f2d6b", size = 11248, upload-time = "2026-10-17T16:21:41.265Z" },
 ]
+
+[[package]]
+name = "refactor-or-rewrite"
+version = "0.1.0"
+source = { editable = "examples/36-refactor-or-rewrite" }
 
 [[package]]
 name = "ruff"

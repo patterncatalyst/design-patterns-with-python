@@ -828,7 +828,7 @@ Step ids are `S*` (decision 0). Only `S1a`, `S1b`, `S5a` and `S5b` are cited as 
 | S5a | ch33 prose agent: re-fetch sources and quote exactly; run both experiments in fresh scratch copies with the stated filter; scrub output before quoting; hand back the sources checked and a per-paragraph claims table that names, for each static-test citation, its mutation | S3, S4 | done |
 | S5b | ch34 prose agent, in parallel with S5a, with the same duties, plus verifying each bracketed Feathers technique name (decision 8) | S3, S4 | done |
 | S6 | Opus validation, with up to two repair rounds. After every cut: a seam scan and a dependent-sentence re-read. Also: close-to-objective mapping, the excerpt check against decisions 2-5 and 10, pointer circularity (criterion 11), the cross-language grep (criterion 14), and the scope of the mock exception (criterion 2) | S5a, S5b | done |
-| S7 | PR, `ci-ok` green, ask the owner before merge; squash-merge; tag `r16.x` on main; notes-only release | S6 | todo |
+| S7 | PR, `ci-ok` green, ask the owner before merge; squash-merge; tag `r16.x` on main; notes-only release | S6 | done |
 
 Reconciliation rows (step S0). The "How to verify" column uses resolvable tokens.
 
