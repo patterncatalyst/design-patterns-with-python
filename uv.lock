@@ -21,6 +21,7 @@ members = [
     "factories",
     "feature-spikes",
     "fowler-feathers",
+    "gil-and-performance",
     "isp-dip-di",
     "iterator-protocol",
     "mediator-chain",
@@ -198,6 +199,11 @@ source = { editable = "spikes/feature-spikes" }
 name = "fowler-feathers"
 version = "0.1.0"
 source = { editable = "examples/35-fowler-vs-feathers" }
+
+[[package]]
+name = "gil-and-performance"
+version = "0.1.0"
+source = { editable = "examples/37-the-gil-and-performance" }
 
 [[package]]
 name = "iniconfig"

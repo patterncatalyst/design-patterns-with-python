@@ -1,0 +1,12 @@
+Python 3.15.2, free-threading build, GIL enabled: False
+workers: 4, batch: 4 consignments, best of 3
+date: 2026-11-06, machine: 16-thread x86-64 laptop CPU
+
+serial                     0.879 s
+thread pool               warm  1.554 s (0.6x)   cold  1.532 s (0.6x)
+process pool              warm  0.258 s (3.4x)   cold  0.243 s (3.6x)
+interpreter pool          warm  0.242 s (3.6x)   cold  0.349 s (2.5x)
+
+waits, serial              0.800 s
+waits, threads             0.203 s (3.9x)
+waits, asyncio             0.201 s (4.0x)
