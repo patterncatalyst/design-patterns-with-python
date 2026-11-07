@@ -11,7 +11,8 @@ class AsyncSignal[E]:
     """Publish an event to async subscribers on one event loop.
 
     ``publish`` starts every subscriber, waits for all of them, and then raises one
-    ``ExceptionGroup`` of the failures, so a failing subscriber does not stop the others.
+    ``BaseExceptionGroup`` of the failures (an ``ExceptionGroup`` when each is an ``Exception``),
+    so a failing subscriber does not stop the others.
     """
 
     def __init__(self) -> None:

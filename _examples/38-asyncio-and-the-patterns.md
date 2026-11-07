@@ -2,7 +2,7 @@
 layout: example
 order: 38
 title: "asyncio and the patterns"
-description: A carrier feed as an async generator, a session that survives cancellation, quotes gathered in a task group, an async Observer and a command queue that shuts down.
+description: A carrier feed as an async generator, a session that survives cancellation, quotes run in a task group, an async Observer and a command queue that shuts down.
 github_path: examples/38-asyncio-and-the-patterns
 card_eyebrow: "Concurrency · asyncio and the patterns"
 card_blurb: "An await between reading and writing lets five tasks take one slot. A feed closes through aclosing, quotes run in a task group, an async signal runs every subscriber, and a command queue shuts down without a sentinel."

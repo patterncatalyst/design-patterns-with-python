@@ -99,5 +99,6 @@ UV_PROJECT_ENVIRONMENT=.venv-ft uv sync --python 3.15t --locked --all-packages
 - `test_mypy_types_the_build_flag_as_any`: returning the sysconfig flag unwrapped is a
   `no-any-return` error, and `build.py` is clean.
 
-The tests use no mocks and no patching. Every interleaving is forced by a barrier or a recording
-lock, with a ten second guard that a healthy run never reaches.
+The tests use no mocks and no patching. The two stowage races are forced by a barrier and a
+recording lock, the loop test by an `asyncio.Event`, and the waits sit under a ten second guard that
+a healthy run never reaches.

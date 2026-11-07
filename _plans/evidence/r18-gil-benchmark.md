@@ -102,3 +102,56 @@ In these example runs:
 - Waits: threads and asyncio ran at 4.0x serial on both builds.
 
 No cause is established for the Decimal thread result on the free-threaded build.
+
+## Lost-update probe (example runs, not tests)
+
+Recorded 2026-11-06 for the chapter's "one example run" sentence. The probe is not part of the example:
+four threads each add 1 to a shared attribute 5,000 times, over 300 trials, run with `python -I race.py`
+on each build (the block below is the probe after `ruff format`). Run three times in all (twice by the prose step, once by the orchestrator); every run gave
+the same counts.
+
+```python
+import sys, sysconfig, threading
+
+
+class Tally:
+    def __init__(self):
+        self.count = 0
+
+
+def trial():
+    t = Tally()
+
+    def work():
+        for _ in range(5000):
+            t.count += 1
+
+    threads = [threading.Thread(target=work) for _ in range(4)]
+    for th in threads:
+        th.start()
+    for th in threads:
+        th.join()
+    return 20000 - t.count
+
+
+lost = [trial() for _ in range(300)]
+print(
+    sys.version.split("(")[0].strip(),
+    "| GIL enabled:",
+    sys._is_gil_enabled(),
+    "| switch interval:",
+    sys.getswitchinterval(),
+)
+print("trials with a lost update:", sum(1 for n in lost if n), "of", len(lost))
+```
+
+```
+3.15.2 | GIL enabled: True | switch interval: 0.005
+trials with a lost update: 0 of 300
+3.15.2 free-threading build | GIL enabled: False | switch interval: 0.005
+trials with a lost update: 300 of 300
+```
+
+The 0.005 switch interval is what `sys.getswitchinterval()` returned in these runs; the `sys` documentation
+does not state the default.
+

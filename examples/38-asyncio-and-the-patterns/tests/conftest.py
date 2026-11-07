@@ -1,8 +1,8 @@
 """Fixtures: a guarded runner, feeds, test doubles for carriers and subscribers, and the one
 comparison form of the signal.
 
-Every wait in a test is on an event, and every event wait sits under a ten second guard that a
-healthy run never reaches.
+Tests wait on events, barriers, queues and joins (one test yields once with ``sleep(0)``), under a
+ten second guard that a healthy run never reaches.
 """
 
 import asyncio

@@ -18,7 +18,8 @@ a `TaskGroup` under `asyncio.timeout` and returns the lowest total. A failing so
 other quote. `first_quote` calls `TaskGroup.cancel()` on the first answer.
 
 `signal.py` holds `AsyncSignal`. `publish` runs every subscriber with `asyncio.gather(...,
-return_exceptions=True)` and then raises one `ExceptionGroup` of the failures. The tests compare it
+return_exceptions=True)` and then raises one `BaseExceptionGroup` of the failures, which is an `ExceptionGroup` when each
+failure is an `Exception`. The tests compare it
 with a publisher built on a `TaskGroup`, which cancels the other subscribers when one fails.
 
 `commands.py` holds `run_commands`, a worker over an `asyncio.Queue` of coroutine commands. It logs
@@ -121,6 +122,7 @@ UV_PROJECT_ENVIRONMENT=.venv-ft uv sync --python 3.15t --locked --all-packages
 - `test_mypy_refuses_a_blocking_source_where_a_rate_source_is_expected`
 - `test_mypy_accepts_a_coroutine_bound_to_underscore`: mypy exits 0, and the runtime warns.
 
-The tests use no mocks and no patching, and no test waits on a clock. Every
-interleaving is forced by an event, a queue or a barrier (one test yields once with `asyncio.sleep(0)`, as its docstring explains), with a ten second guard that a healthy
-run never reaches.
+The tests use no mocks and no patching, and no test sleeps to wait for another task. Interleavings
+are forced by events, queues and barriers, one test yields once with `asyncio.sleep(0)` as its
+docstring explains, and the order within one publish rests on CPython starting tasks first in,
+first out. A ten second guard sits over the waits, and a healthy run never reaches it.
