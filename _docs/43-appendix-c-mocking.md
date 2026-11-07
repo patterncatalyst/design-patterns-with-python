@@ -183,7 +183,7 @@ Outside pytest there's no fixture to undo anything, so `unittest.mock.patch` is 
 
 ## Spies and stubs
 
-A spy and a stub are the two doubles that avoid a configured answer. A spy runs the real code and records it. A stub is a callable that records how it was called, for a callback the code under test is given.
+A spy and a stub are the two doubles that avoid a configured answer. A spy runs the real code and records it. A stub, in pytest-mock's sense, is a callable that records how it was called, for a callback the code under test is given.
 
 The usage page describes a spy this way: "The mocker.spy object acts exactly like the original method in all cases, except the spy also tracks function/method calls, return values and exceptions raised." The attributes that hold the records are `spy_return`, `spy_return_list` and `spy_exception`:
 

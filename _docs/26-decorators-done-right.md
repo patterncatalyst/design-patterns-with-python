@@ -19,7 +19,7 @@ By the end of this chapter you can:
 
 ## Why this matters
 
-A booking portal renders bills of lading, caches each rendering for five minutes and times the work. Each of those is a decorator over one function, `render_bill`. The `@` that applies them is the language's part: it rebinds a name when the function is defined. What stays design is the discipline around it, so the bucket is survives, as [The three-way split: dissolve, survive, disambiguate]({{ '/docs/03-the-three-way-split/' | relative_url }}) sorts it. Three things go wrong in the obvious versions.
+A booking portal renders bills of lading, caches each rendering for five minutes and times the work. Each of those is a decorator over one function, `render_bill`. The `@` that applies them is the language's part: it rebinds a name when the function is defined. What stays design is the discipline around it, so the bucket is survives. The map in [The three-way split: dissolve, survive, disambiguate]({{ '/docs/03-the-three-way-split/' | relative_url }}) files the shared name under needs disambiguating. Three things go wrong in the obvious versions.
 
 A renderer reports itself as `wrapper` and has no docstring, so a log line or a help page names a function nobody wrote.
 

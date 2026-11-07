@@ -38,8 +38,8 @@ PR, squash-merge with branch deletion, an `rNN.x` tag and a notes-only release.
 | r17 | Ch 35-36: Fowler vs Feathers, refactor or rewrite |
 | r18 | Ch 37-38: the GIL and performance; asyncio and the patterns |
 | r19 | Ch 39-40: final project, working with AI and LLM tools |
-| r20 (active) | Appendices A-C |
-| r21 | Appendices D-F |
+| r20 | Appendices A-C |
+| r21 (active) | Appendices D-F |
 | r22-r24 | Decks 101, 201, 301 |
 | r25 | Retro and QA sweep |
 
@@ -190,12 +190,12 @@ PR, squash-merge with branch deletion, an `rNN.x` tag and a notes-only release.
 | PDP-140a | Ch40 Working with AI and LLM tools: example | r19 | done |
 | PDP-140b | Ch40 Working with AI and LLM tools: figure | r19 | done |
 | PDP-140c | Ch40 Working with AI and LLM tools: prose | r19 | done |
-| PDP-141 | Appendix A: Build and toolchain reference (uv, ruff, mypy) | r20 | active |
-| PDP-142 | Appendix B: pytest reference | r20 | active |
-| PDP-143 | Appendix C: pytest-mock and unittest.mock reference | r20 | active |
-| PDP-144 | Appendix D: Test patterns (Meszaros) | r21 | todo |
-| PDP-145 | Appendix E: Pattern-to-force quick reference | r21 | todo |
-| PDP-146 | Appendix F: Programming principles reviewed in code | r21 | todo |
+| PDP-141 | Appendix A: Build and toolchain reference (uv, ruff, mypy) | r20 | done |
+| PDP-142 | Appendix B: pytest reference | r20 | done |
+| PDP-143 | Appendix C: pytest-mock and unittest.mock reference | r20 | done |
+| PDP-144 | Appendix D: Test patterns (Meszaros) | r21 | active |
+| PDP-145 | Appendix E: Pattern-to-force quick reference | r21 | active |
+| PDP-146 | Appendix F: Programming principles reviewed in code | r21 | active |
 | PDP-150 | Deck 101 | r22 | todo |
 | PDP-151 | Deck 201 | r23 | todo |
 | PDP-152 | Deck 301 | r24 | todo |
@@ -231,3 +231,5 @@ PR, squash-merge with branch deletion, an `rNN.x` tag and a notes-only release.
 2026-11-07 (r19): PDP-139a to PDP-140c are active for r19 (chapters 39 and 40, Part 13). PDP-137a to PDP-138c are closed (r18 is merged as 3722ab8 and tagged r18.x), r18 is closed and r19 is marked active in the roadmap. Earlier iterations keep their status.
 
 2026-11-07 (r20): PDP-141 to PDP-143 are active for r20 (appendices A to C, Part 14). PDP-139a to PDP-140c are closed (r19 is merged as 95f965d and tagged r19.x), r19 is closed and r20 is marked active in the roadmap. Earlier iterations keep their status.
+
+2026-11-07 (r21): PDP-144 to PDP-146 are active for r21 (appendices D to F, Part 14). PDP-141 to PDP-143 are closed (r20 is merged as 97207d4 and tagged r20.x), r20 is closed and r21 is marked active in the roadmap. Earlier iterations keep their status.
