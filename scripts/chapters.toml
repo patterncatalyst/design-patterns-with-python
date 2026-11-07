@@ -420,5 +420,5 @@ slug = "46-appendix-f-programming-principles"
 title = "Programming principles reviewed in code"
 part = 14
 kind = "appendix"
-has_example = false
+has_example = true
 status = "stub"

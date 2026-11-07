@@ -503,7 +503,7 @@ Step ids are `X*` (decision 0). Only `X1a`, `X1b`, `X1c`, `X1d`, `X4a`, `X4b` an
 
 | Step | What | Depends | Status |
 | --- | --- | --- | --- |
-| X0 | Bookkeeping with dated notes; re-check the pins; record the decisions. `iteration-plan.md`: r20 closed, PDP-141 to 143 `done`, PDP-144 to 146 `active`, r21 active. Reconciliation plan: rows 199 to 211 closed after a fresh-copy re-run (decision 14); rows 279 to 312 `open` with a dated note. Domain rows D to F (decision 12, amended). `chapters.toml`: 46 `has_example = true` (O1; 44 and 45 stay `false`). `bibliography.html` rows (decision 6). The three stub `description` lines. `verify.sh` and `validate.py` green after the edits | - | todo |
+| X0 | Bookkeeping with dated notes; re-check the pins; record the decisions. `iteration-plan.md`: r20 closed, PDP-141 to 143 `done`, PDP-144 to 146 `active`, r21 active. Reconciliation plan: rows 199 to 211 closed after a fresh-copy re-run (decision 14); rows 279 to 312 `open` with a dated note. Domain rows D to F (decision 12, amended). `chapters.toml`: 46 `has_example = true` (O1; 44 and 45 stay `false`). `bibliography.html` rows (decision 6). The three stub `description` lines. `verify.sh` and `validate.py` green after the edits | - | done |
 | X1a | `_plans/evidence/r21-test-pattern-map.md` | X0 | todo |
 | X1b | `_plans/evidence/r21-pattern-force-census.md` (parallel with X1a) | X0 | todo |
 | X1c | `_plans/evidence/r21-principle-witnesses.md` (parallel with X1a) | X0 | todo |
@@ -573,6 +573,7 @@ Lessons carried from r11-r20, which this plan applies up front:
 - **Quotations** stop where the page's sentence stops, and before a dash; a source's own misspelling is quoted as is or not quoted (r18 U6, r20).
 - **Voice.** "earns its place" is banned (r15); the voice scan needs `--exclude .venv-ft`; "spike" never appears in reader files, code blocks included (r20 W4b).
 - **Paths.** Repo-relative only in plans (r09); `<scratchpad>` in place of the scratch path.
+- **Step X0:** (2026-11-07) Pins re-checked and unchanged: PyPI `info.version` pytest 9.2.0, pytest-mock 3.17.0, mypy 2.4.1, ruff 0.17.4, uv and uv-build 0.13.7; `python.org/ftp/python/` lists 3.15.0, 3.15.1, 3.15.2 and 3.16.0 (pre-release). Rows 199 to 211 re-run in a fresh copy as decision 14 says: the 21 names defined once, `-k` gave `44 passed, 5 deselected`, both members `49 passed` three times, mypy `Success: no issues found in 9 source files` for each, ruff clean, `20 files already formatted`; closed. Deviation 1: `validate.py` reads any unresolved `source:` or `run:` token, or a missing test name, as an error for rows from 47, so X0 added only rows 279 to 287, 290 to 293 and 296 to 303 (every test they name exists), with each `source:` written "source (open until prose links it)" and each future `run:` written "run (open until ... )". Rows 288, 289, 294, 295 and 304 to 306 (no evidence that exists yet) are added at X2; rows 307 to 312 at X1d. Deviation 2: the three stub `description` lines and part 14's blurb already read as the plan states, so they are unchanged. Deviation 3: the Clean Code row now points to "Naming patterns for teams and AI assistants" by its exact title. `bash scripts/verify.sh` printed `1387 passed` and `verify: all steps passed`; `validate.py` printed `0 error(s), 3 warning(s)` (the three r20 appendix word counts).
 
 ## Acceptance criteria
 
