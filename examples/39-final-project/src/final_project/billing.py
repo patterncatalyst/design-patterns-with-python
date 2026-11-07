@@ -13,7 +13,7 @@ class LineItem:
 
 @dataclass(frozen=True, slots=True)
 class Invoice:
-    """At least one line; every line in one currency."""
+    """The lines of one bill; ``total`` needs at least one line, all in one currency."""
 
     consignment_id: ConsignmentId
     lines: tuple[LineItem, ...]

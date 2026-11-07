@@ -56,8 +56,8 @@ def oracle(module: ModuleType) -> list[str]:
 def test_each_draft_fails_exactly_the_gates_in_the_table(
     draft: Draft, static_gate: StaticGate, load_module: LoadModule
 ) -> None:
-    """Credits all three gates: the draft's row of the table changes if any gate stops seeing
-    its finding, for example when the ``UP`` selection leaves the static gate."""
+    """Credits all three gates: a draft's row changes when a gate stops reporting it, for
+    example when the oracle never fails or the shape review returns nothing."""
     outcome = (
         bool(static_gate(draft.text)),
         bool(review(draft.text)),

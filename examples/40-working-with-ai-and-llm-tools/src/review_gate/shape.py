@@ -55,8 +55,8 @@ def single_method_base(tree: ast.Module) -> Iterator[Finding]:
 
 
 def static_only_class(tree: ast.Module) -> Iterator[Finding]:
-    """A class whose methods are all static or class methods is a module (Factory Method and
-    Abstract Factory; Shortcut patterns: dict dispatch, function tables, and EAFP)."""
+    """A class whose methods are all static or class methods: plain module-level functions would
+    do the same job."""
     for cls in _classes(tree):
         methods = _methods(cls)
         if methods and all(_decorated_with(m, "staticmethod", "classmethod") for m in methods):

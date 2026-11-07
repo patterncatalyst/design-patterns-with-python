@@ -15,8 +15,8 @@ transfers the callbacks away once clearance has passed, and the exit then runs n
 `BOOKED` event is published after that.
 
 `app.py` holds `build_desk`, the composition root. It wraps the `FastlineClient` in a
-`FastlineGateway`, subscribes the `TrackingHistory`, and takes the pricing rule as a parameter. No
-other module names the concrete carrier classes.
+`FastlineGateway`, subscribes the `TrackingHistory`, and takes the pricing rule as a parameter. Apart
+from `carriers.py`, which defines them, no other module names the concrete carrier classes.
 
 `rating.py` holds `PricingRule`, a callable type, and `per_kg`, which rounds half up to the cent.
 `carriers.py` holds the `CarrierGateway` Protocol, the stand-in `FastlineClient` and the

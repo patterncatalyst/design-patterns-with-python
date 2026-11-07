@@ -26,7 +26,8 @@ publishes it before clearance, and a held booking then leaves a tracking event i
 
 ## One composition root
 
-`build_desk` is the only module that names `FastlineGateway` and `FastlineClient`, and it takes the
+Apart from `carriers.py`, which defines them, `app.py` is the only module that names `FastlineGateway`
+and `FastlineClient`; `build_desk` takes the
 pricing rule as a parameter. The acceptance helper lists what is missing when the rating, the
 carrier, the clearance or the tracking is left out. mypy refuses a gateway without `cancel`.
 
