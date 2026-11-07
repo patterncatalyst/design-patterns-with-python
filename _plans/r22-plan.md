@@ -23,6 +23,7 @@ Lessons carried from r16 to r21: grep everywhere; the run wins over the plan; re
 - O1: the three-deck arc as planned. Deck 101 has 62 slides, with each eligible figure on its own full-width slide. Concurrency (chapters 37 and 38) goes into 201.
 - O2: build and publish as recommended: decisions 3 to 8, 11 and 15. That means pptxgenjs 4.0.1 pinned exactly, with the image-size override; the deck committed under a stable name; PatternCatalyst metadata; and `check_decks()`.
 - O3: decision 10 as recommended, with every defect fixed in Y1d, and the registry resolved by amending CLAUDE.md. The orchestrator changed CLAUDE.md line 58 to "figure registry: name, section, title, caption" to match `_data/diagrams.yml`, so no `alt` key is added. Decisions 0, 1, 2, 9, 12, 13 and 14 are as recommended.
+- O4 (2026-11-07, owner): **the decks stand on their own and carry no chapter references.** Neither the slide text nor the speaker notes may point the audience at a chapter or appendix, whether by number, by title or by a phrase such as "the X chapter". Each slide states the idea itself. The evidence files still map each slide to its chapter sentence and tests. Credits to outside sources (books, articles) stay. A pointer to the book as a whole on the closing slide is allowed. `check_decks()` gains a check that slide text and notes contain no "chapter" or "appendix". This supersedes the plan's "cross-reference by concept" wording wherever that named a chapter.
 
 ## Owner decisions
 

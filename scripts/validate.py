@@ -119,6 +119,10 @@ DECK_BANNED = (
     (XREF_RE, "chapter reference"),
     (re.compile(r"\bslides?\s*\d+\b", re.IGNORECASE), "slide number reference"),
     (
+        re.compile(r"\b(chapters?|appendix|appendices)\b", re.IGNORECASE),
+        "chapter or appendix pointer",
+    ),
+    (
         re.compile(r"Java|C#|C\+\+|\.NET|\bGo\b|Rust"),
         "cross-language word",
     ),
@@ -1362,6 +1366,11 @@ def deck_self_test(expect: Callable[[str, bool], None]) -> None:
         bool(run([*good[:2], ("Body", long + " see Chapter 7")])),
     )
     expect("deck slide ref", bool(run([*good[:2], ("Body", long + " on slide 4")])))
+    expect(
+        "deck chapter pointer",
+        bool(run([*good[:2], ("Body", long + " as the Observer chapter shows")])),
+    )
+    expect("deck appendix pointer", bool(run([*good[:2], ("Body", long + " in Appendix A")])))
     expect("deck cross-language", bool(run([*good[:2], ("Body", long + " in Java")])))
     expect(
         "deck owner name in core.xml",
