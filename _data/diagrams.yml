@@ -347,7 +347,7 @@
 
 - name: 40-working-with-ai-and-llm-tools
   section: "Ch. 40"
-  title: A reply, three gates and the findings that go back
+  title: A draft, three gates and the findings that go back
   caption: >-
     A draft is checked by three gates: types and lint, the pattern shape rules
     and a behaviour oracle. The three drafts are reported by different gates, and

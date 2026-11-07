@@ -86,7 +86,7 @@ def price(rule: str, consignment: Consignment, /) -> Money:
 ```
 <!-- fmt:on -->
 
-`test_mypy_and_ruff_pass_the_typed_hierarchy` asserts that both tools report nothing. The draft is fully annotated and uses `match`, and neither tool asks whether a one-method base or a class of one static method was needed. Run over this draft with every rule and the preview rules switched on, ruff 0.17.4 reports missing docstrings, a missing copyright notice, an unused argument, exception-message style and `no-self-use` for one method, and nothing about the base class or the factory class.
+`test_mypy_and_ruff_pass_the_typed_hierarchy` asserts that both tools report nothing on this draft, and that mypy reports `unreachable` for a statement after a `return`, which pins `--warn-unreachable`. The draft is fully annotated and uses `match`, and neither tool asks whether a one-method base or a class of one static method was needed. Run over this draft with every rule and the preview rules switched on, ruff 0.17.4 reports missing docstrings, a missing copyright notice, an unused argument, exception-message style and `no-self-use` for one method, and nothing about the base class or the factory class.
 
 ## The shape review
 
@@ -254,7 +254,7 @@ src/review_gate/assistant.py:25: LookupError
 E       AssertionError: assert [(8, 'single-method-base')] == [(8, 'single-...-only-class')]
 E         Right contains one more item: (27, 'static-only-class')
 E         Use -v to get more diff
-tests/test_gates.py:106: AssertionError
+tests/test_gates.py:109: AssertionError
 E       AssertionError: assert [] == [(1, 'static-only-class')]
 E         Right contains one more item: (1, 'static-only-class')
 E         Use -v to get more diff

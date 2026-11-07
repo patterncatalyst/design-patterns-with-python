@@ -1,4 +1,4 @@
-"""Working with AI and LLM tools: a reply, three gates and the findings that go back."""
+"""Working with AI and LLM tools: a draft, three gates and the findings that go back."""
 
 from generate_diagram import emit
 
