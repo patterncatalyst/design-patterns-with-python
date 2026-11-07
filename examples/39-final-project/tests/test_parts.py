@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 import pytest
 from final_project.app import build_desk
 from final_project.billing import Invoice, LineItem, SettlementError, settle
-from final_project.carriers import FastlineGateway
+from final_project.carriers import FastlineClient, FastlineGateway
 from final_project.clearance import (
     STAGES,
     ClearanceHeldError,
@@ -24,6 +24,8 @@ from final_project.domain import (
     Weight,
 )
 from final_project.rating import RatingError, per_kg
+from final_project.stowage import StowagePlan
+from final_project.tracking import TrackingHistory
 
 if TYPE_CHECKING:
     from conftest import World
@@ -74,17 +76,31 @@ def test_clearance_stops_at_the_first_stage_that_holds(
 def test_the_pricing_rule_is_chosen_at_the_composition_root(
     world: World, coffee_request: BookingRequest
 ) -> None:
-    client, plan, history = world
+    """Two different rules through ``build_desk``: a rule it ignored, or replaced with a constant,
+    can match at most one of the two totals."""
+    _client, plan, _history = world
 
     def flat(consignment: Consignment, /) -> Money:
         return Money(Decimal("10.00"))
 
-    shipment = build_desk(client=client, plan=plan, history=history, rule=flat).ship(coffee_request)
+    def two_a_kilogram(consignment: Consignment, /) -> Money:
+        return Money(consignment.weight.kilograms * 2)
 
-    assert (shipment.quote.total, shipment.invoice.total) == (
-        Money(Decimal("10.00")),
-        Money(Decimal("40.00")),
-    )
+    totals: list[tuple[Money, Money]] = []
+    for rule in (flat, two_a_kilogram):
+        desk = build_desk(
+            client=FastlineClient(),
+            plan=StowagePlan(plan.sailing, tiers=1),
+            history=TrackingHistory(),
+            rule=rule,
+        )
+        shipment = desk.ship(coffee_request)
+        totals.append((shipment.quote.total, shipment.invoice.total))
+
+    assert totals == [
+        (Money(Decimal("10.00")), Money(Decimal("40.00"))),
+        (Money(Decimal("25.0")), Money(Decimal("55.0"))),
+    ]
 
 
 def test_a_short_payment_does_not_settle() -> None:

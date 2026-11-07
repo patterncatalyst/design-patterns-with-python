@@ -95,7 +95,8 @@ uv run mypy --strict src tests
 - `test_the_adapter_sends_fastline_grams_and_returns_its_reference`
 - `test_clearance_stops_at_the_first_stage_that_holds`: for an empty declaration and for an
   unknown HS code, with a stage after the built-in ones that is never reached.
-- `test_the_pricing_rule_is_chosen_at_the_composition_root`
+- `test_the_pricing_rule_is_chosen_at_the_composition_root`: two different rules give two different
+  totals.
 - `test_a_short_payment_does_not_settle`
 - `test_an_overpayment_does_not_settle`
 - `test_an_invoice_in_two_currencies_has_no_total`
