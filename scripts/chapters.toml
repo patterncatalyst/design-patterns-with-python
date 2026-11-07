@@ -403,7 +403,7 @@ title = "xUnit test patterns (Meszaros)"
 part = 14
 kind = "appendix"
 has_example = false
-status = "stub"
+status = "drafted"
 
 [[chapter]]
 number = 45
@@ -412,7 +412,7 @@ title = "Pattern-to-force quick reference"
 part = 14
 kind = "appendix"
 has_example = false
-status = "stub"
+status = "drafted"
 
 [[chapter]]
 number = 46
@@ -421,4 +421,4 @@ title = "Programming principles reviewed in code"
 part = 14
 kind = "appendix"
 has_example = true
-status = "stub"
+status = "drafted"
