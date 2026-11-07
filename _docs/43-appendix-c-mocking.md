@@ -5,7 +5,7 @@ layout: tutorial
 sectionid: docs
 part: "appendices"
 appendix: "C"
-description: "Draft pending: Mocking reference: unittest.mock and pytest-mock."
+description: "Reference for the unittest.mock and pytest-mock names the book uses, after the order in which it prefers them, each shown by a test."
 ---
 
 ## Learning objectives

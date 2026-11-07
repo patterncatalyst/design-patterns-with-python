@@ -384,7 +384,7 @@ slug = "42-appendix-b-pytest"
 title = "pytest reference"
 part = 14
 kind = "appendix"
-has_example = false
+has_example = true
 status = "stub"
 
 [[chapter]]
@@ -393,7 +393,7 @@ slug = "43-appendix-c-mocking"
 title = "Mocking reference: unittest.mock and pytest-mock"
 part = 14
 kind = "appendix"
-has_example = false
+has_example = true
 status = "stub"
 
 [[chapter]]

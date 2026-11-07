@@ -30,7 +30,7 @@ filterwarnings = ["error"]
 [tool.ruff]
 line-length = 100
 target-version = "py315"
-extend-exclude = ["_site", ".jekyll-cache", "vendor", ".bundle", "scripts/host_ids.py", "scripts/generate_diagram.py"]
+extend-exclude = ["_site", ".jekyll-cache", "vendor", ".bundle", ".venv-ft", "scripts/host_ids.py", "scripts/generate_diagram.py"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP", "B", "SIM", "RUF", "PT", "N"]

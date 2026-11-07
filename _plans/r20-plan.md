@@ -553,7 +553,7 @@ Step ids are `W*` (decision 0). Only `W1b`, `W1c`, `W4a`, `W4b` and `W4c` are ci
 
 | Step | What | Depends | Status |
 | --- | --- | --- | --- |
-| W0 | Bookkeeping with dated notes; re-check the pins; record the decisions. `iteration-plan.md`: PDP-141 to 143 `active`, r20 active, r19 closed, PDP-139a to 140c `done`. r19's plan: V6 and V7 closed. Reconciliation plan: rows 249 to 278 `open` with a dated note. `chapters.toml`: 42 and 43 `has_example = true`. Domain rows A to C name the members. Root `pyproject.toml`: `".venv-ft"` in `[tool.ruff] extend-exclude` (decision 7); `verify.sh` green after it. The three stub `description` lines | - | todo |
+| W0 | Bookkeeping with dated notes; re-check the pins; record the decisions. `iteration-plan.md`: PDP-141 to 143 `active`, r20 active, r19 closed, PDP-139a to 140c `done`. r19's plan: V6 and V7 closed. Reconciliation plan: rows 249 to 278 `open` with a dated note. `chapters.toml`: 42 and 43 `has_example = true`. Domain rows A to C name the members. Root `pyproject.toml`: `".venv-ft"` in `[tool.ruff] extend-exclude` (decision 7); `verify.sh` green after it. The three stub `description` lines | - | done (2026-11-07) |
 | W1a | `_plans/evidence/r20-toolchain-runs.md`: every row of witness table A run in fresh scratch copies (one without a root sync), scrubbed, deleted after use | W0 | todo |
 | W1b | B member, card and README; one `uv lock`; three green runs and one reverse-order run, from the root and from the member; a whole-repo `--co` run (decision 11); the deletion table and the static mutation, each in a fresh scratch copy (no `.venv`, `uv sync --locked --all-packages`, confirm `pytest_reference.__file__`), deleted after use | W1a | todo |
 | W1c | C member, card and README; one `uv lock` after W1b; three green runs plus one reverse-order run; the deletion table and the static mutations, as W1b | W1b | todo |
@@ -605,6 +605,8 @@ No legacy rows are carried.
 ## Corrections after the build
 
 The orchestrator records here every handback that differs from this plan: messages, counts, which tests a deletion fails, word counts, declined findings, witness rows added or cut.
+
+- Step W0: done 2026-11-07, no deviation from the row. The pins were not re-fetched from PyPI by the executor (the caller carried the 2026-11-07 check); `uv lock --check` and `verify.sh` pass on the unchanged pins. r19's V6 and V7 are marked done; PDP-139a to 140c are `done` and PDP-141 to 143 `active`. Rows 249 to 278 were added to the reconciliation plan as `open` with a dated note, and the three domain rows A to C name their members (A has none). `chapters.toml` sets `has_example = true` for 42 and 43 (status stays `stub`; W3 changes it). The three stub `description` lines are one-sentence drafts. Decision 7: `".venv-ft"` is in the root `extend-exclude`; in a copy without `.git` and with `.venv-ft` present, `ruff check .` printed `All checks passed!` and `ruff format --check .` `610 files already formatted`. `verify.sh` passed (1312 tests) after the change.
 
 Lessons carried from r11-r19, which this plan applies up front:
 - **Counts.** Per-file counts are summed from the spec, and the pytest summary line wins (r13 to r19; the builds of r16 to r19 all added tests the deletion runs needed).

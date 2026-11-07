@@ -5,7 +5,7 @@ layout: tutorial
 sectionid: docs
 part: "appendices"
 appendix: "A"
-description: "Draft pending: Build and toolchain reference: uv, ruff, mypy."
+description: "Reference for the uv, ruff and mypy commands the book uses, the one root configuration each tool reads, and the traps between them."
 ---
 
 ## Learning objectives

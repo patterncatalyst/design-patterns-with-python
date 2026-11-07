@@ -5,7 +5,7 @@ layout: tutorial
 sectionid: docs
 part: "appendices"
 appendix: "B"
-description: "Draft pending: pytest reference."
+description: "Reference for the pytest configuration, import mode, fixtures, parametrisation, exception assertions and command-line options the book relies on, each shown by a test."
 ---
 
 ## Learning objectives
