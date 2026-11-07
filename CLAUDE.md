@@ -55,7 +55,7 @@ reader-facing text.
 _docs/NN-slug.md         chapters (47 docs: 0-40 plus appendices A-F as 41-46)
 _parts/                  part pages
 _examples/               example cards (a collection)
-_data/diagrams.yml       figure registry: name, caption, alt
+_data/diagrams.yml       figure registry: name, section, title, caption
 diagrams/specs/*.py      one spec per figure (source of truth)
 diagrams/*.svg|.excalidraw  generated pairs; never hand-edit
 examples/NN-slug/        one uv member per chapter example (src/, tests/)

@@ -17,6 +17,13 @@ Pins this iteration (checked 2026-11-07, evidence D, H): pptxgenjs 4.0.1 (npm `d
 
 Lessons carried from r16 to r21: grep everywhere; the run wins over the plan; recount after every edit; status tokens are plain `done`; a row's `source:` URL that prose hasn't linked yet reads "source (open until prose links it)"; paths in plans and evidence are repo-relative, with `<repo>` and `<scratchpad>` for anything outside; only suffixed step ids are cited as `run:` tokens.
 
+
+## Owner decisions, 2026-11-07
+
+- O1: the three-deck arc as planned. Deck 101 has 62 slides, with each eligible figure on its own full-width slide. Concurrency (chapters 37 and 38) goes into 201.
+- O2: build and publish as recommended: decisions 3 to 8, 11 and 15. That means pptxgenjs 4.0.1 pinned exactly, with the image-size override; the deck committed under a stable name; PatternCatalyst metadata; and `check_decks()`.
+- O3: decision 10 as recommended, with every defect fixed in Y1d, and the registry resolved by amending CLAUDE.md. The orchestrator changed CLAUDE.md line 58 to "figure registry: name, section, title, caption" to match `_data/diagrams.yml`, so no `alt` key is added. Decisions 0, 1, 2, 9, 12, 13 and 14 are as recommended.
+
 ## Owner decisions
 
 None recorded yet. The owner reviews the numbered decisions below; where an owner decision differs, it is recorded here with a date and the numbered decision is amended in place.
