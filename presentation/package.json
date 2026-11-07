@@ -1,0 +1,12 @@
+{
+  "name": "design-patterns-with-python-decks",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Companion slide decks for Design Patterns with Python",
+  "dependencies": {
+    "pptxgenjs": "4.0.1"
+  },
+  "overrides": {
+    "image-size": "2.1.0"
+  }
+}

@@ -297,8 +297,8 @@ Build, from `<repo>/presentation`: `npm ci`; `./render-png.sh 05 06 12 19 21 25`
 
 | Step | What | Depends | Status |
 | --- | --- | --- | --- |
-| Y0 | Bookkeeping with dated notes: `iteration-plan.md` r21 closed, PDP-144 to 146 `done`, PDP-150 `active`, r22 active; re-check every pin (decisions 4 and the header); record the decisions; `verify.sh` and `validate.py` green | - | todo |
-| Y1a | `presentation/` scaffold: `package.json`, `npm ci` and the committed lockfile, the helper with its delta, the assets, `render-png.sh`, `notes.py`, `build-notes.md`, `.gitignore` lines, the six figure PNGs | Y0 | todo |
+| Y0 | Bookkeeping with dated notes: `iteration-plan.md` r21 closed, PDP-144 to 146 `done`, PDP-150 `active`, r22 active; re-check every pin (decisions 4 and the header); record the decisions; `verify.sh` and `validate.py` green | - | done |
+| Y1a | `presentation/` scaffold: `package.json`, `npm ci` and the committed lockfile, the helper with its delta, the assets, `render-png.sh`, `notes.py`, `build-notes.md`, `.gitignore` lines, the six figure PNGs | Y0 | done |
 | Y1b | `_plans/evidence/r22-deck-witness-census.md`, in parallel with Y1a and Y1c; re-run of the figure census after Y1d | Y0, Y1d | todo |
 | Y1c | `check_decks()` in `validate.py` with self-test cases (a deck with an empty notes slide, a wrong creator, an em dash in notes, an `rNN` token, a chapter number reference, a runtime name in `core.xml`; each must fail); green with no deck present | Y0 | todo |
 | Y1d | Decision 10's fixes: four prose edits, one docstring, five figure specs regenerated through `diagrams/specs`, the registry decision; each chapter's tests, `verify.sh` and `validate.py` green after the edits | Y0 | todo |
@@ -362,7 +362,8 @@ Rows 313 to 349 go in at Y2, after the census exists (their `run:` path then res
 
 ## Corrections after the build
 
-None yet.
+- **Step Y0:** (2026-11-07) `iteration-plan.md`: r21 closed, PDP-144 to 146 `done`, PDP-150 and r22 `active`, dated note added. The owner decisions were already recorded in this plan's "Owner decisions, 2026-11-07" section, so nothing was added for them. The pin re-check found every pin unchanged: pptxgenjs 4.0.1 (`dist-tags.latest`; `beta` is 4.0.1-beta.2), image-size 2.1.0, cairosvg 2.9.1, CPython 3.15.2, uv 0.13.7, pytest 9.2.0, pytest-mock 3.17.0, mypy 2.4.1, ruff 0.17.4. The three new rows (pptxgenjs, image-size, cairosvg) went into the dated toolchain table in `r01-build-plan.md`, with a dated line under it. `verify.sh` passed on the working tree (1405 passed). Y1d edits were in flight in the same tree, so `validate.py` was run on a copy of HEAD plus the Y0 plan edits and printed `0 error(s), 6 warning(s)`; the working tree's `validate.py` showed two caption-length errors that belong to the Y1d figure work.
+- **Step Y1a:** (2026-11-07) `package-lock.json` is lockfileVersion 3 with 19 packages and image-size resolved at 2.1.0; `npm install` then `npm ci` ran inside `presentation/` only, and `npm audit` printed `found 0 vulnerabilities` for both. `require.resolve('pptxgenjs')` printed `<repo>/presentation/node_modules/pptxgenjs/dist/pptxgen.cjs.js`. `deck-helpers.js` changed on 8 lines only (comments and the default `pres.title`), md5 abedd5abb9a98c475b1d050febc25ca7 to 47af3889bef56eba4736bb1565e17054, and `node --check` passes. `render-png.sh` rendered the six figures (05, 06, 12, 19, 21, 25) and `render-png.sh --check` printed `same` for all six; it takes figure numbers, defaults to those six, and the `--check` mode is the Y4a step 2 comparison. `.gitignore` already held `node_modules/` and `*.pdf`; `presentation/qa/` and `presentation/*.pdf` were added. `build-notes.md` records the helper delta as a table of what changed per line, without quoting the dashes, so the voice gate needs no exclusion for it.
 
 ## Acceptance criteria
 
