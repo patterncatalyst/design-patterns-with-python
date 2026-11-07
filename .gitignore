@@ -35,3 +35,7 @@ Thumbs.db
 # Scratch
 node_modules/
 *.pdf
+
+# Deck build
+presentation/qa/
+presentation/*.pdf

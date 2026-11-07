@@ -215,7 +215,7 @@ Currencies don't mix. Adding a USD rule to a EUR one raises `cannot add USD to E
 
 ## When not to use it
 
-With one operation over the kinds, write the `match` where it's needed. With a booking whose originator is frozen, keep the old value and skip the snapshot class. When undo has a cheap inverse, use a command. With a rule set that doesn't change and that nobody reads back, a plain function is enough.
+With one operation over the kinds, write the `match` where it's needed. With a booking that is itself an immutable value, keep the old value and skip the snapshot class. When undo has a cheap inverse, use a command. With a rule set that doesn't change and that nobody reads back, a plain function is enough.
 
 <blockquote class="ai-sidebar" markdown="1">
 **Specifying a visitor, a memento and an interpreter.** A request for "a visitor" or "a memento" names a 1994 shape and leaves open whether the kinds are closed, what a snapshot captures and what it must leave alone. State those in the prompt:

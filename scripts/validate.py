@@ -11,11 +11,22 @@ Every violation prints as `path:line: message`; the exit status is 1 if any
 error was found. Warnings and info lines never change the exit status.
 """
 
+import contextlib
+import html
+import os
+import posixpath
+import pwd
 import re
+import subprocess
 import sys
+import tempfile
 import tomllib
+import zipfile
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
+
+import host_ids
 
 ROOT = Path(__file__).resolve().parent.parent
 EXPECTED_DOCS = 47
@@ -94,6 +105,44 @@ CLAIM_RUN_RE = re.compile(r"run:\s*([A-Za-z0-9_][\w./-]*)")
 CLAIM_STATUS_RE = re.compile(r"\*\*(\w+)\*\*")
 TEST_DEF_RE = re.compile(r"^\s*(?:async\s+)?def\s+(test_\w+)", re.MULTILINE)
 SVG_TEXT_RE = re.compile(r"<text\b[^>]*>(.*?)</text>", re.DOTALL)
+
+DECK_OWNER = "PatternCatalyst"
+DECK_NOTES_FLOOR = 90
+DECK_NOTES_FLOOR_PANEL = 45
+DECK_PANEL_FILL = "AB0000"
+DECK_BANNED = (
+    (re.compile("[\u2013\u2014]"), "em or en dash"),
+    (PDP_RE, "PDP id"),
+    (ITER_RE, "iteration id"),
+    (SPIKE_RE, "word 'spike'"),
+    (CAPSTONE_RE, "word 'capstone'"),
+    (XREF_RE, "chapter reference"),
+    (re.compile(r"\bslides?\s*\d+\b", re.IGNORECASE), "slide number reference"),
+    (
+        re.compile(
+            r"\b(next|previous|following|closing|last|earlier|later)\s+(\w+\s+)?(slides?|sections?)\b"
+            r"|\b(that|which)\s+follows?\b(?!\s+from)"
+            r"|\b(listings?|slides?|figures?|tables?|sections?)\s+(before|after)\s+it\b"
+            r"|\bclose\s+the\s+section\b",
+            re.IGNORECASE,
+        ),
+        "positional slide reference",
+    ),
+    (
+        re.compile(r"\b(chapters?|appendix|appendices)\b", re.IGNORECASE),
+        "chapter or appendix pointer",
+    ),
+    (
+        re.compile(r"Java|C#|C\+\+|\.NET|\bGo\b|Rust"),
+        "cross-language word",
+    ),
+)
+DECK_SLIDE_RE = re.compile(r"ppt/slides/slide(\d+)\.xml$")
+DECK_FIELD_RE = re.compile(r"<a:fld\b.*?</a:fld>", re.DOTALL)
+DECK_PARA_RE = re.compile(r"<a:p\b.*?</a:p>|<a:p/>", re.DOTALL)
+DECK_RUN_RE = re.compile(r"<a:t(?:\s[^>]*)?>(.*?)</a:t>", re.DOTALL)
+DECK_BG_RE = re.compile(r'<p:bg>.*?<a:srgbClr val="([0-9A-Fa-f]{6})"', re.DOTALL)
+DECK_NOTES_REL_RE = re.compile(r'Target="[^"]*notesSlides/(notesSlide\d+\.xml)"')
 
 
 @dataclass(frozen=True)
@@ -885,7 +934,141 @@ def validate(root: Path) -> Report:
     rep.info.extend(claim_info)
 
     rep.errors.extend(check_pins(root))
+    rep.errors.extend(check_decks(root))
     return rep
+
+
+# ------------------------------------------------------------------ decks
+
+
+def deck_text(xml: str, *, drop_fields: bool) -> str:
+    """Paragraph text of a slide or notes part; slide-number fields are dropped on request."""
+    if drop_fields:
+        xml = DECK_FIELD_RE.sub("", xml)
+    paragraphs = [
+        "".join(html.unescape(r) for r in DECK_RUN_RE.findall(p)) for p in DECK_PARA_RE.findall(xml)
+    ]
+    return "\n".join(p for p in paragraphs if p.strip())
+
+
+def deck_owner_names() -> tuple[str, ...]:
+    """The account's full name and git's user.name, read now and never stored."""
+    names: list[str] = []
+    with contextlib.suppress(KeyError):
+        names.append(pwd.getpwuid(os.getuid()).pw_gecos.split(",")[0])
+    try:
+        done = subprocess.run(
+            ["git", "config", "user.name"], capture_output=True, text=True, check=False
+        )
+        names.append(done.stdout)
+    except OSError:
+        pass
+    # The organisation name is the sanctioned creator, so it is never an owner hit.
+    kept = (n.strip() for n in names)
+    return tuple(
+        dict.fromkeys(n for n in kept if len(n) >= 3 and n.casefold() != DECK_OWNER.casefold())
+    )
+
+
+def deck_field(xml: str, tag: str) -> str | None:
+    m = re.search(rf"<{tag}(?:\s[^>]*)?>(.*?)</{tag}>", xml, re.DOTALL)
+    return html.unescape(m.group(1)) if m else None
+
+
+def check_deck(
+    rel: str,
+    path: Path,
+    names: tuple[str, ...],
+    rules: list[host_ids.Rule],
+) -> list[Finding]:
+    """Notes, metadata, banned text, host identifiers and the owner's name in one pptx."""
+    out: list[Finding] = []
+
+    def err(message: str) -> None:
+        out.append(Finding(rel, 1, message))
+
+    try:
+        zf = zipfile.ZipFile(path)
+    except (zipfile.BadZipFile, OSError) as exc:
+        return [Finding(rel, 1, f"not a readable pptx: {exc}")]
+    with zf:
+        parts = {n: zf.read(n) for n in zf.namelist() if not n.endswith("/")}
+    xml: dict[str, str] = {}
+    for name, raw in parts.items():
+        if name.endswith((".xml", ".rels")):
+            try:
+                xml[name] = raw.decode("utf-8")
+            except UnicodeDecodeError:
+                err(f"{name}: part is not UTF-8")
+
+    slides = sorted((int(m.group(1)), n) for n in xml if (m := DECK_SLIDE_RE.search(n)))
+    texts: list[tuple[str, str]] = []
+    with_notes = 0
+    for number, name in slides:
+        body = xml[name]
+        slide_text = deck_text(body, drop_fields=False)
+        texts.append((f"slide {number}", slide_text))
+        rels = xml.get(posixpath.join("ppt/slides/_rels", f"slide{number}.xml.rels"), "")
+        m = DECK_NOTES_REL_RE.search(rels)
+        notes = (
+            deck_text(xml.get(f"ppt/notesSlides/{m.group(1)}", ""), drop_fields=True) if m else ""
+        )
+        texts.append((f"notes {number}", notes))
+        bg = DECK_BG_RE.search(body.split("</p:bg>")[0] + "</p:bg>") if "<p:bg>" in body else None
+        panel = number == 1 or (bg is not None and bg.group(1).upper() == DECK_PANEL_FILL)
+        floor = DECK_NOTES_FLOOR_PANEL if panel else DECK_NOTES_FLOOR
+        words = word_count(notes)
+        if words:
+            with_notes += 1
+        if words < floor:
+            err(f"slide {number}: notes have {words} words, floor {floor}")
+    if with_notes != len(slides):
+        err(f"{len(slides)} slides but {with_notes} notes slides with text")
+    if not slides:
+        err("no slides")
+
+    core = xml.get("docProps/core.xml", "")
+    app = xml.get("docProps/app.xml", "")
+    for label, value in (
+        ("creator", deck_field(core, "dc:creator")),
+        ("lastModifiedBy", deck_field(core, "cp:lastModifiedBy")),
+        ("company", deck_field(app, "Company")),
+    ):
+        if value != DECK_OWNER:
+            err(f"docProps {label} is {value!r}, expected {DECK_OWNER!r}")
+
+    for where, text in texts:
+        for pattern, label in DECK_BANNED:
+            if pattern.search(text):
+                err(f"{where}: {label}")
+
+    cfg = host_ids.Config()
+    for name, body in xml.items():
+        if host_ids.scrub_text(body, rules, cfg, "-") != body:
+            err(f"{name}: host_ids filter changes this part")
+        lowered = body.lower()
+        if any(n.lower() in lowered for n in names):
+            err(f"{name}: contains the owner's name")
+    return out
+
+
+def check_decks(
+    root: Path,
+    names: tuple[str, ...] | None = None,
+    rules: list[host_ids.Rule] | None = None,
+) -> list[Finding]:
+    """Check every presentation/*.pptx; green when there is none."""
+    decks = sorted((root / "presentation").glob("*.pptx"))
+    if not decks:
+        return []
+    if names is None:
+        names = deck_owner_names()
+    if rules is None:
+        rules = host_ids.all_rules(host_ids.gather(None))
+    out: list[Finding] = []
+    for deck in decks:
+        out.extend(check_deck(deck.relative_to(root).as_posix(), deck, names, rules))
+    return out
 
 
 # -------------------------------------------------------------- self-test
@@ -1115,10 +1298,119 @@ def self_test() -> int:
     fm, size = split_front_matter('---\ntitle: "Q"\norder: 3\n---\nbody')
     expect("front matter", fm == {"title": "Q", "order": "3"} and size == 4)
 
+    deck_self_test(expect)
+
     for f in failures:
         print(f"self-test FAILED: {f}", file=sys.stderr)
     print(f"self-test: {'FAILED' if failures else 'ok'}")
     return 1 if failures else 0
+
+
+def write_synthetic_deck(
+    path: Path,
+    slides: list[tuple[str, str]],
+    *,
+    creator: str = DECK_OWNER,
+    core_extra: str = "",
+    panel: tuple[int, ...] = (),
+) -> None:
+    """A tiny pptx: slide text and notes text per slide, pptxgenjs-style parts."""
+    ns = 'xmlns:a="a" xmlns:p="p" xmlns:dc="d" xmlns:cp="c"'
+    with zipfile.ZipFile(path, "w") as zf:
+        zf.writestr(
+            "docProps/core.xml",
+            f"<cp:coreProperties {ns}><dc:creator>{creator}</dc:creator>"
+            f"<cp:lastModifiedBy>{DECK_OWNER}</cp:lastModifiedBy>{core_extra}</cp:coreProperties>",
+        )
+        zf.writestr("docProps/app.xml", f"<Properties><Company>{DECK_OWNER}</Company></Properties>")
+        for i, (text, notes) in enumerate(slides, start=1):
+            bg = f'<p:bg><a:srgbClr val="{DECK_PANEL_FILL}"/></p:bg>' if i in panel else ""
+            zf.writestr(
+                f"ppt/slides/slide{i}.xml",
+                f"<p:sld {ns}>{bg}<a:p><a:r><a:t>{text}</a:t></a:r></a:p></p:sld>",
+            )
+            zf.writestr(
+                f"ppt/slides/_rels/slide{i}.xml.rels",
+                "<Relationships>"
+                f'<Relationship Target="../notesSlides/notesSlide{i}.xml"/></Relationships>',
+            )
+            run = f"<a:p><a:r><a:t>{notes}</a:t></a:r></a:p>" if notes else ""
+            zf.writestr(
+                f"ppt/notesSlides/notesSlide{i}.xml",
+                f'<p:notes {ns}>{run}<a:p><a:fld type="slidenum"><a:t>{i}</a:t></a:fld></a:p>'
+                "</p:notes>",
+            )
+
+
+def deck_self_test(expect: Callable[[str, bool], None]) -> None:
+    long = " ".join(["word"] * 95)
+    short = " ".join(["word"] * 50)
+    names = ("Zed Quux",)
+
+    def run(
+        slides: list[tuple[str, str]],
+        *,
+        panel: tuple[int, ...] = (2,),
+        creator: str = DECK_OWNER,
+        core_extra: str = "",
+    ) -> list[Finding]:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "presentation").mkdir()
+            write_synthetic_deck(
+                root / "presentation" / "d.pptx",
+                slides,
+                creator=creator,
+                core_extra=core_extra,
+                panel=panel,
+            )
+            return check_decks(root, names)
+
+    good = [("Cover", short), ("Section", short), ("Body", long)]
+    expect("deck passes", not run(good))
+    expect("deck panel floor needs panel fill", bool(run(good, panel=())))
+    expect("deck absent is green", not check_decks(Path("/nonexistent-root"), names))
+    expect("deck empty notes", bool(run([*good[:2], ("Body", "")])))
+    expect("deck short notes", bool(run([*good[:2], ("Body", short)])))
+    expect("deck wrong creator", bool(run(good, creator="Someone")))
+    expect("deck em dash", bool(run([*good[:2], ("Body", long + " a \u2014 b")])))
+    expect("deck iteration id", bool(run([*good[:2], ("Body r22 here", long)])))
+    expect(
+        "deck chapter ref",
+        bool(run([*good[:2], ("Body", long + " see Chapter 7")])),
+    )
+    expect("deck slide ref", bool(run([*good[:2], ("Body", long + " on slide 4")])))
+    expect("deck positional ref", bool(run([*good[:2], ("Body", long + " the next slide shows")])))
+    expect(
+        "deck positional ref 2",
+        bool(run([*good[:2], ("Body", long + " the last catalogue section covers")])),
+    )
+    expect(
+        "deck positional ok",
+        not run(
+            [
+                *good[:2],
+                (
+                    "Body",
+                    long + " a rule that follows from the force; it validates before it saves",
+                ),
+            ]
+        ),
+    )
+    expect(
+        "deck chapter pointer",
+        bool(run([*good[:2], ("Body", long + " as the Observer chapter shows")])),
+    )
+    expect("deck appendix pointer", bool(run([*good[:2], ("Body", long + " in Appendix A")])))
+    expect("deck cross-language", bool(run([*good[:2], ("Body", long + " in Java")])))
+    expect(
+        "deck owner name in core.xml",
+        bool(run(good, core_extra="<dc:title>Zed Quux</dc:title>")),
+    )
+    expect(
+        "deck host path",
+        bool(run([*good[:2], ("Body " + "/".join(["", "home", "someone", "x"]), long)])),
+    )
 
 
 def main(argv: list[str]) -> int:

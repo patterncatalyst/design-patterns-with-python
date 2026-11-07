@@ -47,7 +47,13 @@ Building the site needs Docker Engine and no local Ruby: `bash scripts/site-buil
 | `scripts/` | Verification, validation, prerequisite and site-build scripts |
 | `.github/workflows/` | CI and Pages deployment |
 
+## Companion decks
+
+- [101: Patterns and SOLID in Python](presentation/design-patterns-with-python-101-patterns-and-solid.pptx):
+  62 slides with speaker notes. Code on the slides is read from the tested examples at build time.
+  `presentation/build-notes.md` says how to rebuild it.
+
 ## Licence
 
-Code is licensed under Apache-2.0 (see `LICENSE`). Prose and diagrams are licensed under
-CC BY 4.0 (see `LICENSE-docs.md`).
+Code is licensed under Apache-2.0 (see `LICENSE`). Prose, diagrams and the slide decks under
+`presentation/` are licensed under CC BY 4.0 (see `LICENSE-docs.md`).

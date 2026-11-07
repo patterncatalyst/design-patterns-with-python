@@ -31,7 +31,7 @@ The fix for each is a decision about delivery, and Observer survives because tho
 
 {% include excalidraw.html name="22-observer" caption="Figure 22.1: What a signal decides. Each event reaches a snapshot of subscribers in order, nested events wait their turn, failures are gathered and raised afterwards, and bound methods are held weakly so abandoned subscribers can go." %}
 
-Read the figure from the top down. An accent box, `Signal.publish(event)`, is labelled "queued: nested events wait their turn" and points to `subscribers`, "a snapshot, in subscription order". That box fans out to three: `TrackingHistory.record` ("bound method: held through WeakMethod"), `lambda` ("held strongly") and "a failing subscriber" ("error collected, delivery continues"). All three lead to `ExceptionGroup`, "raised after every subscriber has run". Below sits a muted, dashed box, "plain list", with "stops at a failure, keeps every subscriber alive".
+Read the figure from the top down. An accent box, `Signal.publish(event)`, is labelled "queued: nested events wait their turn" and points to `subscribers`, "a snapshot, in subscription order". That box fans out to three: `TrackingHistory.record` ("bound method: held through WeakMethod"), `lambda` ("held strongly") and "a failing subscriber" ("error collected, delivery continues"). Only the failing subscriber has an arrow to `ExceptionGroup`, "raised after every subscriber has run"; the other two run to completion and add nothing to it. Below sits a muted, dashed box, "plain list", with "stops at a failure, keeps every subscriber alive".
 
 ## A subscriber is a callable
 
@@ -210,7 +210,7 @@ def _history_behind_a_releaser(form: _Form, event: MakeEvent) -> TrackingHistory
 
 Publishing `CLEARED` through `Signal` leaves the history reading `CLEARED`, `DELIVERED` (`test_an_event_published_during_delivery_waits_its_turn`). The plain list delivers the nested event immediately, and the history reads `DELIVERED`, `CLEARED` (`test_an_immediately_delivered_nested_event_arrives_out_of_order`). Subscribers see events in publication order, and a subscriber that publishes can't reorder what later ones see.
 
-`Signal` is single-threaded: it assumes one caller at a time and says so in its docstring. Publishing from several threads is outside this chapter.
+`Signal` is single-threaded: it assumes one caller at a time and says so in its module docstring. Publishing from several threads is outside this chapter.
 
 ## When not to use it
 

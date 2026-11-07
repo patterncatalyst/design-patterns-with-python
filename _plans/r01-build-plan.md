@@ -88,7 +88,12 @@ PDP-150..152 decks 101/201/301.
 | actions/deploy-pages | v5 (5.0.1) | 2026-11-03 | GitHub releases |
 | ruby/setup-ruby | v1 (1.336.0), ruby-version 4.0.9 | 2026-11-03 | GitHub releases |
 | ruby container (site build) | ruby:4.0.9 | 2026-11-03 | Docker Hub |
+| pptxgenjs (npm, deck builder) | 4.0.1, exact pin (`dist-tags.latest`; `beta` 4.0.1-beta.2 is a pre-release) | 2026-11-07 | npmjs.com/package/pptxgenjs |
+| image-size (npm override only) | 2.1.0 | 2026-11-07 | npmjs.com/package/image-size |
+| cairosvg (PyPI, run through `uv run --no-project`) | 2.9.1 | 2026-11-07 | PyPI |
 | Jekyll + plugins | jekyll 4.4.1, seo-tag 2.9.1, sitemap 1.4.0, redirect-from 0.17.0, sass-converter 3.1.0 (all current); csv 3.3.6 -> bump to 3.3.7 | 2026-11-03 | rubygems.org |
+
+2026-11-07 (r22): pins re-checked against upstream: CPython 3.15.2, uv 0.13.7, pytest 9.2.0, pytest-mock 3.17.0, mypy 2.4.1 and ruff 0.17.4 are all still the latest stable; the npm and cairosvg rows are new for the deck build.
 
 2026-11-04 (r05): Python 3.15.2. The CPython and mypy rows above are re-verified for r05; the other rows are unchanged from 2026-11-03.
 

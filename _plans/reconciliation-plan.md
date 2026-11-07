@@ -329,6 +329,50 @@ Status values: open, verified, adjusted, dropped.
 | 310 | 46 | Money refuses to add or subtract another currency, an invoice totals its lines, and a shipment settles only for the amount due | `test_an_invoice_totals_its_lines`, `test_lines_in_two_currencies_have_no_total`, `test_a_credit_in_another_currency_is_refused`, `test_settle_accepts_the_amount_due`, `test_settle_refuses_any_other_payment` | verified (r21) |
 | 311 | 46 | mypy `--strict`, ruff and the idiom scan pass the member, three runs and one reverse-order run with the same count, and every deletion row fails its named tests | `run: X1d` | verified (r21) |
 | 312 | 46 | The final project reads `shipment.invoice.total` in its acceptance helper and `self._plan.sailing.origin` in its desk, and grants no credits; the other chains are `shipment.quote.total`, `shipment.declaration.duty`, `self._plan.sailing.origin` again in `conftest.py` and `invoice.total.amount` in `billing.py` | `run: _plans/evidence/r21-demeter-member.md` | verified (r21) |
+| 313 | 1 | Deck: a pattern is a decision a force asks for | quoted sentence; run: _plans/evidence/r22-deck-witness-census.md | verified (r22) |
+| 314 | 0 | Deck: the consignment is a frozen value | `test_equal_values_compare_equal`, `test_instance_rejects_assignment`; run: _plans/evidence/r22-deck-witness-census.md | verified (r22) |
+| 315 | 2 | Deck: the 1994 assumptions and the features that removed them | quoted sentences; run: _plans/evidence/r22-deck-witness-census.md | verified (r22) |
+| 316 | 3 | Deck: dissolve, survive, disambiguate | `test_strategy_slot_accepts_def_lambda_and_partial`, `test_undo_needs_a_command_object`, `test_the_two_decorators_are_independent` | verified (r22) |
+| 317 | 3 | Deck: the three map tables match the rows verbatim | run: _plans/evidence/r22-deck-witness-census.md | verified (r22) |
+| 318 | 4 | Deck: names for teams and assistants | quoted sentences; run: _plans/evidence/r22-deck-witness-census.md | verified (r22) |
+| 319 | 5 | Deck: one reason to change | `test_each_change_moves_only_the_fields_it_feeds`, `test_pricing_and_tax_run_alone` | verified (r22) |
+| 320 | 5 | Deck: a tax rule added without editing `quote` | `test_a_new_tax_rule_is_added_without_editing_quote`, `test_default_tax_table_is_read_only` | verified (r22) |
+| 321 | 5 | Deck: the rate contract and what mypy can't see | `test_calculator_honours_the_rate_contract`, `test_mypy_cannot_see_a_behavioural_violation` | verified (r22) |
+| 322 | 6 | Deck: narrow roles | `test_adapters_satisfy_every_role_without_naming_one`, `test_a_fat_protocol_forces_fakes_to_stub_unused_methods` | verified (r22) |
+| 323 | 6 | Deck: the composition root | `test_build_app_shares_one_gateway_between_booking_and_tracking`, `test_composition_root_accepts_a_substitute_without_patching` | verified (r22) |
+| 324 | 46 | Deck: principles beyond SOLID and the Demeter reader | `test_a_credit_reaches_only_the_reader_that_asks_the_shipment`, `test_both_readers_give_the_same_line_without_credits` | verified (r22) |
+| 325 | 12 | Deck: Strategy dissolves into a callable | `test_a_class_per_strategy_passes_the_same_table` | verified (r22) |
+| 326 | 13 | Deck: Template Method straddles two buckets | `test_declare_customs_runs_its_steps_in_order`, `test_a_required_hook_cannot_be_left_out` | verified (r22) |
+| 327 | 14 | Deck: State survives as a transition table | `test_state_objects_pass_the_same_lifecycle_table`, `test_an_illegal_event_is_a_transition_error` | verified (r22) |
+| 328 | 15 | Deck: Command survives for undo | `test_apply_returns_the_amendment_that_reverses_it`, `test_a_failing_batch_leaves_the_booking_unchanged` | verified (r22) |
+| 329 | 16 | Deck: Factory Method dissolves into a registry | `test_a_registered_constructor_builds_each_carrier_gateway` | verified (r22) |
+| 330 | 16 | Deck: Abstract Factory survives as a kit | `test_each_kit_ships_with_its_own_carriers_products`, `test_every_kit_is_a_frozen_value`, `test_mypy_rejects_a_kit_that_mixes_reference_types`; run: _plans/evidence/r22-deck-witness-census.md | verified (r22) |
+| 331 | 17 | Deck: Builder dissolves into a keyword-only dataclass | `test_both_constructors_pass_the_booking_table`, `test_a_template_and_replace_give_a_new_request` | verified (r22) |
+| 332 | 18 | Deck: Singleton as a module | `test_every_form_gives_each_caller_the_same_rates` | verified (r22) |
+| 333 | 19 | Deck: Adapter, Facade and Bridge survive | `test_a_client_whose_shape_matches_needs_no_adapter`, `test_ship_books_each_carrier_through_one_call` | verified (r22) |
+| 334 | 19 | Deck: a bridge is N+M against N×M | `test_the_class_per_pair_design_needs_a_class_for_every_kind_and_carrier`, `test_every_booking_kind_works_with_every_carrier` | verified (r22) |
+| 335 | 20 | Deck: the Decorator pattern composes at run time | `test_the_layers_for_a_consignment_are_chosen_while_the_program_runs`, `test_layer_order_changes_the_price_when_a_fee_is_added` | verified (r22) |
+| 336 | 20 | Deck: the `@` form rebinds a name once | `test_the_at_sign_rebinds_the_name_once_at_definition_time`, `test_syntax_stacking_order_decides_whether_each_attempt_is_audited` | verified (r22) |
+| 337 | 20 | Deck: the two don't blur | `test_a_decorated_function_has_no_price_and_a_layer_has_no_wrapped`, `test_mypy_rejects_a_decorated_function_where_a_calculator_belongs` | verified (r22) |
+| 338 | 20 | Deck: a proxy keeps the interface | `test_the_proxy_asks_the_gateway_once_per_consignment`, `test_mypy_reports_a_typo_on_the_explicit_proxy` | verified (r22) |
+| 339 | 21 | Deck: Composite and Flyweight survive | `test_a_consignment_and_a_consolidation_answer_weight_the_same_way`, `test_the_weak_pool_drops_a_commodity_nobody_holds` | verified (r22) |
+| 340 | 22 | Deck: what a signal decides | `test_one_failing_subscriber_does_not_stop_the_rest`, `test_a_bound_method_subscriber_is_dropped_when_its_owner_goes` | verified (r22) |
+| 341 | 23 | Deck: the first stage that decides wins | `test_the_first_stage_that_decides_wins`, `test_stages_after_a_decision_are_not_called` | verified (r22) |
+| 342 | 23 | Deck: one release rule in a mediator | `test_the_mediator_releases_in_either_order`, `test_a_duplicate_settlement_releases_once` | verified (r22) |
+| 343 | 24 | Deck: a generator replaces the cursor class | `test_a_tracking_history_can_be_walked_twice`, `test_a_self_iterating_history_is_empty_on_the_second_pass` | verified (r22) |
+| 344 | 25 | Deck: Visitor dissolves into a match | `test_mypy_reports_an_event_left_out_of_a_match` | verified (r22) |
+| 345 | 25 | Deck: a snapshot that leaves the audit alone | `test_rollback_keeps_the_audit_trail` | verified (r22) |
+| 346 | 25 | Deck: one tariff, two readings | `test_explain_writes_the_tariff_as_text`, `test_every_rule_form_prices_the_same_consignments` | verified (r22) |
+| 347 | 45 | Deck: Appendix E rows quoted verbatim | run: _plans/evidence/r22-deck-witness-census.md | verified (r22) |
+| 348 | 22-23 | Chapter fixes: the delivery sentence, the module-docstring sentence, the tuple sentence (not a default), the mediator docstring | run: Y1d | verified (r22) |
+| 349 | 13-23 | Figure fixes: specs 13, 14, 16, 22, 23 regenerated and every arrow composed | run: Y1d | verified (r22) |
+| 350 | 0-46 | Deck: every code slide is byte-exact with its source range | run: Y4a | verified (r22) |
+| 351 | 0-46 | Deck: 62 slides, 62 notes slides, every notes slide over its floor | run: Y4a | verified (r22) |
+| 352 | 0-46 | Deck: Red Hat Text, Red Hat Mono and Overpass embedded in the render | run: _plans/evidence/r22-deck-qa.md | verified (r22) |
+| 353 | 0-46 | Deck: metadata PatternCatalyst, no host identifier or runtime name in any part | run: Y4a | verified (r22) |
+| 354 | 0-46 | Deck: ban-tier scan clean on the builder, slide text and notes | run: Y4b | verified (r22) |
+| 355 | 0-46 | Deck: committed figure PNGs equal a fresh render | run: _plans/evidence/r22-deck-qa.md | verified (r22) |
+| 356 | 0-46 | Deck: every rendered page viewed and passed | run: _plans/evidence/r22-deck-qa.md | verified (r22) |
 
 2026-11-04 (r05): Python 3.15.2. Rows 47 to 64 are added at the move to 3.15.2 and start `open`; the r05 steps fill in their evidence. Rows 1 to 46 were verified on 3.14.10 and keep that evidence; row 47 covers the re-run of their quoted output on 3.15.2.
 
@@ -379,3 +423,7 @@ Status values: open, verified, adjusted, dropped.
 2026-11-07 (r21, X1d): Rows 307 to 312 (the F member, `examples/46-appendix-f-programming-principles`) are added and start `open`; X2 fills their results. Rows 307 and 309 hold their `source` as "source (open until prose links it)". The member has 12 test functions and 18 cases (the plan's nine functions and 15 cases plus three tests for behaviour the source pins), recorded in `_plans/evidence/r21-demeter-member.md`.
 
 2026-11-07 (r21, X4): the appendices D, E and F now link every source, so rows 279 to 312 carry real `source:` and `run: X4a`, `X4b`, `X4c` tokens again. They stay open until the X5 validation.
+
+2026-11-07 (r22, Y2): Rows 313 to 349 are added. Every claim that begins "Deck:" starts open, because the deck is not built; its test names and sentences are witnessed by `_plans/evidence/r22-deck-witness-census.md` (113 test names, each defined once, 191 cases passing three forward runs and one reverse run in a fresh copy), and Y5 closes each row when the slide is checked. Rows 348 and 349 are verified (r22) by the done Y1d. Rows 350 to 356 depend on the built deck and are added at Y5.
+
+2026-11-07 (r22, Y5): Rows 313 to 347 are verified. The Y5 validation re-ran every witness test by node id in a fresh copy (191 passed, twice) and checked each slide's claim against its census row. Rows 350 to 356 are added and verified. Round 2 passed every criterion except positional pointers in three divider notes, which repair round 2 fixed; `check_decks()` now refuses those phrasings.

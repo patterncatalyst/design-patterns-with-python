@@ -44,12 +44,12 @@ nodes = [
         "lines": ["each day: delay with", "probability p", "(injected Random)"],
     },
     {
-        "x": COL_X,
-        "y": 650,
-        "w": COL_W,
-        "h": 70,
+        "x": 20,
+        "y": 330,
+        "w": 250,
+        "h": 80,
         "style": "accent",
-        "lines": ["illegal event:", "TransitionError"],
+        "lines": ["any pair outside the lifecycle:", "TransitionError"],
     },
 ]
 for (name, note), y in zip(STATES, STATE_Y, strict=True):
@@ -70,9 +70,13 @@ edges = [
     {"x1": 290, "y1": 68, "x2": COL_X, "y2": 68, "dashed": True},
     {"x1": 610, "y1": 68, "x2": COL_X + COL_W, "y2": 68, "dashed": True},
     {"x1": 610, "y1": 308, "x2": COL_X + COL_W, "y2": 308, "dashed": True},
-    {"x1": CENTER, "y1": 590, "x2": CENTER, "y2": 650, "dashed": True, "label": "any other event"},
+    {"x1": COL_X, "y1": 90, "x2": 120, "y2": 330, "dashed": True},
+    {"x1": COL_X, "y1": 188, "x2": 170, "y2": 330, "dashed": True},
+    {"x1": COL_X, "y1": 308, "x2": 270, "y2": 370, "dashed": True},
+    {"x1": COL_X, "y1": 428, "x2": 270, "y2": 390, "dashed": True},
+    {"x1": COL_X, "y1": 555, "x2": 200, "y2": 410, "dashed": True},
 ]
 for (a, b), kind in zip(pairwise(STATE_Y), EVENTS, strict=True):
     edges.append({"x1": CENTER, "y1": a + COL_H, "x2": CENTER, "y2": b, "label": kind})
 
-emit("14-state-and-finite-state-machines", 900, 740, nodes=nodes, edges=edges)
+emit("14-state-and-finite-state-machines", 900, 620, nodes=nodes, edges=edges)
