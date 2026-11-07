@@ -376,7 +376,7 @@ title = "Build and toolchain reference: uv, ruff, mypy"
 part = 14
 kind = "appendix"
 has_example = false
-status = "stub"
+status = "drafted"
 
 [[chapter]]
 number = 42
@@ -385,7 +385,7 @@ title = "pytest reference"
 part = 14
 kind = "appendix"
 has_example = true
-status = "stub"
+status = "drafted"
 
 [[chapter]]
 number = 43
@@ -394,7 +394,7 @@ title = "Mocking reference: unittest.mock and pytest-mock"
 part = 14
 kind = "appendix"
 has_example = true
-status = "stub"
+status = "drafted"
 
 [[chapter]]
 number = 44
