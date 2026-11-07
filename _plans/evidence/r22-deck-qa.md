@@ -213,3 +213,18 @@ Rules applied: rule of three, meta-narration, confessional or defensive phrasing
 | cadence | Five tests witness the claim: subscribers are called | Five tests cover it: subscribers are called |
 | cadence | Three tests witness the claim: the mediator releases | The claim rests on three tests: the mediator releases |
 | cadence | Three tests witness the claim: rollback keeps | Three tests cover it: rollback keeps |
+
+## Repair round 1 (2026-11-07)
+
+Applied from the Y5 validation of e6ebaeb.
+
+- Positional and book pointers removed from the notes of slides 1, 2, 3 context, 6, 10, 14, 16, 22, 29, 30, 41, 43, 53, 54, 55, 56, 58, 60 (including the cover, which no longer calls the deck a companion to a book), plus two "before it" phrasings. Only the closing slide names the site and the repository. A case-insensitive scan of notes and slide text for follow, next, previous, earlier, later, before it, after it, closing slide, last slide, the book, section that, below and above leaves only non-positional uses.
+- Figure slides 16, 21, 26, 38, 44 and 53: the frame now comes from each PNG's own aspect. Slide XML `a:ext` aspect equals the PNG aspect to three decimals on all six.
+- Slide 30 title is now "Object creation" (the longer form wrapped "control" alone). Slide 11 first column widened to 4.4 inches. Slide 60 gained the Martelli row (ActiveState recipe 66531, as the chapter on Singleton cites it); rows are 0.36 inches so the table clears the footer.
+- Code slides with four lines or fewer use 22 point; the box height follows the listing. Slides 41, 47 and 49 are smaller boxes, with the caption kept at the foot.
+- Appendix E Memento row: "originator is frozen" became "a booking that is itself an immutable value", matching the chapter. The earlier census quote carries a dated note.
+- Chapter 14 figure caption and the registry caption are now identical (45 words with the prefix).
+- Mediator module docstring now states that a failed inspection blocks release; no chapter quotes the old first line.
+- Validator: a "positional slide reference" deck check and its self-test.
+- Pages viewed: 1, 6, 10, 11, 14, 16, 22, 30, 41, 47, 53, 54, 56, 60. Pages 21, 26, 29, 38, 43, 44, 49, 55 and 57 were checked through the XML aspect test and the text scan, not by eye.
+- Build: 62 slides, 62 notes, content slides at 90 words or more, dividers and cover at 45 or more (smallest 48).

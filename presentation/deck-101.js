@@ -140,7 +140,7 @@ function codeSlide(eyebrow, title, file, first, last, anchor, caption, text) {
   const longest = Math.max(...lines.map((l) => l.length));
   const byWidth = Math.floor((1370 / longest) * 2) / 2;
   const byHeight = Math.floor(((4.2 * 72) / (lines.length * 1.4)) * 2) / 2;
-  const fontSize = Math.min(18, byWidth, byHeight);
+  const fontSize = Math.min(lines.length <= 4 ? 22 : 18, byWidth, byHeight);
   const h = Math.min(4.55, Math.max(1.0, (lines.length * fontSize * 1.4) / 72 + 0.45));
   const s = S();
   addCodeSlide(s, eyebrow, title, "PYTHON", lines, caption, { fontSize, h });
@@ -149,9 +149,17 @@ function codeSlide(eyebrow, title, file, first, last, anchor, caption, text) {
 }
 
 // A figure on its own slide, full width.
+// The PNG's own aspect sets the frame, so "contain" never stretches it.
 function figSlide(eyebrow, title, png, caption, text) {
   const s = S();
-  addDiagramSlide(s, eyebrow, title, png, caption, { x: 0.62, y: 1.45, w: 12.09, h: 4.95 });
+  const head = fs.readFileSync(path.join(__dirname, PNG, `${png}.png`));
+  const pw = head.readUInt32BE(16);
+  const ph = head.readUInt32BE(20);
+  const box = { x: 0.62, y: 1.45, w: 12.09, h: 4.95 };
+  const scale = Math.min(box.w / pw, box.h / ph);
+  const w = pw * scale;
+  const h = ph * scale;
+  addDiagramSlide(s, eyebrow, title, png, caption, { x: box.x + (box.w - w) / 2, y: box.y + (box.h - h) / 2, w, h });
   notes(s, text, 90, "figure");
 }
 
@@ -182,7 +190,7 @@ function figSlide(eyebrow, title, png, caption, text) {
     align: "left", valign: "top",
   });
   s.addImage({ path: `${ASSETS}/logo-candidate-2.png`, x: 11.10, y: 6.80, w: 1.55, h: 0.37 });
-  notes(s, `This is the opening companion to a book that sorts the Gang of Four patterns by what Python 3.15 does to them: some dissolve into a language feature, some survive as design, and some share a name with something else. It's written for engineers who already write Python and have met the catalogue by name. The code shown is read from tested examples, and the examples are set in one shipping domain, with consignments, carriers, rate quotes, tracking and billing. It starts from the decision a pattern represents and then takes the patterns by what they do.`, 45, "cover");
+  notes(s, `This is the opening deck of a series that sorts the Gang of Four patterns by what Python 3.15 does to them: some dissolve into a language feature, some survive as design, and some share a name with something else. It's written for engineers who already write Python and have met the catalogue by name. The code shown is read from tested examples, and the examples are set in one shipping domain, with consignments, carriers, rate quotes, tracking and billing. It starts from the decision a pattern represents and then takes the patterns by what they do.`, 45, "cover");
 }
 
 // ===========================================================================
@@ -206,14 +214,14 @@ function figSlide(eyebrow, title, png, caption, text) {
   ];
   bullets(s, left, { w: 5.95, fontSize: 16, gap: 10 });
   bullets(s, right, { x: 6.85, w: 5.86, fontSize: 16, gap: 10 });
-  notes(s, `The deck runs in nine sections. The first two set up the question: what a pattern is, and what changed between 1994 and Python 3.15. SOLID follows, because the principles are the forces the later patterns answer. The four middle sections walk the catalogue by what a pattern does: selecting behaviour, creating objects, composing structure, coordinating and traversing. Choosing well turns the catalogue back into a judgement about when to leave a pattern out, and the reference section closes with versions and reading. What to show: nothing needs running here. Fallback: the section names on the dividers carry the same route.`, 90, "route");
+  notes(s, `The deck runs in nine sections. The first two set up the question: what a pattern is, and what changed between 1994 and Python 3.15. SOLID comes third, because the principles are the forces the catalogue's patterns answer. The four middle sections walk the catalogue by what a pattern does: selecting behaviour, creating objects, composing structure, coordinating and traversing. Choosing well turns the catalogue back into a judgement about when to leave a pattern out, and the reference section closes with versions and reading. What to show: nothing needs running here. Fallback: the section names on the dividers carry the same route.`, 90, "route");
 }
 
 // ===========================================================================
 // Section: Why patterns
 // ===========================================================================
 divider("01", "Why patterns", "A decision made under forces",
-  `A pattern is easier to judge once it is seen as a decision. A problem arrives with competing forces, a shape resolves them, and the shape has a cost that is paid whether or not the benefit turns up. The code in the deck was held to a standard before it reached a slide: it ran under a linter, a formatter, a strict type checker and a test suite.`);
+  `A pattern is easier to judge once it is seen as a decision. A problem arrives with competing forces, a shape resolves them, and the shape has a cost that is paid whether or not the benefit turns up. The code in the deck was held to a standard before any of it reached a slide: it ran under a linter, a formatter, a strict type checker and a test suite.`);
 
 bulletSlide("WHY PATTERNS", "Decisions under forces", [
   ["A pattern", " answers a problem in a context, and the problem is a set of forces pulling against each other."],
@@ -232,7 +240,7 @@ codeSlide("WHY PATTERNS", "Proof that runs",
 // Section: What 1994 assumed
 // ===========================================================================
 divider("02", "What 1994 assumed", "The catalogue's tools, and what Python changed",
-  `The catalogue was written for languages in which a behaviour reached a call site inside an object of a class declared in advance. Python 3.15 differs on functions, loops, types and modules. Two questions sort the patterns that follow: does the name mean one thing, and does a language feature resolve the force without the structure. Three tables hold the result, and one short listing shows a dissolved pattern at its smallest.`);
+  `The catalogue was written for languages in which a behaviour reached a call site inside an object of a class declared in advance. Python 3.15 differs on functions, loops, types and modules. Two questions sort the catalogue's patterns: does the name mean one thing, and does a language feature resolve the force without the structure. Three tables hold the result, and one short listing shows a dissolved pattern at its smallest.`);
 
 bulletSlide("WHAT 1994 ASSUMED", "The 1994 assumptions", [
   ["Behaviour", " reached a call site wrapped in an object whose class you declared in advance, so naming it meant declaring a class."],
@@ -282,7 +290,7 @@ tableSlide("WHAT 1994 ASSUMED", "Surviving patterns",
     ["Interpreter", "A grammar and its evaluator remain design"],
     ["Resource acquisition", "The with statement and context managers"],
   ], [3.0, 9.09],
-  `Fourteen rows where the language helps but the decision remains. State survives as a transition table, Command survives because undo and queues need an object with an identity, and Observer survives because callbacks don't decide order, failure or lifetime. In these rows the second column says what Python offers and what stays design. Command has a witness in the sorting example, a test that undo needs a command object. The other rows are witnessed in the example that develops the pattern, for instance the read-only transition table for State, the weak pool for Flyweight, the audit trail kept on rollback for Memento, and the with statement closing a writer on an exception. What to show: any one of those tests. Fallback: later sections return to these patterns with code.`, { fontSize: 11.5, rowH: 0.31 });
+  `Fourteen rows where the language helps but the decision remains. State survives as a transition table, Command survives because undo and queues need an object with an identity, and Observer survives because callbacks don't decide order, failure or lifetime. In these rows the second column says what Python offers and what stays design. Command has a witness in the sorting example, a test that undo needs a command object. The other rows are witnessed in the example that develops the pattern, for instance the read-only transition table for State, the weak pool for Flyweight, the audit trail kept on rollback for Memento, and the with statement closing a writer on an exception. What to show: any one of those tests. Fallback: the second column names what stays design in each row.`, { fontSize: 11.5, rowH: 0.31 });
 
 tableSlide("WHAT 1994 ASSUMED", "One name, two meanings",
   ["Name", "What Python gives you"], [
@@ -290,7 +298,7 @@ tableSlide("WHAT 1994 ASSUMED", "One name, two meanings",
     ["Singleton", "A module built at import time by default; Borg and metaclass as variants"],
     ["Proxy", "A surrogate object vs attribute interception with __getattr__, property and cached_property"],
     ["\"Interface\"", "Protocol (structural) vs an ABC (nominal)"],
-  ], [3.9, 8.19],
+  ], [4.4, 7.69],
   `Four names mean two things in Python, and confusing the two meanings produces wrong designs. Decorator comes first: the pattern is a wrapper object composed at run time, and the at-sign form is a function rebinding a name once at definition time. Singleton is a module by default. Proxy covers a surrogate object and attribute interception, which are different tools. Interface covers a Protocol, matched by shape, and an abstract base class, matched by declared name. Four tests from the sorting example witness the rows: the two decorators being independent, a module being one instance across importers, a proxy forwarding only the missing attributes, and a Protocol being structural while an ABC is nominal. What to show: those four tests. Fallback: the table is the claim.`, { rowH: 0.62, fontSize: 14, y: 1.7 });
 
 codeSlide("WHAT 1994 ASSUMED", "Dissolved in code",
@@ -310,7 +318,7 @@ bulletSlide("WHAT 1994 ASSUMED", "Names for assistants", [
 // Section: SOLID in Python
 // ===========================================================================
 divider("03", "SOLID in Python", "Five principles, met with functions, Protocols and modules",
-  `SOLID names five forces that keep code cheap to change: one reason to change, extension without editing, substitutability, narrow roles and dependence on abstractions. Python meets them with light tools. A function and a read-only mapping carry the first two, a docstring and a contract suite carry the third, a Protocol per role carries the fourth, and one composition function carries the fifth. Principles beyond SOLID follow, tested by the same examples.`);
+  `SOLID names five forces that keep code cheap to change: one reason to change, extension without editing, substitutability, narrow roles and dependence on abstractions. Python meets them with light tools. A function and a read-only mapping carry the first two, a docstring and a contract suite carry the third, a Protocol per role carries the fourth, and one composition function carries the fifth. Principles beyond SOLID, such as composition over inheritance, DRY, YAGNI and the Law of Demeter, are tested by the same examples.`);
 
 bulletSlide("SOLID IN PYTHON", "One reason to change", [
   ["Pricing, tax and audit", " change for different reasons and under different tests, so they're separate pieces."],
@@ -321,7 +329,7 @@ bulletSlide("SOLID IN PYTHON", "One reason to change", [
 
 figSlide("SOLID IN PYTHON", "The quote flow", "05-srp-ocp-lsp",
   "Pricing sits behind a Protocol and hands its net to tax rules keyed by destination country; the finished quote goes to an audit callable.",
-  `The figure draws one quote with three responsibilities. A rate calculator sits behind the RateCalculator Protocol and produces a net amount. Tax rules, keyed by destination country, take that net and add tax. The finished quote goes to an audit callable. The arrows are the data flow that the quote function coordinates in the code. The boxes change for separate reasons, and one contract suite checks the calculators. The figure is the shape behind the listings that follow. What to show: the figure at full width, following the arrows from rate to tax to audit. Fallback: the caption states the same flow in one sentence.`);
+  `The figure draws one quote with three responsibilities. A rate calculator sits behind the RateCalculator Protocol and produces a net amount. Tax rules, keyed by destination country, take that net and add tax. The finished quote goes to an audit callable. The arrows are the data flow that the quote function coordinates in the code. The boxes change for separate reasons, and one contract suite checks the calculators. What to show: the figure at full width, following the arrows from rate to tax to audit. Fallback: the caption states the same flow in one sentence.`);
 
 codeSlide("SOLID IN PYTHON", "Extension by table entry",
   "examples/05-srp-ocp-lsp/src/srp_ocp_lsp/tax.py", 23, 28,
@@ -362,7 +370,7 @@ tableSlide("SOLID IN PYTHON", "Principles beyond SOLID",
     ["EAFP", "A look-first read raises when another thread evicts between check and read"],
     ["The Law of Demeter", "Each reader names the attributes it depends on"],
   ], [3.4, 8.69],
-  `Eight further principles, with a test that shows the effect of each. Brandon Rhodes's page on composition over inheritance frames the first. The Pragmatic Programmer is the source for DRY, Martin Fowler's site for YAGNI and for Beck's design rules, and Jim Shore's paper for fail fast. Orthogonality shows in the bridge: a new booking kind needs no gateway change. EAFP is shown by its failure case, where a look-first read races with another thread and raises. The Python glossary defines the style. The Demeter row gets a listing of its own. The tests come from several examples, because the principles show up in the pattern examples that exercise them. What to show: the DRY and YAGNI tests together. Fallback: the right column states the results.`, { rowH: 0.52, fontSize: 14 });
+  `Eight further principles, with a test that shows the effect of each. Brandon Rhodes's page on composition over inheritance frames the first. The Pragmatic Programmer is the source for DRY, Martin Fowler's site for YAGNI and for Beck's design rules, and Jim Shore's paper for fail fast. Orthogonality shows in the bridge: a new booking kind needs no gateway change. EAFP is shown by its failure case, where a look-first read races with another thread and raises. The Python glossary defines the style. The Demeter row's test compares a reader that asks the shipment with one that reaches through it. The tests come from several examples, because the principles show up in the pattern examples that exercise them. What to show: the DRY and YAGNI tests together. Fallback: the right column states the results.`, { rowH: 0.52, fontSize: 14 });
 
 codeSlide("SOLID IN PYTHON", "Asking the shipment",
   "examples/46-appendix-f-programming-principles/src/principles_reviewed/billing.py", 40, 44,
@@ -402,12 +410,12 @@ codeSlide("SELECTING AND VARYING BEHAVIOUR", "Command with undo",
   "examples/15-command-undo-and-command-queues/src/command_undo/booking.py", 25, 34,
   "    def amend(self, amendment: Amendment) -> None:",
   "amend applies an amendment and stacks its inverse; undo pops the inverse and stacks the redo.",
-  `Command survives, with the deferred call dissolving. A deferred call is a functools.partial. What survives is the force that a change needs an identity of its own: something to undo, redo and queue. amend applies an amendment, which returns the amendment that reverses it, and pushes that inverse on the undo stack. undo applies the inverse and pushes the redo. Harry Percival and Bob Gregory's Architecture Patterns with Python treats commands as messages with one handler, is the credit for that idea. Three tests back it: apply returns the reversing amendment, a failing batch leaves the booking unchanged, and amendments compare by value where partials don't. What to show: the batch test. Fallback: call the function when a change is never undone or queued.`);
+  `Command survives, with the deferred call dissolving. A deferred call is a functools.partial. What survives is the force that a change needs an identity of its own: something to undo, redo and queue. amend applies an amendment, which returns the amendment that reverses it, and pushes that inverse on the undo stack. undo applies the inverse and pushes the redo. Harry Percival and Bob Gregory's Architecture Patterns with Python, which treats commands as messages with one handler, is the credit for that idea. Three tests back it: apply returns the reversing amendment, a failing batch leaves the booking unchanged, and amendments compare by value where partials don't. What to show: the batch test. Fallback: call the function when a change is never undone or queued.`);
 
 // ===========================================================================
 // Section: Creating objects under control
 // ===========================================================================
-divider("05", "Creating objects under control", "Factories, Builder and Singleton",
+divider("05", "Object creation", "Factories, Builder and Singleton",
   `Creational patterns decide who builds an object and how many exist. Factory Method dissolves into a value in a dict, while Abstract Factory survives as a kit of products that have to match. Builder dissolves into a keyword-only dataclass, and Prototype into dataclasses.replace. Singleton is a name that needs disambiguating, and the default answer is a module. The listings are short because the language does most of the work.`);
 
 codeSlide("CREATING OBJECTS UNDER CONTROL", "Factories in a dict",
@@ -460,7 +468,7 @@ figSlide("COMPOSING AND ADAPTING STRUCTURE", "One call, two axes", "19-adapter-f
 
 bulletSlide("COMPOSING AND ADAPTING STRUCTURE", "Two things called Decorator", [
   ["The pattern", " builds a value: a wrapper object that holds another and presents the same interface, composed while the program runs."],
-  ["The at-sign form", " rebinds a name: one step above a def, taken once when the module loads."],
+  ["The at-sign form", " rebinds a name: written on the line over a def, taken once when the module loads."],
   ["The name", " is a known mismatch. PEP 318, which introduced the syntax, says the name isn't consistent with its use in the original catalogue."],
   ["A naming rule:", " Decorator alone means the pattern. The syntax is the at-sign form or decorator syntax."],
   ["They stay apart:", " a decorated function has no price, and a layer has no wrapped function."],
@@ -476,7 +484,7 @@ codeSlide("COMPOSING AND ADAPTING STRUCTURE", "A name rebound once",
   "examples/20-decorator-pattern-vs-decorator-syntax-and-proxy/src/decorator_proxy/syntax.py", 46, 49,
   "@retry(attempts=3, on=(CarrierTimeoutError,))",
   "The at-sign line rebinds quote_carrier once, when the module loads, and stacking order is fixed then too.",
-  `The at-sign form is a statement about a name. The line above the def means quote_carrier is the result of calling retry on the function, bound once when the module loads. Stacking order is fixed at that time as well. Three tests back it: the at sign rebinds the name once at definition time, syntax stacking order decides whether each attempt is audited, and rebound functions don't compare by value. The caution on the syntax is about safety: don't put a retry around an operation that isn't safe to repeat. PEP 318 is the credit for the form. The pattern and the syntax are different tools. What to show: the stacking-order test. Fallback: the four lines on the slide are the form.`);
+  `The at-sign form is a statement about a name. The line over the def means quote_carrier is the result of calling retry on the function, bound once when the module loads. Stacking order is fixed at that time as well. Three tests back it: the at sign rebinds the name once at definition time, syntax stacking order decides whether each attempt is audited, and rebound functions don't compare by value. The caution on the syntax is about safety: don't put a retry around an operation that isn't safe to repeat. PEP 318 is the credit for the form. The pattern and the syntax are different tools. What to show: the stacking-order test. Fallback: the four lines on the slide are the form.`);
 
 bulletSlide("COMPOSING AND ADAPTING STRUCTURE", "Proxy as stand-in", [
   ["Proxy", " is a name that covers a surrogate object and attribute interception."],
@@ -489,7 +497,7 @@ codeSlide("COMPOSING AND ADAPTING STRUCTURE", "One weight question",
   "examples/21-composite-and-flyweight/src/composite_flyweight/consolidation.py", 8, 16,
   "def consignments(shipment: Shipment) -> tuple[Consignment, ...]:",
   "A consignment and a consolidation answer the same question; the match covers both kinds and assert_never flags a third.",
-  `Composite is for the caller who holds something and asks one question without caring whether it is a single item or a bundle. Composite and Flyweight both survive. The listing flattens a shipment to its consignments, depth first, with a match that handles a consignment and a consolidated shipment and ends in assert_never. The tree's invariants are the part of Composite that no language feature supplies. Flyweight, drawn in the figure that follows, is for many references to equal values. Three Composite tests witness the claim: a consignment and a consolidation answer weight the same way, a flat sum misses nested consolidations, and mypy refuses adding to a frozen consolidation. Rhodes's Composite and Flyweight pages are credited. What to show: the flat-sum test. Fallback: the caption states the question.`);
+  `Composite is for the caller who holds something and asks one question without caring whether it is a single item or a bundle. Composite and Flyweight both survive. The listing flattens a shipment to its consignments, depth first, with a match that handles a consignment and a consolidated shipment and ends in assert_never. The tree's invariants are the part of Composite that no language feature supplies. Flyweight is for many references to equal values. Three Composite tests witness the claim: a consignment and a consolidation answer weight the same way, a flat sum misses nested consolidations, and mypy refuses adding to a frozen consolidation. Rhodes's Composite and Flyweight pages are credited. What to show: the flat-sum test. Fallback: the caption states the question.`);
 
 figSlide("COMPOSING AND ADAPTING STRUCTURE", "Shared commodities", "21-composite-and-flyweight",
   "A consolidation sums its parts through nested groups, and consignments reach one frozen commodity per code from a pool.",
@@ -545,13 +553,13 @@ codeSlide("COORDINATING AND TRAVERSING", "A tariff, two readings",
 
 figSlide("COORDINATING AND TRAVERSING", "Match, snapshot, tariff tree", "25-visitor-memento-interpreter",
   "Operations over the event union are matches; a booking rolls back from a frozen snapshot; one tariff tree is priced and explained.",
-  `The figure draws three columns from the same module. In the first, each operation over the closed event union is one match, and mypy reports a kind it leaves out. In the second, a booking rolls back from a frozen snapshot that leaves the audit alone. In the third, one tariff tree is both priced and explained. The arrows follow the code in the match, rollback and tariff listings. The figure has its own slide because its small labels need the full width. What to show: the figure at full width, one column at a time. Fallback: the caption lists the three columns, and the three listings before it hold the code.`);
+  `The figure draws three columns from the same module. In the first, each operation over the closed event union is one match, and mypy reports a kind it leaves out. In the second, a booking rolls back from a frozen snapshot that leaves the audit alone. In the third, one tariff tree is both priced and explained. The arrows trace the code in the match, rollback and tariff listings. What to show: the figure at full width, one column at a time. Fallback: the caption lists the three columns, one per pattern.`);
 
 // ===========================================================================
 // Section: Choosing well
 // ===========================================================================
 divider("08", "Choosing well", "When to skip a pattern, and how to ask for one",
-  `A catalogue is useful if it can say no. Skip conditions say when a pattern is the wrong answer, the force table reads the catalogue back by force rather than by name, and a sample prompt names the decision before it asks for code. The skip conditions come from the sentences that close the pattern discussions, and the force column comes from the book's pattern-to-force reference, quoted without change.`);
+  `A catalogue is useful if it can say no. Skip conditions say when a pattern is the wrong answer, the force table reads the catalogue back by force rather than by name, and a sample prompt names the decision and then asks for code. Each skip condition names a case where the force is absent, and each force is stated in a sentence that a design review can check.`);
 
 tableSlide("CHOOSING WELL", "Skip conditions",
   ["Pattern", "Skip it when"], [
@@ -562,7 +570,7 @@ tableSlide("CHOOSING WELL", "Skip conditions",
     ["Observer", "Call the parties directly when the set is fixed at the time the subject is built."],
     ["Iterator", "Pass the tuple when the data is already in a list that callers index or measure."],
   ], [3.2, 8.89],
-  `The rows are sentences that open or close a pattern's discussion of when to leave it out. The force that justified the pattern is missing in these cases: a single rule has nothing to select among, a two-state flag has no transition table worth keeping, a value that differs per test can't be shared, one carrier has nothing to adapt between, a fixed set of parties has no subscribers to manage, and data already in a list has nothing to stream. No test backs these rows. They rest on the book's reasoning, and the table claims what the sentences claim. What to show: pick one row and name the force that is absent. Fallback: the right column is the rule, in the book's own words.`, { rowH: 0.62, fontSize: 14, y: 1.7 });
+  `Each row names a case where a pattern should be left out. The force that justified the pattern is missing in these cases: a single rule has nothing to select among, a two-state flag has no transition table worth keeping, a value that differs per test can't be shared, one carrier has nothing to adapt between, a fixed set of parties has no subscribers to manage, and data already in a list has nothing to stream. No test backs these rows. They rest on the reasoning about the absent force, and the table claims no more than that. What to show: pick one row and name the force that is absent. Fallback: the right column is the rule.`, { rowH: 0.62, fontSize: 14, y: 1.7 });
 
 tableSlide("CHOOSING WELL", "Pattern to force",
   ["Pattern", "The force it answers"], [
@@ -577,7 +585,7 @@ tableSlide("CHOOSING WELL", "Pattern to force",
     ["Visitor (closed set)", "Visitor is for a fixed family of kinds that gets new operations over time."],
     ["Interpreter", "Interpreter is for rules that people write down and the program must apply."],
   ], [2.5, 9.59],
-  `A pattern answers one force, and the quickest way into the catalogue is to start from the force you have. Ten rows are shown, with the book's own wording of the force. Start from a caller who must choose among several ways of computing one result, and the row says Strategy; start from legal transitions as a business rule, and it says State. The column is read from the force back to the pattern, which is the direction a design review travels. Brandon Rhodes's pattern pages and the Design Patterns catalogue are the starting points for the wording. What to show: cover the left column and name the pattern from the right. Fallback: read two rows and the direction of travel is clear.`, { rowH: 0.47, fontSize: 12, y: 1.5 });
+  `A pattern answers one force, and the quickest way into the catalogue is to start from the force you have. Ten rows are shown, each with its force stated in one sentence. Start from a caller who must choose among several ways of computing one result, and the row says Strategy; start from legal transitions as a business rule, and it says State. The column is read from the force back to the pattern, which is the direction a design review travels. Design Patterns names the patterns. What to show: cover the left column and name the pattern from the right. Fallback: read two rows and the direction of travel is clear.`, { rowH: 0.47, fontSize: 12, y: 1.5 });
 
 {
   const s = S();
@@ -601,7 +609,7 @@ tableSlide("CHOOSING WELL", "Pattern to force",
 // Section: Reference
 // ===========================================================================
 divider("09", "Reference", "Versions, sources and further reading",
-  `The pinned versions the examples were built and checked with come first, then the online sources and the books behind the catalogue and the principles. The listings passed under those versions. The closing slide gives the address of the book's site and of the repository that holds the examples.`);
+  `The pinned versions the examples were built and checked with come first, then the online sources and the books behind the catalogue and the principles. The listings passed under those versions. A site address and a repository address close the section, and the repository holds the tested examples.`);
 
 tableSlide("REFERENCE", "The toolchain",
   ["Tool", "Version", "Role"], [
@@ -627,8 +635,9 @@ tableSlide("REFERENCE", "Sources credited",
     ["The Pragmatic Programmer, tips page", "DRY"],
     ["Liskov and Wing, A Behavioral Notion of Subtyping (1994)", "The behavioural definition of substitutability"],
     ["Bertrand Meyer, Object-Oriented Software Construction", "The open-closed principle"],
+    ["Alex Martelli, ActiveState recipe 66531 (archived)", "The Borg variant of Singleton"],
   ], [5.6, 6.49],
-  `Sources are credited where an idea leans on them. The wording and the examples are new, and the short quotations are attributed. Brandon Rhodes's guide supplies the readings of Composite, Decorator, Factory Method, Iterator and Singleton as Python writes them. The PEPs record why a feature exists. Fowler and Seemann supply the vocabulary of injection and the composition root. Percival and Gregory's free book describes commands as messages with one handler. Liskov and Wing, and Meyer, are credited for the principles they introduced. An archived ActiveState recipe is credited for the Borg variant of Singleton. What to show: nothing; the table is the record. Fallback: the rows name the source and what it was used for.`, { rowH: 0.40, fontSize: 12, y: 1.55 });
+  `Sources are credited where an idea leans on them. The wording and the examples are new, and the short quotations are attributed. Brandon Rhodes's guide supplies the readings of Composite, Decorator, Factory Method, Iterator and Singleton as Python writes them. The PEPs record why a feature exists. Fowler and Seemann supply the vocabulary of injection and the composition root. Percival and Gregory's free book describes commands as messages with one handler. Liskov and Wing, and Meyer, are credited for the principles they introduced. An archived ActiveState recipe is credited for the Borg variant of Singleton. What to show: nothing; the table is the record. Fallback: the rows name the source and what it was used for.`, { rowH: 0.36, fontSize: 12, y: 1.55 });
 
 tableSlide("REFERENCE", "Reading further",
   ["Book", "Authors", "Year"], [
@@ -649,7 +658,7 @@ bulletSlide("REFERENCE", "Site and repository", [
   ["The book", " is at https://patterncatalyst.github.io/design-patterns-with-python/"],
   ["The repository", " holds the examples: https://github.com/patterncatalyst/design-patterns-with-python"],
   ["To run an example,", " sync the workspace once with uv sync --locked --all-packages, then run uv run pytest and uv run mypy --strict src tests inside an example directory."],
-  ["Two further decks", " follow by theme: what the language gives you so you don't write the pattern, and testing, inherited code and working with AI tools."],
+  ["Two further decks", " cover themes: what the language gives you so you don't write the pattern, and testing, inherited code and working with AI tools."],
 ], `The book's site holds the prose and the figures. The repository holds the examples that the listings were read from, with their tests, so a claim can be re-run. An example runs on its own: sync the workspace once from the root, then run pytest and mypy in strict mode from the example's directory, since both discover the root configuration. The two further decks cover, by theme, what Python gives you so that you don't write a pattern, and testing, changing inherited code and working with AI tools on pattern-heavy code. What to show: the site's home page and the repository's examples directory. Fallback: the two addresses on the slide are enough to find both.`, { fontSize: 17 });
 
 // ===========================================================================

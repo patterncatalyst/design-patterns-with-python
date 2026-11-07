@@ -485,6 +485,7 @@ Handling: three rows. Interception (ch30) and `cached_property` (ch27) say needs
 
 - When not to use it: `25:218`
   - clause: `With a booking whose originator is frozen, keep the old value and skip the snapshot class.`
+  - note (2026-11-07, r22 repair 1): the appendix now reads "With a booking that is itself an immutable value, keep the old value and skip the snapshot class."; the wording above is the history. The chapter sentence at this line already carries the new wording, so the grep below no longer matches.
   - check: `grep -nF 'With a booking whose originator is frozen, keep the old value and skip the snapshot class.' _docs/25-visitor-memento-interpreter.md`
 
 ### Interpreter

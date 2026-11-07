@@ -119,6 +119,14 @@ DECK_BANNED = (
     (XREF_RE, "chapter reference"),
     (re.compile(r"\bslides?\s*\d+\b", re.IGNORECASE), "slide number reference"),
     (
+        re.compile(
+            r"\b(next|previous|following|closing|last|earlier|later)\s+(slides?|sections?)\b"
+            r"|\bthat follows?\b|\bbefore it\b",
+            re.IGNORECASE,
+        ),
+        "positional slide reference",
+    ),
+    (
         re.compile(r"\b(chapters?|appendix|appendices)\b", re.IGNORECASE),
         "chapter or appendix pointer",
     ),
@@ -1370,6 +1378,7 @@ def deck_self_test(expect: Callable[[str, bool], None]) -> None:
         bool(run([*good[:2], ("Body", long + " see Chapter 7")])),
     )
     expect("deck slide ref", bool(run([*good[:2], ("Body", long + " on slide 4")])))
+    expect("deck positional ref", bool(run([*good[:2], ("Body", long + " the next slide shows")])))
     expect(
         "deck chapter pointer",
         bool(run([*good[:2], ("Body", long + " as the Observer chapter shows")])),
