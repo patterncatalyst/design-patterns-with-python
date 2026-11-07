@@ -20,7 +20,7 @@ By the end of this chapter you can:
 
 ## Why this matters
 
-Tracking events arrive from a carrier's live feed, and quotes come from two carriers at once. Both are waiting on something outside the process, which is the case asyncio is for. The patterns that handle them keep their intent under asyncio: a feed is still iterated, a session still closes what it opened, a signal still tells its subscribers. What moves is their edges. Another task can run only where this one awaits, a coroutine has to be awaited to produce anything, and cancellation arrives as an exception that cleanup has to survive.
+Tracking events arrive from a carrier's live feed, and quotes come from two carriers at once. Both are waiting on something outside the process, which is the case asyncio is for. The patterns that handle them keep their intent under asyncio: a feed is still iterated, a session still closes what it opened, a signal still tells its subscribers. What moves is their edges. Another task on the loop can run only where the running one awaits or returns, a coroutine has to be awaited to produce anything, and cancellation arrives as an exception that cleanup has to survive.
 
 The first edge is the easiest to hit. `FastlineSource().quote(consignment)` is a coroutine and not a `RateQuote` until something awaits it (`test_calling_a_coroutine_function_without_await_gives_a_coroutine_not_a_quote`). A quote that is assigned and never awaited doesn't fail where it was written. The runtime warns when the coroutine is collected (`test_a_quote_that_is_never_awaited_warns_when_it_is_collected`), and mypy reports the cases it can see (`test_mypy_reports_a_quote_returned_without_await`).
 
@@ -93,7 +93,7 @@ async def carrier_session(feed: CarrierFeed) -> AsyncIterator[CarrierFeed]:
         await feed.close()
 ```
 
-[Context managers: deterministic cleanup]({{ '/docs/10-context-managers/' | relative_url }}) covers what release means and the order across several resources. What asyncio adds is cancellation. The asyncio tasks page says "When a task is cancelled, asyncio.CancelledError will be raised in the task at the next opportunity. It is recommended that coroutines use try/finally blocks to robustly perform clean-up logic." The `finally` does that. The feed closes when the body raises a `LookupError` (`test_the_session_closes_the_feed_when_its_body_raises`). It also closes when `asyncio.timeout(0)` cancels a body that waits on a feed that never answers, and the `TimeoutError` arrives outside the session (`test_the_session_closes_the_feed_when_its_task_is_cancelled`). The cancellation test uses `asyncio.timeout(0)`, which needs no wait on a clock.
+[Context managers: deterministic cleanup]({{ '/docs/10-context-managers/' | relative_url }}) covers what release means and the order across several resources. What asyncio adds is cancellation. The asyncio tasks page says "When a task is cancelled, asyncio.CancelledError will be raised in the task at the next opportunity. It is recommended that coroutines use try/finally blocks to robustly perform clean-up logic." The `finally` does that. The feed closes when the body raises a `LookupError` (`test_the_session_closes_the_feed_when_its_body_raises`). It also closes when `asyncio.timeout(0)` cancels a body that waits on a feed that never answers, and the `TimeoutError` arrives outside the session (`test_the_session_closes_the_feed_when_its_task_is_cancelled`). A zero timeout needs no wait on a clock.
 
 ## Strategy and Adapter: quoting carriers together
 
@@ -116,6 +116,9 @@ class RateSource(Protocol):
     async def quote(self, consignment: Consignment, /) -> RateQuote: ...
 
 class AircoSource:
+    def __init__(self, client: AircoClient) -> None:
+        self._client = client
+
     async def quote(self, consignment: Consignment, /) -> RateQuote:
         cents = await asyncio.to_thread(
             self._client.price,
@@ -236,7 +239,7 @@ Found 1 error in 1 file (checked 15 source files)
 - Say what an `await` changes: a coroutine is a value until it is awaited, `test_mypy_reports_a_quote_returned_without_await` shows what mypy reports, `test_a_quote_that_is_never_awaited_warns_when_it_is_collected` shows what the runtime reports, and `test_an_await_between_read_and_write_double_books_a_slot` shows what a switch point costs.
 - Close a feed with `aclosing`: `handling_events` closes the feed in a `finally`, and `first_departure` closes it when the loop stops early.
 - Survive cancellation: `carrier_session` closes the feed, and `test_the_session_closes_the_feed_when_its_task_is_cancelled` proves it with `asyncio.timeout(0)`.
-- Quote together: `RateSource` and `AircoSource` give every carrier one async interface, `cheapest` stops its group on a failure or a timeout, and `first_quote` calls `TaskGroup.cancel()` on the first answer.
+- Quote together: `RateSource` gives both carriers one async interface and `AircoSource` adapts AIRCO's blocking SDK to it, `cheapest` stops its group on a failure or a timeout, and `first_quote` calls `TaskGroup.cancel()` on the first answer.
 - Publish and queue: `AsyncSignal` runs every subscriber before raising one group, and `run_commands` stops on `Queue.shutdown()`.
 - Protect a read-modify-write: `StowagePlan.reserve` holds an `asyncio.Lock` across the `await`, and `test_an_asyncio_lock_gives_each_task_its_own_slot` shows five tasks taking five slots.
 

@@ -27,10 +27,10 @@ A coroutine that never awaits holds the event loop until it returns.
 ## The benchmark
 
 `bench/gil_bench.py` times the rating batch serially and through each pool, warm and cold, then
-repeats the batch with an integer-cents loop that mirrors `quote` with `int` in place of
-`Decimal`, and times four waits serially, in threads and in asyncio. It is a measurement, not a test, and no test
-asserts any of its figures. The recorded outputs are `bench/gil_bench.out.txt` (default build) and
-`bench/gil_bench.ft.out.txt` (free-threaded build). They name the interpreter, the build and a
+repeats the batch with an integer-cents loop that mirrors `quote` with `int` in place of `Decimal`,
+and times four waits serially, in threads and in asyncio. It is a measurement, not a test, and no
+test asserts any of its figures. The recorded outputs are `bench/gil_bench.out.txt` (default build)
+and `bench/gil_bench.ft.out.txt` (free-threaded build). They name the interpreter, the build and a
 class of machine, never a model. Your figures will differ.
 
 ## Layout

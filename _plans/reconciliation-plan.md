@@ -247,7 +247,7 @@ Status values: open, verified, adjusted, dropped.
 | 228 | 38 | An `await` between read and write double-books a slot, and `asyncio.Lock` gives each task its own | `test_an_await_between_read_and_write_double_books_a_slot`, `test_an_asyncio_lock_gives_each_task_its_own_slot` | verified (r18) |
 | 229 | 38 | mypy reports a quote returned without `await`, an unused coroutine and a blocking source, and accepts a coroutine bound to `_` | `test_mypy_reports_a_quote_returned_without_await`, `test_mypy_reports_a_quote_call_whose_result_is_never_used`, `test_mypy_refuses_a_blocking_source_where_a_rate_source_is_expected`, `test_mypy_accepts_a_coroutine_bound_to_underscore` | verified (r18) |
 | 230 | 37-38 | mypy `--strict`, ruff and the idiom scan pass both members, and both members pass on the free-threaded build | `run: U1a`, `run: U1b` | verified (r18) |
-| 231 | 37-38 | The "Build, run, observe" experiments behave as quoted, and mypy exits 0 on each | `run: U5a`, `run: U5b` | verified (r18): two runs per experiment in U5a/U5b and again in the U6 validation |
+| 231 | 37-38 | The "Build, run, observe" experiments behave as quoted; mypy exits 0 on each except ch38's second, where it reports one `[type-var]` error | `run: U5a`, `run: U5b` | verified (r18): two runs per experiment in U5a/U5b and again in the U6 validation |
 
 2026-11-04 (r05): Python 3.15.2. Rows 47 to 64 are added at the move to 3.15.2 and start `open`; the r05 steps fill in their evidence. Rows 1 to 46 were verified on 3.14.10 and keep that evidence; row 47 covers the re-run of their quoted output on 3.15.2.
 
