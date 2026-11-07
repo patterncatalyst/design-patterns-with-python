@@ -554,7 +554,7 @@ Step ids are `W*` (decision 0). Only `W1b`, `W1c`, `W4a`, `W4b` and `W4c` are ci
 | Step | What | Depends | Status |
 | --- | --- | --- | --- |
 | W0 | Bookkeeping with dated notes; re-check the pins; record the decisions. `iteration-plan.md`: PDP-141 to 143 `active`, r20 active, r19 closed, PDP-139a to 140c `done`. r19's plan: V6 and V7 closed. Reconciliation plan: rows 249 to 278 `open` with a dated note. `chapters.toml`: 42 and 43 `has_example = true`. Domain rows A to C name the members. Root `pyproject.toml`: `".venv-ft"` in `[tool.ruff] extend-exclude` (decision 7); `verify.sh` green after it. The three stub `description` lines | - | done (2026-11-07) |
-| W1a | `_plans/evidence/r20-toolchain-runs.md`: every row of witness table A run in fresh scratch copies (one without a root sync), scrubbed, deleted after use | W0 | todo |
+| W1a | `_plans/evidence/r20-toolchain-runs.md`: every row of witness table A run in fresh scratch copies (one without a root sync), scrubbed, deleted after use | W0 | done |
 | W1b | B member, card and README; one `uv lock`; three green runs and one reverse-order run, from the root and from the member; a whole-repo `--co` run (decision 11); the deletion table and the static mutation, each in a fresh scratch copy (no `.venv`, `uv sync --locked --all-packages`, confirm `pytest_reference.__file__`), deleted after use | W1a | done (2026-11-07) |
 | W1c | C member, card and README; one `uv lock` after W1b; three green runs plus one reverse-order run; the deletion table and the static mutations, as W1b | W1b | todo |
 | W2 | Witness results into rows 249 to 278. `_plans/evidence/r20-mock-census.md` (dated greps and per-file API lists, evidence Q). The dated r20 note in `_plans/spikes.md`. Every message, count or value that differs from Planning evidence goes in "Corrections after the build". A failed witness changes the appendix text before prose | W1c | todo |
@@ -603,6 +603,7 @@ Reconciliation rows (step W0). The "How to verify" column uses resolvable tokens
 No legacy rows are carried.
 
 ## Corrections after the build
+- Step W1a: `_plans/evidence/r20-toolchain-runs.md` recorded on 2026-11-07, and every witness-table-A row matches the plan except these. The `--isolated` rules fall into 38 letter groups (the plan's 46 counted finer prefixes); the 279 and 407 rule counts match. `ruff check --diff` exits 1 and reports "Would fix 5 errors" against 4 reported. The default build prints `True 0`. The probe's long line is 108 columns, not 110. The `deprecated` message line number depends on the probe file. During W1a one `uv sync --locked --all-packages` ran in the real repo instead of a copy; it printed nothing and changed no tracked file.
 
 The orchestrator records here every handback that differs from this plan: messages, counts, which tests a deletion fails, word counts, declined findings, witness rows added or cut.
 
