@@ -11,10 +11,12 @@ Opus-planned 2026-11-07. Branch `release/r21`, cut from main at 97207d4 (the r20
 
 No pin changes this iteration. Python 3.15.2, uv 0.13.7, uv_build 0.13.7, pytest 9.2.0, pytest-mock 3.17.0, mypy 2.4.1 and ruff 0.17.4 are still the latest stable releases (checked 2026-11-07 from PyPI JSON `info.version` and the upload date of that release: pytest 9.2.0 of 2026-10-27, pytest-mock 3.17.0 of 2026-10-17, mypy 2.4.1 of 2026-10-28, ruff 0.17.4 of 2026-11-05, uv and uv-build 0.13.7 of 2026-11-03; `python.org/ftp/python/` lists `3.15.0/`, `3.15.1/`, `3.15.2/` and `3.16.0/`, `3.15.3/` is a 404 and `3.16.0/` holds only `Python-3.16.0a1.tgz`, a pre-release; local `uv --version` prints `uv 0.13.7`; in the scratch environment `pytest --version` prints `pytest 9.2.0`, `ruff --version` `ruff 0.17.4`, `mypy --version` `mypy 2.4.1 (compiled: yes)`, `importlib.metadata.version("pytest-mock")` `3.17.0`, and `sys.version` `3.15.2 (main, Oct 26 2026, 14:06:56) [Clang 23.1.3 ]`). X0 re-checks before any edit.
 
+Owner decisions recorded 2026-11-07 (section "Owner decisions, 2026-11-07" below): Appendix F gets a member, `examples/46-appendix-f-programming-principles`, that witnesses the Law of Demeter, and every other recommendation stands. The owner also changed CLAUDE.md's spike finding from a `between=` hook to `gap=` (the GIL chapter's `StowagePlan` parameter); that edit is committed with this amendment.
+
 Exact identities, from `scripts/chapters.toml` and the `_docs` front matter (the front matter wins where wording differs):
 - Appendix D: slug `44-appendix-d-xunit-test-patterns`, title "xUnit test patterns (Meszaros)", part 14 (`appendices`), `appendix: "D"`, `kind = "appendix"`, `has_example = false`, `status = "stub"`. PDP-144. The registry row says "Test patterns (Meszaros)"; reader text uses the front-matter title.
 - Appendix E: slug `45-appendix-e-pattern-to-force-reference`, title "Pattern-to-force quick reference", part 14, `appendix: "E"`, `kind = "appendix"`, `has_example = false`, `status = "stub"`. PDP-145.
-- Appendix F: slug `46-appendix-f-programming-principles`, title "Programming principles reviewed in code", part 14, `appendix: "F"`, `kind = "appendix"`, `has_example = false`, `status = "stub"`. PDP-146.
+- Appendix F: slug `46-appendix-f-programming-principles`, title "Programming principles reviewed in code", part 14, `appendix: "F"`, `kind = "appendix"`, `has_example = false` (X0 sets `true`, owner decision O1), `status = "stub"`. PDP-146.
 - Each stub carries `## Learning objectives`, `## Why this matters`, `## Reference` and `## For deeper coverage`, each "Draft pending.", and a `description` "Draft pending: <title>." The draft replaces `## Reference` with the sections below.
 - Part 14's blurb: "Reference material: build and toolchain, pytest, mocking, xUnit test patterns, a pattern-to-force quick reference, and programming principles reviewed in code."
 
@@ -22,20 +24,28 @@ Exact identities, from `scripts/chapters.toml` and the `_docs` front matter (the
 
 Work items: PDP-144, PDP-145 and PDP-146, `todo` in `_plans/iteration-plan.md`. The iteration plan quotes no PRD intent for D to F beyond the roadmap line ("r21 | Appendices D-F") and the registry rows; `r01-build-plan.md` names only the slugs. The binding intent is the domain-model rows D, E and F, the promises in chapters and in `bibliography.html` (evidence S), and the house rules. Where a promise asks for something that has no witness in the repo, the promise is corrected in this iteration (fix-now rule), not honoured with an unwitnessed claim (decisions 6 and 12).
 
-## User decisions (owner to confirm)
+## Owner decisions, 2026-11-07
 
-0. **Step ids.** The steps are X0 to X6. At planning `grep -nE '^\| X[0-9]' _plans/*.md` and `grep -n 'run: X' _plans/*.md` print nothing (the caller confirmed X is unused). Following r16 to r20, only suffixed ids are cited as `run:` tokens: `X1a`, `X1b`, `X1c`, `X4a`, `X4b` and `X4c`. Plain X0, X2, X3, X5 and X6 appear only in this plan's table. Three `run:` tokens cite recorded files written at X1: `_plans/evidence/r21-test-pattern-map.md` (X1a), `_plans/evidence/r21-pattern-force-census.md` (X1b) and `_plans/evidence/r21-principle-witnesses.md` (X1c).
+The owner reviewed the decisions below on 2026-11-07. Where an owner decision and a numbered decision differ, the owner decision wins and the numbered decision is amended in place (marked "amended 2026-11-07").
+
+- **O1. Appendix F gets a runnable member** (replaces decision 1's recommendation for F). `examples/46-appendix-f-programming-principles` (project `principles-reviewed`, package `principles_reviewed`, Billing area) holds an `Invoice` before/after for the Law of Demeter, in the layout of `examples/43-appendix-c-mocking`: the reader the package ships asks the shipment for the amount due, and the comparison reader, a conftest fixture param, reaches through the shipment to its invoice. The Law of Demeter is back in F's set, witnessed by the member and sourced from the Demeter project's general-formulation and object-formulation pages at Northeastern University (evidence V; credited, quoted exactly, nothing copied). F names the final project's two chains as counter-examples with the code evidence (decision 16). Member spec: "Example spec" below; build step X1d; rows 307 to 312. `chapters.toml` 46 `has_example = true` at X0. Domain rows D to F as amended in decision 12. D and E keep no member.
+- **O2. Everything else as recommended**: D's 26 patterns with summary-only quotes and the qualifier in C (decisions 3, 4); E's four verbatim tables (decisions 8, 9); F's other principles and cuts (decision 5, amended for Demeter only); lengths, no figure, no sidebar (decisions 2, 10); citations (decision 11, amended); the bibliography fixes with Code Complete removed (decision 6); the clause in "Decorators done right" (decision 7); rows 199 to 211 closed at X0 after a re-run (decision 14); the Conditional Test Logic instances recorded for r25 (decision 13).
+- **O3. CLAUDE.md.** The owner changed CLAUDE.md line 165 from "with a `between=` hook plus `Barrier`" to "with a `gap=` hook plus `Barrier`". The edit is the owner's and is committed with this amendment; executors still don't edit CLAUDE.md.
+
+## User decisions (owner reviewed 2026-11-07)
+
+0. **Step ids.** The steps are X0 to X6. At planning `grep -nE '^\| X[0-9]' _plans/*.md` and `grep -n 'run: X' _plans/*.md` print nothing (the caller confirmed X is unused). Following r16 to r20, only suffixed ids are cited as `run:` tokens: `X1a`, `X1b`, `X1c`, `X1d` (added 2026-11-07, O1), `X4a`, `X4b` and `X4c`. Plain X0, X2, X3, X5 and X6 appear only in this plan's table. Four `run:` tokens cite recorded files written at X1: `_plans/evidence/r21-test-pattern-map.md` (X1a), `_plans/evidence/r21-pattern-force-census.md` (X1b), `_plans/evidence/r21-principle-witnesses.md` (X1c) and `_plans/evidence/r21-demeter-member.md` (X1d).
 
    **Recommend: yes.**
 
-1. **No runnable member for any of the three appendices.** All three are maps onto code that already exists and is already tested; a new member would add tests that witness nothing the existing ones don't.
+1. **No runnable member for D or E; one member for F** (amended 2026-11-07, owner decision O1; the original recommendation was no member for any of the three). D and E are maps onto code that already exists and is already tested; a new member would add tests that witness nothing the existing ones don't.
    - **D.** 25 of the Meszaros patterns that have a fetched page also have at least one existing test that is an instance of the page's definition (evidence D, 37 test names, each defined once). The patterns with a page but no clean instance (Delta Assertion, Data-Driven Test, Test Hook, Dependency Lookup, Humble Object, Back Door Manipulation, Minimal Fixture, Testcase Class per Fixture, Chained Tests, In-line Teardown and the smells) are cut, not built: building a test only so that the appendix can name a pattern would turn the reference into a catalogue tour.
    - **E.** Every row's witness is the developing chapter's sentence plus that chapter's member tests (evidence E). There is nothing to run that the chapters don't already run.
-   - **F.** Every kept principle has existing tests in the chapter that teaches it, and three existing before/after pairs tested on one shared table (ch19, ch31, ch32) supply the snippets domain row F asks for (evidence F). The one principle with no witness, the Law of Demeter, is cut (decision 5).
+   - **F.** Every kept principle except the Law of Demeter has existing tests in the chapter that teaches it, and three existing before/after pairs tested on one shared table (ch19, ch31, ch32) supply snippets (evidence F). The Law of Demeter has no witness in the repo, so the owner chose the member (O1): `examples/46-appendix-f-programming-principles`, specified under "Example spec" (9 test functions, 15 cases in the planning spike, evidence V).
 
    The witness for "this test is an instance of that pattern or principle" is a recorded file per appendix (X1a to X1c): each cited test run by node id in a fresh scratch copy three times and once in reverse order, with its one-line reason against the fetched definition.
 
-   **Recommend: yes.** Alternatives: (a) a small F member, `examples/46-appendix-f-programming-principles`, with a before/after pair on `Invoice` for the Law of Demeter (`shipment.invoice.total` reached through a chain, against a `Shipment.amount_due()`), tested on one table; it would keep domain row F's wording, at the cost of a new example written only for the appendix; (b) a D member that builds the cut patterns (Humble Object, Delta Assertion): rejected above.
+   **Owner: D and E no member; F member (O1).** The rejected alternative was a D member that builds the cut patterns (Humble Object, Delta Assertion).
 
 2. **Depth and length.** Each appendix is a reference: tables carry the items, prose carries the rule, the trap and the pointer. Prose targets by `validate.py`: D about 1,600 to 2,100 words, E about 700 to 1,100 (almost all of E is tables, which don't count), F about 1,600 to 2,200. The 2,500 ceiling is an error; a warning below 1,900 is reported and never padded (owner decision 2026-11-05; r20 accepted 1,590, 1,661 and 1,890). An item with no witness is cut, not written. At most five excerpts in D, none in E, at most five in F, each byte-exact from an existing test or `src` file. No figure, no experiment, no new code. Each appendix opens with what it isn't: D doesn't repeat the four-doubles table of "Proving it works: pytest, pytest-mock, and mypy" or the API of "Mocking reference: unittest.mock and pytest-mock"; E doesn't repeat the map of "The three-way split: dissolve, survive, disambiguate"; F doesn't re-teach the SOLID chapters.
 
@@ -71,7 +81,9 @@ Work items: PDP-144, PDP-145 and PDP-146, `todo` in `_plans/iteration-plan.md`. 
    - **Fail fast** ("ISP, DIP, and dependency injection without a framework": "An unknown code fails at start-up, where the mistake is cheap to find."; the service-locator test of "Anti-patterns and pattern misuse" as the contrast), source Jim Shore's "Fail Fast" column on martinfowler.com.
    - **EAFP** ("Shortcut patterns: dict dispatch, function tables, and EAFP"), source the Python glossary.
 
-   Cut, each with its reason recorded in X1c: **Law of Demeter** (no test; the final project's acceptance test itself reads `shipment.invoice.total`, so a Demeter row would criticise the book's code without a witness; alternative (a) of decision 1 builds one), **KISS** as a name, **Tell, Don't Ask** (no prose, no test framed by it), the **Zen of Python** (no chapter quotes it), **Rule of Three**, **Hollywood principle**, **separation of concerns** (folded into SRP by the chapter's own sentence), **do one thing** and the **Boy Scout Rule** (no prose, no test), **Brooks's Law** and **tracer bullets** (project and process claims; no code can witness them, and Brooks's Law is an outcome claim).
+   - **Law of Demeter** (amended 2026-11-07, owner decision O1): witnessed by the F member's tests and sourced from the Demeter project's pages (evidence V); the final project's chains are named as counter-examples (decision 16).
+
+   Cut, each with its reason recorded in X1c: **KISS** as a name, **Tell, Don't Ask** (no prose, no test framed by it), the **Zen of Python** (no chapter quotes it), **Rule of Three**, **Hollywood principle**, **separation of concerns** (folded into SRP by the chapter's own sentence), **do one thing** and the **Boy Scout Rule** (no prose, no test), **Brooks's Law** and **tracer bullets** (project and process claims; no code can witness them, and Brooks's Law is an outcome claim).
 
    **Recommend: yes.** Alternatives: (a) keep the promised book principles as "source-only" rows marked "not reviewed in code"; this contradicts the appendix's title and the every-claim rule for Brooks's Law; (b) build the Demeter member (decision 1 (a)).
 
@@ -103,13 +115,13 @@ Work items: PDP-144, PDP-145 and PDP-146, `todo` in `_plans/iteration-plan.md`. 
 11. **Citation set** (evidence R). Primary sources, quoted exactly and only where fetched; nothing copied beyond the quoted sentences:
     - D: the xunitpatterns.com pages of the kept patterns (decision 3), pytest-mock's usage page (already cited by C) for the `stub` sentence, Fowler's "Mocks Aren't Stubs" (already cited by C and ch11) by title and topic; the book *xUnit Test Patterns: Refactoring Test Code* (bibliography).
     - E: none new. Its sources are the chapters. The "For deeper coverage" section points to the GoF book and Alexander only as ch01 already does (bibliography).
-    - F: Brandon Rhodes's "The Composition Over Inheritance Principle" (already cited by ch19), https://pragprog.com/tips/ (DRY and orthogonality tips), https://martinfowler.com/bliki/Yagni.html, https://martinfowler.com/bliki/BeckDesignRules.html, https://martinfowler.com/ieeeSoftware/failFast.pdf (Jim Shore), the Python glossary entry for EAFP (already cited by ch31); books already in the bibliography: Martin's *Agile Software Development*, Meyer's *Object-Oriented Software Construction*, *The Pragmatic Programmer*, the GoF book.
+    - F: Brandon Rhodes's "The Composition Over Inheritance Principle" (already cited by ch19), https://pragprog.com/tips/ (DRY and orthogonality tips), https://martinfowler.com/bliki/Yagni.html, https://martinfowler.com/bliki/BeckDesignRules.html, https://martinfowler.com/ieeeSoftware/failFast.pdf (Jim Shore), the Python glossary entry for EAFP (already cited by ch31), and for the Law of Demeter (amended 2026-11-07) https://www2.ccs.neu.edu/research/demeter/demeter-method/LawOfDemeter/general-formulation.html and https://www2.ccs.neu.edu/research/demeter/demeter-method/LawOfDemeter/object-formulation.html (evidence V); books already in the bibliography: Martin's *Agile Software Development*, Meyer's *Object-Oriented Software Construction*, *The Pragmatic Programmer*, the GoF book.
 
-    **Recommend: yes.** Alternative: add the Law of Demeter's Northeastern page to F as a source-only row; cut with the principle (decision 5).
+    **Recommend: yes** (owner: as recommended, with the two Demeter pages added, O1).
 
-12. **Domain rows D to F are corrected at X0.** Row D: "Test doubles named in the shipping tests" becomes "xUnit test patterns mapped onto existing shipping tests; no member". Row E: "One line per pattern and its force" becomes "One row per pattern per developing chapter: bucket, force and when-not quoted from that chapter; no member". Row F: "DRY, YAGNI, KISS, Law of Demeter on `RateEngine` and `Invoice` code" and "small before/after snippets" become "SOLID, composition over inheritance, DRY, YAGNI and simple design, orthogonality, fail fast and EAFP, reviewed on existing tested code, including the before/after pairs of ch19, ch31 and ch32; no member". No new domain area, no new name.
+12. **Domain rows D to F are corrected at X0.** Row D: "Test doubles named in the shipping tests" becomes "xUnit test patterns mapped onto existing shipping tests; no member". Row E: "One line per pattern and its force" becomes "One row per pattern per developing chapter: bucket, force and when-not quoted from that chapter; no member". Row F (amended 2026-11-07, O1): "DRY, YAGNI, KISS, Law of Demeter on `RateEngine` and `Invoice` code" and "small before/after snippets" become "SOLID, composition over inheritance, DRY, YAGNI and simple design, orthogonality, fail fast, EAFP and the Law of Demeter, reviewed on existing tested code (the before/after pairs of ch19, ch31 and ch32) and on member `examples/46-appendix-f-programming-principles` (`principles_reviewed`, Billing area: `ConsignmentId`, `Money`, `LineItem`, `Invoice`, `Shipment` with `credits` and `amount_due`, `SettlementError`, `settle`, `remittance_line`; test-only `_chained_remittance`, the one comparison form, as fixture param `reader_form` `delegating|chained`)", with key names `Shipment.amount_due`, `reader_form`. No new domain area: a credit is a `LineItem`, and `Shipment` is the final project's name for a booked consignment's record.
 
-    **Recommend: yes** (follows from decisions 1 and 5).
+    **Owner: yes, as amended (O1).**
 
 13. **No smells section, and no test edits.** The smell pages exist (Fragile Test, Obscure Test, Erratic Test, Assertion Roulette, Test Logic in Production, Conditional Test Logic), and the D survey found instances of Conditional Test Logic in three existing tests (`if before is None` in C's `test_patch_dict_restores_the_mapping_after_the_test`, the `--update-golden` branch of `test_the_golden_file_records_the_legacy_engine`, a branch in `test_each_change_moves_only_the_fields_it_feeds`) and "test seam" wording in `StowagePlan`'s docstring. Whether each is a smell is a judgement the pages don't settle for pytest, and a smells section would need either that judgement or test edits in chapters already validated. D names no smell. X1a records the three instances for the r25 QA sweep.
 
@@ -123,10 +135,17 @@ Work items: PDP-144, PDP-145 and PDP-146, `todo` in `_plans/iteration-plan.md`. 
 
     **Recommend: yes.**
 
+16. **F names the final project's chains as counter-examples** (added 2026-11-07, O1; evidence V). Under the object form of the Law of Demeter a method may send messages only to its parameters (including `self`), the immediate parts of the enclosing object and objects it creates. Two places in the final project send past that:
+    - `examples/39-final-project/tests/test_acceptance.py` line 40, in the helper `acceptance_failures(shipment, ...)`: `shipment.invoice.total` (and `shipment.invoice.total.amount` on line 41), a message to the shipment's part's part; `tests/test_parts.py` line 98 does the same.
+    - `examples/39-final-project/src/final_project/desk.py` line 58: `self._plan.sailing.origin`, a message to an object returned by an immediate part.
+    F says what each couples, from the code only: `Shipment` and `Invoice` are frozen dataclasses and the reads change no state; the final project has no credit, so its amount due is the invoice total and a chained read and a delegating one give the same answer there, which is what the member's no-credit rows show; the member's credit test shows the cost appears when the amount due stops being the invoice total. F doesn't call the chains acceptable or wrong beyond that, and the final project's code doesn't change in r21 (its tests stay the acceptance test's own concern). X1d records the four lines with `grep -n` at the branch head.
+
+    **Recommend: yes.** Alternative: change the final project to call a delegating method. It would edit a validated chapter's code and quoted lines in r21.
+
 Also proposed for the owner (no decision needed unless declined):
 - **Status hygiene at X0.** r20 is merged (97207d4) and tagged `r20.x`, but `iteration-plan.md` marks r20 "(active)" and PDP-141 to 143 `active`. X0 closes them and marks PDP-144 to 146 and r21 active.
 - **A dated r21 note** in `_plans/spikes.md` at X2: evidence D to F and T.
-- **CLAUDE.md drift, for the owner only.** CLAUDE.md's spike finding names a `between=` hook for the forced `+=` race; the GIL chapter's member uses `gap=` on `StowagePlan` (evidence D). Planners and executors don't edit CLAUDE.md; the owner may.
+- **CLAUDE.md drift.** CLAUDE.md's spike finding named a `between=` hook for the forced `+=` race; the GIL chapter's member uses `gap=` on `StowagePlan` (evidence D). The owner fixed it on 2026-11-07 (O3).
 
 ## Planning evidence
 
@@ -259,13 +278,23 @@ Not discussed anywhere in `_docs/`: Law of Demeter (19:132 is the nearest senten
 
 **U. Not claimable.** That a pattern or principle is "best practice" beyond a quoted sentence; that any test is or was written "to follow" Meszaros (D says a test is an instance of a pattern's definition, not that it was designed from it); the content of the printed book beyond its title and the site's own note; that the repo's tests are free of smells; any statement about the Law of Demeter, KISS, Brooks's Law or tracer bullets; outcomes of applying any principle; anything a pattern chapter doesn't say (E).
 
+**V. The F member and the Law of Demeter** (added 2026-11-07 for owner decision O1).
+- **Sources**, fetched 2026-11-07 (raw HTML, whitespace collapsed; no dash in either quote):
+  - https://www2.ccs.neu.edu/research/demeter/demeter-method/LawOfDemeter/general-formulation.html: ""Only talk to your immediate friends" is the motto."; "Each unit should have only limited knowledge about other units: only units "closely" related to the current unit."; "The style rule was discovered at Northeastern University in the fall of 1987 by Ian Holland."
+  - https://www2.ccs.neu.edu/research/demeter/demeter-method/LawOfDemeter/object-formulation.html: "Within a method, messages can only be sent to the following objects:" followed by a numbered list (a parameter of the method, including the enclosing object; a global object, "For pragmatic reasons"; an immediate part object, computed or stored; an object created within the method). F paraphrases the list with the link and quotes only the lead sentence.
+  - `.../LawOfDemeter/LawOfDemeter.html` returned 404. Neither page is versioned or dated; credit is to the Demeter project at Northeastern by page title.
+- **Spike**, in a fresh scratch copy at `<scratchpad>/plan21b` (built the usual way; `uv init --lib --vcs none --no-readme --no-description --author-from none --name principles-reviewed examples/46-appendix-f-programming-principles` printed "Project `principles-reviewed` is already a member of workspace" and created `pyproject.toml`, `src/principles_reviewed/__init__.py` and `py.typed`, with `requires-python = ">=3.15.2"` and `uv_build>=0.13.7,<0.14.0`, edited to the repo's `>=3.15` and `<0.14`; `uv lock` printed `Added principles-reviewed v0.1.0`; `principles_reviewed.__file__` pointed into the copy). A probe of the spec below gave `15 passed` three times from the member, once in reverse file order and once from the root; `mypy --strict src tests` `Success: no issues found in 6 source files`; `ruff check` clean after two raw-string fixes (`RUF043` on `match=` patterns) and `ruff format`; the idiom scan 0 ban-tier. The copy was deleted.
+- **Mutations in the spike** (failing tests, exact): `amount_due` ignoring the credits: 6 failed (the amount-due test, the other-currency credit test, `settle` accepts and both refusals, the delegating credit case); `remittance_line` reading `shipment.invoice.total`: 2 failed (the delegating credit case and the delegating attribute case); the `__add__` currency check removed: 1 (the two-currency test); the `__sub__` check removed: 1 (the other-currency credit test); `__str__` without the currency: 8; `payment != due` to `payment.amount < due.amount`: 1 (the `25.01` refusal); `payment < due`: mypy exit 1 (`Money` has no ordering), so that form isn't a row; `total` returning the first line: 10; the comparison reader asking the shipment: 2 (the chained credit case and the chained attribute case); the `credited` fixture without its credit: 5. mypy exit 0 for every row but the one noted. Pytest ids of the indirect cases held spaces (`delegating-CN-3 25.00 EUR`), so the spec gives them explicit ids.
+- **Final project chains** (decision 16): `test_acceptance.py:40-41` and `test_parts.py:98` read `shipment.invoice.total`; `desk.py:58` reads `self._plan.sailing.origin`; `billing.py:39` formats `invoice.total.amount` from its parameter. No final-project `Shipment` has credits.
+- **Names.** None of the nine planned test names exists in `examples/*/tests` (grep at planning). No member uses project `principles-reviewed` or package `principles_reviewed`. The final project's `test_an_invoice_in_two_currencies_has_no_total` and `test_a_short_payment_does_not_settle` exist, so the member's names differ.
+
 ## What is new in each appendix
 
 **D.** The Meszaros vocabulary mapped onto the book's own tests: test structure, fixtures, doubles, verification and dependency injection; and the two places where Python's mock libraries reuse a Meszaros name for something else.
 
 **E.** One lookup table per family with each pattern's bucket, force and when-not rule in the words of the chapter that develops it.
 
-**F.** The principles the book's code already applies, each with the chapter that states it and the tests that show it, and the before/after pairs that compare a principle against its absence on one table.
+**F.** The principles the book's code already applies, each with the chapter that states it and the tests that show it, and the before/after pairs that compare a principle against its absence on one table; a new member for the Law of Demeter, and the final project's chains named as its counter-examples.
 
 ## Approach
 
@@ -368,7 +397,7 @@ Sections (about 900 prose words; no excerpt):
 
 ### Appendix F: Programming principles reviewed in code
 
-Sections (about 1,900 prose words, max 2,500; at most five excerpts):
+Sections (about 2,100 prose words, max 2,500; at most six excerpts, one of them the member's comparison form):
 
 1. `## Learning objectives` (~70), four bullets: state each principle in one sentence and name the test that shows it in this book; read a before/after pair as a measured comparison; say which principle a design change serves; say why a principle with no witness isn't listed.
 2. `## Why this matters` (~200). Intent first: a principle is a reason for a shape, and a test is where the reason shows. One sentence that the SOLID chapters teach five of these and aren't repeated; one sentence on the selection rule (a principle is listed where the book's code shows it, decision 5).
@@ -378,7 +407,8 @@ Sections (about 1,900 prose words, max 2,500; at most five excerpts):
 6. `## Orthogonality` (~150). The tips sentence; a new booking kind needs no gateway change; one change moves only the fields it feeds.
 7. `## Fail fast` (~200). Shore's sentence; an unknown carrier fails at the composition root; the located engine fails at the first quote (the contrast).
 8. `## EAFP` (~200). The glossary sentence as ch31 quotes it; the three race tests and the shared cache-form table. Pointer to "Shortcut patterns: dict dispatch, function tables, and EAFP" for the race mechanics.
-9. `## For deeper coverage` (~120): Martin, Meyer, *The Pragmatic Programmer*, the GoF book (bibliography); the fetched pages; the five chapter titles; the bibliography link.
+9. `## The Law of Demeter` (~350). The motto and the general-formulation sentence (quoted), the object form's lead sentence (quoted) and its list (paraphrased, linked). The member: a shipment answers `amount_due()`; the shipped reader names `amount_due` and `consignment_id`, the comparison names `consignment_id`, `invoice` and `total`; both give the same line until a credit is granted, and then only the shipped reader sees it. Excerpt: the comparison reader `_chained_remittance` from the member's conftest (the one comparison excerpt), beside `Shipment.amount_due` and `remittance_line` from `src` (one excerpt). Counter-examples (decision 16): the final project's acceptance helper reads `shipment.invoice.total`, and its desk reads `self._plan.sailing.origin`; what each couples, from the code; that the final project has no credits, so its two readings agree there. One "Running the member" line: from the root once `uv sync --locked --all-packages`; then `cd examples/46-appendix-f-programming-principles`, `uv run pytest -q`, `uv run mypy --strict src tests`; the summary line quoted from a fresh scrubbed run.
+10. `## For deeper coverage` (~120): Martin, Meyer, *The Pragmatic Programmer*, the GoF book (bibliography); the fetched pages; the six chapter titles; the bibliography link.
 
 **Witness table F.**
 
@@ -395,9 +425,68 @@ Sections (about 1,900 prose words, max 2,500; at most five excerpts):
 | orthogonality | independent axes | `test_a_new_booking_kind_needs_no_gateway_change`, `test_each_change_moves_only_the_fields_it_feeds`; src pragprog tips |
 | fail fast | at the root, not at first use | `test_unknown_carrier_fails_at_the_composition_root`, `test_a_located_engine_fails_at_the_first_quote_when_nothing_is_registered`; src failFast.pdf |
 | EAFP | the glossary; the race tests | `test_a_look_first_read_raises_when_another_thread_evicts_between_check_and_read`, `test_an_eafp_read_reloads_when_another_thread_evicts_first`, `test_two_eafp_readers_that_both_miss_both_load`, `test_every_cache_form_reads_loads_and_evicts_the_same_way`; src glossary |
+| Law of Demeter, motto and general form | limited knowledge; immediate friends | src general-formulation |
+| Law of Demeter, object form | messages to parameters, `self`, immediate parts, created objects | src object-formulation |
+| the shipped reader and the comparison agree without credits | same remittance line, both forms | `test_both_readers_give_the_same_line_without_credits` |
+| a credit reaches only the reader that asks the shipment | `CN-3 25.00 EUR` against `CN-3 35.63 EUR` | `test_a_credit_reaches_only_the_reader_that_asks_the_shipment` |
+| what each reader names | `amount_due`, `consignment_id` against `consignment_id`, `invoice`, `total` | `test_each_reader_names_the_attributes_it_depends_on` |
+| amount due, settlement, money | credits subtract; one currency; exact payment only | `test_the_amount_due_subtracts_the_credits`, `test_a_credit_in_another_currency_is_refused`, `test_settle_accepts_the_amount_due`, `test_settle_refuses_any_other_payment`, `test_an_invoice_totals_its_lines`, `test_lines_in_two_currencies_have_no_total` |
+| the final project's chains | four lines, what they couple, no credits there | `run: _plans/evidence/r21-demeter-member.md` (the X1d `grep -n` record) |
 | the cut list | not stated in reader text | `run: _plans/evidence/r21-principle-witnesses.md` |
 
 Citations, all three: re-fetch before writing; quote no sentence unless checked on a fetched page; stop each quotation where the page's sentence stops, and before any dash; keep curly apostrophes or stop before them; normalise the xunitpatterns.com whitespace only; no outcome claim; no comparison between languages.
+
+## Example spec
+
+### `examples/46-appendix-f-programming-principles` (project `principles-reviewed`, package `principles_reviewed`)
+
+Added 2026-11-07 (owner decision O1). Layout as `examples/43-appendix-c-mocking`: `pyproject.toml` (`requires-python = ">=3.15"`, `dependencies = []`, `uv_build>=0.13.7,<0.14`, no `[tool.*]` table), `README.md`, `src/principles_reviewed/`, `tests/`. Created with `uv init --lib --vcs none --no-readme --no-description --author-from none --name principles-reviewed examples/46-appendix-f-programming-principles`, then edited to those two lines (evidence V). One `uv lock` (`Added principles-reviewed v0.1.0`). The root configuration applies: `mypy --strict`, ruff, `filterwarnings = ["error"]`, `--import-mode=importlib`.
+
+- **`domain.py`**: `ConsignmentId` (`NewType` over `str`); frozen slotted `Money(amount: Decimal, currency: str = "EUR")` with `__add__` (`ValueError` "cannot add <other> to <self>" across currencies), `__sub__` (`ValueError` "cannot subtract <other> from <self>") and `__str__` (`"<amount> <currency>"`, for example `25.00 EUR`). No ordering methods.
+- **`billing.py`**: frozen slotted `LineItem(description: str, amount: Money)`; frozen slotted `Invoice(consignment_id, lines: tuple[LineItem, ...])` with a `total` property (needs one line at least, one currency); frozen slotted `Shipment(consignment_id, invoice, credits: tuple[LineItem, ...] = ())` with `amount_due() -> Money` (the invoice total less each credit); `SettlementError(ValueError)`; `settle(shipment, payment, /) -> Money` (refuses any payment but the amount due, message "<payment> does not settle <due>"); `remittance_line(shipment, /) -> str` returning `f"{shipment.consignment_id} {shipment.amount_due()}"`. A credit is a `LineItem` (no new entity). Amounts are illustrative.
+- `py.typed`, and an `__init__.py` that imports nothing.
+
+Rejected in `src`: `Any`, `cast`, `Optional`, `print(`, `random`, `global`, `time.`, `datetime`, `sys.modules`, `subprocess`, `socket`, `urllib`, `http`, `mock`, `monkeypatch`, and any attribute chain from a parameter or `self` past an immediate part (the member mustn't break the rule it witnesses; X1d greps it).
+
+`tests/conftest.py`: the comparison form and its fixtures; no `pytest_plugins`.
+- `type Reader = Callable[[Shipment], str]`.
+- `_chained_remittance(shipment, /) -> str` returning `f"{shipment.consignment_id} {shipment.invoice.total}"`, with a one-line comment that it is the comparison form.
+- `READERS: dict[str, Reader] = {"delegating": remittance_line, "chained": _chained_remittance}` (or a read-only `frozendict`, as the repo's other tables, executor's choice; the docstring says which).
+- Fixture `reader_form`, `params=["delegating", "chained"]`, returning `READERS[request.param]`.
+- Fixture `credited`: `CN-3`, lines freight 30.00 and duty 5.63 EUR, one credit "damaged pallet" 10.63 EUR (amount due 25.00).
+
+`tests/test_billing.py` (functions 1 to 6, 7 cases):
+1. `test_an_invoice_totals_its_lines` (35.63).
+2. `test_lines_in_two_currencies_have_no_total` (`match=r"^cannot add USD to EUR$"`).
+3. `test_the_amount_due_subtracts_the_credits` (`credited`: 25.00).
+4. `test_a_credit_in_another_currency_is_refused` (`match=r"^cannot subtract USD from EUR$"`).
+5. `test_settle_accepts_the_amount_due` (returns `Money(Decimal("25.00"))`).
+6. `test_settle_refuses_any_other_payment` x (`24.99`, `25.01`) = 2 (`match=rf"^{re.escape(paid)} EUR does not settle 25\.00 EUR$"`).
+
+`tests/test_demeter.py` (functions 7 to 9, 8 cases):
+7. `test_both_readers_give_the_same_line_without_credits`: rows `one-line` (`CN-1`, 30.00, `"CN-1 30.00 EUR"`) and `two-lines` (`CN-2`, 30.00 and 5.63, `"CN-2 35.63 EUR"`) x `reader_form` (`delegating`, `chained`) = 4.
+8. `test_a_credit_reaches_only_the_reader_that_asks_the_shipment`: `reader_form` indirect, `pytest.param("delegating", "CN-3 25.00 EUR", id="delegating")` and `pytest.param("chained", "CN-3 35.63 EUR", id="chained")` = 2. The chained case pins the comparison's wrong answer as a literal.
+9. `test_each_reader_names_the_attributes_it_depends_on`: indirect, ids `delegating` and `chained`; the sorted set of `ast.Attribute.attr` names in `inspect.getsource(reader)` (dedented) equals `["amount_due", "consignment_id"]` and `["consignment_id", "invoice", "total"]` = 2. The docstring says what it measures (the attribute names a reader's own source uses) and what it doesn't (calls made inside those attributes).
+
+Planned: 9 test functions and 15 cases (`test_billing.py` 6/7, `test_demeter.py` 3/8); the spike gave `15 passed`. The pytest summary line wins. No `test_static.py`: no claim in F rests on what mypy reports for the member, so no static test is planned (if X4c needs one, X1d adds it and Corrections records it).
+
+Also `README.md` and the card `_examples/46-appendix-f-programming-principles.md`: `order: 46`, eyebrow "Appendices · Programming principles", a concept title with no count; README and card say the comparison reader lives only in `tests/conftest.py`.
+
+Deletion table (X1d; each in a fresh scratch copy, failing tests from the spike, evidence V):
+
+| Check or pinned behaviour | Changed as | Failing tests | Why it sees the change |
+| --- | --- | --- | --- |
+| `amount_due` subtracts the credits | loop body removed | 3, 4, 5, 6 (both), 8[delegating] (6 failed) | the due stays at the invoice total |
+| `remittance_line` asks the shipment | reads `shipment.invoice.total` | 8[delegating], 9[delegating] (2) | the credit is missed; `invoice` and `total` appear |
+| `_chained_remittance` reaches through | calls `shipment.amount_due()` | 8[chained], 9[chained] (2) | the comparison stops being one |
+| `Money.__add__` currency check | removed | 2 (1) | no `ValueError` |
+| `Money.__sub__` currency check | removed | 4 (1) | no `ValueError` |
+| `Money.__str__` | currency dropped | 6 (both), 7 (four), 8 (both) (8) | lines and messages change |
+| `settle` exact match | `payment.amount < due.amount` | 6[25.01] (1) | an overpayment settles |
+| `Invoice.total` sums every line | returns the first line | 1, 2, 3, 5, 6 (both), 7[two-lines] (both forms), 8 (both) (10) | the total changes |
+| `credited` fixture | credit removed | 3, 5, 6 (both), 8[delegating] (5) | no credit to see |
+
+Rows are re-run at X1d, each in a fresh copy, and the handback quotes the failing line; a difference goes to Corrections. `payment < due` is not a row: mypy refuses it (evidence V).
 
 ## Evidence files (X1)
 
@@ -405,23 +494,25 @@ Each is dated, written in a fresh scratch copy (no `.git`, no `.venv`, `uv sync 
 
 - **`_plans/evidence/r21-test-pattern-map.md` (X1a).** Per kept D pattern: the page URL, the summary sentence as fetched (whitespace normalised), each cited test's node id, its one-line reason, and the result of running exactly those node ids three times forward and once in reverse order (`-p no:randomly` isn't installed; reverse order by listing node ids reversed). Fake Object kept or cut with its reason. The cut list with reasons. The three Conditional Test Logic instances (decision 13) for r25.
 - **`_plans/evidence/r21-pattern-force-census.md` (X1b).** Per E row: each Bucket, Force and When-not cell as it will appear, its file and line, and the result of `grep -cF` on the cell's text in that file (1 each, after link text substitution, which the file records); the tests run as in X1a.
+- **`_plans/evidence/r21-demeter-member.md` (X1d).** The member's build record: `uv init` and `uv lock` lines, three forward runs and one reverse-order run from the member and from the root, mypy, ruff, the idiom scan, the deletion table, the `src` grep of the rejected list, and the `grep -n` of the final project's four chain lines (decision 16).
 - **`_plans/evidence/r21-principle-witnesses.md` (X1c).** Per kept F principle: the chapter sentence and line, the source sentence as fetched, the tests run as in X1a, and the one-line reason; the cut list with one reason each (decision 5).
 
 ## Steps and status
 
-Step ids are `X*` (decision 0). Only `X1a`, `X1b`, `X1c`, `X4a`, `X4b` and `X4c` are cited as `run:` tokens.
+Step ids are `X*` (decision 0). Only `X1a`, `X1b`, `X1c`, `X1d`, `X4a`, `X4b` and `X4c` are cited as `run:` tokens (X1d added 2026-11-07, O1).
 
 | Step | What | Depends | Status |
 | --- | --- | --- | --- |
-| X0 | Bookkeeping with dated notes; re-check the pins; record the decisions. `iteration-plan.md`: r20 closed, PDP-141 to 143 `done`, PDP-144 to 146 `active`, r21 active. Reconciliation plan: rows 199 to 211 closed after a fresh-copy re-run (decision 14); rows 279 to 306 `open` with a dated note. Domain rows D to F (decision 12). `bibliography.html` rows (decision 6). The three stub `description` lines. `verify.sh` and `validate.py` green after the edits | - | todo |
+| X0 | Bookkeeping with dated notes; re-check the pins; record the decisions. `iteration-plan.md`: r20 closed, PDP-141 to 143 `done`, PDP-144 to 146 `active`, r21 active. Reconciliation plan: rows 199 to 211 closed after a fresh-copy re-run (decision 14); rows 279 to 312 `open` with a dated note. Domain rows D to F (decision 12, amended). `chapters.toml`: 46 `has_example = true` (O1; 44 and 45 stay `false`). `bibliography.html` rows (decision 6). The three stub `description` lines. `verify.sh` and `validate.py` green after the edits | - | todo |
 | X1a | `_plans/evidence/r21-test-pattern-map.md` | X0 | todo |
 | X1b | `_plans/evidence/r21-pattern-force-census.md` (parallel with X1a) | X0 | todo |
 | X1c | `_plans/evidence/r21-principle-witnesses.md` (parallel with X1a) | X0 | todo |
-| X2 | Witness results into rows 279 to 306 (rows naming a `source` keep the URL as "source (open until prose links it)", as r20's W2 did). The dated r21 note in `_plans/spikes.md`. Every quote, count or reason that differs from Planning evidence goes in "Corrections after the build". A failed witness cuts the row before prose | X1a, X1b, X1c | todo |
+| X1d | F member, card and README (Example spec); one `uv lock`; three green runs and one reverse-order run, from the member and from the root; the deletion table, each row in a fresh scratch copy (no `.venv`, `uv sync --locked --all-packages`, `principles_reviewed.__file__` confirmed inside the copy), deleted after use; `_plans/evidence/r21-demeter-member.md`. The only `uv.lock` change is the new member. Runs in parallel with X1a to X1c (it alone touches `uv.lock`) | X0 | todo |
+| X2 | Witness results into rows 279 to 312 (rows naming a `source` keep the URL as "source (open until prose links it)", as r20's W2 did). The dated r21 note in `_plans/spikes.md`. Every quote, count or reason that differs from Planning evidence goes in "Corrections after the build". A failed witness cuts the row before prose | X1a, X1b, X1c, X1d | todo |
 | X3 | `chapters.toml`: 44 to 46 `status = "drafted"` (kinds and `has_example` unchanged); `_data/diagrams.yml` unchanged at 41 entries | X2 | todo |
 | X4a | D prose agent, plus decision 4's qualifier in C (one sentence): re-fetch every page and quote exactly; hand back witness table D filled and a per-paragraph claims table | X3 | todo |
 | X4b | E prose agent, in parallel, plus decision 7's clause in ch26: every cell re-checked with `grep -F` against the census; witness table E filled | X3 | todo |
-| X4c | F prose agent, in parallel, with the same duties for witness table F; excerpts byte-exact | X3 | todo |
+| X4c | F prose agent, in parallel, with the same duties for witness table F; excerpts byte-exact; the member's summary line quoted from a fresh scrubbed run | X3 | todo |
 | X5 | Opus validation, with up to two repair rounds. After every cut: a seam scan and a dependent-sentence re-read. Also: every witness row checked (at least one in three re-run or re-fetched by the validator; every E cell re-grepped), the excerpt check, the overlap check (criterion 11), the cross-language, outcome and stale-version greps, and the "grep everywhere" sweep (criterion 27) | X4a, X4b, X4c | todo |
 | X6 | PR, `ci-ok` green, ask the owner before merge; squash-merge; tag `r21.x` on main; notes-only release; after merge and with the owner's approval, the hub PR of decision 6 | X5 | todo |
 
@@ -454,11 +545,17 @@ Reconciliation rows (step X0). The "How to verify" column uses resolvable tokens
 | 301 | 46 | A new booking kind needs no gateway change | `test_a_new_booking_kind_needs_no_gateway_change`, `test_every_booking_kind_works_with_every_carrier` |
 | 302 | 46 | An unknown carrier fails at the composition root, while a located engine fails only at its first quote | `test_unknown_carrier_fails_at_the_composition_root`, `test_a_located_engine_fails_at_the_first_quote_when_nothing_is_registered`, `source: https://martinfowler.com/ieeeSoftware/failFast.pdf` |
 | 303 | 46 | An EAFP read survives an eviction between check and read where a look-first read raises, and every cache form passes one table | `test_a_look_first_read_raises_when_another_thread_evicts_between_check_and_read`, `test_an_eafp_read_reloads_when_another_thread_evicts_first`, `test_every_cache_form_reads_loads_and_evicts_the_same_way`, `source: https://docs.python.org/3/glossary.html` |
-| 304 | 44-46 | Every test cited in rows 279 to 303 is defined once and passes three runs forward and one in reverse order in a fresh copy | `run: X1a`, `run: X1b`, `run: X1c` |
+| 304 | 44-46 | Every test cited in rows 279 to 303 and 307 to 311 is defined once and passes three runs forward and one in reverse order in a fresh copy | `run: X1a`, `run: X1b`, `run: X1c`, `run: X1d` |
 | 305 | 44-46 | Every item stated in the three appendices has its witness in the filled witness tables | `run: X4a`, `run: X4b`, `run: X4c` |
 | 306 | 43 | "Mocking reference: unittest.mock and pytest-mock" says that its stub is pytest-mock's sense of the word | `run: X4a` |
+| 307 | 46 | The reader that asks the shipment for the amount due and the reader that reaches through to the invoice give the same remittance line while there is no credit | `test_both_readers_give_the_same_line_without_credits`, `source: https://www2.ccs.neu.edu/research/demeter/demeter-method/LawOfDemeter/general-formulation.html` |
+| 308 | 46 | Once a credit is granted, only the reader that asks the shipment reports the amount due; the chained reader reports the invoice total | `test_a_credit_reaches_only_the_reader_that_asks_the_shipment`, `test_the_amount_due_subtracts_the_credits` |
+| 309 | 46 | The shipped reader's source names `amount_due` and `consignment_id`; the chained reader's names `consignment_id`, `invoice` and `total` | `test_each_reader_names_the_attributes_it_depends_on`, `source: https://www2.ccs.neu.edu/research/demeter/demeter-method/LawOfDemeter/object-formulation.html` |
+| 310 | 46 | Money refuses to add or subtract another currency, an invoice totals its lines, and a shipment settles only for the amount due | `test_an_invoice_totals_its_lines`, `test_lines_in_two_currencies_have_no_total`, `test_a_credit_in_another_currency_is_refused`, `test_settle_accepts_the_amount_due`, `test_settle_refuses_any_other_payment` |
+| 311 | 46 | mypy `--strict`, ruff and the idiom scan pass the member, three runs and one reverse-order run with the same count, and every deletion row fails its named tests | `run: X1d` |
+| 312 | 46 | The final project reads `shipment.invoice.total` in its acceptance helper and `self._plan.sailing.origin` in its desk, and grants no credits | `run: _plans/evidence/r21-demeter-member.md` |
 
-No legacy rows are carried. Rows 199 to 211 change status only (decision 14).
+No legacy rows are carried. Rows 199 to 211 change status only (decision 14). Rows 307 to 312 were added 2026-11-07 (O1).
 
 ## Corrections after the build
 
@@ -481,8 +578,9 @@ Lessons carried from r11-r20, which this plan applies up front:
 
 `S=~/.claude/skills/lgtm-professional-voice/scripts/scan.sh` throughout.
 
-1. `bash scripts/verify.sh` prints `verify: all steps passed`; `uv lock --check` passes and `uv.lock` is unchanged; no `examples/` or `spikes/` file changes in r21.
-2. Every test name cited in rows 279 to 303 and in the three witness tables is defined exactly once across `examples/*/tests`, and every one passes in X1's fresh-copy runs (three forward, one reverse) with the same count.
+1. `bash scripts/verify.sh` prints `verify: all steps passed`; `uv lock --check` passes and the only `uv.lock` change is the new member; the only `examples/` change is the new member, and no `spikes/` file changes (amended 2026-11-07, O1).
+1a. The F member passes `uv run pytest` and `uv run mypy --strict src tests` on three consecutive runs and once in reverse file order, with the same pass count, from the member directory and from the root; a whole-repo `uv run pytest --co -q` collects with no error. Its `src` grep (Example spec, rejected list) prints nothing; its tests use no `time.`, `random`, `sleep`, `datetime`, `socket` or `urllib`; every assertion compares an exact value, list or message; `_chained_remittance` appears only in `tests/conftest.py`; every deletion row fails its named tests (X1d quotes the line). The idiom scan is 0 ban-tier over `src` and `tests`.
+2. Every test name cited in rows 279 to 303 and 307 to 311 and in the three witness tables is defined exactly once across `examples/*/tests`, and every one passes in X1's fresh-copy runs (three forward, one reverse) with the same count.
 3. Every D row's test is an instance of the fetched page's definition, with its one-line reason in X1a; Fake Object is kept or cut by X1a.
 4. Every E cell other than Pattern and Chapter is found by `grep -F` in the chapter its row names (after link-text substitution), as X1b records and X5 re-checks; no cell is reworded.
 5. Every F row names its chapter sentence, its tests and its source; no principle of decision 5's cut list appears in reader text.
@@ -505,11 +603,12 @@ Lessons carried from r11-r20, which this plan applies up front:
 15. `python3 scripts/host_ids.py check` exits 0. No scratch or home path appears in any tracked file.
 16. Attribution: every quotation is exact, attributed and stops where the page's sentence stops; books by title only and only books already in `bibliography.html`; the xunitpatterns.com pages are credited as the author's pre-publication text; nothing is copied beyond the quoted sentences.
 17. Claims:
+    - F's Law of Demeter section names the final project's lines only as decision 16 states, with no claim beyond the code.
     - Every factual sentence maps to a named test, a `run:` token, an evidence file line, a chapter sentence or a fetched source URL linked in the appendix, in the prose agent's claims table.
     - No outcome statistic: `grep -niE "percent|%|most (teams|projects|developers)|productiv|in production"` over the three appendices prints nothing outside code.
-    - `validate.py`, `--self-test` and `--claims` exit 0 with rows 279 to 306 resolved; `check_stale_versions` reports nothing for the three appendices.
-18. `scripts/site-build.sh` succeeds and `git status` is clean afterwards (`Gemfile.lock` unchanged). `_data/diagrams.yml` has 41 entries, unchanged.
-19. Reconciliation rows 279 to 306 are `verified` or `adjusted` with evidence; rows 199 to 211 are `verified (r17 ...)` per decision 14; no other row changes.
+    - `validate.py`, `--self-test` and `--claims` exit 0 with rows 279 to 312 resolved; `check_stale_versions` reports nothing for the three appendices.
+18. `chapters.toml` 46 has `has_example = true`, 44 and 45 `false`; the card `_examples/46-appendix-f-programming-principles.md` renders. `scripts/site-build.sh` succeeds and `git status` is clean afterwards (`Gemfile.lock` unchanged). `_data/diagrams.yml` has 41 entries, unchanged.
+19. Reconciliation rows 279 to 312 are `verified` or `adjusted` with evidence; rows 199 to 211 are `verified (r17 ...)` per decision 14; no other row changes.
 20. CI `ci-ok` is green on the PR; `ci.yml` is unchanged. Merge happens only after the owner's explicit approval; the hub PR only after a second approval.
 21. Test counts in prose and handbacks come from a fresh pytest summary line.
 22. `bibliography.html` keeps its structure; the removed rows leave no dangling reference (`grep -n "Mythical\|Code Complete"` over `_docs/` and `bibliography.html` prints nothing unless decision 6's alternative is taken).
@@ -530,4 +629,7 @@ Lessons carried from r11-r20, which this plan applies up front:
 - **Word budgets.** E will sit far below 1,900 (warning, reported). D and F may too; never pad.
 - **Bibliography and hub.** Removing two books changes a page the hub links; the hub PR is separate and owner-approved. If the owner keeps them, criterion 22 changes.
 - **Overlap.** The likeliest defect is D re-teaching ch11's doubles table or C's API, or F re-teaching ch05; criterion 11 and X5 check it.
+- **The member breaking its own rule.** A `src` line in the member that chains past an immediate part would contradict F; X1d greps for it, and X5 re-reads `billing.py`.
+- **Attribute-name witness scope.** Test 9 measures the names a reader's own source uses, not the calls made inside them; F says that, and doesn't claim the test detects every violation of the object form.
+- **`uv.lock` races.** X1d is the only step that changes `uv.lock`.
 - **Nothing upstream.** No finding in r21 goes to a project without the owner, through `lgtm-issue-reporting`.
