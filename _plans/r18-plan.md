@@ -538,8 +538,8 @@ Step ids are `U*` (decision 0). Only `U1a`, `U1b`, `U5a` and `U5b` are cited as 
 | U1a | ch37 member, bench and its two recorded outputs per build, card and README; one `uv lock`; three green runs and one reverse-order run on the default build, one green run on 3.15t (`.venv-ft`, decision 2); the deletion table and the static mutation run, each in a fresh scratch copy (no `.venv`, `uv sync --locked --all-packages`, confirm `__file__`), deleted after use | U0 | done |
 | U1b | ch38 member, card and README; one `uv lock` after U1a; three green runs plus one reverse-order run, one on 3.15t; the deletion table; the static mutation runs. Adds the `free-threaded` job to `ci.yml` and to `ci-ok`'s `needs` (decision 2) | U1a | done |
 | U2 | Witness results into rows 212-229. `_plans/evidence/r18-gil-benchmark.md` (scrubbed bench outputs, dated, labelled example runs). The dated r18 note in `_plans/spikes.md` (evidence B-J, decisions 5, 6 and 12). A failed witness changes the thesis before prose. Every message, count or value that differs from Planning evidence goes in "Corrections after the build" | U1b | done |
-| U3 | Two figures, specs `diagrams/specs/37-*.py` and `38-*.py`, and `_data/diagrams.yml` (single owner; 39 entries). Figures 00-36 unchanged. Every name drawn exists in `src`, conftest, the tests or the standard library | U2 | todo |
-| U4 | ch37-38 `status = "drafted"` (`kind` stays `hands-on`) | U3 | todo |
+| U3 | Two figures, specs `diagrams/specs/37-*.py` and `38-*.py`, and `_data/diagrams.yml` (single owner; 39 entries). Figures 00-36 unchanged. Every name drawn exists in `src`, conftest, the tests or the standard library | U2 | done |
+| U4 | ch37-38 `status = "drafted"` (`kind` stays `hands-on`) | U3 | done |
 | U5a | ch37 prose agent: re-fetch every source and quote exactly (including the `sys.getswitchinterval` sentence); run both experiments twice in fresh scratch copies with the stated filter; quote the recorded bench, never a fresh unrecorded run; scrub before quoting; hand back the sources checked and a per-paragraph claims table that marks each sentence as test, source or example run | U3, U4 | todo |
 | U5b | ch38 prose agent, in parallel with U5a, with the same duties, plus fetching the `contextlib` sentences | U3, U4 | todo |
 | U6 | Opus validation, with up to two repair rounds. After every cut: a seam scan and a dependent-sentence re-read. Also: close-to-objective mapping, the excerpt check, every speed sentence names its build and is labelled an example run (criterion 20), pointer promises (criterion 11), the cross-language and outcome greps | U5a, U5b | todo |
@@ -580,6 +580,7 @@ Legacy rows carried (U0 notes them "r18"; U2 sets the status):
 - Row 23 (deterministic async tests need no sleep): **verified (r18)** by criterion 2's grep and three runs.
 
 ## Corrections after the build
+- Step U3: figures 37 and 38 (39 entries). Scope words and the untested GIL clause were dropped from the ch37 bar. In figure 38 the orchestrator removed the arrow from `handling_events` to `AsyncSignal.publish` and reworded the caption's "feeds tracking events to async subscribers": no code or test connects the feed to the signal. `cheapest` and `run_commands` stand alone, with no arrows.
 
 The orchestrator records here every handback that differs from this plan: messages, counts, which tests an experiment fails, word counts, declined findings, changed prompt wording.
 
