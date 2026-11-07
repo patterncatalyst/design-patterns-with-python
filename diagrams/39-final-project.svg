@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 820" font-family="'Red Hat Text', system-ui, sans-serif" role="img">
+<defs><marker id="a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#555"/></marker><marker id="am" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#b8650a"/></marker></defs>
+<rect x="40" y="30" width="420" height="50" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+<text x="250.0" y="60.5" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">BookingRequest</text>
+<rect x="40" y="110" width="420" height="56" rx="9" fill="#fff8ef" stroke="#e8870c" stroke-width="2"/>
+<text x="250.0" y="143.5" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">BookingDesk.ship (Facade)</text>
+<rect x="40" y="190" width="420" height="50" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+<text x="250.0" y="220.5" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">quote: PricingRule</text>
+<rect x="40" y="266" width="420" height="50" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+<text x="250.0" y="296.5" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">StowagePlan.reserve, undo: release</text>
+<rect x="40" y="342" width="420" height="50" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+<text x="250.0" y="372.5" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">CarrierGateway.book, undo: cancel</text>
+<rect x="40" y="418" width="420" height="50" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+<text x="250.0" y="448.5" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">clear: ClearanceStage chain</text>
+<rect x="40" y="494" width="420" height="50" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+<text x="250.0" y="524.5" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">undo.pop_all(): commit</text>
+<rect x="40" y="570" width="420" height="50" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+<text x="250.0" y="600.5" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">Invoice from LineItems</text>
+<rect x="40" y="646" width="420" height="50" rx="9" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+<text x="250.0" y="676.5" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">Signal.publish(BOOKED) to TrackingHistory</text>
+<rect x="560" y="268" width="320" height="122" rx="9" fill="#fff8ef" stroke="#e8870c" stroke-width="2"/>
+<text x="720.0" y="334.5" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">ExitStack holds the undo callbacks</text>
+<rect x="560" y="418" width="320" height="50" rx="9" fill="#ffffff" stroke="#999999" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="720.0" y="448.5" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">Held: cancel, then release; nothing published</text>
+<rect x="40" y="736" width="840" height="56" rx="9" fill="#f1f5f9" stroke="#64748b" stroke-width="2"/>
+<text x="460.0" y="769.5" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">build_desk: the one place that names FastlineGateway</text>
+<path d="M250,80 L250,110" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<path d="M250,166 L250,190" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<path d="M250,240 L250,266" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<path d="M250,316 L250,342" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<path d="M250,392 L250,418" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<path d="M250,468 L250,494" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<path d="M250,544 L250,570" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<path d="M250,620 L250,646" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<path d="M460,291 L560,291" fill="none" stroke="#b8650a" stroke-width="2" marker-end="url(#am)"/>
+<path d="M460,367 L560,367" fill="none" stroke="#b8650a" stroke-width="2" marker-end="url(#am)"/>
+<path d="M460,443 L560,443" fill="none" stroke="#555" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#a)"/>
+</svg>

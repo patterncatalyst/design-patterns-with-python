@@ -460,8 +460,8 @@ Step ids are `V*` (decision 0). Only `V1a`, `V1b`, `V5a` and `V5b` are cited as 
 | V1a | ch39 member, card and README; one `uv lock`; three green runs and one reverse-order run; the deletion table and the static mutation run, each in a fresh scratch copy (no `.venv`, `uv sync --locked --all-packages`, confirm `__file__`), deleted after use | V0 | done |
 | V1b | ch40 member, drafts, card and README; one `uv lock` after V1a; three green runs plus one reverse-order run; the deletion table; the static mutation run | V1a | done |
 | V2 | Witness results into rows 232-247. `_plans/evidence/r19-sidebar-census.md` (dated: the grep commands, sidebars per doc, each with a nested `>` prompt, the docs with none). The dated r19 note in `_plans/spikes.md` (evidence B to J). A failed witness changes the thesis before prose. Every message, count or value that differs from Planning evidence goes in "Corrections after the build" | V1b | done |
-| V3 | Two figures, specs `diagrams/specs/39-*.py` and `40-*.py`, and `_data/diagrams.yml` (single owner; 41 entries). Figures 00-38 unchanged. Every name drawn exists in `src`, conftest, the tests or the standard library | V2 | todo |
-| V4 | ch39-40 `status = "drafted"` (kinds unchanged) | V3 | todo |
+| V3 | Two figures, specs `diagrams/specs/39-*.py` and `40-*.py`, and `_data/diagrams.yml` (single owner; 41 entries). Figures 00-38 unchanged. Every name drawn exists in `src`, conftest, the tests or the standard library | V2 | done |
+| V4 | ch39-40 `status = "drafted"` (kinds unchanged) | V3 | done |
 | V5a | ch39 prose agent: re-fetch every source and quote exactly; run both experiments twice in fresh scratch copies with the stated filter; scrub before quoting; hand back the sources checked and a per-paragraph claims table that marks each sentence as test, source or run | V3, V4 | todo |
 | V5b | ch40 prose agent, in parallel with V5a, with the same duties, plus a per-sentence check against decision 5's list: every sentence that mentions a model, an assistant or a reply is either about the book's own code and drafts or an attributed OWASP quotation | V3, V4 | todo |
 | V6 | Opus validation, with up to two repair rounds. After every cut: a seam scan and a dependent-sentence re-read. Also: close-to-objective mapping, the excerpt check, the not-re-teaching check (criterion 11), decision 5's grep (criterion 20), the cross-language and outcome greps | V5a, V5b | todo |
@@ -494,6 +494,7 @@ Legacy rows carried (V0 notes them "r19"; V2 sets the status):
 - Row 25 (typical LLM output is Java-in-Python and fails strict mypy or the idiom scan): expected **adjusted (r19)**: the claim about typical output is dropped, because it can't be made deterministic without calling a model (decision 5); the gate results for hand-written drafts are rows 239 to 244.
 
 ## Corrections after the build
+- Step V3: figures 39 and 40 (41 entries). Figure 40 draws the three gates in parallel, not as a chain: no code orders them. Only the shape review has a return arrow, because `review` is the one gate the tests pass to `propose`. Each gate box names the draft it reports, not "fails first". The captions drop the plan's scope words.
 
 The orchestrator records here every handback that differs from this plan: messages, counts, which tests an experiment fails, word counts, declined findings, changed prompt wording.
 
