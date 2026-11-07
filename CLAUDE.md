@@ -162,7 +162,7 @@ the one AI sidebar; "For deeper coverage" citing the hub's `books.yml` and this 
 - **`functools.cache` is not call-once under threads.** For a singleton, build at import time or
   use a Lock with a double check.
 - The natural `+=` lost update did not reproduce in 600 runs (measured on 3.14.10): claim it in prose only; force it
-  with a `between=` hook plus `Barrier` for the test.
+  with a `gap=` hook plus `Barrier` for the test.
 - `sleep(0)` task order is a CPython implementation detail: say so. Never assert that work
   finishes inside a timeout; `asyncio.timeout(0)` is the deterministic cancellation test.
 - uv inside a member does not see the root dev group (see Toolchain); pytest, ruff and mypy
