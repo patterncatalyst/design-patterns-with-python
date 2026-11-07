@@ -562,8 +562,8 @@ Step ids are `W*` (decision 0). Only `W1b`, `W1c`, `W4a`, `W4b` and `W4c` are ci
 | W4a | A prose agent, plus ch00's one sentence (decision 6): re-fetch every source and quote exactly; re-run any command whose output is quoted, in a fresh scratch copy, and match the run file; hand back witness table A filled with the observed witness per row and a per-paragraph claims table (test, run or source per sentence) | W3 | done |
 | W4b | B prose agent, in parallel with W4a, with the same duties for witness table B | W3 | done |
 | W4c | C prose agent, in parallel, with the same duties for witness table C, plus a check that every census row matches `r20-mock-census.md` | W3 | done |
-| W5 | Opus validation, with up to two repair rounds. After every cut: a seam scan and a dependent-sentence re-read. Also: every witness-table row checked against its witness (a sample of at least one in three re-run or re-fetched by the validator, all quoted output re-run), the excerpt check, the overlap check (criterion 11), the cross-language, outcome and stale-version greps | W4a, W4b, W4c | todo |
-| W6 | PR, `ci-ok` green, ask the owner before merge; squash-merge; tag `r20.x` on main; notes-only release | W5 | todo |
+| W5 | Opus validation, with up to two repair rounds. After every cut: a seam scan and a dependent-sentence re-read. Also: every witness-table row checked against its witness (a sample of at least one in three re-run or re-fetched by the validator, all quoted output re-run), the excerpt check, the overlap check (criterion 11), the cross-language, outcome and stale-version greps | W4a, W4b, W4c | done |
+| W6 | PR, `ci-ok` green, ask the owner before merge; squash-merge; tag `r20.x` on main; notes-only release | W5 | done |
 
 Reconciliation rows (step W0). The "How to verify" column uses resolvable tokens.
 
