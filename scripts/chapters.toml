@@ -366,7 +366,7 @@ slug = "40-working-with-ai-and-llm-tools"
 title = "Working with AI and LLM tools"
 part = 13
 kind = "argument"
-has_example = false
+has_example = true
 status = "stub"
 
 [[chapter]]

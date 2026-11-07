@@ -4,7 +4,7 @@ order: 40
 layout: tutorial
 sectionid: docs
 part: "putting-it-together"
-description: "Draft pending: Working with AI and LLM tools."
+description: "Three hand-written drafts of one pricing function, three gates (types and lint, shape rules, a behaviour oracle) and a model client behind a Protocol, tested with recorded replies."
 ---
 
 ## Learning objectives

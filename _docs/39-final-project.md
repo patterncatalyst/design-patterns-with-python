@@ -4,7 +4,7 @@ order: 39
 layout: tutorial
 sectionid: docs
 part: "putting-it-together"
-description: "Draft pending: Final project."
+description: "One booking through all seven domain areas: an acceptance test written first, undo in reverse on an ExitStack, publishing after the commit and a single composition root."
 ---
 
 ## Learning objectives

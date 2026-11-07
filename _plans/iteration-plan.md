@@ -36,8 +36,8 @@ PR, squash-merge with branch deletion, an `rNN.x` tag and a notes-only release.
 | r15 | Ch 31-32: dict dispatch + EAFP, anti-patterns |
 | r16 | Ch 33-34: seams, dependency-breaking |
 | r17 | Ch 35-36: Fowler vs Feathers, refactor or rewrite |
-| r18 (active) | Ch 37-38: the GIL and performance; asyncio and the patterns |
-| r19 | Ch 39-40: final project, working with AI and LLM tools |
+| r18 | Ch 37-38: the GIL and performance; asyncio and the patterns |
+| r19 (active) | Ch 39-40: final project, working with AI and LLM tools |
 | r20 | Appendices A-C |
 | r21 | Appendices D-F |
 | r22-r24 | Decks 101, 201, 301 |
@@ -178,18 +178,18 @@ PR, squash-merge with branch deletion, an `rNN.x` tag and a notes-only release.
 | PDP-136a | Ch36 Refactor or rewrite: example | r17 | done |
 | PDP-136b | Ch36 Refactor or rewrite: figure | r17 | done |
 | PDP-136c | Ch36 Refactor or rewrite: prose | r17 | done |
-| PDP-137a | Ch37 The GIL and performance: example | r18 | active |
-| PDP-137b | Ch37 The GIL and performance: figure | r18 | active |
-| PDP-137c | Ch37 The GIL and performance: prose | r18 | active |
-| PDP-138a | Ch38 asyncio and the patterns: example | r18 | active |
-| PDP-138b | Ch38 asyncio and the patterns: figure | r18 | active |
-| PDP-138c | Ch38 asyncio and the patterns: prose | r18 | active |
-| PDP-139a | Ch39 Final project: example | r19 | todo |
-| PDP-139b | Ch39 Final project: figure | r19 | todo |
-| PDP-139c | Ch39 Final project: prose | r19 | todo |
-| PDP-140a | Ch40 Working with AI and LLM tools: example | r19 | todo |
-| PDP-140b | Ch40 Working with AI and LLM tools: figure | r19 | todo |
-| PDP-140c | Ch40 Working with AI and LLM tools: prose | r19 | todo |
+| PDP-137a | Ch37 The GIL and performance: example | r18 | done |
+| PDP-137b | Ch37 The GIL and performance: figure | r18 | done |
+| PDP-137c | Ch37 The GIL and performance: prose | r18 | done |
+| PDP-138a | Ch38 asyncio and the patterns: example | r18 | done |
+| PDP-138b | Ch38 asyncio and the patterns: figure | r18 | done |
+| PDP-138c | Ch38 asyncio and the patterns: prose | r18 | done |
+| PDP-139a | Ch39 Final project: example | r19 | active |
+| PDP-139b | Ch39 Final project: figure | r19 | active |
+| PDP-139c | Ch39 Final project: prose | r19 | active |
+| PDP-140a | Ch40 Working with AI and LLM tools: example | r19 | active |
+| PDP-140b | Ch40 Working with AI and LLM tools: figure | r19 | active |
+| PDP-140c | Ch40 Working with AI and LLM tools: prose | r19 | active |
 | PDP-141 | Appendix A: Build and toolchain reference (uv, ruff, mypy) | r20 | todo |
 | PDP-142 | Appendix B: pytest reference | r20 | todo |
 | PDP-143 | Appendix C: pytest-mock and unittest.mock reference | r20 | todo |
@@ -227,3 +227,5 @@ PR, squash-merge with branch deletion, an `rNN.x` tag and a notes-only release.
 2026-11-06 (r17): PDP-135a to PDP-136c are active for r17 (chapters 35 and 36, Part 11). PDP-133a to PDP-134c are closed (r16 is tagged), r16 is closed and r17 is marked active in the roadmap. Earlier iterations keep their status.
 
 2026-11-06 (r18): PDP-137a to PDP-138c are active for r18 (chapters 37 and 38, Part 12). PDP-135a to PDP-136c are closed (r17 is tagged), r17 is closed and r18 is marked active in the roadmap. Earlier iterations keep their status.
+
+2026-11-07 (r19): PDP-139a to PDP-140c are active for r19 (chapters 39 and 40, Part 13). PDP-137a to PDP-138c are closed (r18 is merged as 3722ab8 and tagged r18.x), r18 is closed and r19 is marked active in the roadmap. Earlier iterations keep their status.
