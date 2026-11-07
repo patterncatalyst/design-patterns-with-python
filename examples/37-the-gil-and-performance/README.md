@@ -26,8 +26,9 @@ A coroutine that never awaits holds the event loop until it returns.
 
 ## The benchmark
 
-`bench/gil_bench.py` times the rating batch serially and through each pool, warm and cold, and
-times four waits serially, in threads and in asyncio. It is a measurement, not a test, and no test
+`bench/gil_bench.py` times the rating batch serially and through each pool, warm and cold, then
+repeats the batch with an integer-cents loop that mirrors `quote` with `int` in place of
+`Decimal`, and times four waits serially, in threads and in asyncio. It is a measurement, not a test, and no test
 asserts any of its figures. The recorded outputs are `bench/gil_bench.out.txt` (default build) and
 `bench/gil_bench.ft.out.txt` (free-threaded build). They name the interpreter, the build and a
 class of machine, never a model. Your figures will differ.
@@ -100,5 +101,5 @@ UV_PROJECT_ENVIRONMENT=.venv-ft uv sync --python 3.15t --locked --all-packages
   `no-any-return` error, and `build.py` is clean.
 
 The tests use no mocks and no patching. The two stowage races are forced by a barrier and a
-recording lock, the loop test by an `asyncio.Event`, and the waits sit under a ten second guard that
+recording lock, the loop test by an `asyncio.Event`, and the waits sit under a ten-second guard that
 a healthy run never reaches.

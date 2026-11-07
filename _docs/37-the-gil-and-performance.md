@@ -29,7 +29,7 @@ Read the figure from the top. `StowagePlan.reserve` ("pick slot, gap, store") ha
 
 ## Two builds, one question
 
-CPython now ships two builds. The glossary defines the lock as "The mechanism used by the CPython interpreter to assure that only one thread executes Python bytecode at a time." The [What's New page for the 3.14 release](https://docs.python.org/3/whatsnew/3.14.html) lists "PEP 779: Free-threaded Python is officially supported" and says "The free-threaded build of Python is now supported and no longer experimental." The build itself is specified in PEP 703, "Making the Global Interpreter Lock Optional in CPython". Which build is running decides what a thread pool can do, and a program can ask:
+CPython now ships two builds. The [glossary](https://docs.python.org/3/glossary.html) defines the lock as "The mechanism used by the CPython interpreter to assure that only one thread executes Python bytecode at a time." The [What's New page for the 3.14 release](https://docs.python.org/3/whatsnew/3.14.html) lists "PEP 779: Free-threaded Python is officially supported" and says "The free-threaded build of Python is now supported and no longer experimental." The build itself is specified in PEP 703, "Making the Global Interpreter Lock Optional in CPython". Which build is running decides what a thread pool can do, and a program can ask:
 
 <!-- fmt:off -->
 ```python
@@ -62,7 +62,7 @@ The smallest case is a counter on an object. This test-only method exists so tha
 ```
 <!-- fmt:on -->
 
-`test_an_attribute_increment_is_a_separate_load_add_and_store` disassembles it with `dis` and finds `LOAD_ATTR`, `BINARY_OP` and `STORE_ATTR`, in that order. The statement is three instructions with a gap between the read and the write. The reservation has the same shape, with a larger gap:
+`test_an_attribute_increment_is_a_separate_load_add_and_store` disassembles it with `dis` and finds `LOAD_ATTR`, `BINARY_OP` and `STORE_ATTR`, in that order. The read, the add and the write are separate instructions, with a gap between the read and the write. The reservation has the same shape, with a larger gap:
 
 <!-- fmt:off -->
 ```python
@@ -123,7 +123,7 @@ All three pools return the answers of the serial loop, in batch order, for a bat
 
 A lambda can't be pickled, so a process pool refuses one with `Can't pickle` (`test_a_process_pool_cannot_send_a_lambda`). The worker functions, `quote` and `append_reserved`, live in the package so that a worker can import them by name. The default start method for a process pool on Linux is `forkserver`: What's New in the 3.14 release says "On Unix platforms other than macOS, ‘forkserver’ is now the default start method for ProcessPoolExecutor (replacing ‘fork’)."
 
-The threading documentation says "However, the GIL limits the performance gains of threading when it comes to CPU-bound tasks, as only one thread can execute Python bytecode at a time." The interpreter pool says "Each interpreter has its own Global Interpreter Lock, which means code run with this executor has true multi-core parallelism." On the free-threaded build the glossary's entry on free threading applies to a thread pool: "A threading model where multiple threads can run Python bytecode simultaneously within the same interpreter." A thread pool is a third parallel option there, and what it does for a given loop is a measurement.
+The threading documentation says "However, the GIL limits the performance gains of threading when it comes to CPU-bound tasks, as only one thread can execute Python bytecode at a time." The interpreter pool's documentation says "Each interpreter has its own Global Interpreter Lock, which means code run with this executor has true multi-core parallelism." On the free-threaded build the glossary's entry on free threading applies to a thread pool: "A threading model where multiple threads can run Python bytecode simultaneously within the same interpreter." A thread pool is a third parallel option there, and what it does for a given loop is a measurement.
 
 ## Why asyncio doesn't help here
 
@@ -139,7 +139,7 @@ A coroutine hands the event loop back at an `await`. This one has none:
 ```
 <!-- fmt:on -->
 
-A second coroutine waits for `started` and then logs "tracking polled". Once `started` is set, tracking could run, and it doesn't until rating returns: the log reads `["rating started", "rating finished", "tracking polled"]` (`test_a_coroutine_that_never_awaits_holds_the_loop_until_it_returns`). Adding an `await asyncio.sleep(0)` before the `quote` call makes the test fail. The [asyncio development guide](https://docs.python.org/3/library/asyncio-dev.html) states the rule: "Blocking (CPU-bound) code should not be called directly." Its example is that "For example, if a function performs a CPU-intensive calculation for 1 second, all concurrent asyncio Tasks and IO operations would be delayed by 1 second." The patterns that run on the loop are in [asyncio and the patterns]({{ '/docs/38-asyncio-and-the-patterns/' | relative_url }}).
+A second coroutine waits for `started` and then logs "tracking polled". Once `started` is set, tracking could run, and it doesn't until rating returns: the log reads `["rating started", "rating finished", "tracking polled"]` (`test_a_coroutine_that_never_awaits_holds_the_loop_until_it_returns`). Adding an `await asyncio.sleep(0)` before the `quote` call makes the test fail. The [asyncio development guide](https://docs.python.org/3/library/asyncio-dev.html) states the rule: "Blocking (CPU-bound) code should not be called directly." It goes on: "For example, if a function performs a CPU-intensive calculation for 1 second, all concurrent asyncio Tasks and IO operations would be delayed by 1 second." The patterns that run on the loop are in [asyncio and the patterns]({{ '/docs/38-asyncio-and-the-patterns/' | relative_url }}).
 
 ## What the benchmark measured
 
@@ -194,7 +194,7 @@ waits, asyncio             0.201 s (4.0x)
 The ratio is serial time over pool time, so 3.6x means 3.6 times as fast. A second run of each build agreed with these within about 0.4 on every ratio, and your figures will differ. In these runs:
 
 - On the default build the thread pool ran at 1.0 times serial on both CPU-bound loops, as the threading documentation predicts.
-- On the free-threaded build the integer loop ran at 3.9 times serial in the thread pool, and the `Decimal` loop at 0.5 times, which is twice as long as serial. No cause is claimed for the second result. The how-to says "While not all software will benefit from this automatically, programs designed with threading in mind will run faster on multi-core hardware." Two loops on one build moved in opposite directions, so measure your loop.
+- On the free-threaded build the integer loop ran at 3.9 times serial in the thread pool, and the `Decimal` loop at 0.5 times, nearly twice as long as serial (1.648 against 0.878 seconds). No cause is claimed for the second result. The how-to says "While not all software will benefit from this automatically, programs designed with threading in mind will run faster on multi-core hardware." Two loops on one build moved in opposite directions, so measure your loop.
 - Process and interpreter pools ran at about 3.4 to 3.7 times serial, warm, on both builds. The cold interpreter pool on the short integer loop ran at 1.3 times on the default build and 0.8 times on the free-threaded one, where start-up and shut-down weigh against 0.132 or 0.159 seconds of work.
 - Four waits ran at 4.0 times serial in threads and in asyncio on both builds.
 
@@ -206,9 +206,9 @@ Pick by the work and the build. Waits suit threads or asyncio on either build, a
 
 <blockquote class="ai-sidebar" markdown="1">
 
-**Parallel code that assumes the GIL.** A request to "speed up rating with threads" names neither the build nor what the threads share, and a shared write that relies on one thread running at a time can lose updates on the free-threaded build. Paste a prompt that makes the sharing explicit:
+**Parallel code that assumes the GIL.** A request to "speed up rating with threads" names neither the build nor what the threads share, and on the free-threaded build a shared write can lose updates. Paste a prompt that makes the sharing explicit:
 
-> Rate the batch through `rate_batch` with a `PoolFactory` from `POOLS`, passing consignments in and returning quotes, with no shared mutable state. Where state must be shared, as in `StowagePlan.reserve`, hold one lock across the read and the write, and add a test that parks two threads in the gap with a `threading.Barrier`. Report timings from `bench/gil_bench.py` on both builds, not from a test.
+> Rate the batch through `rate_batch` with a `PoolFactory` from `POOLS`, with no shared mutable state. Where state must be shared, as in `StowagePlan.reserve`, hold one lock across the read and the write, and add a test that parks two threads in the gap with a `threading.Barrier`. Report timings from `bench/gil_bench.py` on both builds, not from a test.
 
 If a test asserts a duration, ask which build and machine it was written for.
 

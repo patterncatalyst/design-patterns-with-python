@@ -2,7 +2,7 @@
 comparison form of the signal.
 
 Tests wait on events, barriers, queues and joins (one test yields once with ``sleep(0)``), under a
-ten second guard that a healthy run never reaches.
+ten-second guard that a healthy run never reaches.
 """
 
 import asyncio

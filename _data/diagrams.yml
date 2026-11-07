@@ -332,5 +332,7 @@
   section: "Ch. 38"
   title: A carrier session, a feed, subscribers, quotes and commands
   caption: >-
-    A carrier session closes its feed when its body ends, subscribers run under gather, quotes run in a task group and commands drain from a queue. An await is a point where
-    another task can run, and cancellation still closes the feed.
+    A carrier session closes its feed when its body ends, subscribers run under
+    gather, quotes run in a task group and commands drain from a queue. An await
+    is a point where another task can run, and cancellation still closes the
+    feed.

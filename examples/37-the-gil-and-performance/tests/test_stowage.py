@@ -51,7 +51,7 @@ def test_a_lock_across_read_and_write_gives_each_thread_its_own_slot(
     slots = two_threads(plan)
 
     assert slots == [SlotId(1, 1, 1), SlotId(1, 1, 2)]
-    assert dict(plan.reservations).keys() == {SlotId(1, 1, 1), SlotId(1, 1, 2)}
+    assert sorted(plan.reservations) == [SlotId(1, 1, 1), SlotId(1, 1, 2)]
     assert recording_lock.second_caller
 
 

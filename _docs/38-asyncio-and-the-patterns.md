@@ -20,13 +20,13 @@ By the end of this chapter you can:
 
 ## Why this matters
 
-Tracking events arrive from a carrier's live feed, and quotes come from two carriers at once. Both are waiting on something outside the process, which is the case asyncio is for. The patterns that handle them keep their intent under asyncio: a feed is still iterated, a session still closes what it opened, a signal still tells its subscribers. What moves is their edges. A task gives up the loop at each `await`, a coroutine has to be awaited to produce anything, and cancellation arrives as an exception that cleanup has to survive.
+Tracking events arrive from a carrier's live feed, and quotes come from two carriers at once. Both are waiting on something outside the process, which is the case asyncio is for. The patterns that handle them keep their intent under asyncio: a feed is still iterated, a session still closes what it opened, a signal still tells its subscribers. What moves is their edges. Another task can run only where this one awaits, a coroutine has to be awaited to produce anything, and cancellation arrives as an exception that cleanup has to survive.
 
 The first edge is the easiest to hit. `FastlineSource().quote(consignment)` is a coroutine and not a `RateQuote` until something awaits it (`test_calling_a_coroutine_function_without_await_gives_a_coroutine_not_a_quote`). A quote that is assigned and never awaited doesn't fail where it was written. The runtime warns when the coroutine is collected (`test_a_quote_that_is_never_awaited_warns_when_it_is_collected`), and mypy reports the cases it can see (`test_mypy_reports_a_quote_returned_without_await`).
 
 {% include excalidraw.html name="38-asyncio-and-the-patterns" caption="Figure 38.1: A carrier session closes its feed when its body ends, subscribers run under gather, quotes run in a task group and commands drain from a queue. An await is a point where another task can run, and cancellation still closes the feed." %}
 
-Read the figure from the top left. An accent box, `carrier_session` ("open the feed; close it when the body ends"), has one arrow down to `handling_events` ("an async generator over the feed"). Below, `AsyncSignal.publish` ("gather runs the subscribers; failures raise as a group") has a dashed arrow to a dashed box, `_TaskGroupSignal` ("one failing subscriber cancels the rest"). In a column on the right, `cheapest` ("TaskGroup over RateSource", "AircoSource runs the SDK in a thread") and `run_commands` ("a Queue until shutdown") stand without arrows. A bar across the bottom reads "an await is where another task can run" and "cancellation still closes the feed".
+Read the figure from the top left. An accent box, `carrier_session` ("open the feed; close it when the body ends"), stands above `handling_events` ("an async generator over the feed"), with no arrow between them. Below, `AsyncSignal.publish` ("gather runs the subscribers; failures raise as a group") has a dashed arrow to a dashed box, `_TaskGroupSignal` ("one failing subscriber cancels the rest"). In a column on the right, `cheapest` ("TaskGroup over RateSource", "AircoSource runs the SDK in a thread") and `run_commands` ("a Queue until shutdown") stand without arrows. A bar across the bottom reads "an await is where another task can run" and "cancellation still closes the feed".
 
 ## What an await changes
 
@@ -39,7 +39,7 @@ Calling a coroutine function builds a coroutine and runs none of it. mypy knows 
 
 A call whose result is dropped gets `[unused-coroutine]` (`test_mypy_reports_a_quote_call_whose_result_is_never_used`). Adding the `await` empties both lists. `_ = source.quote(consignment)` is accepted under `--strict`, so for that form the runtime warning is the check that remains (`test_mypy_accepts_a_coroutine_bound_to_underscore` asserts both halves). The [Developing with asyncio](https://docs.python.org/3/library/asyncio-dev.html) page shows the warning's wording as `RuntimeWarning: coroutine 'test' was never awaited`, and the test matches it for `FastlineSource.quote`.
 
-The warning is raised while the coroutine is being finalised, which is after the code that dropped it has moved on. In a recorded run on Python 3.15.2, a scratch test that called `source.quote(...)` and discarded the result failed under the repository's `filterwarnings = ["error"]` with `PytestUnraisableExceptionWarning: Exception ignored while finalizing coroutine`. A dropped task is a related slip: the [asyncio tasks](https://docs.python.org/3/library/asyncio-task.html) page says "The event loop only keeps weak references to tasks.", and ruff's [RUF006](https://docs.astral.sh/ruff/rules/asyncio-dangling-task/) "Checks for asyncio.create_task and asyncio.ensure_future calls that do not store a reference to the returned result."
+The warning is raised while the coroutine is being finalised, which is after the code that dropped it has moved on. A scratch test on Python 3.15.2 that called `source.quote(...)` and discarded the result failed under the repository's `filterwarnings = ["error"]` with `PytestUnraisableExceptionWarning: Exception ignored while finalizing coroutine`. A dropped task is a related slip: the [asyncio tasks](https://docs.python.org/3/library/asyncio-task.html) page says "The event loop only keeps weak references to tasks.", and ruff's [RUF006](https://docs.astral.sh/ruff/rules/asyncio-dangling-task/) "Checks for asyncio.create_task and asyncio.ensure_future calls that do not store a reference to the returned result."
 
 The second edge is the switch point. The Developing with asyncio page says: "While a Task is running in the event loop, no other Tasks can run in the same thread." It continues: "When a Task executes an await expression, the running Task gets suspended, and the event loop executes the next Task." A read-modify-write that spans an `await` can therefore interleave with another task's. `StowagePlan.reserve` picks a slot from the size of its reservations, awaits a `confirm` callback, then stores. With no lock and an `asyncio.Barrier` as `confirm`, five tasks all read before any stores, so five calls return `SlotId(1, 1, 1)` and one reservation remains (`test_an_await_between_read_and_write_double_books_a_slot`). The default `asyncio.Lock` around the three steps gives tiers 1 to 5 (`test_an_asyncio_lock_gives_each_task_its_own_slot`). Removing `await confirm()` makes the double booking test fail: without a suspension point, each task finishes `reserve` before the next starts. For threads, see [The GIL and performance]({{ '/docs/37-the-gil-and-performance/' | relative_url }}).
 
@@ -93,7 +93,7 @@ async def carrier_session(feed: CarrierFeed) -> AsyncIterator[CarrierFeed]:
         await feed.close()
 ```
 
-[Context managers: deterministic cleanup]({{ '/docs/10-context-managers/' | relative_url }}) covers what release means and the order across several resources. What asyncio adds is cancellation. The asyncio tasks page says "When a task is cancelled, asyncio.CancelledError will be raised in the task at the next opportunity. It is recommended that coroutines use try/finally blocks to robustly perform clean-up logic." The `finally` does that. The feed closes when the body raises a `LookupError` (`test_the_session_closes_the_feed_when_its_body_raises`). It also closes when `asyncio.timeout(0)` cancels a body that waits on a feed that never answers, and the `TimeoutError` arrives outside the session (`test_the_session_closes_the_feed_when_its_task_is_cancelled`). These tests cancel with `asyncio.timeout(0)`, which needs no wait on a clock.
+[Context managers: deterministic cleanup]({{ '/docs/10-context-managers/' | relative_url }}) covers what release means and the order across several resources. What asyncio adds is cancellation. The asyncio tasks page says "When a task is cancelled, asyncio.CancelledError will be raised in the task at the next opportunity. It is recommended that coroutines use try/finally blocks to robustly perform clean-up logic." The `finally` does that. The feed closes when the body raises a `LookupError` (`test_the_session_closes_the_feed_when_its_body_raises`). It also closes when `asyncio.timeout(0)` cancels a body that waits on a feed that never answers, and the `TimeoutError` arrives outside the session (`test_the_session_closes_the_feed_when_its_task_is_cancelled`). The cancellation test uses `asyncio.timeout(0)`, which needs no wait on a clock.
 
 ## Strategy and Adapter: quoting carriers together
 
@@ -115,6 +115,7 @@ The Adapter survives, because AIRCO's SDK blocks and has to be fitted to that as
 class RateSource(Protocol):
     async def quote(self, consignment: Consignment, /) -> RateQuote: ...
 
+class AircoSource:
     async def quote(self, consignment: Consignment, /) -> RateQuote:
         cents = await asyncio.to_thread(
             self._client.price,
@@ -125,9 +126,9 @@ class RateSource(Protocol):
 ```
 <!-- fmt:on -->
 
-The second method belongs to `AircoSource`. In the test the SDK waits on a `threading.Event` that a coroutine on the loop sets, so the call returns when the loop runs while it waits (`test_the_adapter_runs_the_blocking_sdk_in_a_thread_while_the_loop_runs`). The asyncio tasks page gives the limit: "Due to the GIL, asyncio.to_thread() can typically only be used to make IO-bound functions non-blocking."
+In the test the SDK waits on a `threading.Event` that a coroutine on the loop sets, so the call returns only because the loop keeps running while the SDK waits (`test_the_adapter_runs_the_blocking_sdk_in_a_thread_while_the_loop_runs`). The asyncio tasks page gives the limit: "Due to the GIL, asyncio.to_thread() can typically only be used to make IO-bound functions non-blocking."
 
-`cheapest` asks the sources in a `TaskGroup` under `asyncio.timeout(within)` and takes the lowest total (`test_the_cheapest_quote_wins_across_an_async_and_an_adapted_source`). Structured concurrency isn't a GoF pattern; it's the mechanism these patterns now share. The tasks page says: "The first time any of the tasks belonging to the group fails with an exception other than asyncio.CancelledError, the remaining tasks in the group are cancelled." In the test, FASTLINE fails and AIRCO is cancelled, and the failure leaves as an exception group caught with `except*` (`test_a_failing_carrier_cancels_the_other_quote`). `first_quote` wants the first answer instead, and calls `group.cancel()` when one arrives (`test_the_first_answer_cancels_the_rest_of_the_group`). [What's New in Python 3.15](https://docs.python.org/3/whatsnew/3.15.html) lists it: "Added TaskGroup.cancel to allow early termination of a task group". The tasks page describes `cancel()` as "a non-exceptional, early exit of the task group". A zero timeout cancels a quote that never answers (`test_a_zero_timeout_cancels_a_quote_that_never_answers`).
+`cheapest` asks the sources in a `TaskGroup` under `asyncio.timeout(within)` and takes the lowest total (`test_the_cheapest_quote_wins_across_an_async_and_an_adapted_source`). Structured concurrency isn't a GoF pattern; it's the mechanism these patterns now share. The tasks page says: "The first time any of the tasks belonging to the group fails with an exception other than asyncio.CancelledError, the remaining tasks in the group are cancelled." In the test, FASTLINE fails and AIRCO is cancelled, and the failure leaves as an exception group caught with `except*` (`test_a_failing_carrier_cancels_the_other_quote`). `first_quote` wants the first answer instead, and calls `group.cancel()` when one arrives (`test_the_first_answer_cancels_the_rest_of_the_group`). [What's New in Python 3.15](https://docs.python.org/3/whatsnew/3.15.html) lists it: "Added TaskGroup.cancel to allow early termination of a task group". The tasks page describes `cancel()` as "a non-exceptional, early exit of the task group’s lifetime". A zero timeout cancels a quote that never answers (`test_a_zero_timeout_cancels_a_quote_that_never_answers`).
 
 ## Observer: every subscriber hears the event
 
@@ -182,7 +183,7 @@ A Command packages a request so it can be queued and run later. Under asyncio th
 ```
 <!-- fmt:on -->
 
-Commands run in order, and a failing one is logged while the worker carries on (`test_queued_commands_run_in_order_and_a_failure_is_recorded`). A worker that waits on `get()` needs a way to be told to stop. A `None` sentinel puts a value in the command type that the worker has to test for. `Queue.shutdown()` removes it. The [queue](https://docs.python.org/3/library/asyncio-queue.html) page says it will "Put a Queue instance into a shutdown mode." With the default `immediate=False` the worker drains what is queued and then stops (`test_shutdown_lets_the_worker_drain_the_queue_then_stop`). With `immediate=True` the pending commands are dropped (`test_an_immediate_shutdown_drops_the_pending_commands`), and the page cautions: "Use caution when using join() with immediate set to true." A shut-down queue refuses a new command with `QueueShutDown` (`test_a_shut_down_queue_refuses_a_new_command`).
+Commands run in order, and a failing one is logged while `run_commands` carries on (`test_queued_commands_run_in_order_and_a_failure_is_recorded`). A worker that waits on `get()` needs a way to be told to stop. A `None` sentinel puts a value in the command type that the worker has to test for. `Queue.shutdown()` removes it. The [queue](https://docs.python.org/3/library/asyncio-queue.html) page says it will "Put a Queue instance into a shutdown mode." With the default `immediate=False` the worker drains what is queued and then stops (`test_shutdown_lets_the_worker_drain_the_queue_then_stop`). With `immediate=True` the pending commands are dropped (`test_an_immediate_shutdown_drops_the_pending_commands`), and the page cautions: "Use caution when using join() with immediate set to true." A shut-down queue refuses a new command with `QueueShutDown` (`test_a_shut_down_queue_refuses_a_new_command`).
 
 ## When asyncio is the wrong tool
 
@@ -200,10 +201,10 @@ If a test awaits `asyncio.sleep` with a non-zero delay, ask which event it is wa
 
 ## Build, run, observe
 
-From the repository root, once, `uv sync --locked --all-packages`. Then, from the example directory, `uv run pytest` runs 26 test functions as 28 cases, and `uv run mypy --strict src tests` checks the example. Each experiment below changes a scratch copy and nothing else, after deleting the copy's `.venv` and running `uv sync --locked --all-packages` again. The first closes the feed by hand in `first_departure`. In `src/asyncio_patterns/feed.py`, replace `async with aclosing(handling_events(feed)) as events:` with `events = handling_events(feed)`, and dedent the `async for` loop below it by one level. Then:
+From the repository root, once, `uv sync --locked --all-packages`. Then, from the example directory, `uv run pytest` runs 26 test functions as 28 cases, and `uv run mypy --strict src tests` checks the example. Each experiment below runs in a scratch copy of the repository: delete the copy's `.venv`, run `uv sync --locked --all-packages` from its root and check that `asyncio_patterns.__file__` points into the copy. The first closes the feed by hand in `first_departure`. In `src/asyncio_patterns/feed.py`, replace `async with aclosing(handling_events(feed)) as events:` with `events = handling_events(feed)`, and dedent the `async for` loop below it by one level. Then:
 
 ```bash
-uv run pytest -q 2>&1 | grep -E '^(FAILED|ERROR|E {3}[^ ]|E {7}[^ ]|E {9}[^ ]|E {11}[^ ]|(tests|src)/.*Error$|[0-9]+ (passed|failed|errors?))'
+uv run pytest -q 2>&1 | grep -E '^(FAILED|ERROR|E {3}[^ ]|E {7}[^ ]|E {9}[^ ]|E {11}[^ ]|(tests|src)/.*Error$|[0-9]+ (passed|failed|skipped|errors?))'
 uv run mypy --strict src tests
 ```
 
@@ -232,10 +233,10 @@ Found 1 error in 1 file (checked 15 source files)
 
 ## What you can do now
 
-- Say what an `await` changes: a coroutine is a value until it is awaited, `test_mypy_reports_a_quote_returned_without_await` shows what mypy reports, and `test_an_await_between_read_and_write_double_books_a_slot` shows what a switch point costs.
+- Say what an `await` changes: a coroutine is a value until it is awaited, `test_mypy_reports_a_quote_returned_without_await` shows what mypy reports, `test_a_quote_that_is_never_awaited_warns_when_it_is_collected` shows what the runtime reports, and `test_an_await_between_read_and_write_double_books_a_slot` shows what a switch point costs.
 - Close a feed with `aclosing`: `handling_events` closes the feed in a `finally`, and `first_departure` closes it when the loop stops early.
 - Survive cancellation: `carrier_session` closes the feed, and `test_the_session_closes_the_feed_when_its_task_is_cancelled` proves it with `asyncio.timeout(0)`.
-- Quote together: `RateSource`, `AircoSource`, `cheapest` and `first_quote` stop the group on a failure, a first answer or a timeout.
+- Quote together: `RateSource` and `AircoSource` give every carrier one async interface, `cheapest` stops its group on a failure or a timeout, and `first_quote` calls `TaskGroup.cancel()` on the first answer.
 - Publish and queue: `AsyncSignal` runs every subscriber before raising one group, and `run_commands` stops on `Queue.shutdown()`.
 - Protect a read-modify-write: `StowagePlan.reserve` holds an `asyncio.Lock` across the `await`, and `test_an_asyncio_lock_gives_each_task_its_own_slot` shows five tasks taking five slots.
 
