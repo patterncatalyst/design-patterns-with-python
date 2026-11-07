@@ -5,7 +5,7 @@ title: "pytest reference"
 description: A pytest reference whose rows are tests, most of them run through an inner pytest session with pytester, which asserts the exact outcome counts.
 github_path: examples/42-appendix-b-pytest
 card_eyebrow: "Appendices · pytest reference"
-card_blurb: "Each row of the reference is a test on the pinned pytest. Strictness options, import modes and command-line options run in an inner session, and the test asserts its exact outcome counts."
+card_blurb: "Each row of the reference names its witness, and most are tests on the pinned pytest. Strictness options, import modes and command-line options run in an inner session, and the test asserts its exact outcome counts."
 card_title: "pytest run inside pytest"
 ---
 

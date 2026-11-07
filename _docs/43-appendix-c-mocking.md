@@ -26,7 +26,7 @@ A mock is the cheapest double to write and the one that checks the least. A plai
 2. **`create_autospec`, when the calls are the claim.** An autospec copies the names and signatures of its target, so a wrong name or a wrong call fails at run time. "Proving it works: pytest, pytest-mock, and mypy" has the tests.
 3. **A patch, only where the code takes no parameter.** The chapters titled [Seams in Python: monkeypatch, injection, and duck typing]({{ '/docs/33-seams-in-python/' | relative_url }}) and [Dependency-breaking techniques for modern Python]({{ '/docs/34-dependency-breaking-techniques/' | relative_url }}) show where a patch is the only seam, and how to replace it with a parameter.
 
-The reference that follows covers the second and third steps and the call checks they share. Each row has a test on pytest-mock 3.17.0 and Python 3.15.2 in `examples/43-appendix-c-mocking`. Mocks appear only in that example's tests, because the mock API is their subject; its `src` holds none.
+The reference that follows covers the second and third steps and the call checks they share. Each row names a test on pytest-mock 3.17.0 and Python 3.15.2, in `examples/43-appendix-c-mocking` or in the example of the chapter the row names. Mocks appear only in that example's tests, because the mock API is their subject; its `src` holds none.
 
 ## Where the book uses mocks
 
@@ -41,7 +41,7 @@ Sixteen files in six examples name `mocker`, `unittest.mock`, `create_autospec`,
 | | `tests/test_static.py` | `Mock`, `Mock(spec=...)`, `MagicMock(spec=...)` and `create_autospec` inside strings handed to mypy |
 | Seams in Python: monkeypatch, injection, and duck typing | `tests/test_patching.py` | `mocker.patch` by string, with `create=True` and `autospec=`; `unittest.mock.patch` as a context manager; `monkeypatch.setattr` |
 | | `tests/test_seams.py` | `monkeypatch.setattr` |
-| | `tests/test_static.py` | `unittest.mock.patch` as a context manager and a decorator, `MagicMock` and `AsyncMock` inside strings handed to mypy; `monkeypatch.setattr` |
+| | `tests/test_static.py` | `unittest.mock.patch` as a context manager and a decorator and `MagicMock` inside strings handed to mypy, `AsyncMock` in an expected `reveal_type` string; `monkeypatch.setattr` |
 | Dependency-breaking techniques for modern Python | `tests/conftest.py` | `monkeypatch.setattr`, taken with `request.getfixturevalue` |
 | This appendix | six test files | the rest of the API, below |
 
@@ -77,7 +77,7 @@ def test_an_assertion_typo_raises_instead_of_passing(mocker: MockerFixture) -> N
         unchecked.book.assret_called_once()
 ```
 
-On Python 3.15.2 `unsafe=True` applies to the mock it's passed to, not to that mock's children: the test's last line shows `unchecked.book.assret_called_once()` still raising. The error message for the refused name suggests a spec for the case where the name is meant to be an attribute, and that is the better fix than `unsafe`.
+On Python 3.15.2 `unsafe=True` applies to the mock it's passed to, not to that mock's children: the test's last line shows `unchecked.book.assret_called_once()` still raising.
 
 `wraps` suits a double that should record calls and still behave like the real gateway. Where the real object is yours to call, `mocker.spy`, below, does the same without a wrapper.
 
@@ -91,7 +91,7 @@ A double is configured before the code runs and read back afterwards. Configurat
 | --- | --- | --- |
 | `side_effect` as an iterable | Returns each item in turn, raises an item that is an exception, then raises `StopIteration` | `test_side_effect_iterable_returns_each_value_then_raises_stop_iteration` |
 | `side_effect` as a callable | Computes the return value from the call's arguments | `test_side_effect_callable_computes_the_return_value` |
-| `side_effect` as an exception | Drives a branch the happy path never reaches | `test_side_effect_drives_the_timeout_branch` (testing chapter) |
+| `side_effect` as an exception | Drives a branch the happy path never reaches | `test_side_effect_drives_the_timeout_branch` ([Proving it works: pytest, pytest-mock, and mypy]({{ '/docs/11-testing-with-pytest-pytest-mock-and-mypy/' | relative_url }})) |
 | `mock_calls` and `call` | Every call, child calls included, in order | `test_mock_calls_records_calls_in_order_with_call_objects` |
 | `called`, `call_count`, `call_args`, `call_args_list`, `ANY` | The last call, all calls, and a wildcard argument | `test_call_args_list_and_any_match_arguments` |
 | `assert_any_call` | Some call matched, wherever it falls | `test_call_args_list_and_any_match_arguments` |
@@ -124,7 +124,7 @@ def test_mock_calls_records_calls_in_order_with_call_objects(mocker: MockerFixtu
     assert fastline.mock_calls == [mock.call.quote(CN1, Decimal("20")), mock.call.book(CN1)]
 ```
 
-The call objects also show a limit. This test asserts on calls and never on the reference `book_cheapest` returns, so it can't say whether the customer got the right answer. The testing chapter lists that habit among the tests that prove less than they seem, and the rule there is to assert the result first.
+The call objects also show a limit. This test asserts on calls and never on the reference `book_cheapest` returns, so it can't say whether the customer got the right answer. [Proving it works: pytest, pytest-mock, and mypy]({{ '/docs/11-testing-with-pytest-pytest-mock-and-mypy/' | relative_url }}) lists that habit among the tests that prove less than they seem, and the rule there is to assert the result first.
 
 `assert_has_calls` is stricter than its name suggests, and looser than `mock_calls ==`. The `unittest.mock` page says "If any_order is false then the calls must be sequential." Extra calls before or after the run are allowed, and a gap isn't:
 
@@ -148,13 +148,13 @@ CN-1 then CN-3 skips CN-2, and CN-3 then CN-2 reverses the order, so both raise.
 
 ## Patching with mocker
 
-A patch replaces a name for the length of a test. It's the last choice in the order, so the rule that makes it work comes first. The `unittest.mock` page puts it this way: "The basic principle is that you patch where an object is looked up, which is not necessarily the same place as where it is defined." The tests in the seams chapter's example show it for `monkeypatch.setattr` (`test_patching_the_name_where_it_is_looked_up_replaces_the_carrier` and `test_patching_where_a_from_import_was_defined_leaves_the_engine_calling_the_real_carrier`) and for `unittest.mock.patch` (`test_unittest_mock_patch_follows_the_same_lookup_rule`), and that chapter owns the lesson. The `monkeypatch` fixture does the same job from pytest itself, and the chapter titled [pytest reference]({{ '/docs/42-appendix-b-pytest/' | relative_url }}) has its rows.
+A patch replaces a name for the length of a test. It's the last choice in the order, so the rule that makes it work comes first. The `unittest.mock` page puts it this way: "The basic principle is that you patch where an object is looked up, which is not necessarily the same place as where it is defined." The tests of [Seams in Python: monkeypatch, injection, and duck typing]({{ '/docs/33-seams-in-python/' | relative_url }}) show it for `monkeypatch.setattr` (`test_patching_the_name_where_it_is_looked_up_replaces_the_carrier` and `test_patching_where_a_from_import_was_defined_leaves_the_engine_calling_the_real_carrier`) and for `unittest.mock.patch` (`test_unittest_mock_patch_follows_the_same_lookup_rule`), and that chapter owns the lesson. The `monkeypatch` fixture does the same job from pytest itself, and the chapter titled [pytest reference]({{ '/docs/42-appendix-b-pytest/' | relative_url }}) has its rows.
 
 | Call | What it does | Test |
 | --- | --- | --- |
-| `mocker.patch("pkg.module.name")` | Replaces the name in the module the dotted string names | `test_autospec_refuses_a_call_with_the_wrong_signature` (seams chapter) |
-| `mocker.patch(..., create=True)` | Allows a name the module doesn't have; without it the patch raises `AttributeError` | `test_patch_refuses_a_name_the_module_does_not_have` (seams chapter) |
-| `mocker.patch(..., autospec=True)` | Refuses a call with the wrong signature, with a `TypeError` | `test_autospec_refuses_a_call_with_the_wrong_signature` (seams chapter) |
+| `mocker.patch("pkg.module.name")` | Replaces the name in the module the dotted string names | `test_autospec_refuses_a_call_with_the_wrong_signature` ([Seams in Python: monkeypatch, injection, and duck typing]({{ '/docs/33-seams-in-python/' | relative_url }})) |
+| `mocker.patch(..., create=True)` | Allows a name the module doesn't have; without it the patch raises `AttributeError` | `test_patch_refuses_a_name_the_module_does_not_have` ([Seams in Python: monkeypatch, injection, and duck typing]({{ '/docs/33-seams-in-python/' | relative_url }})) |
+| `mocker.patch(..., autospec=True)` | Refuses a call with the wrong signature, with a `TypeError` | `test_autospec_refuses_a_call_with_the_wrong_signature` ([Seams in Python: monkeypatch, injection, and duck typing]({{ '/docs/33-seams-in-python/' | relative_url }})) |
 | `mocker.patch.object(Target, "name", autospec=True)` | Replaces one attribute and checks the signature | `test_patch_object_replaces_an_attribute_for_the_test` |
 | `mocker.patch.dict(mapping, values)` | Adds values to a mapping, restored on stop | `test_patch_dict_restores_the_mapping_after_the_test` |
 | `mocker.stop(patched)` | Undoes one patch | `test_mocker_stop_undoes_one_patch` |
@@ -162,9 +162,9 @@ A patch replaces a name for the length of a test. It's the last choice in the or
 
 `patch.object` with `autospec=True` on a class attribute keeps `self` in the signature, so the recorded call includes the instance: the test asserts `patched.assert_called_once_with(gateway, CN1, TEN)`, and a call with no arguments raises `TypeError` matching `missing a required argument`. After `mocker.stopall()` the real `quote` answers again.
 
-`patch.dict` is the way to set an environment variable or a registry entry for one test. The test runs it against `os.environ` twice, with the key absent before and with the key present, and after `mocker.stopall()` the key is absent in the first case and back to its earlier value in the second. A patch is also undone without any call: pytest-mock's own warning text says "The mocker fixture automatically undoes mocking at the end of a test." That sentence is in the plugin's source for 3.17.0, and a patch made in one test is gone in the next. Reach for `stop` and `stopall` when the test needs the real object back part-way through.
+`patch.dict` is the way to set an environment variable or a registry entry for one test. The test runs it against `os.environ` twice, with the key absent before and with the key present, and after `mocker.stopall()` the key is absent in the first case and back to its earlier value in the second. A patch is also undone without any call: pytest-mock's own warning text says "The mocker fixture automatically undoes mocking at the end of a test." That sentence is in the plugin's source for 3.17.0. Reach for `stop` and `stopall` when the test needs the real object back part-way through.
 
-The same warning is raised when a `mocker` patch is used as a context manager or a decorator. The usage page gives the reason: "The purpose of this plugin is to make the use of context managers and function decorators for mocking unnecessary, so it will emit a warning when used as such." The repository's `filterwarnings = ["error"]` turns that warning into an exception, and the test expects it:
+The same warning is raised when a `mocker` patch is used as a context manager. The usage page gives the reason: "The purpose of this plugin is to make the use of context managers and function decorators for mocking unnecessary, so it will emit a warning when used as such." The repository's `filterwarnings = ["error"]` turns that warning into an exception, and the test expects it:
 
 ```python
 def test_mocker_patch_used_as_a_context_manager_fails_under_the_warning_filter(
@@ -177,9 +177,9 @@ def test_mocker_patch_used_as_a_context_manager_fails_under_the_warning_filter(
         pass
 ```
 
-With the filter lowered to `default` for one run, the same test fails with `DID NOT RAISE PytestMockWarning` and the run reports one warning. The usage page names `mocker.patch.context_manager` for the case where the object being mocked really is a context manager.
+With the filter lowered to `default` for one run, the same test fails with `DID NOT RAISE PytestMockWarning` and the run reports one warning. The usage page names `mocker.patch.context_manager` for the case where the mocked object is a context manager.
 
-Outside pytest there's no fixture to undo anything, so `unittest.mock.patch` is used as a decorator or a context manager. The standard library page says of `patch.object()` that it "can be used as a decorator, class decorator or a context manager." The seams chapter's static test shows how mypy types a patch used that way, and that a decorator-injected argument needs an annotation (`test_mypy_types_a_patch_as_a_magic_mock_or_as_its_replacement`).
+Outside pytest there's no fixture to undo anything, so `unittest.mock.patch` is used as a decorator or a context manager. The standard library page says of `patch.object()` that it "can be used as a decorator, class decorator or a context manager." The static test of [Seams in Python: monkeypatch, injection, and duck typing]({{ '/docs/33-seams-in-python/' | relative_url }}) shows how mypy types a patch used that way, and that a decorator-injected argument needs an annotation (`test_mypy_types_a_patch_as_a_magic_mock_or_as_its_replacement`).
 
 ## Spies and stubs
 

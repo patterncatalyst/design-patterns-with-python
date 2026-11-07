@@ -22,7 +22,7 @@ By the end of this appendix you can:
 
 A suite's strength rests on a few lines of configuration and a handful of fixture rules, and each fails without a sound when misread. Under pytest's defaults, an unregistered marker, an `xfail` test that passes and a deprecation in the end-of-run summary all leave a green run. The method of naming a test after its claim and deleting the check to watch it fail belongs to [Proving it works: pytest, pytest-mock, and mypy]({{ '/docs/11-testing-with-pytest-pytest-mock-and-mypy/' | relative_url }}), along with its experiments. The rest of what the suites rely on is collected here, on pytest 9.2.0 and Python 3.15.2.
 
-A row in the tables that follow names its witness: a test in the `pytest-reference` example, a test from another example, or, for command-line flags that have none, the page of the pytest documentation that describes the flag. The example's configuration and command-line tests run pytest inside pytest, and the section on inner sessions says how.
+A row in the tables that follow names its witness: a test in the `pytest-reference` example, a test from another example, or, for settings and flags that have none, the page of the pytest documentation that describes the flag. The example's configuration and command-line tests run pytest inside pytest, and the section on inner sessions says how.
 
 ## The root configuration
 
@@ -47,7 +47,7 @@ Four of its settings refuse what pytest's defaults let through. Each has a test 
 | `--strict-config` | an unknown option is a warning | a usage error naming the option | `test_an_unknown_option_fails_under_strict_config` |
 | `xfail_strict` or `strict_xfail` | an `xfail` test that passes is reported as `xpassed` | the run fails | `test_a_passing_xfail_fails_the_run_under_strict_xfail` |
 | `filterwarnings = ["error"]` | the warning is counted in the summary | the test fails with the warning | `test_filterwarnings_error_turns_a_warning_into_a_failure` |
-| `testpaths` | pytest collects below the current working directory | pytest looks in the listed directories when the command line gives no directory, file or test id | [reference page](https://docs.pytest.org/en/stable/reference/reference.html) |
+| `testpaths` | pytest collects below the current working directory | pytest looks in the listed directories when the command line gives no directory, file or test id | [reference page](https://docs.pytest.org/en/stable/reference/reference.html), [customize page](https://docs.pytest.org/en/stable/reference/customize.html) |
 | `--import-mode=importlib` | two test files with one basename collide | each file gets a unique module name, and test modules can't import each other | the tests in the import mode section |
 
 pytest 9 renamed one of these. The [reference page](https://docs.pytest.org/en/stable/reference/reference.html) records "Changed in version 9.0: Renamed from xfail_strict to strict_xfail." and "xfail_strict is accepted as an alias for strict_xfail." The xfail test is parametrised over both names, and each fails the run.
@@ -136,7 +136,7 @@ The order test writes a module with a module-scoped `outer` fixture and a functi
 ```
 <!-- fmt:on -->
 
-`outer` is set up once, before both tests, and torn down last. `inner` is built and torn down around each test. Teardown after a failing test is a separate question. The experiments in the testing chapter make a test fail to show it.
+`outer` is set up once, before both tests, and torn down last. `inner` is built and torn down around each test. Teardown after a failing test is a separate question. The experiments in [Proving it works: pytest, pytest-mock, and mypy]({{ '/docs/11-testing-with-pytest-pytest-mock-and-mypy/' | relative_url }}) make a test fail to show it.
 
 ## Parametrize
 
@@ -224,7 +224,7 @@ uv run pytest -q
 uv run mypy --strict src tests
 ```
 
-A fresh run of the member has 38 test functions and 43 cases, and ends `43 passed in 3.55s`. The mypy run ends `Success: no issues found in 14 source files`.
+A fresh run of the member has 38 test functions and 43 cases, and ends `43 passed`. The mypy run ends `Success: no issues found in 14 source files`.
 
 ## For deeper coverage
 
