@@ -12,14 +12,14 @@ description: "One booking through all seven domain areas: an acceptance test wri
 By the end of this chapter you can:
 
 - Write the acceptance test for a slice before the slice exists, and make it name each stage it needs.
-- Wire seven domain areas through one composition root that is the only module naming a concrete carrier.
+- Wire seven domain areas through one composition root, the only module outside `carriers.py` that names a concrete carrier.
 - Undo completed steps in reverse when a later step refuses, with `ExitStack.callback` and `pop_all`.
 - Order effects so that nothing a step can't take back happens before the commit.
 - Say which earlier pattern each part is, and where a pattern left out would attach.
 
 ## Why this matters
 
-A booking is several steps that each change something outside the desk. Rating only produces a number, but reserving a slot changes a sailing, booking the carrier changes the carrier's books, and a tracking event changes what its subscribers know. Each of those steps is a pattern the book has covered on its own. What happens between the steps is the new question: a booking that customs holds has already taken a slot and a carrier booking, and the desk has to give both back.
+A booking is several steps that each change something outside the desk. Rating only produces a number, but reserving a slot changes a sailing, booking the carrier changes the carrier's books, and a tracking event changes what its subscribers know. Rating, the carrier booking and tracking are each a pattern the book has covered on its own. What happens between the steps is the new question: a booking that customs holds has already taken a slot and a carrier booking, and the desk has to give both back.
 
 Two failures follow when nothing answers it. Without an undo, a held booking leaves the slot reserved and the carrier holding a receipt nobody pays for. Taking the `cancel` callback out of the desk fails `test_a_held_declaration_releases_the_slot_and_cancels_the_carrier_booking`, and taking the `release` callback out fails three tests, among them `test_the_next_request_takes_the_slot_a_rollback_freed`. With an eager publisher, tracking reports a booking that never happened (`test_an_eager_publisher_reports_a_booking_that_was_rolled_back`).
 
@@ -27,7 +27,7 @@ The slice is one booking through the seven domain areas (Consignment, Rating, Ro
 
 {% include excalidraw.html name="39-final-project" caption="Figure 39.1: One booking through the desk's steps. A completed step registers its undo on an exit stack, a held declaration unwinds them in reverse, and the tracking event is published after the commit." %}
 
-Read the figure from the top. A column of boxes runs down the left: `BookingRequest`, an accent box `BookingDesk.ship (Facade)`, then `quote: PricingRule`, `StowagePlan.reserve, undo: release`, `CarrierGateway.book, undo: cancel`, `clear: ClearanceStage chain`, `undo.pop_all(): commit`, `Invoice from LineItems` and `Signal.publish(BOOKED) to TrackingHistory`, each joined to the next by a downward arrow. Two arrows in the accent colour run from the reserve and book boxes to an accent box on the right, `ExitStack holds the undo callbacks`. A dashed arrow runs from the clear box to a dashed box, `Held: cancel, then release; nothing published`. A bar across the bottom reads `build_desk: the one place that names FastlineGateway`, with no arrow to it.
+Read the figure from the top. A column of boxes runs down the left: `BookingRequest`, an accent box `BookingDesk.ship (Facade)`, then `quote: PricingRule`, `StowagePlan.reserve, undo: release`, `CarrierGateway.book, undo: cancel`, `clear: ClearanceStage chain`, `undo.pop_all(): commit`, `Invoice from LineItems` and `Signal.publish(BOOKED) to TrackingHistory`, each joined to the next by a downward arrow. Two arrows in the accent colour run from the reserve and book boxes to an accent box on the right, `ExitStack holds the undo callbacks`. A dashed arrow runs from the clear box to a dashed box, `Held: cancel, then release; nothing published`. A bar across the bottom reads `build_desk: the one place that chooses FastlineGateway`, with no arrow to it.
 
 ## The slice and its acceptance test
 
@@ -98,7 +98,7 @@ None of the parts needed a framework. The pricing rule and the clearance stages 
 
 ## Undo in reverse with ExitStack
 
-A step that succeeded has to be taken back when a later step refuses, and the desk gets the means from a stack of inverses: each step registers the function that reverses it as soon as it succeeds, and a refusal runs them newest first. [Command, undo, and command queues]({{ '/docs/15-command-undo-and-command-queues/' | relative_url }}) pairs each amendment with the amendment that reverses it. Here the inverse is a function and its argument, kept on a stack, with no command class. `contextlib.ExitStack` holds the stack. [Context managers: deterministic cleanup]({{ '/docs/10-context-managers/' | relative_url }}) uses it for resources; `callback` and `pop_all` are what this chapter adds.
+A step that succeeded has to be taken back when a later step refuses, and the desk gets the means from a stack of inverses: each step registers the function that reverses it as soon as it succeeds, and a refusal runs them newest first. [Command, undo, and command queues]({{ '/docs/15-command-undo-and-command-queues/' | relative_url }}) pairs each amendment with the amendment that reverses it. Here the inverse is a function and its argument, kept on a stack, with no command class. `contextlib.ExitStack` holds the stack. [Context managers: deterministic cleanup]({{ '/docs/10-context-managers/' | relative_url }}) uses it for resources; `callback` and `pop_all` are new here.
 
 <!-- fmt:off -->
 ```python
@@ -163,7 +163,7 @@ A held booking then leaves no event. After the same refusal as before, `history.
 ```
 <!-- fmt:on -->
 
-The `publish_form` fixture selects the form for each test, and both get the same held request. With the eager form the history holds one `BOOKED` event for CN-2 while the client has no open receipt: tracking reports a booking the carrier doesn't have (`test_an_eager_publisher_reports_a_booking_that_was_rolled_back`). The rule is that effects other parts can see go after `pop_all()`. Experiment (b) below moves the line in the real desk and shows the other test fail.
+The `publish_form` fixture selects the form for each test, and both get the same held request. With the eager form the history holds one `BOOKED` event for CN-2 while the client has no open receipt: tracking reports a booking the carrier doesn't have (`test_an_eager_publisher_reports_a_booking_that_was_rolled_back`). The rule is that effects other parts can see go after `pop_all()`. The second experiment below moves the line in the real desk and shows the other test fail.
 
 ## One composition root
 

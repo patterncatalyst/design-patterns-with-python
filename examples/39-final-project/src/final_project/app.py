@@ -1,4 +1,4 @@
-"""The composition root: the one module that names a concrete carrier."""
+"""The composition root: the one module that chooses the concrete carrier."""
 
 from final_project.carriers import FastlineClient, FastlineGateway
 from final_project.desk import BookingDesk

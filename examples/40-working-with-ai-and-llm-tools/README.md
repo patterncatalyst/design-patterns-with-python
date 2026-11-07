@@ -90,6 +90,6 @@ uv run mypy --strict src tests
 
 - `test_mypy_refuses_an_assistant_without_reply`
 
-The tests use no mocks and no patching, and none sleeps or reads a clock. The static gate runs mypy
-through `mypy.api` and ruff through the interpreter's `-m ruff`, both with the repository's rule
-selection.
+The tests use no mocks and no patching, and none sleeps or reads a clock. The static gate runs
+`mypy --strict --warn-unreachable` through `mypy.api`, and ruff through the interpreter's `-m ruff`
+with the repository's rule selection.

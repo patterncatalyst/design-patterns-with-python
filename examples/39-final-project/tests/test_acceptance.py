@@ -87,7 +87,7 @@ def _zero_duty(declaration: CustomsDeclaration, /) -> CustomsDeclaration:
     return CustomsDeclaration(declaration.consignment, Money(Decimal("0.00")))
 
 
-_LEFT_OUT: list[tuple[str, Callable[..., BookingDesk], list[str]]] = [
+_LEFT_OUT: list[tuple[str, Replacement, list[str]]] = [
     ("rating", lambda c, p, h: _desk(c, p, h, rule=_zero_rule), ["freight 0.00", "invoice 30.00"]),
     ("carrier", lambda c, p, h: _desk(c, p, h, gateway=_InertGateway()), ["carrier {}"]),
     ("clearance", lambda c, p, h: _desk(c, p, h, clear=_zero_duty), ["duty 0.00", "invoice 5.63"]),

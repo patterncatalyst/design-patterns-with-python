@@ -99,6 +99,9 @@ def test_mypy_and_ruff_pass_the_typed_hierarchy(
 
     assert (static_gate.mypy(source), static_gate.ruff(source)) == ([], [])
 
+    unreachable = "def f() -> str:\n    return 'a'\n    return 'b'\n"
+    assert [finding.rule for finding in static_gate.mypy(unreachable)] == ["unreachable"]
+
 
 def test_the_shape_review_names_the_typed_hierarchy_rules(drafts: Mapping[str, str]) -> None:
     findings = review(drafts["typed_hierarchy"])

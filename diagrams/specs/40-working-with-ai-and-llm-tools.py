@@ -9,7 +9,7 @@ emit(
     nodes=[
         {
             "h": 70,
-            "lines": ["Assistant.reply", "RecordedAssistant in tests"],
+            "lines": ["a draft's text", "Assistant.reply, or a file in tests/drafts"],
             "style": "box",
             "w": 900,
             "x": 30,
@@ -41,7 +41,7 @@ emit(
         },
         {
             "h": 70,
-            "lines": ["accepted", "Review.accepted: no findings"],
+            "lines": ["accepted", "no gate reports the draft"],
             "style": "accent",
             "w": 900,
             "x": 30,

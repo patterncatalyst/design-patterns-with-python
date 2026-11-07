@@ -78,3 +78,20 @@ this file. Run each command from the repository root; the counts below are the o
 The book's sidebar has one form in 34 of its 47 documents: a problem in a sentence or two, one nested prompt that
 names the chapter's rule, and one review line. Chapters 39 and 40 are planned to add one each, which would make 36; the
 greps are repeated after they are written and the chapter quotes the counts of that run.
+
+## Re-run after chapters 39 and 40, 2026-11-07
+
+The same commands, run from the repository root on the release/r19 branch after both chapters were written. The
+counts below are the output of that run.
+
+1. Documents in `_docs/`: 47.
+2. Sidebars per document: `1 36` and `0 11`. Thirty-six documents have exactly one sidebar, 11 have none, and no
+   document has two or more.
+3. Documents with a sidebar and the total of opening tags: 36 and 36.
+4. The explicit form and the kramdown form: 36 and 0.
+5. The documents with no sidebar are chapters 0 to 4 (`00-prerequisites`, `01-patterns-as-decisions-under-forces`,
+   `02-what-1994-assumed-and-python-dissolves`, `03-the-three-way-split`, `04-naming-patterns-for-teams-and-ai`) and
+   the six appendices `41` to `46`. That is 11. Chapters 5 to 38 carry one each, and so do chapters 39 and 40.
+6. Shape: `36 prompts=1 review=1`. Every one of the 36 sidebars has exactly one nested prompt and one review line.
+7. Headings: the 34 counted above, plus one under `## When the composition is the wrong shape` (chapter 39) and one
+   under `## When the gates aren't enough` (chapter 40). The total is 36.

@@ -5,7 +5,7 @@ title: "Working with AI and LLM tools"
 description: Three hand-written drafts of pricing code reviewed through a static gate, a shape review and a behaviour oracle, with the model client behind a Protocol and a recorded fake.
 github_path: examples/40-working-with-ai-and-llm-tools
 card_eyebrow: "Putting it together · Working with AI and LLM tools"
-card_blurb: "Each of three drafts, written for the book, fails a different gate: types and lint, the pattern shape rules, or a behaviour oracle. A recorded fake stands in for the model client, and no test uses the network."
+card_blurb: "Three drafts written for the book fail different sets of gates: types and lint, the pattern shape rules and a behaviour oracle. A recorded fake stands in for the model client, and no test uses the network."
 card_title: "Three drafts, three gates"
 ---
 

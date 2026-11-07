@@ -349,6 +349,6 @@
   section: "Ch. 40"
   title: A reply, three gates and the findings that go back
   caption: >-
-    A reply is checked by three gates: types and lint, the pattern shape rules
+    A draft is checked by three gates: types and lint, the pattern shape rules
     and a behaviour oracle. The three drafts are reported by different gates, and
     the findings on a rejected reply go back in the next prompt.

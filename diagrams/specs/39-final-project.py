@@ -69,7 +69,7 @@ emit(
         },
         {
             "h": 56,
-            "lines": ["build_desk: the one place that names FastlineGateway"],
+            "lines": ["build_desk: the one place that chooses FastlineGateway"],
             "style": "ink",
             "w": 840,
             "x": 40,

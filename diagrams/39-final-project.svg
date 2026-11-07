@@ -23,7 +23,7 @@
 <rect x="560" y="418" width="320" height="50" rx="9" fill="#ffffff" stroke="#999999" stroke-width="1.5" stroke-dasharray="6 4"/>
 <text x="720.0" y="448.5" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">Held: cancel, then release; nothing published</text>
 <rect x="40" y="736" width="840" height="56" rx="9" fill="#f1f5f9" stroke="#64748b" stroke-width="2"/>
-<text x="460.0" y="769.5" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">build_desk: the one place that names FastlineGateway</text>
+<text x="460.0" y="769.5" font-size="13.5" font-weight="700" fill="#111111" text-anchor="middle">build_desk: the one place that chooses FastlineGateway</text>
 <path d="M250,80 L250,110" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
 <path d="M250,166 L250,190" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
 <path d="M250,240 L250,266" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>

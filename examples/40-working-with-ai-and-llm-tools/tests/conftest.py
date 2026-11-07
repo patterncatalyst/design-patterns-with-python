@@ -46,7 +46,7 @@ class StaticGate:
         self._config.write_text(f"[mypy]\nmypy_path = {_MEMBER / 'src'}\n")
 
     def mypy(self, source: str, /) -> list[Finding]:
-        stdout, _stderr, _status = mypy.api.run(
+        stdout, stderr, status = mypy.api.run(
             [
                 "--strict",
                 "--warn-unreachable",
@@ -59,6 +59,8 @@ class StaticGate:
                 source,
             ]
         )
+        if status == 2:
+            raise RuntimeError(stderr)
         return [Finding(int(n), code, text) for n, text, code in _MYPY_LINE.findall(stdout)]
 
     def ruff(self, source: str, /) -> list[Finding]:
@@ -89,6 +91,8 @@ class StaticGate:
             check=False,
             cwd=_MEMBER,
         )
+        if result.returncode not in (0, 1):
+            raise RuntimeError(result.stderr)
         return [Finding(int(n), code, text) for n, code, text in _RUFF_LINE.findall(result.stdout)]
 
     def __call__(self, source: str, /) -> list[Finding]:

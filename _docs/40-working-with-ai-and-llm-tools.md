@@ -25,9 +25,9 @@ OWASP's [LLM05:2025 entry, Improper Output Handling](https://genai.owasp.org/llm
 
 The book already has three such checks. Types and lint judge a draft's text, the pattern chapters give rules about its shape, and a table of recorded answers judges what it computes. The three drafts below were written by hand for the book. They stand in for replies, so the results describe these drafts and make no claim about what any assistant writes.
 
-{% include excalidraw.html name="40-working-with-ai-and-llm-tools" caption="Figure 40.1: A reply is checked by three gates: types and lint, the pattern shape rules and a behaviour oracle. The three drafts are reported by different gates, and the findings on a rejected reply go back in the next prompt." %}
+{% include excalidraw.html name="40-working-with-ai-and-llm-tools" caption="Figure 40.1: A draft is checked by three gates: types and lint, the pattern shape rules and a behaviour oracle. The three drafts are reported by different gates, and the findings on a rejected reply go back in the next prompt." %}
 
-Read the figure from the top. A wide box, `Assistant.reply` ("RecordedAssistant in tests"), has three arrows down to three boxes side by side: "static gate: mypy --strict, ruff" ("reports untyped_factory"), "shape review: review_gate.shape" ("reports typed_hierarchy") and "behaviour oracle: GRID" ("reports rounded_callable"). The gates sit in parallel, because no code orders them. Each has an arrow down to a wide accent box, "accepted" ("Review.accepted: no findings"). One amber arrow runs from the shape review back up to the first box, labelled "propose: findings go back in the next prompt". It leaves the shape review alone because that is the one gate the tests hand to `propose`.
+Read the figure from the top. A wide box, "a draft's text" (`Assistant.reply`, or a file in `tests/drafts`), has three arrows down to three boxes side by side: "static gate: mypy --strict, ruff" ("reports untyped_factory"), "shape review: review_gate.shape" ("reports typed_hierarchy") and "behaviour oracle: GRID" ("reports rounded_callable"). The gates sit in parallel, because no code orders them. Each has an arrow down to a wide accent box, "accepted" ("no gate reports the draft"). One amber arrow runs from the shape review back up to the first box, labelled "propose: findings go back in the next prompt". It leaves the shape review alone because that is the one gate the tests hand to `propose`.
 
 ## Three drafts, three gates
 
@@ -151,7 +151,7 @@ The oracle loads the draft as a module from a file in a temporary directory, so 
 
 A sidebar in this book has one form: a problem in a sentence or two, one prompt to paste, and one line of review. The prompt names the chapter's rule and its identifiers. Every chapter from [SRP, OCP, and LSP in Python]({{ '/docs/05-srp-ocp-lsp/' | relative_url }}) through [asyncio and the patterns]({{ '/docs/38-asyncio-and-the-patterns/' | relative_url }}), 34 chapters, carries exactly one sidebar, and each of the 34 has one nested prompt and one review line. The form is reusable because the prompt can state the checks before any reply exists. A prompt that lists the gates says what the reply will be measured against, and the review line says what to ask when a diff moves an answer the gates hold.
 
-The sidebar below follows the form for `price`. The names a prompt should use, and the review of a name against its contract, belong to [Naming patterns for teams and AI assistants]({{ '/docs/04-naming-patterns-for-teams-and-ai/' | relative_url }}). This chapter adds the gates to the request.
+The sidebar below follows the form for `price`. The names a prompt should use, and the review of a name against its contract, belong to [Naming patterns for teams and AI assistants]({{ '/docs/04-naming-patterns-for-teams-and-ai/' | relative_url }}). The prompt below adds the gates to the request.
 
 ## A seam for the model client
 
@@ -218,7 +218,7 @@ If the diff touches `GRID` or `EXPECTED_ROWS`, ask who decided that answer shoul
 
 ## Build, run, observe
 
-From the repository root, once, `uv sync --locked --all-packages`. Then, from the example directory, `uv run pytest` runs 18 test functions as 26 cases, and `uv run mypy --strict src tests` checks the example:
+From the repository root, once, `uv sync --locked --all-packages`. Then, in `examples/40-working-with-ai-and-llm-tools`, `uv run pytest` runs 18 test functions as 26 cases, and `uv run mypy --strict src tests` checks the example:
 
 ```bash
 uv run pytest -q 2>&1 | grep -E '^(FAILED|ERROR|E {3}[^ ]|E {7}[^ ]|E {9}[^ ]|E {11}[^ ]|(tests|src)/.*Error$|[0-9]+ (passed|failed|skipped|errors?))'
@@ -230,7 +230,7 @@ uv run mypy --strict src tests
 Success: no issues found in 10 source files
 ```
 
-Each experiment below runs in a scratch copy of the repository: delete the copy's `.venv`, run `uv sync --locked --all-packages` from its root and check that `review_gate.__file__` points into the copy. The first changes the rounding in `src/review_gate/pricing.py`. Replace the `quantize` call in `per_kg` with `Money(round(consignment.weight.kilograms * rate, 2))`, and drop `ROUND_HALF_UP` from the `decimal` import. Left in, the unused import adds a ruff finding to the failure. The same two commands print:
+Each experiment below runs in a scratch copy of the repository: delete the copy's `.venv`, run `uv sync --locked --all-packages` from its root and check that `review_gate.__file__` points into the copy. The first changes the rounding in `src/review_gate/pricing.py`. Replace the `return` line of `per_kg` with `return Money(round(consignment.weight.kilograms * rate, 2))`, and drop `ROUND_HALF_UP` from the `decimal` import. Left in, the unused import adds a ruff finding to the failure. The same two commands print:
 
 ```text
 E       AssertionError: assert ([], [], ['CN....63 != 5.62']) == ([], [], [])
