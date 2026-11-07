@@ -60,7 +60,7 @@ A pin bump runs the failure in reverse: once the `==` pin changes, `uv lock` rec
 
 ## Adding a member
 
-A member is a directory under `examples/` with its own `pyproject.toml` and `src/` layout. The command is `uv init --lib --vcs none --no-readme --no-description --author-from none --name <project> examples/<slug>`. It creates three files, `pyproject.toml`, `src/<package>/__init__.py` and `py.typed`, and leaves the root `pyproject.toml` byte-identical, because the `examples/*` glob already covers the new directory; uv prints that the project is already a member of the workspace. Two lines need editing to match the repo, `requires-python` from `>=3.15.2` to `>=3.15` and the build requirement from `uv_build>=0.13.7,<0.14.0` to `<0.14`. Then `uv lock` records the member. The result looks like this.
+A new member is a directory under `examples/` with its own `pyproject.toml` and `src/` layout. The command is `uv init --lib --vcs none --no-readme --no-description --author-from none --name <project> examples/<slug>`. It creates three files, `pyproject.toml`, `src/<package>/__init__.py` and `py.typed`, and leaves the root `pyproject.toml` byte-identical, because the `examples/*` glob already covers the new directory; uv prints that the project is already a member of the workspace. Two lines need editing to match the repo, `requires-python` from `>=3.15.2` to `>=3.15` and the build requirement from `uv_build>=0.13.7,<0.14.0` to `<0.14`. Then `uv lock` records the member. The result looks like this.
 
 <!-- fmt:off -->
 ```toml

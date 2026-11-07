@@ -2,7 +2,7 @@
 layout: example
 order: 43
 title: "Mocking reference"
-description: A mocking reference whose rows are tests of unittest.mock and pytest-mock against one carrier gateway, with the book's order of preference stated first.
+description: A mocking reference whose API rows are tests of unittest.mock and pytest-mock against one carrier gateway, with the book's order of preference stated first.
 github_path: examples/43-appendix-c-mocking
 card_eyebrow: "Appendices · Mocking reference"
 card_blurb: "Each API row of the reference is a test on the pinned pytest-mock. Autospecs, call records, patches, spies and stubs run against one carrier gateway, and two static tests show what mypy sees."

@@ -5,7 +5,7 @@ layout: tutorial
 sectionid: docs
 part: "appendices"
 appendix: "B"
-description: "Reference for the pytest configuration, import mode, fixtures, parametrisation, exception assertions and command-line options the book relies on, each shown by a test."
+description: "Reference for the pytest configuration, import mode, fixtures, parametrisation, exception assertions and command-line options the book relies on, each shown by a test or by the pytest page that describes it."
 ---
 
 ## Learning objectives
@@ -22,7 +22,7 @@ By the end of this appendix you can:
 
 A suite's strength rests on a few lines of configuration and a handful of fixture rules, and each fails without a sound when misread. Under pytest's defaults, an unregistered marker, an `xfail` test that passes and a deprecation in the end-of-run summary all leave a green run. The method of naming a test after its claim and deleting the check to watch it fail belongs to [Proving it works: pytest, pytest-mock, and mypy]({{ '/docs/11-testing-with-pytest-pytest-mock-and-mypy/' | relative_url }}), along with its experiments. The rest of what the suites rely on is collected here, on pytest 9.2.0 and Python 3.15.2.
 
-A row in the tables that follow names its witness: a test in the `pytest-reference` example, a test from another example, or, for settings and flags that have none, the page of the pytest documentation that describes the flag. The example's configuration and command-line tests run pytest inside pytest, and the section on inner sessions says how.
+A row in the tables that follow names its witness: a test in the `pytest-reference` example, a test from another example, or, for settings and flags that have none, the page of the pytest documentation that describes them. The example's configuration and command-line tests run pytest inside pytest, and the section on inner sessions says how.
 
 ## The root configuration
 

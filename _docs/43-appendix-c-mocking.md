@@ -26,7 +26,7 @@ A mock is the cheapest double to write and the one that checks the least. A plai
 2. **`create_autospec`, when the calls are the claim.** An autospec copies the names and signatures of its target, so a wrong name or a wrong call fails at run time. "Proving it works: pytest, pytest-mock, and mypy" has the tests.
 3. **A patch, only where the code takes no parameter.** The chapters titled [Seams in Python: monkeypatch, injection, and duck typing]({{ '/docs/33-seams-in-python/' | relative_url }}) and [Dependency-breaking techniques for modern Python]({{ '/docs/34-dependency-breaking-techniques/' | relative_url }}) show where a patch is the only seam, and how to replace it with a parameter.
 
-The reference that follows covers the second and third steps and the call checks they share. Each row names a test on pytest-mock 3.17.0 and Python 3.15.2, in `examples/43-appendix-c-mocking` or in the example of the chapter the row names. Mocks appear only in that example's tests, because the mock API is their subject; its `src` holds none.
+The reference that follows covers the second and third steps and the call checks they share. Each API row names a test on pytest-mock 3.17.0 and Python 3.15.2, in `examples/43-appendix-c-mocking` or in the example of the chapter the row names. In `examples/43-appendix-c-mocking` mocks appear only in the tests, whose subject is the mock API, and `src` holds none.
 
 ## Where the book uses mocks
 
@@ -41,7 +41,7 @@ Sixteen files in six examples name `mocker`, `unittest.mock`, `create_autospec`,
 | | `tests/test_static.py` | `Mock`, `Mock(spec=...)`, `MagicMock(spec=...)` and `create_autospec` inside strings handed to mypy |
 | Seams in Python: monkeypatch, injection, and duck typing | `tests/test_patching.py` | `mocker.patch` by string, with `create=True` and `autospec=`; `unittest.mock.patch` as a context manager; `monkeypatch.setattr` |
 | | `tests/test_seams.py` | `monkeypatch.setattr` |
-| | `tests/test_static.py` | `unittest.mock.patch` as a context manager and a decorator and `MagicMock` inside strings handed to mypy, `AsyncMock` in an expected `reveal_type` string; `monkeypatch.setattr` |
+| | `tests/test_static.py` | `unittest.mock.patch` as a context manager and as a decorator, and `MagicMock`, inside strings handed to mypy; `AsyncMock` in an expected `reveal_type` string; `monkeypatch.setattr` |
 | Dependency-breaking techniques for modern Python | `tests/conftest.py` | `monkeypatch.setattr`, taken with `request.getfixturevalue` |
 | This appendix | six test files | the rest of the API, below |
 
@@ -164,7 +164,7 @@ A patch replaces a name for the length of a test. It's the last choice in the or
 
 `patch.dict` is the way to set an environment variable or a registry entry for one test. The test runs it against `os.environ` twice, with the key absent before and with the key present, and after `mocker.stopall()` the key is absent in the first case and back to its earlier value in the second. A patch is also undone without any call: pytest-mock's own warning text says "The mocker fixture automatically undoes mocking at the end of a test." That sentence is in the plugin's source for 3.17.0. Reach for `stop` and `stopall` when the test needs the real object back part-way through.
 
-The same warning is raised when a `mocker` patch is used as a context manager. The usage page gives the reason: "The purpose of this plugin is to make the use of context managers and function decorators for mocking unnecessary, so it will emit a warning when used as such." The repository's `filterwarnings = ["error"]` turns that warning into an exception, and the test expects it:
+The same warning is raised when a `mocker` patch is used as a context manager. The usage page gives the reason: the plugin's purpose is "to make the use of context managers and function decorators for mocking unnecessary". On 3.17.0 only the context-manager form warns, because the plugin attaches the warning to the mock's `__enter__`. The repository's `filterwarnings = ["error"]` turns that warning into an exception, and the test expects it:
 
 ```python
 def test_mocker_patch_used_as_a_context_manager_fails_under_the_warning_filter(
