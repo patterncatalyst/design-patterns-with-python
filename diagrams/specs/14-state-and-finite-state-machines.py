@@ -72,6 +72,7 @@ edges = [
     {"x1": 610, "y1": 308, "x2": COL_X + COL_W, "y2": 308, "dashed": True},
     {"x1": COL_X, "y1": 90, "x2": 120, "y2": 330, "dashed": True},
     {"x1": COL_X, "y1": 188, "x2": 170, "y2": 330, "dashed": True},
+    {"x1": COL_X, "y1": 308, "x2": 270, "y2": 370, "dashed": True},
     {"x1": COL_X, "y1": 428, "x2": 270, "y2": 390, "dashed": True},
     {"x1": COL_X, "y1": 555, "x2": 200, "y2": 410, "dashed": True},
 ]
