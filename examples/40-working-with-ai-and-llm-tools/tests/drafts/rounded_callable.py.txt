@@ -1,0 +1,29 @@
+# Written for the book as a draft to review.
+from collections.abc import Callable
+from decimal import Decimal
+from functools import partial
+
+from review_gate.domain import Consignment, Money, RatingError
+
+type PricingRule = Callable[[Consignment], Money]
+
+
+def flat(consignment: Consignment, /) -> Money:
+    return Money(Decimal("10.00"))
+
+
+def per_kg(consignment: Consignment, /, *, rate: Decimal) -> Money:
+    return Money(round(consignment.weight.kilograms * rate, 2))
+
+
+RULES: frozendict[str, PricingRule] = frozendict(
+    {"flat": flat, "per_kg": partial(per_kg, rate=Decimal("0.45"))}
+)
+
+
+def price(rule: str, consignment: Consignment, /) -> Money:
+    try:
+        chosen = RULES[rule]
+    except KeyError:
+        raise RatingError(f"unknown rule {rule}") from None
+    return chosen(consignment)

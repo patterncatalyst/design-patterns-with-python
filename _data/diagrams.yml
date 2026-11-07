@@ -336,3 +336,19 @@
     gather, quotes run in a task group and commands drain from a queue. An await
     is a point where another task can run, and cancellation still closes the
     feed.
+
+- name: 39-final-project
+  section: "Ch. 39"
+  title: One booking through the desk, with undo callbacks on an exit stack
+  caption: >-
+    One booking through the desk's steps. A completed step registers its undo on
+    an exit stack, a held declaration unwinds them in reverse, and the tracking
+    event is published after the commit.
+
+- name: 40-working-with-ai-and-llm-tools
+  section: "Ch. 40"
+  title: A draft, three gates and the findings that go back
+  caption: >-
+    A draft is checked by three gates: types and lint, the pattern shape rules
+    and a behaviour oracle. The three drafts are reported by different gates, and
+    the findings on a rejected reply go back in the next prompt.

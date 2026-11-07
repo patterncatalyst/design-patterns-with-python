@@ -358,7 +358,7 @@ title = "Final project"
 part = 13
 kind = "hands-on"
 has_example = true
-status = "stub"
+status = "drafted"
 
 [[chapter]]
 number = 40
@@ -366,8 +366,8 @@ slug = "40-working-with-ai-and-llm-tools"
 title = "Working with AI and LLM tools"
 part = 13
 kind = "argument"
-has_example = false
-status = "stub"
+has_example = true
+status = "drafted"
 
 [[chapter]]
 number = 41

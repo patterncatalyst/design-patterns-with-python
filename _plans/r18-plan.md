@@ -543,7 +543,7 @@ Step ids are `U*` (decision 0). Only `U1a`, `U1b`, `U5a` and `U5b` are cited as 
 | U5a | ch37 prose agent: re-fetch every source and quote exactly (including the `sys.getswitchinterval` sentence); run both experiments twice in fresh scratch copies with the stated filter; quote the recorded bench, never a fresh unrecorded run; scrub before quoting; hand back the sources checked and a per-paragraph claims table that marks each sentence as test, source or example run | U3, U4 | done |
 | U5b | ch38 prose agent, in parallel with U5a, with the same duties, plus fetching the `contextlib` sentences | U3, U4 | done |
 | U6 | Opus validation, with up to two repair rounds. After every cut: a seam scan and a dependent-sentence re-read. Also: close-to-objective mapping, the excerpt check, every speed sentence names its build and is labelled an example run (criterion 20), pointer promises (criterion 11), the cross-language and outcome greps | U5a, U5b | done |
-| U7 | PR, `ci-ok` green (including `free-threaded` under decision 2), ask the owner before merge; squash-merge; tag `r18.x` on main; notes-only release | U6 | todo |
+| U7 | PR, `ci-ok` green (including `free-threaded` under decision 2), ask the owner before merge; squash-merge; tag `r18.x` on main; notes-only release | U6 | done (merged as 3722ab8, tag r18.x) |
 
 Reconciliation rows (step U0). The "How to verify" column uses resolvable tokens.
 

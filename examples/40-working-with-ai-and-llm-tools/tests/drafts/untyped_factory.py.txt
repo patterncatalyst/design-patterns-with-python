@@ -1,0 +1,53 @@
+# Written for the book as a draft to review.
+from abc import ABC, abstractmethod
+from decimal import Decimal
+from typing import Optional
+
+from review_gate.domain import Consignment, Money, RatingError
+
+
+class RateStrategy(ABC):
+    @abstractmethod
+    def calculate(self, consignment):
+        pass
+
+
+class FlatRate(RateStrategy):
+    def calculate(self, consignment):
+        return Money(Decimal("10.00"))
+
+
+class PerKilogramRate(RateStrategy):
+    def __init__(self, rate: Decimal) -> None:
+        self._rate = rate
+
+    def get_rate(self):
+        return self._rate
+
+    def set_rate(self, rate):
+        self._rate = rate
+
+    def calculate(self, consignment):
+        amount = consignment.weight.kilograms * self._rate
+        return Money(amount.quantize(Decimal("0.01")))
+
+
+class RateStrategyFactory:
+    _instance: Optional["RateStrategyFactory"] = None
+
+    def __new__(cls) -> "RateStrategyFactory":
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
+    def create(self, name: str) -> RateStrategy:
+        if name == "flat":
+            return FlatRate()
+        elif name == "per_kg":
+            return PerKilogramRate(Decimal("0.45"))
+        raise RatingError(f"unknown rule {name}")
+
+
+def price(rule: str, consignment: Consignment, /) -> Money:
+    amount: Money = RateStrategyFactory().create(rule).calculate(consignment)
+    return amount
