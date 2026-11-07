@@ -5,7 +5,7 @@ layout: tutorial
 sectionid: docs
 part: "appendices"
 appendix: "F"
-description: "Reference to the programming principles the book's code shows, with the chapter that states it, the tests that witness it and the page it comes from, plus a runnable example of the Law of Demeter."
+description: "Reference to the programming principles the book's code shows, with the chapter that states it, the tests that witness it and, where one was fetched, the page it comes from, plus a runnable example of the Law of Demeter."
 ---
 
 ## Learning objectives
@@ -115,7 +115,7 @@ class _FuelSurcharge(_Charge):
 
 ## Orthogonality
 
-The tips page also says: "Design components that are self-contained, independent, and have a single, well-defined purpose." In the bridge, the booking kind and the carrier vary on separate axes. `test_a_new_booking_kind_needs_no_gateway_change` defines `_ExpressBooking` inside the test, and it runs on either carrier through the gateway's existing `book` and `insure`. The single responsibility test is a second witness: when `test_each_change_moves_only_the_fields_it_feeds` swaps the audit sink, no quote field moves.
+The tips page gives Tip 17, "Eliminate Effects Between Unrelated Things", and says: "Design components that are self-contained, independent, and have a single, well-defined purpose." In the bridge, the booking kind and the carrier vary on separate axes. `test_a_new_booking_kind_needs_no_gateway_change` uses `_ExpressBooking`, a class defined in its test module, and it runs on either carrier through the gateway's existing `book` and `insure`. The single responsibility test is a second witness: when `test_each_change_moves_only_the_fields_it_feeds` swaps the audit sink, no quote field moves.
 
 ## Fail fast
 
@@ -136,9 +136,9 @@ The Python glossary defines the style: "Easier to ask for forgiveness than permi
 
 The Demeter project at Northeastern University hosts the rule. Its [general formulation](https://www2.ccs.neu.edu/research/demeter/demeter-method/LawOfDemeter/general-formulation.html) page gives the motto as "Only talk to your immediate friends", and the aim as "Each unit should have only limited knowledge about other units". Its [object formulation](https://www2.ccs.neu.edu/research/demeter/demeter-method/LawOfDemeter/object-formulation.html) page says "Within a method, messages can only be sent to the following objects", and then lists them.
 
-In paraphrase, the list names the method's parameters, which include the enclosing object itself; a global object, for pragmatic reasons; an immediate part of the enclosing object, stored or computed; and an object the method creates. Under the immediate part, item 2.1 adds an object that a method called on the enclosing object returns, attributes of the enclosing object included, and item 2.2 adds an element of a collection that is an attribute of the enclosing object. Item 2.1 matters here: inside a `Shipment` method `self.invoice` is within the list, and an invoice that arrives as an attribute of someone else's parameter is not.
+In paraphrase, the list names the method's parameters, which include the enclosing object itself; a global object, for pragmatic reasons; an immediate part of the enclosing object, stored or computed; and an object the method creates. Under the immediate part, item 2.1 adds an object that a method called on the enclosing object returns, attributes of the enclosing object included, and item 2.2 adds an element of a collection that is an attribute of the enclosing object. Item 2.1 matters here: inside a `Shipment` method `self.invoice` is within the list, and an invoice read as an attribute of a parameter is not.
 
-The member `examples/46-appendix-f-programming-principles` puts one question to the rule: who answers for the amount due? It has 12 test functions and 18 cases. A `Shipment` holds an `Invoice` and the credits granted against it, and `amount_due()` is the invoice total less each credit. The reader the package ships asks the shipment:
+The member `examples/46-appendix-f-programming-principles` puts one question to the rule: who answers for the amount due? It has 12 test functions and 18 cases. A `Shipment` holds an `Invoice` and the credits granted against it, and `amount_due()` is the invoice total less each credit. The reader the package ships asks the shipment. Two excerpts from `billing.py`, the method `Shipment.amount_due` and the function `remittance_line`:
 
 <!-- fmt:off -->
 ```python
@@ -147,7 +147,11 @@ The member `examples/46-appendix-f-programming-principles` puts one question to 
         for credit in self.credits:
             due = due - credit.amount
         return due
+```
+<!-- fmt:on -->
 
+<!-- fmt:off -->
+```python
 def remittance_line(shipment: Shipment, /) -> str:
     return f"{shipment.consignment_id} {shipment.amount_due()}"
 ```
@@ -173,13 +177,13 @@ The final project's code has the comparison reader's shape in five places.
 | --- | --- | --- |
 | `test_acceptance.py:36-41`, in the helper `acceptance_failures` | `shipment.quote.total`, `shipment.declaration.duty` and `shipment.invoice.total`, and the same three with `.amount` | parts of the parameter `shipment`, and what those parts hold |
 | `test_parts.py:98` | `shipment.quote.total, shipment.invoice.total` | parts of the parameter `shipment`, and what those parts hold |
-| `conftest.py:118`, in a test fake | `self._plan.sailing.origin` | the plan's `sailing`, and what it holds |
+| `conftest.py:118`, in the comparison desk `_EagerBookingDesk` | `self._plan.sailing.origin` | the plan's `sailing`, and what it holds |
 | `desk.py:58` | `self._plan.sailing.origin` | the plan's `sailing`, and what it holds |
 | `billing.py:39`, in `settle` | `invoice.total.amount` | the amount of a total that the parameter `invoice` returned |
 
-Under the object form, a message to the parameter `shipment` or `invoice` is within the list, and so is a message to `self._plan`, an immediate part. A message to what they return is not: the `total` of a quote, the `duty` of a declaration, the `origin` of a sailing. The chains couple their readers to the shape behind the first step. The helper depends on a shipment's invoice having a `total` that has an `amount`, and the desk on a plan carrying a sailing that has an origin.
+Under the object form, a message to the parameter `shipment` or `invoice` is within the list, and so is a message to `self._plan`, an immediate part. An attribute read on what they return is not: the `total` of a quote, the `duty` of a declaration, the `origin` of a sailing. Read to the letter, the list also leaves out the operators and formatting a reader applies to a returned `Money`, such as the `-` in `amount_due` and the f-string in each reader; `test_each_reader_names_the_attributes_it_depends_on` counts attribute names, so it measures the chains and not those. The chains couple their readers to the shape behind the first step. The helper depends on a shipment's invoice having a `total` that has an `amount`, and the desk on a plan carrying a sailing that has an origin.
 
-Two facts limit what these lines show. The objects the chains read are frozen dataclasses (`Shipment`, `Invoice`, `RateQuote`, `CustomsDeclaration`, `Money` and `Sailing`), so nothing changes under a reader after it has looked. And the final project grants no credits: `grep -rni credit` over its `src` prints nothing, and its `Shipment` has no `amount_due`, so there's no credit for these reads to miss. The lines are counter-examples to the form of the rule, not defects any test found, and they stay as written.
+Two facts limit what these lines show. Past the first step, the objects the chains read are frozen dataclasses (`Invoice`, `RateQuote`, `CustomsDeclaration`, `Money` and `Sailing`, held by a frozen `Shipment`); the desk's first step, its stowage plan, is a plain class, but the chain reads only its `sailing`, a frozen `Sailing`. And the final project grants no credits: `grep -rni credit` over its `src` prints nothing, and its `Shipment` has no `amount_due`, so there's no credit for these reads to miss. The lines are counter-examples to the form of the rule, not defects any test found, and they stay as written.
 
 ### Running the member
 

@@ -558,6 +558,21 @@ Reconciliation rows (step X0). The "How to verify" column uses resolvable tokens
 No legacy rows are carried. Rows 199 to 211 change status only (decision 14). Rows 307 to 312 were added 2026-11-07 (O1).
 
 ## Corrections after the build
+- Step X5 round 1 (FAIL, 4 blocking; the orchestrator applied the fixes).
+  - D's "three instances" now reads "three of the book's tests show it".
+  - F's frozen claim now excepts the desk's stowage plan.
+  - F's Demeter reading now says that the operators and formatting applied to a returned `Money` also fall outside the list, and that the attribute-name test measures chains only.
+  - F's composite excerpt is split into two marked excerpts.
+  - Should-fix:
+    - the Strategy Force cell now quotes ch12:32;
+    - heading markup is gone from the Factory Method cell;
+    - F's description and the member README no longer overclaim;
+    - `_ExpressBooking` is module-level;
+    - the conftest row names `_EagerBookingDesk`, in F and in the evidence file;
+    - orthogonality cites Tip 17 by name;
+    - D's Mock Object contrast is qualified to `Mock`;
+    - F:139 is reworded.
+  - Nits: the two `_observed` helpers are told apart, and a trailing blank line in an excerpt is removed. The template-method revert and E's map sentence were judged right.
 - Step X4a: Appendix D is 1,742 prose words (a warning; not padded). It has four excerpts and 26 summary quotes, all exact. Fake Object has no row and is explained in prose; Mock Object is a contrast with no test. `_observed` is called by 4 test functions and `_mismatches` by 3, not the plan's "five". Standard Fixture is the weakest row; it goes to X5 along with Inline and Implicit Setup. C gains "in pytest-mock's sense" (decision 4).
 - Step X4b: Appendix E is 894 prose words, inside its range. Its 98 cells were re-checked against the chapters, and the ch26:22 clause is fixed (decision 7). The agent also moved Template Method in ch03's table to a new "Straddles two buckets" row. The orchestrator **reverted** that move, because figure 03 lists Template Method under dissolves, and the original row is already consistent with ch03's prose: "A function taking hook callables; an ABC hook only where steps share state". ch03 files Command and Visitor by primary bucket in the same way. E now states the map's placement next to ch13's "straddles". The census conflict 1 note stands as "the map files by primary bucket".
 - Step X4c: Appendix F is 1,798 prose words (a warning; not padded). It has five excerpts. DRY is described as "where the rule lives"; simple design as two of Beck's four rules. The five final-project chain lines are in a table with the frozen and no-credit account. The orchestrator removed the duration from the quoted member run. `test_contract_catches_an_accepted_unknown_zone` is cut because no run backed it.

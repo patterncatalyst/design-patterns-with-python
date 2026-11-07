@@ -1,6 +1,6 @@
 # Programming principles reviewed
 
-This example witnesses one principle that no other chapter's tests show: the Law of Demeter. A
+This example witnesses the Law of Demeter, the one principle in the programming-principles appendix that no other chapter's tests already witness. A
 shipment answers `amount_due()`. The reader the package ships, `remittance_line`, asks the shipment
 for it. The comparison reader reaches through the shipment to its invoice. The two give the same
 line until a credit is granted; after that, only the reader that asks the shipment reports the

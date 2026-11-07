@@ -206,7 +206,7 @@ The member (`examples/46-appendix-f-programming-principles`) is built by X1d and
 - both are in `acceptance_failures` (defined at line 31); the helper's lines 36 to 39 also read `shipment.quote.total`, `shipment.quote.total.amount`, `shipment.declaration.duty` and `shipment.declaration.duty.amount`, the same shape as the invoice chain.
 - `examples/39-final-project/tests/test_parts.py:98`: `        totals.append((shipment.quote.total, shipment.invoice.total))` (contains `shipment.invoice.total`; the line also reads `shipment.quote.total`).
 - `examples/39-final-project/src/final_project/desk.py:58`: `            HandlingEvent(consignment.id, HandlingKind.BOOKED, self._plan.sailing.origin)`
-- Also found, not in the plan: `examples/39-final-project/tests/conftest.py:118` holds the same `self._plan.sailing.origin` expression in a test fake.
+- Also found, not in the plan: `examples/39-final-project/tests/conftest.py:118` holds the same `self._plan.sailing.origin` expression in the comparison desk `_EagerBookingDesk`.
 - `examples/39-final-project/src/final_project/billing.py:39`: `        raise SettlementError(f"{payment.amount} does not settle {invoice.total.amount}")`, with the check on line 38 `    if payment != invoice.total:`. `invoice` is a parameter and `.total` its part, so line 39 reads one step past an immediate part (`invoice.total.amount`); line 38 reads only the part.
 
 ## Cut list
