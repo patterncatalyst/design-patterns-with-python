@@ -953,7 +953,11 @@ def deck_owner_names() -> tuple[str, ...]:
         names.append(done.stdout)
     except OSError:
         pass
-    return tuple(dict.fromkeys(n.strip() for n in names if len(n.strip()) >= 3))
+    # The organisation name is the sanctioned creator, so it is never an owner hit.
+    kept = (n.strip() for n in names)
+    return tuple(
+        dict.fromkeys(n for n in kept if len(n) >= 3 and n.casefold() != DECK_OWNER.casefold())
+    )
 
 
 def deck_field(xml: str, tag: str) -> str | None:
