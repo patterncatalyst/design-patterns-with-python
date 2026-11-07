@@ -1,4 +1,4 @@
-"""A mediator that releases a held declaration once duty and inspection have both reported."""
+"""A mediator that releases a held declaration once the reports it is still owed have arrived."""
 
 from collections.abc import Callable
 from dataclasses import dataclass

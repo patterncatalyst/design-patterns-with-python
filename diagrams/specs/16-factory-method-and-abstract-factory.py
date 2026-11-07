@@ -26,7 +26,7 @@ nodes = [
         "w": 230,
         "h": 76,
         "style": "box",
-        "lines": ["GATEWAYS", "Factory Method: a constructor", "in a Callable slot"],
+        "lines": ["GATEWAYS", "Factory Method: a constructor", "in a Callable slot, per code"],
     },
     {
         "x": 20,
@@ -65,8 +65,6 @@ edges = [
     {"x1": R_MID, "y1": KIT_Y + 56, "x2": R_MID, "y2": GW_Y},
     {"x1": L_MID, "y1": GW_Y + 56, "x2": L_MID, "y2": LP_Y, "label": "FastlineReference"},
     {"x1": R_MID, "y1": GW_Y + 56, "x2": R_MID, "y2": LP_Y, "label": "AircoReference"},
-    {"x1": 135, "y1": 346, "x2": LEFT_X, "y2": GW_Y + 28, "dashed": True},
-    {"x1": 250, "y1": 518, "x2": LEFT_X, "y2": LP_Y + 28, "dashed": True},
 ]
 
 emit("16-factory-method-and-abstract-factory", 1000, 730, nodes=nodes, edges=edges)

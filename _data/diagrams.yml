@@ -127,8 +127,8 @@
   caption: >-
     One consignment lifecycle, two ways to write it. A read-only table maps
     a status and an event to the next status; a match over frozen states
-    does the same with per-state data, and an injected generator drives
-    transit delays.
+    does the same with per-state data, and any other pair is refused. An
+    injected generator drives transit delays.
 
 - name: 15-command-undo-and-command-queues
   section: "Ch. 15"
@@ -206,8 +206,8 @@
   caption: >-
     A declaration passes along an ordered tuple of clearance stages; the first
     stage that decides ends the walk, and a clean one is released by the final
-    stage. A consignment held for duty or inspection waits on a mediator that
-    releases it once.
+    stage. A separate mediator releases a declaration after the reports it is
+    owed arrive.
 
 - name: 24-iterator-generators-and-the-iterator-protocol
   section: "Ch. 24"

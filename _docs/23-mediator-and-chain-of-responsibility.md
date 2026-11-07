@@ -4,7 +4,7 @@ order: 23
 layout: tutorial
 sectionid: docs
 part: "coordinating-traversing"
-description: "A chain of responsibility is a tuple of callables, but which stage runs first and who decides when nobody does are still decisions, and a mediator keeps the rule for releasing a declaration held for duty or inspection in one place."
+description: "A chain of responsibility is a tuple of callables, but which stage runs first and who decides when nobody does are still decisions, and a mediator keeps the rule for releasing a declaration, once its duty and inspection reports have arrived, in one place."
 ---
 
 ## Learning objectives
@@ -19,7 +19,7 @@ By the end of this chapter you can:
 
 ## Why this matters
 
-Customs clearance is a row of checks, and each one can stop a consignment: the documents are incomplete, the duty is unpaid, the commodity needs inspection. The code that submits a declaration shouldn't know which check stops it, and a new check shouldn't mean an edit at every call site. That's the force behind Chain of Responsibility. A consignment held for duty or inspection then waits on two parties who don't know each other, billing and the inspection party, and something has to decide when both have reported. That's the force behind Mediator. One story joins them: the chain decides whether a declaration is held, and one held for duty or inspection waits on the mediator. Three things go wrong in the obvious versions.
+Customs clearance is a row of checks, and each one can stop a consignment: the documents are incomplete, the duty is unpaid, the commodity needs inspection. The code that submits a declaration shouldn't know which check stops it, and a new check shouldn't mean an edit at every call site. That's the force behind Chain of Responsibility. A consignment held for duty or inspection then waits on two parties who don't know each other, billing and the inspection party, and something has to decide when the reports it is owed have arrived. That's the force behind Mediator. One story joins them: the chain decides whether a declaration is held, and the mediator decides when a held one is released. Three things go wrong in the obvious versions.
 
 A restricted batch of batteries is cleared. Someone appended the inspection stage after the release stage, so release decided first. mypy accepts the code.
 
@@ -29,9 +29,9 @@ Billing and the inspection party are wired to tell each other what happened. A s
 
 Each is a decision, and both patterns survive because Python's syntax doesn't make those decisions for you.
 
-{% include excalidraw.html name="23-mediator-and-chain-of-responsibility" caption="Figure 23.1: A declaration passes along an ordered tuple of clearance stages; the first stage that decides ends the walk, and a clean one is released by the final stage. A consignment held for duty or inspection waits on a mediator that releases it once." %}
+{% include excalidraw.html name="23-mediator-and-chain-of-responsibility" caption="Figure 23.1: A declaration passes along an ordered tuple of clearance stages; the first stage that decides ends the walk, and a clean one is released by the final stage. A separate mediator releases a declaration after the reports it is owed arrive." %}
 
-Read the figure from the top down. `CustomsDeclaration` goes to `clear`, "walks the stages in order". Below it sit `check_documents`, `assess_duty` and `inspect_goods`, each with a "None: pass it on" arrow down, and then `release`, "final stage: decides". Each stage also has an arrow to `Held`, "the stage stops the walk". `Held` goes, for duty or inspection, to `ClearanceMediator`, "releases once nothing is outstanding". `Settlement` and `Inspection` feed the mediator, which sends `CLEARED` to `TrackingHistory.record`. A muted dashed box, "linked chain", reads "falls off the end with None".
+Read the figure from the top down. `CustomsDeclaration` goes to `clear`, "walks the stages in order". Below it sit `check_documents`, `assess_duty` and `inspect_goods`, each with a "None: pass it on" arrow down, and then `release`, "final stage: decides". Each stage also has an arrow to `Held`, "the stage stops the walk", and the figure draws nothing out of `Held`. On the right, apart from the chain, `Settlement` and `Inspection` feed `ClearanceMediator`, "releases once nothing is outstanding", which sends `CLEARED` to `TrackingHistory.record`. A muted dashed box, "linked chain", reads "falls off the end with None".
 
 ## A chain is a tuple of stages
 
@@ -62,7 +62,7 @@ def clear(
     return final(declaration)
 ```
 
-Three decisions are visible in it. What "pass it on" means: a stage returns `None`. Which stage runs first: the order of `stages`, which the caller supplies, and `CLEARANCE_STAGES` is the default tuple of `check_documents`, `assess_duty` and `inspect_goods`. Who decides when nobody does: `final`, which defaults to `release`.
+Three decisions are visible in it. What "pass it on" means: a stage returns `None`. Which stage runs first: the order of `stages`, which the caller supplies, and `CLEARANCE_STAGES` is the tuple of `check_documents`, `assess_duty` and `inspect_goods` that the tests pass in. Who decides when nobody does: `final`, which defaults to `release`.
 
 The first stage that decides wins. `test_the_first_stage_that_decides_wins` gives a declaration with no documents and unpaid duty, and the reason is the missing invoice, because `check_documents` runs before `assess_duty`. Stages after the winner don't run: `test_stages_after_a_decision_are_not_called` records the names of the stages that were called and gets `["passing", "holding"]`, with a third stage left out. A clean declaration reaches the final stage and is released (`test_a_clean_declaration_is_released`). A restricted commodity, a missing document and unpaid duty are each held, in the tuple form and in the two comparison forms below (`test_a_restricted_commodity_is_held_for_inspection`, `test_a_declaration_missing_a_document_is_held` and `test_an_unpaid_declaration_is_held_for_duty`).
 
@@ -291,7 +291,7 @@ Only the duplicate settlement fails: after release, a second message calls `_try
 - Write the chain: `clear(declaration, stages, /, *, final=release)`, where `None` passes and `final` is a `FinalStage`, witnessed by `test_the_first_stage_that_decides_wins` and `test_stages_after_a_decision_are_not_called`.
 - Know what mypy checks: a stage's shape, a final stage that can pass and a missing `match` arm, and not the order, as `test_a_stage_added_after_release_clears_a_restricted_commodity` shows.
 - Release once: `ClearanceMediator.receive` and `_try_release`, in either order, witnessed by `test_the_mediator_releases_in_either_order` and experiment two.
-- Choose a form: a `match` for closed rules, a signal for independent parties, and the mediator where one rule needs both reports, as `test_a_choreography_loses_a_settlement_that_arrives_before_inspection` shows.
+- Choose a form: a `match` for closed rules, a signal for independent parties, and the mediator where one rule needs the reports it is owed, as `test_a_choreography_loses_a_settlement_that_arrives_before_inspection` shows.
 
 ## For deeper coverage
 

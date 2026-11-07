@@ -45,9 +45,6 @@
 <text x="370.0" y="360.0" font-size="11" fill="#ffffff" stroke="#ffffff" stroke-width="3" paint-order="stroke" text-anchor="middle">Held: stop here</text>
 <text x="370.0" y="360.0" font-size="11" fill="#555" text-anchor="middle">Held: stop here</text>
 <path d="M320,470 L420,390" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
-<path d="M620,370 L690,370" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
-<text x="655.0" y="428.0" font-size="11" fill="#ffffff" stroke="#ffffff" stroke-width="3" paint-order="stroke" text-anchor="middle">duty or inspection</text>
-<text x="655.0" y="428.0" font-size="11" fill="#555" text-anchor="middle">duty or inspection</text>
 <path d="M750,260 L780,340" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
 <path d="M900,260 L870,340" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
 <path d="M825,410 L825,500" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>

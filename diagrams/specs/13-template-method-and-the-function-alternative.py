@@ -8,7 +8,7 @@ STEP_X = 340
 STEP_W = 250
 STEP_H = 50
 STEPS = [
-    ("ink", ["refuse no commodities", "invariant"]),
+    ("ink", ["refuse an empty consignment", "invariant"]),
     ("user", ["classify each commodity", "hook"]),
     ("ink", ["total in one currency", "invariant"]),
     ("user", ["assess duty", "hook"]),

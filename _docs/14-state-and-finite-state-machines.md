@@ -25,7 +25,7 @@ A tracking record keeps a `status` field. Nothing stops a caller setting it from
 
 {% include excalidraw.html name="14-state-and-finite-state-machines" caption="Figure 14.1: One consignment lifecycle, two ways to write it. A read-only table maps a status and an event to the next status; a match over frozen states does the same with per-state data, and an injected generator drives transit delays." %}
 
-Read the figure from the top. `TRANSITIONS`, a read-only table, and `apply_event`, a match ending in `assert_never`, both lead into the lifecycle `Booked`, `Loaded`, `InTransit`, `Cleared` and `Delivered`, the terminal state. A dashed box beside `InTransit` reads "each day: delay with probability p (injected Random)". A dashed arrow labelled "any other event" runs from `Delivered` to the accent box, "illegal event: TransitionError", and the tests hold both forms to that.
+Read the figure from the top. `TRANSITIONS`, a read-only table, and `apply_event`, a match ending in `assert_never`, both lead into the lifecycle `Booked`, `Loaded`, `InTransit`, `Cleared` and `Delivered`, the terminal state. A dashed box beside `InTransit` reads "each day: delay with probability p (injected Random)". Dashed arrows run from every status, `Delivered` included, to the accent box, "any pair outside the lifecycle: TransitionError". Both forms refuse every status and event pair that isn't one of the four steps, and the tests hold them to that.
 
 ## The force that remains
 

@@ -10,7 +10,7 @@ card_title: "Who decides, in what order, and when to release"
 ---
 
 One shipping domain witnesses both patterns: customs clearance. A declaration passes along an
-ordered chain of stages until one holds it, and one held for duty or inspection then waits on a mediator. Each
+ordered chain of stages until one holds it, and a separate mediator releases it after the reports it is owed have arrived. Each
 test asserts the behaviour named in its title.
 
 ## The chain

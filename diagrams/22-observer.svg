@@ -25,7 +25,5 @@
 <path d="M420,230 L200,300" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
 <path d="M500,230 L500,300" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
 <path d="M580,230 L800,300" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
-<path d="M200,370 L420,450" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
-<path d="M500,370 L500,450" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
 <path d="M800,370 L580,450" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
 </svg>
