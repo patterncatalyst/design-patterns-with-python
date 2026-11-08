@@ -127,7 +127,11 @@ def test_the_golden_quotes_catch_a_refactor_that_changes_rounding(
 ) -> None:
     mismatches = _mismatches(_observed(engine_forms[form](*rate_cards)), _read_golden(GOLDEN_PATH))
     assert [line.split(":")[0] for line in mismatches] == expected
-    assert mismatches[0].startswith(f"{expected[0]}: golden ")
+    first = {
+        "cent-first": "EU-11: golden FASTLINE 14.84, now FASTLINE 14.85",
+        "round-builtin": "EU-30: golden FASTLINE 32.51, now FASTLINE 32.50",
+    }
+    assert mismatches[0] == first[form]
 
 
 def test_round_with_two_digits_rounds_half_to_even_in_the_default_context() -> None:

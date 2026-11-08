@@ -70,4 +70,4 @@ def test_mypy_refuses_a_gateway_without_cancel(tmp_path: Path) -> None:
 
     assert [_codes(bare), _codes(complete)] == [["arg-type"], []]
     assert (bare_status, complete_status) == (1, 0)
-    assert "CarrierGateway" in bare
+    assert [line for line in bare.splitlines() if "[arg-type]" in line and "CarrierGateway" in line]

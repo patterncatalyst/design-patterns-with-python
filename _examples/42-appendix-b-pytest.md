@@ -11,7 +11,7 @@ card_title: "pytest run inside pytest"
 
 One small rating module carries the examples. `quote` prices a `Consignment` by weight and zone,
 `rate_batch` raises one exception group holding every failure, `legacy_quote` is deprecated, and
-`write_quotes` writes lines to the current `sys.stdout`.
+`write_quotes` writes lines to the stream it is given, or to the current `sys.stdout` when it is given none.
 
 ## Inner sessions
 
@@ -36,7 +36,7 @@ From the repository root, once:
 uv sync --locked --all-packages
 ```
 
-Then from the example directory:
+Then change into the example directory:
 
 ```bash
 cd examples/42-appendix-b-pytest

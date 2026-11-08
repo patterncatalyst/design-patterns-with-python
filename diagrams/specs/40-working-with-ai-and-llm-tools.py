@@ -25,7 +25,11 @@ emit(
         },
         {
             "h": 80,
-            "lines": ["shape review: review_gate.shape", "reports typed_hierarchy"],
+            "lines": [
+                "shape review: review_gate.shape",
+                "reports untyped_factory,",
+                "typed_hierarchy",
+            ],
             "style": "box",
             "w": 290,
             "x": 335,
@@ -33,7 +37,11 @@ emit(
         },
         {
             "h": 80,
-            "lines": ["behaviour oracle: GRID", "reports rounded_callable"],
+            "lines": [
+                "behaviour oracle: GRID",
+                "reports untyped_factory,",
+                "rounded_callable",
+            ],
             "style": "box",
             "w": 290,
             "x": 640,

@@ -6,7 +6,7 @@ description: A mocking reference whose API rows are tests of unittest.mock and p
 github_path: examples/43-appendix-c-mocking
 card_eyebrow: "Appendices · Mocking reference"
 card_blurb: "Each API row of the reference is a test on the pinned pytest-mock. Autospecs, call records, patches, spies and stubs run against one carrier gateway, and two static tests show what mypy sees."
-card_title: "A mock that checks the most"
+card_title: "A fake first, an autospec next, a patch last"
 ---
 
 One small booking module carries the examples. `CarrierGateway` is a protocol with `quote` and
@@ -21,8 +21,9 @@ tests only, because the mock API is the subject; the source holds none.
 
 ## Doubles, calls and patches
 
-Each form of double has a test for what it refuses: `spec_set`, `seal`, the assertion typo and
-`wraps`. Call records are read back with `mock_calls`, `call_args_list`, `ANY` and
+`spec_set`, `seal` and the assertion typo each have a test for what they refuse. `wraps` has one
+for the calls it passes through to the real gateway, and `MagicMock` and `AsyncMock` have tests for
+what they add. Call records are read back with `mock_calls`, `call_args_list`, `ANY` and
 `assert_has_calls`. Patching through `mocker` covers `patch.object` with `autospec`,
 `patch.dict`, `stop` and the context-manager warning, and the spies and stubs have tests of their
 own, including what `resetall` leaves alone.
@@ -41,7 +42,7 @@ From the repository root, once:
 uv sync --locked --all-packages
 ```
 
-Then from the example directory:
+Then change into the example directory:
 
 ```bash
 cd examples/43-appendix-c-mocking

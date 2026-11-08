@@ -25,7 +25,7 @@ def test_raises_match_is_a_regex_search() -> None:
         quote(unknown)
 
     with (
-        pytest.raises(AssertionError, match="Regex pattern did not match"),
+        pytest.raises(AssertionError, match=r"^Regex pattern did not match"),
         pytest.raises(RatingError, match=r"^zone MARS"),
     ):
         quote(unknown)
@@ -38,7 +38,7 @@ def test_raises_check_tests_the_exception_object() -> None:
         quote(heavy)
 
     with (
-        pytest.raises(AssertionError, match="did not return True"),
+        pytest.raises(AssertionError, match=r"did not return True$"),
         pytest.raises(OverweightError, check=lambda error: str(error).startswith("CN-2")),
     ):
         quote(heavy)

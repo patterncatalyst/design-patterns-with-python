@@ -10,8 +10,8 @@ for one named claim, and only once it has been seen to fail with the check it gu
 Fixtures and parametrize.
 
 - Fixtures supply dependencies by parameter name from `conftest.py`. `make_fake` is a factory
-  fixture, and `quote_log` is a `yield` fixture whose teardown line is written whether the test
-  passes or fails.
+  fixture, and `quote_log` is a `yield` fixture whose teardown appends a line and prints its name; the
+  chapter's third experiment shows that line printed for a failing test.
 - `pytest.param(..., id=...)` names each case after the claim it carries.
 
 What each double checks.

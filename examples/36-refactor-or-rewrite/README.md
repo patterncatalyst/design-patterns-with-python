@@ -83,5 +83,5 @@ uv run mypy --strict src tests
 - `test_mypy_requires_the_rewrite_to_take_a_consignment`: a rewrite that takes a zone and a
   weight is an `arg-type` error at `Router`, and `quote` is accepted.
 
-The tests use no mocks and no patching. The engines are pure functions of a consignment, and the
+The tests use no mocks and no patching. Each engine's quote depends only on the consignment, and the
 router's tests pass plain functions.

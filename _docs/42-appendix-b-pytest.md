@@ -56,7 +56,7 @@ The same release added a `strict` option. `strict = true` enables `strict_config
 
 The [configuration page](https://docs.pytest.org/en/stable/reference/customize.html) offers two TOML forms: "Use [tool.pytest] to leverage native TOML types (supported since pytest 9.0)" and "Use [tool.pytest.ini_options] for INI-style configuration (supported since pytest 6.0)". The root file uses the second.
 
-One configuration file applies to a run. The same page says "Options from multiple configfiles candidates are never merged", and that "the first match wins". `test_the_first_config_file_wins_and_is_not_merged` builds an inner root with `--strict-markers` and a subdirectory with its own table. Run on the root, an unregistered marker is a collection error. Run on the subdirectory, the same marker passes with one warning, because the root's options are gone. That's why the members carry no pytest table: appended to a member's `pyproject.toml`, a table with `addopts = ""` turned a failing `DeprecationWarning` test into a pass with one warning, and the header named the member's file as the configuration file.
+One configuration file applies to a run. The same page says "Options from multiple configfiles candidates are never merged", and that "the first match wins". `test_the_first_config_file_wins_and_is_not_merged` builds an inner root with `--strict-markers` and a subdirectory with its own table. Run on the root, an unregistered marker is a collection error. Run on the subdirectory, the same marker passes with one warning, because the root's options are gone. That's why the members carry no pytest table. `test_a_member_table_replaces_the_root_filter_and_names_its_own_file` builds the layout: a root table with `filterwarnings = ["error"]` and a member directory whose own `pyproject.toml` has a table with `addopts = ""`. Run with the root's file, the `DeprecationWarning` test fails. Run in the member, the same test passes with one warning, and the header names the member directory as the root and `pyproject.toml` as the configuration file.
 
 ## Inner sessions
 
@@ -224,7 +224,7 @@ uv run pytest -q
 uv run mypy --strict src tests
 ```
 
-A fresh run of the member has 38 test functions and 43 cases, and ends `43 passed`. The mypy run ends `Success: no issues found in 14 source files`.
+A fresh run of the member has 39 test functions and 44 cases, and ends `44 passed`. The mypy run ends `Success: no issues found in 14 source files`.
 
 ## For deeper coverage
 

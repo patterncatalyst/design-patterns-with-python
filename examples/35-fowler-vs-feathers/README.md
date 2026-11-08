@@ -9,7 +9,7 @@ illustrative.
 
 `legacy.py` is the engine as inherited: its constructor already takes `fastline_quote`,
 `airco_price` and `margin` as keyword parameters, and its only tests are five rows written from the
-requirement. `refactored.py` is the same engine after two catalogue refactorings.
+requirement. `refactored.py` is the same engine after three catalogue refactorings.
 
 - Extract Function: `_cheapest` and `_with_margin` hold the choice and the margin.
 - Replace Primitive with Object: carrier prices are `Money` at full precision, and only the total

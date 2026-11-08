@@ -52,7 +52,7 @@ def make_fake() -> FakeFactory:
 
 @pytest.fixture
 def quote_log(tmp_path: Path) -> Iterator[Path]:
-    """A log file for the test; the teardown line is written whether the test passes or fails."""
+    """A log file for the test; after the yield, the teardown appends a line and prints its name."""
     log = tmp_path / "quotes.log"
     log.write_text("setup\n", encoding="utf-8")
     yield log
