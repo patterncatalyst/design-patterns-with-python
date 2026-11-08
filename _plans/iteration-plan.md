@@ -41,8 +41,8 @@ PR, squash-merge with branch deletion, an `rNN.x` tag and a notes-only release.
 | r20 | Appendices A-C |
 | r21 | Appendices D-F |
 | r22 | Deck 101 |
-| r23 (active) | Deck 201 |
-| r24 | Deck 301 |
+| r23 | Deck 201 |
+| r24 (active) | Deck 301 |
 | r25 | Retro and QA sweep |
 
 ## Registry
@@ -199,8 +199,8 @@ PR, squash-merge with branch deletion, an `rNN.x` tag and a notes-only release.
 | PDP-145 | Appendix E: Pattern-to-force quick reference | r21 | done |
 | PDP-146 | Appendix F: Programming principles reviewed in code | r21 | done |
 | PDP-150 | Deck 101 | r22 | done |
-| PDP-151 | Deck 201 | r23 | active |
-| PDP-152 | Deck 301 | r24 | todo |
+| PDP-151 | Deck 201 | r23 | done |
+| PDP-152 | Deck 301 | r24 | active |
 
 2026-11-04 (r05): Python 3.15.2. PDP-109a to PDP-111c are active for r05, and the book moves to Python 3.15.2. Earlier iterations keep their status.
 
@@ -239,3 +239,5 @@ PR, squash-merge with branch deletion, an `rNN.x` tag and a notes-only release.
 2026-11-07 (r22): PDP-150 is active for r22 (Deck 101). PDP-144 to PDP-146 are closed (r21 is merged as db8f3ce and tagged r21.x), r21 is closed and r22 is marked active in the roadmap. Earlier iterations keep their status.
 
 2026-11-07 (r23): PDP-151 is active for r23 (Deck 201). PDP-150 is closed (r22 is tagged r22.x), r22 is closed and r23 is marked active in the roadmap. Registry bookkeeping (B1): every iteration to r22 is tagged, so the 31 rows left `todo` for r01 and r02 and the 48 rows left `active` for r03 to r09 are now `done`, as is PDP-150. PDP-101a and PDP-104a stay `n.a. (argument chapter)` and PDP-102a stays `covered by PDP-103a`. PDP-152 stays `todo`.
+
+2026-11-07 (r24): r23 is closed: PR #24 was squash-merged as 6c27a6f and tagged r23.x, so PDP-151 is `done`. PDP-152 is active for r24 (Deck 301), and r24 is marked active in the roadmap (K1).

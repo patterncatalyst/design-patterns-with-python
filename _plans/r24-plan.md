@@ -421,7 +421,7 @@ Build, from `<repo>/presentation`: `npm ci`; `./render-png.sh --deck 301`; `node
 
 | Step | What | Depends | Status |
 | --- | --- | --- | --- |
-| D0 | Bookkeeping with dated notes: `iteration-plan.md` closes r23 (PDP-151 `done`), marks PDP-152 and r24 `active` (K1); the r23 plan's Z6 `done` and its confirmation note (K2); re-check every pin; record the owner's decisions; `verify.sh` and `validate.py` green | - | todo |
+| D0 | Bookkeeping with dated notes: `iteration-plan.md` closes r23 (PDP-151 `done`), marks PDP-152 and r24 `active` (K1); the r23 plan's Z6 `done` and its confirmation note (K2); re-check every pin; record the owner's decisions; `verify.sh` and `validate.py` green | - | done |
 | D1a | `render-png.sh` figs_301 and `--deck 301`, `build-notes.md` (K3); V1 in `check_decks()` with a self-test that fails without it; the identity proof for 101 and 201; the two PNGs after D1c's figure fixes | D0, D1c for the PNGs | todo |
 | D1b | `_plans/evidence/r24-deck-witness-census.md`, after D1c, so lines, anchors, counts and the figure census are taken from the fixed tree | D1c | todo |
 | D1c | Decision 5's book fixes P1 to P21, F1 and F2, each with its example's tests, `verify.sh` and `validate.py` green and every recurrence grepped; quoted runs re-captured where counts moved (P4, P5); figures regenerated through `diagrams/specs`; `site-build.sh` green | D0 | todo |
@@ -516,7 +516,7 @@ Rows 399 to 429 go in at D2, after the census exists (so its `run:` path resolve
 
 ## Corrections after the build
 
-None yet.
+- Step D0: K1 and K2 are applied in `_plans/iteration-plan.md` and `_plans/r23-plan.md`. Every pin was re-checked on 2026-11-07 against upstream and is unchanged: pptxgenjs 4.0.1 (`dist-tags.latest`; `beta` 4.0.1-beta.2 not used), image-size 2.1.0, cairosvg 2.9.1, CPython 3.15.2 (endoflife.date cycle 3.15), uv 0.13.7, pytest 9.2.0, pytest-mock 3.17.0, mypy 2.4.1, ruff 0.17.4. No pin row changed, so `r01-build-plan.md` is untouched.
 
 ## Hand-off to r25 (retro and QA sweep)
 
