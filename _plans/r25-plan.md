@@ -402,7 +402,7 @@ C1a and C1b run first, alone, because they touch many files mechanically. Then C
 | C2f | Site chrome, CSS figure breakout, README Status; screenshots | C1a | done |
 | C2g | Cards and READMEs (CD), decks DK1 to DK6 and FG2 with QA pipeline step 6 | C1a | done |
 | C3a | Whole-book quoted-output re-run in a fresh copy after C2a to C2e; mismatches returned to the doc owner and fixed | C2a to C2e | done |
-| C3b | Integration: every gate (QA step 2), the link sweep, the legibility check, `site-build.sh`; evidence file brought up to date | C3a, C2f, C2g | todo |
+| C3b | Integration: every gate (QA step 2), the link sweep, the legibility check, `site-build.sh`; evidence file brought up to date | C3a, C2f, C2g | done |
 | C4a | Reconciliation: the 32 legacy rows re-witnessed (decision 6), VA5, rows 437 onward added with resolving tokens | C3b | todo |
 | C5a | Opus validation with the three independent readers (QA steps 7 and 8); rows that start `open` closed | C4a | todo |
 | C5b | Repair rounds (at most two), each followed by a confirmation, the last one included (QA step 9) | C5a | todo |
@@ -472,6 +472,12 @@ Row 30's deepcopy claim (VO6) gets a row at C4a only if TS2 adds its test. A def
   - **CLAUDE.md:** the sidebar rule, the spine (decision 8), and dated notes for decision 7 and O2.
   - The new checks flag Deck 101 notes 2 and 3 ("the deck"), which are DK2 and fixed at C2g. Until then `validate.py` shows those 2 errors.
   - **Incident:** C1a ran `git stash` in the shared tree and briefly took C1b's uncommitted edits. The pop restored them, and C1b re-applied one lost token move. Parallel briefs now forbid `git stash` and `git checkout` of files an agent doesn't own.
+- Step C3b: done in ec99e6c.
+  - Gates: all green. 1407 tests, `validate.py` 0 errors (6 accepted warnings), `--claims` and `--self-test` ok, ruff, `host_ids` 0, the ban scan 0, `site-build.sh` ok with the lock unchanged, and `render-png.sh --check` reports the same for 13 figures.
+  - Idiom scan: the 69 ban-tier hits are all `print()` in CLI and benchmark scripts, where the print is the output.
+  - Links: 199 distinct pages all end at 200, the 2 redirects are expected (the uv installer and the `.git` clone URL), and 13 of 13 fragments resolve.
+  - Overflow, measured in headless Firefox: 10 of 47 docs scrolled sideways at 390 px. The causes were wide tables and a long title (CSS fix: tables scroll in their own box and headings break) and a kramdown-mangled paragraph at `07.md:169`, from a code span with leading spaces, now prose that `test_repr_str_and_format_serve_different_readers` witnesses. Now 0 of 47 scroll at 390 or 1280 px.
+  - `17:295`: the doc carries the cold-cache order. The command gains `--no-incremental` so the order holds from any cache state; C3a's note had the cache states the wrong way round.
 - Step C3a: done in 9928603.
   - 185 quoted blocks were re-run in a fresh copy: 181 match and 4 were fixed.
     - 30:219 and 30:236: lines 195 and 218 became 201 and 224, and the case count went from 40 to 41.
