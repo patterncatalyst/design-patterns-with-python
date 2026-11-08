@@ -29,7 +29,7 @@ Read the figure from the top. Four boxes step down the left: `legacy` ("enabling
 
 ## Pin what the code does today
 
-A characterisation test records what code does, so that a change can be told apart from a fix. Michael Feathers's *Working Effectively with Legacy Code* takes up the idea in the chapter "I Need To Make a Change but I Don't Know What Tests To Write". Here the expectation in each row is what the engine returns, whether or not anyone would have chosen it. Two rows of `CHARACTERISATION_ROWS`, the table for the legacy engine, are behaviour a reviewer might call wrong:
+A characterisation test records what code does, so that a change can be told apart from a fix. Michael Feathers's *Working Effectively with Legacy Code* takes up the idea in the chapter "I Need to Make a Change, but I Don't Know What Tests to Write". Here the expectation in each row is what the engine returns, whether or not anyone would have chosen it. Two rows of `CHARACTERISATION_ROWS`, the table for the legacy engine, are behaviour a reviewer might call wrong:
 
 <!-- fmt:off -->
 ```python
@@ -265,4 +265,4 @@ The five `subclass` rows of the table fail, because the base class's `_airco_pri
 
 ## For deeper coverage
 
-Michael Feathers's *Working Effectively with Legacy Code* (2004) is the source for characterisation tests and for the catalogue of dependency-breaking techniques: read "I Need To Make a Change but I Don't Know What Tests To Write", "My Application Is All API Calls" and "Dependency Breaking Techniques". The [`functools.partial` entry](https://docs.python.org/3.15/library/functools.html) documents the binding used at the root. [Fowler vs Feathers, contrasted and combined]({{ '/docs/35-fowler-vs-feathers/' | relative_url }}) and [Refactor or rewrite]({{ '/docs/36-refactor-or-rewrite/' | relative_url }}) are the related titles. The book is listed in the [bibliography]({{ '/bibliography/' | relative_url }}).
+Michael Feathers's *Working Effectively with Legacy Code* (2004) is the source for characterisation tests and for the catalogue of dependency-breaking techniques: read "I Need to Make a Change, but I Don't Know What Tests to Write", "My Application Is All API Calls" and "Dependency Breaking Techniques". The [`functools.partial` entry](https://docs.python.org/3.15/library/functools.html) documents the binding used at the root. [Fowler vs Feathers, contrasted and combined]({{ '/docs/35-fowler-vs-feathers/' | relative_url }}) and [Refactor or rewrite]({{ '/docs/36-refactor-or-rewrite/' | relative_url }}) are the related titles. The book is listed in the [bibliography]({{ '/bibliography/' | relative_url }}).
