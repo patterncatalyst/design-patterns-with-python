@@ -70,3 +70,42 @@ Every page was viewed in contact sheets of four (`magick montage`). Findings:
 ## Gates
 
 `validate.py` 0 errors, `--self-test` ok, `--claims` resolves rows 399 to 429; `host_ids.py check` 0 hits in 883 files; the repo-wide ban scan 0; `render-png.sh --check` prints `same` for 18 figures; `ruff format --check` clean; `verify.sh` passed (1406 tests).
+
+## Voice pass (2026-11-07, D4b)
+
+Rules applied: the house-voice rubric (meta-narration, flourishes, importance assertions, philosophy-teacher moves, self-validating asides, rule of three, scope words, uniform bullets, example-first openings), plus accuracy against the census and the chapters. Every note and slide was read. No chapter, appendix, book or internal-code pointer was found. The pointer grep was re-run after the pass: the remaining hits are plain words ("next band's price", "next prompt", "later" inside the Meszaros definition, "above 5 and 50 kg", `test_unittest_mock_patch_follows_the_same_lookup_rule`), `book` as the shipping verb, and "example directory" on the closing slide. The cross-language grep has 0 hits. The AI-claim grep hits are `never` in the experiment sentences and test names, and `often` inside Fowler's attributed quotation; no vendor, frequency or productivity word.
+
+Two specific checks:
+- The seams notes (slide 14) did not quote Feathers; they paraphrased his definition as "without editing in that place", a wording the chapter doesn't carry. The sentence now follows the chapter's own: a seam is a place where behaviour can be changed from outside the code, and the enabling point is the spot where the change is made. It stays attributed and carries no quotation marks.
+- The slide-text sentence-length p90 of 270 is an extraction artefact: `notes.py --slides` joins code lines and table cells without full stops, so a whole listing counts as one sentence. The longest real prose sentence on a slide is about 167 characters (the closing slide's run instructions). No run-on was found.
+
+Changes: 22. By kind: scope 10, flourish 4, accuracy 2, philosophy 2, example-first 2, self-validating 1, meta 1. Slide 18's "five forms" list named three; it now names all five forms the `step` fixture builds (accuracy).
+
+`scan.sh --stats` on Markdown copies. Before: notes 5677 words, 275 sentences, 23/28 contractions, median 19 (p10 to p90 7 to 36), 29 triad candidates, 0 dashes; slides 2697 words, 31 sentences, 3/4, median 16 (12 to 270), 17 triad, 0 dashes. After: notes 5642 words, 272 sentences, 23/28, median 19 (7 to 36), 29 triad, 0 dashes; slides 2690 words, 31 sentences, 3/4, median 16 (12 to 270), 17 triad, 0 dashes. The triad candidates are lists of named items. The expanded forms left are inside code, test names and attributed quotations.
+
+Rebuilt with `node deck-301.js` (42 slides, minimum notes words 63 on the Reference divider, floor 45; content slides stay above 90). Rendered with soffice (private profile) and `pdftoppm`; fonts unchanged (Overpass, Red Hat Text, Red Hat Mono). Pages 6, 20, 22, 24, 25 and 31 viewed, the pages whose slide text changed: no wrap, overflow or clipping. The other changes are in notes. No soffice process remains.
+
+| Kind | Before | After |
+| --- | --- | --- |
+| flourish/example-first | A test is named as a claim, so a failure reads as a broken sentence. This one says what the engine does: it books only the winner. It also asserts | The engine books only the winner, and the test name says so, so a failure reads as a broken sentence. It also asserts |
+| self-validating | A hand-written fake earns a static check, and mypy rejects | A hand-written fake gets a static check, and mypy rejects |
+| scope | Only create_autospec copies the signatures of its target, so | create_autospec copies the signatures of its target, so |
+| scope (slide) | Only create_autospec copies the signatures, so | create_autospec copies the signatures, so |
+| meta | Fallback: the question about which vocabulary is the takeaway. | Fallback: the two rows. |
+| scope | so every global that inherited code reads is a seam. | so a global that inherited code reads is a seam. |
+| accuracy (Feathers wording) | Feathers's seam, a place where behaviour can change without editing in that place, and its enabling point are credited | Feathers's seam, a place where behaviour can be changed from outside the code, and its enabling point, the spot where the change is made, are credited |
+| accuracy (five forms) | five forms of the engine: carriers as parameters, the engine as a function, and a subclass that overrides a method name. | five forms of the engine: the legacy engine, carriers as parameters, a wrapper that fits the quoter shape, the engine as a function, and a subclass that overrides a method name. |
+| flourish | The price of the defaults is the other direction: a test | The defaults have a cost: a test |
+| scope (slide) | each defaulting to the real call. | defaulting to the real calls. |
+| scope | Each dependency-breaking move has a Python form, and this one stays as the comparison. | The parameter forms are the Python ones, and this form stays as the comparison. |
+| scope | where each technique is set out in full. | where the techniques are set out in full. |
+| philosophy | The golden file answers a different question: not "is this right" but "did this change" | The golden file asks "did this change" |
+| scope | so a failure reads the same on every run and the first | so a failure reads the same from run to run and the first |
+| scope (slide) | so a failure reads the same on every run. | so a failure reads the same from run to run. |
+| example-first/flourish | A legacy engine holds behaviour somebody wanted and behaviour nobody chose. The parity test runs both engines over one table of rows. It fails on a new difference and on a stale entry, so the rewrite differs only where the accepted list says (test_the_rewrite_differs_from_the_legacy_engine_only_where_accepted). The legacy engine prices an unknown zone as EU (test_the_legacy_engine_prices_an_unknown_zone_as_eu), and the rewrite refuses it (test_the_rewrite_refuses_an_unknown_zone). | The legacy engine prices an unknown zone as EU (test_the_legacy_engine_prices_an_unknown_zone_as_eu), and the rewrite refuses it (test_the_rewrite_refuses_an_unknown_zone). The parity test runs both engines over one table of rows. It fails on a new difference and on a stale entry, so the rewrite differs only where the accepted list says (test_the_rewrite_differs_from_the_legacy_engine_only_where_accepted). |
+| scope (slide) | Each step registers its inverse as it succeeds; a refusal | The slot and the booking register their inverses as they succeed; a refusal |
+| example-first/aphorism | Something has to decide, and the fewer places that do, the fewer places change when a carrier does. This function chooses the pricing rule as well as the carrier and the subscriber | One function chooses the pricing rule as well as the carrier and the subscriber, so a new carrier changes one place |
+| flourish/importance | a draft that passes all three has been checked on those rows and in those shapes, and no further ( | a draft that passes all three has been checked on those rows and in those shapes ( |
+| flourish/importance | The gates verify accuracy at chosen points, and everything between those points is trust. | The gates verify accuracy at the rows and shapes they list. |
+| scope (slide) | ["Each move", " has a Python form, and subclass and override is the one kept for comparison."] | ["The parameter forms", " are the Python ones, and subclass and override stays as the comparison."] |
+| philosophy (slide) | ["A golden quote", " asks a different question: not is this right, but did this change."] | ["A golden quote", " asks whether anything changed."] |
