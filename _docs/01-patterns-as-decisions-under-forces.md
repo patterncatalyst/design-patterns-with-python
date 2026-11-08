@@ -13,83 +13,155 @@ By the end of this chapter you can:
 
 - State what a pattern records: a context, competing forces, a resolution and its Consequences.
 - Name the template sections the Gang of Four catalogue uses and say why Consequences is the one that supports a decision.
-- List the forces acting on a rate quote and say which party owns the schedule each one changes on.
-- Choose between a pricing function over a `Tariff`, separate pricing-rule callables and a `RateCalculator` Protocol by naming the dominant force.
-- Explain why a force can outlive the structure that once resolved it, and why that makes "is the force still here?" the question to ask of every pattern.
-- Recognise the case where the forces are too weak to justify any pattern.
+- List the pressures on a rate quote and the party that owns the schedule each one changes on.
+- Choose between a pricing function over a `Tariff`, separate pricing-rule callables and a `RateCalculator` Protocol by naming the change that dominates.
+- Explain why a pressure can outlive the structure that once resolved it, and why that makes "is the force still here?" the question to ask of every pattern.
+- Recognise the case where the pressures are too weak to justify any pattern.
 
 ## Why this matters
 
-A catalogue of patterns is easy to read as a catalogue of shapes: here is a class diagram, here is when to draw it. Read that way, a pattern is something you apply, and the only judgement left is whether you recognise the situation. Someone sees a family of rating rules, remembers a diagram with an abstract base class and three subclasses, and builds it, whether or not anything in the system pulls in that direction.
+It's easy to read a pattern catalogue as a catalogue of shapes: a class diagram, and when to draw it. A pattern then becomes something you apply, and the only judgement left is spotting the situation.
 
-The catalogue's own framing is different. A pattern is a solution to a problem in a context, and the problem is a set of forces pulling against each other. The shape is what's left after those forces have been traded off. You stop asking whether the situation looks like the diagram and start asking which forces are present, which one dominates, and what the pattern costs you in return. That framing also makes the question this book asks of every pattern answerable: when the language moves, did the force move with it, or only the mechanism that resolved it?
+Someone sees a family of rating rules and remembers a diagram with an abstract base class and three subclasses. They build it, whether or not anything in the system pulls in that direction.
 
-One problem runs through the whole chapter: quoting a rate for a consignment. It's small enough to hold in your head and it has real tension in it, because its inputs change on different schedules and its outputs get argued over later. The figure shows the decision.
+The catalogue frames a pattern differently, as the compromise left after competing pressures are traded off. So the questions change. Which pressures are present, which one dominates, and what does the pattern cost in return? The framing also makes this book's question about every pattern answerable: when the language moves, did the force move with it, or only the mechanism that resolved it?
+
+One problem runs through the chapter: quoting a rate for a consignment. It's small enough to hold in your head, and it has real tension. Its inputs change on different schedules, and its outputs get argued over later. The figure shows the decision.
 
 {% include excalidraw.html name="01-patterns-as-decisions-under-forces" caption="Figure 1.1: The rate-quote decision under four forces. Carrier tariffs, commercial surcharges and destination tax change on separate schedules while every quote must stay reproducible; the chosen shape follows from which force dominates." %}
 
 ## What a pattern records
 
-The Gang of Four took the idea from the architect Christopher Alexander, whose patterns describe a problem that recurs in a given environment together with the core of a solution, stated so that you can reuse it without ever building it the same way twice. Alexander's problems are made of forces. In his usage a problem is a set of pressures that can't all be satisfied at once. A solution is a particular compromise among them, valid in a particular context.
+A pattern is a solution to a problem in a context, and the problem is a set of forces pulling against each other.
 
-The *Design Patterns* catalogue keeps that structure and spells it out in a fixed template. Each entry has a name and classification, an intent, Also Known As, motivation, applicability, structure, participants, collaborations, consequences, implementation notes, sample code, known uses and related patterns. The authors reduce this to four essential elements: the name, the problem, the solution and the consequences. Most readers go straight to Structure, the diagram. It's the least informative part for a decision, because it shows the answer without the question.
+The Gang of Four took the idea from the architect Christopher Alexander. His patterns describe a problem that recurs in a given environment, together with the core of a solution. You can reuse that core without ever building it the same way twice.
 
-The sections that carry the question are Motivation and Applicability, which describe the forces and the context, and Consequences. Consequences is the ledger. It lists what the pattern buys and what it costs: flexibility gained, indirection added, objects multiplied, a change that used to touch one place now touching two. The catalogue itself presents this section as the one that lets you compare design alternatives, and that is the use made of it here. A pattern whose Consequences you can't state has a cost nobody has counted.
+In Alexander's usage a problem is a set of pressures that can't all be satisfied at once. A solution is one compromise among them, valid in one context.
 
-Two readings follow. A pattern is valid only where its forces are present, so the first job is to name the forces in your own system, not to scan the catalogue for a resembling diagram. And every pattern has a price, paid whether or not the benefit turns up. A hook for variation that never varies is pure cost.
+The *Design Patterns* catalogue keeps that structure in a fixed template. Each entry has a name and classification, an intent, Also Known As, motivation, applicability, structure, participants, collaborations, consequences, implementation notes, sample code, known uses and related patterns. The authors reduce it to four essential elements: the name, the problem, the solution and the consequences. Three of the sections matter most when you choose:
 
-## The rating problem as forces
+| Section | What it tells you |
+| --- | --- |
+| Structure | The diagram. Most readers go straight to it, and it's the least informative part for a choice: it shows the answer without the question. |
+| Motivation and Applicability | The pressures and the context: the question. |
+| Consequences | What the pattern buys and what it costs. |
 
-Take a rate quote in the shipping domain. A customer asks what it will cost to move a `Consignment` from one zone to another, and the system answers with a `RateQuote` built from `Money` amounts. Four forces act on that answer.
+Consequences is the ledger. It lists flexibility gained, indirection added, objects multiplied, a change that used to touch one place now touching two. The catalogue presents this section as the one that lets you compare alternatives, and this book uses it for that. A pattern whose Consequences you can't state has a cost nobody has counted.
 
-**Carrier tariffs change on the carrier's schedule.** A carrier such as FASTLINE or AIRCO publishes a `Tariff`: a price for each combination of zone and weight band. The carrier reissues it when it chooses, often on a fixed date each year, and sometimes with little warning in between. Nothing in your codebase decides when this happens. The force is that the largest block of numbers feeding every quote is owned by someone outside the team.
+Two rules follow. First, a pattern is valid only where its pressures are present, so name them in your own system before you scan the catalogue for a resembling diagram. Second, every pattern has a price, paid whether or not the benefit turns up. A hook for variation that never varies is pure cost.
 
-**Commercial rules change on the commercial team's schedule.** On top of the carrier price sit `Surcharge` and `Discount` rules: a fuel adjustment this quarter, a volume discount for a key account, a remote-area fee that appears when a contract is signed. These are written by people who answer to sales and finance, who move faster than the carrier and have different reasons. They also come and go independently of each other. A discount can be withdrawn without touching the fuel adjustment.
+## Four pressures on a rate quote
 
-**Destination tax changes by jurisdiction.** The tax applied to a quote depends on where the consignment is going, and the rules are set by authorities that publish on their own calendar. Tax has its own owner and its own schedule, and it interacts with the others: whether it applies to the discounted price or the list price is a decision somebody has to be able to read off the code.
+A customer asks what it costs to move a `Consignment` from one zone to another. The system answers with a `RateQuote` built from `Money` amounts. Four pressures act on that answer, each with its own owner.
 
-**Every quote must be reproducible, and every rule testable alone.** A customer disputes an invoice three months after the quote. To settle it, you have to recompute the same `RateQuote` from the same consignment, the tariff that was in force, and the rules that applied at the time, and show how each one contributed. That's a constraint on the whole design: the quote has to be a function of explicit inputs, with no mutable state held in a module or a clock read mid-calculation. It has a second face during development. A rule that can only be exercised by running the entire pipeline is a rule you will test badly. Each one should be checkable on its own with a handful of inputs and an expected `Money`.
+| Pressure | Owner | Schedule |
+| --- | --- | --- |
+| Carrier tariffs | The carrier | When the carrier chooses |
+| `Surcharge` and `Discount` rules | The commercial team | Faster than the carrier; each rule on its own |
+| Destination tax | The tax authority of each jurisdiction | The authority's own calendar |
+| Reproducible, testable quotes | The disputed invoice | Any time after the quote |
 
-These forces point in different directions. Reproducibility pushes towards fewer moving parts and explicit inputs. Independent change pushes towards separation, so that a tax update doesn't mean reopening the discount code. Testability pushes towards rules small enough to call alone. Separation has a cost in indirection, and indirection works against being able to read, in one place, how a price was reached.
+**Carrier tariffs change on the carrier's schedule.** A carrier such as FASTLINE or AIRCO publishes a `Tariff`: a price for each zone and weight band. It reissues the tariff when it chooses, often on a fixed date each year, sometimes at short notice. Your code doesn't decide when. So someone outside the team owns the largest block of numbers in every quote.
 
-## Which force dominates decides the shape
+**Commercial rules change on the commercial team's schedule.** `Surcharge` and `Discount` rules sit on top of the carrier price: a fuel adjustment this quarter, a volume discount for a key account, a remote-area fee that appears when a contract is signed.
 
-There are three candidate shapes, and each is the right resolution when a different force leads.
+People who answer to sales and finance write them, faster than the carrier and for different reasons. The rules also come and go independently. A discount can be withdrawn without touching the fuel adjustment.
 
-**One pricing function over a `Tariff`.** A single function takes the consignment and a `Tariff`, looks up the base price for its zone and weight band, applies the rules in a fixed order and returns a `RateQuote`. The rules sit inline, as ordinary statements. When the carrier's schedule is the force that moves, this is the strongest answer: a reissued tariff is new data, the function doesn't change, and a quote is reproducible because the function and the tariff together are the whole story. Reading the arithmetic is easy because it's all in one place. The cost appears the day a second party starts editing the same function. If adding a surcharge means opening the function that also handles tax, two owners now share one function and its regressions, and a test of one rule drags the others along.
+**Destination tax changes by jurisdiction.** The tax on a quote depends on where the consignment is going. Authorities set the rules and publish them on their own calendar. Tax also interacts with the other rules: somebody has to be able to read off the code whether it applies to the discounted price or the list price.
 
-**Separate pricing-rule callables returning `Money`.** Each commercial and tax rule becomes its own small callable that takes what it needs and returns a `Money` amount, and a short composition step applies them to the base price. Now a new surcharge is a new callable and a line in the list of rules, not an edit to existing logic, and each rule is testable alone with plain inputs and one expected value. This is the shape for the case where commercial rules and tax change independently, on separate calendars, under separate owners. What you pay is the composition step and the question it forces: in what order do the rules apply, and where is that order written down so that a disputed quote can be explained? The ordering is now a piece of design, not an accident of line numbers. Reproducibility survives as long as the rules are pure functions of their arguments and the quote records which of them ran.
+**Every quote must be reproducible, and every rule testable alone.** A customer disputes an invoice three months after the quote. To settle it, you recompute the same `RateQuote` from the same consignment, the tariff that applied then and the rules of the time, and show what each contributed.
 
-**A `RateCalculator` Protocol.** Sometimes a participant isn't a plain function. A rule may hold state, such as a loaded table, a cache with an eviction policy or a connection to a carrier's service. Or the thing doing the pricing may need to offer several operations: quote a rate, explain how it was reached, validate a request before pricing. A bare callable has one operation and no memory. When either need appears, give the participant a named interface. A `RateCalculator` Protocol states what a calculator can do without forcing implementations to inherit from anything, so a test double or a second carrier's calculator slots in by shape. The price is a declared interface, and every implementation now has to honour it.
+So the whole quote has to be a function of explicit inputs. No module holds mutable state, and nothing reads a clock mid-calculation.
 
-The forces don't rank the shapes absolutely. They rank them for a given system. If the carrier tariff is the only thing that ever changes, the first shape is correct and the other two are speculation. If a sales team ships new discounts monthly while finance adjusts tax rules separately, the first shape is a source of merge conflicts and the second pays for its indirection. If the pricing step acquires state or a second operation, the third becomes the accurate description of what you've already built.
+The same constraint shows up during development. A rule you can exercise only by running the entire pipeline is a rule you'll test badly. Each rule should be checkable alone, with a handful of inputs and an expected `Money`.
 
-Start from the shape that resolves the forces you have today, and keep the others in view as the ones you'd move to if a force grew. Robert Martin's treatment of the open-closed principle describes exactly that discipline: you don't know in advance which change will arrive, so you wait for the first one and then arrange the code so the next change of that kind needs no edits to existing logic.
+The four pull in different directions. Reproducibility pushes towards fewer moving parts and explicit inputs. Independent change pushes towards separation, so a tax update doesn't reopen the discount code. Testability pushes towards rules small enough to call alone.
+
+Separation costs indirection, and indirection makes it harder to read, in one place, how a price was reached.
+
+## The dominant pressure picks the shape
+
+Three shapes fit, each when a different pressure leads:
+
+| Shape | Right when | What it costs |
+| --- | --- | --- |
+| One pricing function over a `Tariff` | Only the carrier tariff changes | Shared edits once a second party touches the function |
+| Pricing-rule callables returning `Money` | Commercial rules and tax change on separate calendars, under separate owners | A composition step and a written order of application |
+| A `RateCalculator` Protocol | A participant holds state or offers several operations | A declared interface every implementation honours |
+
+No shape wins in general. Each one wins for a given system.
+
+**One pricing function over a `Tariff`.** A single function takes the consignment and a `Tariff`, looks up the base price for its zone and weight band, applies the rules in a fixed order and returns a `RateQuote`. The rules sit inline, as ordinary statements.
+
+When the carrier's schedule is what moves, this is the strongest answer. A reissued tariff is new data and the function doesn't change.
+
+A quote is reproducible because the function and the tariff together are the whole story. The arithmetic reads in one place. If the carrier tariff is the only thing that ever changes, this shape is correct and the other two are speculation.
+
+The cost appears the day a second party starts editing the same function. If adding a surcharge means opening the function that also handles tax, two owners share one function and its regressions. A test of one rule drags the others along.
+
+When a sales team ships new discounts monthly while finance adjusts tax rules separately, this shape is a source of merge conflicts.
+
+**Separate pricing-rule callables returning `Money`.** Each commercial and tax rule becomes its own small callable. It takes what it needs and returns a `Money` amount, and a short composition step applies the rules to the base price. A new surcharge is then a new callable and a line in the list of rules, not an edit to existing logic.
+
+Each rule is testable alone, with plain inputs and one expected value. This is the shape for commercial rules and tax that change independently, on separate calendars, under separate owners. With monthly discounts and separate tax changes, it pays for its indirection.
+
+You pay with the composition step and the question it raises. In what order do the rules apply, and where is that order written down so that a disputed quote can be explained?
+
+The order is now something you choose, not an accident of line numbers. Reproducibility survives as long as the rules are pure functions of their arguments and the quote records which of them ran.
+
+**A `RateCalculator` Protocol.** Sometimes a participant isn't a plain function. A rule may hold state, such as a loaded table, a cache with an eviction policy or a connection to a carrier's service. Or the pricing may need several operations: quote a rate, explain how it was reached, validate a request before pricing. A bare callable has one operation and no memory.
+
+When either need appears, give the participant a named interface. A `RateCalculator` Protocol states what a calculator can do without making implementations inherit from anything. So a test double or a second carrier's calculator slots in by shape. The price is a declared interface, and every implementation now has to honour it.
+
+If the pricing step acquires state or a second operation, this shape is the accurate description of what you've already built.
+
+Start from the shape that fits the pressures you have today. Keep the others in view as the ones you'd move to if a pressure grew.
+
+Robert Martin's treatment of the open-closed principle describes that discipline. You don't know in advance which change will arrive, so you wait for the first one, then arrange the code so the next change of that kind needs no edits to existing logic.
 
 ## Forces outlive the structures that resolved them
 
-Consider how the second shape was usually drawn thirty years ago. A rating rule became a class, an abstract base class declared the one method every rule had to implement, and the calculator held a list of objects that satisfied it. That structure is a perfectly good resolution of the forces above, and the catalogue gives it a name. It's also the structure of an era in which a piece of behaviour could reach a call site only by being wrapped in an object of a declared class.
+Thirty years ago the second shape was usually drawn with classes. A rating rule became a class, an abstract base class declared the one method every rule had to implement, and the calculator held a list of objects that satisfied it. That structure suits the rate quote perfectly well, and the catalogue gives it a name. It's also the structure of an era in which behaviour reached a call site only inside an object of a declared class.
 
-The structure and the forces are separable. Because Python lets you pass a function wherever that object was passed, the abstract base class and the subclasses are no longer needed to carry behaviour. Nothing about the commercial team's calendar has changed, though. The surcharge still has to be addable without editing the tax rule, the order of application still has to be explainable in a dispute, and each rule still has to be testable alone. A callable resolves the same forces with less machinery.
+The structure and the forces are separable. Python lets you pass a function wherever that object was passed, so the abstract base class and the subclasses no longer have to carry behaviour.
 
-Whether the force is still here is the book's recurring test, and it runs both ways. Sometimes a language feature resolves the force without the pattern's structure, and the structure should go. Sometimes the force is as strong as ever and the pattern remains the right resolution, even though the syntax around it has changed. The following chapter, [What 1994 assumed, and what Python dissolves]({{ '/docs/02-what-1994-assumed-and-python-dissolves/' | relative_url }}), takes the assumptions the catalogue was written under and checks each against what the language now provides.
+The commercial team's calendar hasn't changed, though. A surcharge still has to be addable without editing the tax rule, the order of application still has to be explainable in a dispute, and each rule still has to be testable alone.
+
+A callable meets the same needs with less machinery.
+
+Is the force still here? The book asks it of every pattern, and the answer runs both ways. Sometimes a language feature resolves the pressure without the pattern's structure, and the structure should go. Sometimes the pressure is as strong as ever, and the pattern stays the right resolution, even though the syntax around it has changed.
+
+[What 1994 assumed, and what Python dissolves]({{ '/docs/02-what-1994-assumed-and-python-dissolves/' | relative_url }}) takes the assumptions the catalogue was written under and checks each against what the language now provides.
 
 ## What a pattern name buys and costs
 
-A name is a compression device. Saying "this is a Strategy" lets a reviewer reconstruct the intent, the participants and the Consequences without reading the code, and it lets two engineers argue about whether the force is present instead of about vocabulary. That shared handle is most of what the catalogue gave the field. The cost is that the name drags a picture along with it. Say "Strategy" to a team and some of them will see a base class and a registry before they see the function you meant, and a review conversation will drift towards the structure rather than the force. When the name and the mechanism have diverged, the precise move is to name the force first and the pattern second, and to use the pattern's name only for what it still describes.
+A name is a compression device. Saying "this is a Strategy" lets a reviewer reconstruct the intent, the participants and the Consequences without reading the code. It also lets two engineers argue about whether the pressure behind it exists, not about vocabulary. That shared handle is most of what the catalogue gave the field.
 
-## When the forces argue for no pattern
+The cost is the picture the name drags along. Say "Strategy" to a team and some of them will see a base class and a registry before they see the function you meant.
 
-Suppose a team quotes for one carrier. The tariff is reissued once a year, the only commercial rule is a flat fuel adjustment that the same people maintain, and tax is applied by a single line the finance team has signed off. Every force that justifies separation is absent. One function over a `Tariff` with the adjustment written inline is shorter, easier to read top to bottom and easier to reproduce for a dispute than any arrangement of rule callables. The patterns would add files and indirection against a change that isn't coming.
+A review then drifts towards the structure and away from the pressure. When the name and the mechanism have diverged, name the pressure first and the pattern second, and use the pattern's name only for what it still describes.
 
-Pick the change that actually happens in your system, such as a new surcharge, and count what has to be edited to make it. If the answer is one function, in one file, owned by one team, the structure is already doing its job. If it's the same function that two other teams are editing this sprint, the forces are present and a pattern is justified. Martin's warning about needless complexity points the same way: the cost of a premature abstraction is real, and it lands on every reader of the code from the day it's written.
+## When nothing argues for a pattern
+
+Suppose a team quotes for one carrier. The tariff is reissued once a year, and the only commercial rule is a flat fuel adjustment that the same people maintain. A single line applies tax, and the finance team has signed it off. Nothing that justifies separation is present.
+
+One function over a `Tariff`, with the adjustment written inline, is shorter and reads top to bottom. It's also easier to reproduce for a dispute than any arrangement of rule callables. The patterns would add files and indirection against a change that isn't coming.
+
+Pick a change that actually happens in your system, such as a new surcharge, and count what it has to edit:
+
+| The change edits | Verdict |
+| --- | --- |
+| One function, in one file, owned by one team | The structure is already doing its job |
+| The same function two other teams are editing this sprint | The pressures are present, and a pattern is justified |
+
+Martin's warning about needless complexity points the same way. A premature abstraction has a real cost, and it lands on every reader of the code from the day it's written.
 
 ## What you can do now
 
 - State what a pattern records: Alexander's forces, the context they act in, the resolution and its Consequences.
-- Name the template sections and use Consequences as the ledger: it lists what a pattern buys and what it costs, so it supports the decision.
-- List the four forces on the rate quote and their owners: the carrier, the commercial team, the tax authority and the disputed invoice.
-- Choose by the dominant force: a function over `Tariff`, rule callables returning `Money`, or a `RateCalculator` Protocol.
+- Name the template sections and use Consequences as the ledger: it lists what a pattern buys and what it costs, so it supports the choice.
+- List the four pressures on the rate quote and their owners: the carrier, the commercial team, the tax authority and the disputed invoice.
+- Choose by the dominant pressure: a function over `Tariff`, rule callables returning `Money`, or a `RateCalculator` Protocol.
 - Ask whether the force is still here, as in the move from a class per rule to a callable.
 - Recognise the one-carrier case, and apply the count-the-edits test.
 
