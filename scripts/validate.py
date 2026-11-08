@@ -458,6 +458,42 @@ def check_em_dash(rel: str, text: str) -> list[Finding]:
     ]
 
 
+LINK_URL_RE = re.compile(r"https?://[^\s)\"'<>\]]+")
+LINK_FILES = (
+    "_docs/*.md",
+    "_examples/*.md",
+    "_parts/*.md",
+    "bibliography.html",
+    "index.html",
+    "examples.html",
+    "README.md",
+    "examples/*/README.md",
+)
+
+
+def check_link_forms(rel: str, text: str) -> list[Finding]:
+    """Python docs pin /3.15/, /latest/ only on typing.python.org, canonical O'Reilly URLs."""
+    out: list[Finding] = []
+    for n, line in enumerate(text.split("\n"), start=1):
+        for m in LINK_URL_RE.finditer(line):
+            url = m.group(0)
+            host = url.split("/")[2]
+            if "docs.python.org/3/" in url:
+                out.append(Finding(rel, n, "docs.python.org/3/ must be docs.python.org/3.15/"))
+            if "/latest/" in url and host != "typing.python.org":
+                out.append(Finding(rel, n, "/latest/ outside typing.python.org"))
+            if "oreilly.com/library/view/-/" in url:
+                out.append(Finding(rel, n, "oreilly.com/library/view/-/ is not canonical"))
+    return out
+
+
+def link_form_files(root: Path) -> list[Path]:
+    files: list[Path] = []
+    for pattern in LINK_FILES:
+        files.extend(p for p in sorted(root.glob(pattern)) if p.is_file())
+    return sorted(set(files))
+
+
 def check_banned(rel: str, text: str, *, svg: bool) -> list[Finding]:
     """Em-dash, capstone, PDP ids, iteration ids and 'spike' in reader-facing text."""
     out: list[Finding] = []
@@ -973,6 +1009,10 @@ def validate(root: Path) -> Report:
         rel = path.relative_to(root).as_posix()
         rep.errors.extend(check_em_dash(rel, path.read_text(encoding="utf-8")))
 
+    for path in link_form_files(root):
+        rel = path.relative_to(root).as_posix()
+        rep.errors.extend(check_link_forms(rel, path.read_text(encoding="utf-8")))
+
     minor = pinned_minor((root / ".python-version").read_text(encoding="utf-8"))
     for path in reader_facing(root):
         rel = path.relative_to(root).as_posix()
@@ -1377,6 +1417,25 @@ def self_test() -> int:
     expect("figure scales up to the breakout width", not check_figure_legibility("a.svg", narrow))
     expect("figure floor edge", not check_figure_legibility("a.svg", legible.replace("9", "8.2")))
     expect("figure without viewBox fails", bool(check_figure_legibility("a.svg", "<svg></svg>")))
+
+    good_links = (
+        "[a](https://docs.python.org/3.15/library/abc.html) "
+        "[t](https://typing.python.org/en/latest/spec/) "
+        "[b](https://www.oreilly.com/library/view/fluent-python/9781492056348/)"
+    )
+    expect("link forms pass", not check_link_forms("a.md", good_links))
+    expect(
+        "docs.python.org/3/ fails",
+        bool(check_link_forms("a.md", "[a](https://docs.python.org/3/library/abc.html)")),
+    )
+    expect(
+        "/latest/ outside typing fails",
+        bool(check_link_forms("a.md", "https://docs.pytest.org/en/latest/")),
+    )
+    expect(
+        "oreilly view/-/ fails",
+        bool(check_link_forms("a.md", "https://www.oreilly.com/library/view/-/9781492056348/")),
+    )
 
     deck_self_test(expect)
 
