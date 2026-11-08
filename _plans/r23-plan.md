@@ -26,7 +26,10 @@ Lessons carried from r16 to r22: grep everywhere, including front matter, cards,
 
 ## Owner decisions
 
-None recorded yet. The owner reviews the numbered decisions below; where an owner decision differs, it is recorded here with a date and the numbered decision is amended in place.
+2026-11-07, at the plan gate:
+
+- O1: 45 slides in 8 sections, as planned (decisions 0 to 4 and 6 to 10 as recommended). Figures 07, 09, 10, 31 and 37. A shared `deck-lib.js`, with the identity proof for Deck 101. No toolchain slide.
+- O2: decision 5 as recommended. Fix P1 to P14, F1 to F9 and B1 to B3 in this iteration. For P1, narrow the manifest "all or none" sentences, in chapter 10 and in the `manifest.py` docstring, to what the tests prove. For P12, add the chapter 37 lost-update probe to the example's `bench/`, so that the two chapter 37 sentences have a witness.
 
 ## User decisions
 
