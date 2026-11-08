@@ -401,7 +401,7 @@ C1a and C1b run first, alone, because they touch many files mechanically. Then C
 | C2e | Example code and tests: TS1, TS2, docstring items; three runs and a reverse run per changed member | C1a | done |
 | C2f | Site chrome, CSS figure breakout, README Status; screenshots | C1a | done |
 | C2g | Cards and READMEs (CD), decks DK1 to DK6 and FG2 with QA pipeline step 6 | C1a | done |
-| C3a | Whole-book quoted-output re-run in a fresh copy after C2a to C2e; mismatches returned to the doc owner and fixed | C2a to C2e | todo |
+| C3a | Whole-book quoted-output re-run in a fresh copy after C2a to C2e; mismatches returned to the doc owner and fixed | C2a to C2e | done |
 | C3b | Integration: every gate (QA step 2), the link sweep, the legibility check, `site-build.sh`; evidence file brought up to date | C3a, C2f, C2g | todo |
 | C4a | Reconciliation: the 32 legacy rows re-witnessed (decision 6), VA5, rows 437 onward added with resolving tokens | C3b | todo |
 | C5a | Opus validation with the three independent readers (QA steps 7 and 8); rows that start `open` closed | C4a | todo |
@@ -472,6 +472,14 @@ Row 30's deepcopy claim (VO6) gets a row at C4a only if TS2 adds its test. A def
   - **CLAUDE.md:** the sidebar rule, the spine (decision 8), and dated notes for decision 7 and O2.
   - The new checks flag Deck 101 notes 2 and 3 ("the deck"), which are DK2 and fixed at C2g. Until then `validate.py` shows those 2 errors.
   - **Incident:** C1a ran `git stash` in the shared tree and briefly took C1b's uncommitted edits. The pop restored them, and C1b re-applied one lost token move. Parallel briefs now forbid `git stash` and `git checkout` of files an agent doesn't own.
+- Step C3a: done in 9928603.
+  - 185 quoted blocks were re-run in a fresh copy: 181 match and 4 were fixed.
+    - 30:219 and 30:236: lines 195 and 218 became 201 and 224, and the case count went from 40 to 41.
+    - 19:313: two failures after TS3.
+    - 21:256: 9 source files became 8.
+  - The TS2 cause-removed run gives `RecursionError`, which is consistent with `30.md:120`.
+  - The `<string>` mypy blocks were checked line-in-union, not in block order. Block `17:295` carries a cache-dependent error order, and C3b settles it.
+  - The method and the per-block table are in `_plans/evidence/r25-qa-sweep.md`.
 - VA3: done in 2f47474. `check_link_forms()` runs over the reader files. It refuses `docs.python.org/3/`, `/latest/` outside `typing.python.org`, and `oreilly.com/library/view/-/`. Its self-test fails when the check is disabled, and the tree is clean after C1b.
 - Step C2a: done in 9722376.
   - SB1 to SB9 (docs 05 to 13) have "Specifying X" lead-ins and openings that say what the request leaves open; the prompts and review lines are untouched.
