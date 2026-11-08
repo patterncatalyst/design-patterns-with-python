@@ -29,6 +29,7 @@ The rules are the terse pattern register in `~/.claude/skills/lgtm-professional-
 - O2: decisions 2 to 6 as recommended.
 - O3: the Feathers title takes the book's straight house form: "I Need to Make a Change, but I Don't Know What Tests to Write" (evidence H).
 - O4: hub PR #62 was merged as 9a3b034; no open hub item remains.
+- O5 (owner, 2026-11-08, during B1d): no git worktrees from now on. One branch (`release/r26`) and one PR. Parallel executors edit only the files they own and run no git command that writes (no add, commit, stash, checkout, reset, restore or pull). The orchestrator stages by path and commits each step. This replaces the worktree isolation in the B3 rows and the process section.
 
 ## The pattern layout (O1)
 

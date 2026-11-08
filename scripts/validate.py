@@ -34,7 +34,7 @@ EM_DASH = "\u2014"
 PROSE_STATUSES = frozenset({"done", "drafted", "verified"})
 # Docs the terse rewording has finished (r26 plan, decision 6). r26 adds each pilot doc as it
 # lands; r27 and r28 extend the set. Empty on an unreworded tree, so the checks cost nothing.
-TERSE_DOCS: frozenset[int] = frozenset()
+TERSE_DOCS: frozenset[int] = frozenset({1, 3, 23, 24})
 MAX_WORDS = 2500
 CAPTION_MIN = 20
 CAPTION_MAX = 45
