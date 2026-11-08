@@ -424,7 +424,7 @@ Build, from `<repo>/presentation`: `npm ci`; `./render-png.sh --deck 301`; `node
 | D0 | Bookkeeping with dated notes: `iteration-plan.md` closes r23 (PDP-151 `done`), marks PDP-152 and r24 `active` (K1); the r23 plan's Z6 `done` and its confirmation note (K2); re-check every pin; record the owner's decisions; `verify.sh` and `validate.py` green | - | done |
 | D1a | `render-png.sh` figs_301 and `--deck 301`, `build-notes.md` (K3); V1 in `check_decks()` with a self-test that fails without it; the identity proof for 101 and 201; the two PNGs after D1c's figure fixes | D0, D1c for the PNGs | todo |
 | D1b | `_plans/evidence/r24-deck-witness-census.md`, after D1c, so lines, anchors, counts and the figure census are taken from the fixed tree | D1c | todo |
-| D1c | Decision 5's book fixes P1 to P21, F1 and F2, each with its example's tests, `verify.sh` and `validate.py` green and every recurrence grepped; quoted runs re-captured where counts moved (P4, P5); figures regenerated through `diagrams/specs`; `site-build.sh` green | D0 | todo |
+| D1c | Decision 5's book fixes P1 to P21, F1 and F2, each with its example's tests, `verify.sh` and `validate.py` green and every recurrence grepped; quoted runs re-captured where counts moved (P4, P5); figures regenerated through `diagrams/specs`; `site-build.sh` green | D0 | done |
 | D2 | Rows 399 to 429 into `_plans/reconciliation-plan.md` with a dated note; every quote, line or test that differs from this plan goes in Corrections; a failed witness cuts the slide | D1b | todo |
 | D3 | `deck-301.js` (Sonnet executor) from the inventory, the census and the standalone wording, notes to the settled voice rules and decisions 7 and 8 | D1a, D2 | todo |
 | D4a | QA pipeline steps 1 to 12 (executor view of every page); `_plans/evidence/r24-deck-qa.md`; README "Companion decks" entry | D3 | todo |
@@ -515,6 +515,15 @@ Rows 399 to 429 go in at D2, after the census exists (so its `run:` path resolve
 - **Orphaned processes.** `pgrep -f soffice` matches itself. Mitigation: `pgrep -x soffice.bin`.
 
 ## Corrections after the build
+- Step D1a (part 1): `render-png.sh` gains `figs_301=(33 40)` and `--deck 301` (the default list is now 18 figures). `build-notes.md` covers Deck 301 and the identity proof for both earlier decks (101: 342 parts; 201: 255 parts; only the `core.xml` timestamps differ). V1: `DECK_BOOK_RE` is now `\b(the|this) book('s)?\b`, with an "as this book says" self-test; reverting the regex makes `--self-test` fail. Commit 9e5c08c. The two 301 PNGs follow D1c.
+- Step D1c: P1 to P21, F1 and F2 are applied (6a9b430).
+  - P5 follows O2: six sentences, plus the conftest docstring, now cite only experiment three, and chapter 11's counts are unchanged.
+  - P7 adds `test_a_member_table_replaces_the_root_filter_and_names_its_own_file`, so example 42 is now 39 functions and 44 cases.
+  - P16 moves chapter 40's quoted `tests/test_gates.py:109` to `:114`, re-run.
+  - P10 qualifies the Dummy row in Appendix D. Reconciliation row 285 ("stub as a dummy") must be re-read at D2.
+  - P20 also fixed `43.md:273`.
+  - P4's quoted block keeps the timing that pytest prints, as every chapter's quoted runs do. The decks carry no timing.
+  - The orchestrator re-ran the gates at 6a9b430: `validate.py` reports 0 errors and `verify.sh` passes.
 
 - Step D0: K1 and K2 are applied in `_plans/iteration-plan.md` and `_plans/r23-plan.md`. Every pin was re-checked on 2026-11-07 against upstream and is unchanged: pptxgenjs 4.0.1 (`dist-tags.latest`; `beta` 4.0.1-beta.2 not used), image-size 2.1.0, cairosvg 2.9.1, CPython 3.15.2 (endoflife.date cycle 3.15), uv 0.13.7, pytest 9.2.0, pytest-mock 3.17.0, mypy 2.4.1, ruff 0.17.4. No pin row changed, so `r01-build-plan.md` is untouched.
 
