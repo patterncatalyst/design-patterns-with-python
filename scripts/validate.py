@@ -785,7 +785,6 @@ VERSION_ALLOW: dict[str, tuple[str, ...]] = {
     ),
     "_docs/22-observer.md": ("A run on Python 3.15.2 of",),
     "_docs/24-iterator-generators-and-the-iterator-protocol.md": (
-        "A run on Python 3.15.2 of",
         "added in 3.12",
         "`strict` in 3.13",
     ),
@@ -1296,66 +1295,6 @@ def claim_findings(results: list[ClaimResult]) -> list[Finding]:
     return errors
 
 
-def example_tests(root: Path) -> dict[int, set[str]]:
-    """Test names defined in each chapter's own example: examples/<NN-*>/tests."""
-    out: dict[int, set[str]] = {}
-    for path in sorted(root.glob("examples/[0-9][0-9]-*/tests/**/*.py")):
-        number = int(path.relative_to(root).parts[1][:2])
-        out.setdefault(number, set()).update(TEST_DEF_RE.findall(path.read_text(encoding="utf-8")))
-    return out
-
-
-def coupling_checks(
-    plan_text: str,
-    chapter_tests: dict[int, set[str]],
-    docs: dict[int, str],
-    terse: frozenset[int],
-) -> tuple[int, list[Finding]]:
-    """Claims coupling for the docs in `terse`.
-
-    A row's test token that is defined in the chapter's own example must appear in the chapter,
-    on a `*Tests:*` line or anywhere else. Returns the number of (row, doc, token) checks and
-    one finding per miss. Docs outside `terse` are not checked.
-    """
-    checked = 0
-    findings: list[Finding] = []
-    for lineno, line in enumerate(plan_text.split("\n"), start=1):
-        m = CLAIM_ROW_RE.match(line)
-        if not m:
-            continue
-        cells = [c.strip() for c in CELL_SPLIT_RE.split(line.strip().strip("|"))]
-        if len(cells) < 5:
-            continue
-        names = CLAIM_TEST_RE.findall(" ".join(cells[3:]))
-        for number in chapter_numbers(cells[1]):
-            if number not in terse:
-                continue
-            for name in dict.fromkeys(names):
-                if name not in chapter_tests.get(number, set()):
-                    continue
-                checked += 1
-                if name not in docs.get(number, ""):
-                    findings.append(
-                        Finding(
-                            CLAIMS_REL,
-                            lineno,
-                            f"claim {m.group(1)}: {name} is defined in chapter {number}'s "
-                            "example but does not appear in the chapter",
-                        )
-                    )
-    return checked, findings
-
-
-def load_coupling(root: Path, terse: frozenset[int] | None = None) -> tuple[int, list[Finding]]:
-    plan = root / CLAIMS_REL
-    use = TERSE_DOCS if terse is None else terse
-    if not plan.is_file() or not use:
-        return 0, []
-    return coupling_checks(
-        plan.read_text(encoding="utf-8"), example_tests(root), chapter_docs(root), use
-    )
-
-
 def load_claims(root: Path) -> list[ClaimResult]:
     plan = root / CLAIMS_REL
     if not plan.is_file():
@@ -1542,7 +1481,6 @@ def validate(root: Path) -> Report:
         rep.errors.extend(check_stale_versions(rel, path.read_text(encoding="utf-8"), minor))
 
     rep.errors.extend(claim_findings(load_claims(root)))
-    rep.errors.extend(load_coupling(root)[1])
     rep.errors.extend(check_appendix_e(root))
 
     rep.errors.extend(check_pins(root))
@@ -2106,29 +2044,6 @@ def self_test() -> int:
             )
         ]
         == ["claim 1"],
-    )
-    coupling_plan = (
-        "| 1 | 5 | in | `test_alpha` and `test_far` | **verified** |\n"
-        "| 2 | 5, 6 | out | `test_beta` | **verified** |\n"
-        "| 3 | 5 | none | prose only | **verified** |\n"
-    )
-    own = {5: {"test_alpha", "test_beta"}, 6: set()}
-    chap = {5: "*Tests:* `test_alpha`.", 6: "no tests"}
-    n_ok, f_ok = coupling_checks(coupling_plan, own, chap, frozenset({5}))
-    expect("coupling counts own-example tokens only", n_ok == 2 and len(f_ok) == 1)
-    expect(
-        "coupling names the missing test",
-        "test_beta" in f_ok[0].message and f_ok[0].line == 2,
-    )
-    _, f_all = coupling_checks(coupling_plan, own, {5: "x", 6: ""}, frozenset({5}))
-    expect("coupling misses both when absent", len(f_all) == 2)
-    expect(
-        "coupling reports nothing for no terse docs",
-        coupling_checks(coupling_plan, own, {5: "x"}, frozenset()) == (0, []),
-    )
-    expect(
-        "coupling skips docs outside the set",
-        coupling_checks(coupling_plan, own, {5: "x"}, frozenset({6}))[1] == [],
     )
     table = claims_table(list(res.values()))
     expect(

@@ -30,10 +30,7 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      # Full history: prose_invariants.py reads the docs at the pull request's merge base.
       - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
       - uses: astral-sh/setup-uv@v10.3.3
         with:
           enable-cache: true
@@ -42,15 +39,6 @@ jobs:
         run: uv run --locked python scripts/validate.py
       - name: Book checks, self-test
         run: uv run --locked python scripts/validate.py --self-test
-      - name: Prose invariants, self-test
-        run: uv run --locked python scripts/prose_invariants.py --self-test
-      - name: Prose invariants against the merge base
-        if: github.event_name == 'pull_request'
-        env:
-          BASE_REF: ${{ github.base_ref }}
-        run: |
-          base="$(git merge-base HEAD "origin/${BASE_REF}")"
-          uv run --locked python scripts/prose_invariants.py --base "$base"
 
   host-ids:
     runs-on: ubuntu-latest

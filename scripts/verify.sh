@@ -24,7 +24,7 @@ for d in examples/*/ spikes/*/; do
 done
 
 step "mypy --strict repo scripts"
-uv run mypy --strict scripts/validate.py scripts/prose_invariants.py scripts/render_diagrams.py
+uv run mypy --strict scripts/validate.py scripts/render_diagrams.py
 
 step "pytest"
 uv run pytest

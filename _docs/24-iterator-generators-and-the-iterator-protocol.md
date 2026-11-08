@@ -11,24 +11,22 @@ description: "A generator replaces the cursor class, but one pass or many, how m
 
 By the end of this chapter you can:
 
-- Say what Iterator dissolves into, and name the three choices a generator leaves to you.
-- Choose between an iterable and a self-iterator, and write `__iter__` as a generator so each loop gets a fresh iterator.
+- Write `__iter__` as a generator so every loop gets a fresh iterator.
+- Tell an iterable from an iterator, and know which one survives a second pass.
 - Read only the part of a source you need with `batched`, `islice`, `pairwise` and `chain.from_iterable`.
-- Delegate with `yield from`, type the value it returns with `Generator`, and say what `list()` drops.
-- Close a reader that a consumer abandons, with `close()` or `contextlib.closing`, and say what `break` alone leaves open.
+- Delegate with `yield from` and type the value it returns with `Generator`.
+- Close a reader that a consumer abandons, with `close()` or `contextlib.closing`.
 
 ## Why this matters
 
-A generator function writes the cursor for you, so the cursor class dissolves. Three choices remain: one pass or many, how much to read, and who closes the source. Each goes wrong in the obvious version.
-
-The figure follows one tracking history from its walks to a closed reader.
+A generator function writes the cursor for you, so the Iterator class goes away. Three choices remain: whether the object can be walked twice, how much of the source a consumer reads, and who closes the source. Each one goes wrong in the obvious version.
 
 {% include excalidraw.html name="24-iterator-generators-and-the-iterator-protocol" described="true" caption="Figure 24.1: A tracking history gives each loop a fresh iterator, so two walks both see every event. Pages are read one batch at a time, and closing a reader closes its file." %}
 
 <details class="figure-description" markdown="1">
 <summary>Describe the figure</summary>
 <div id="desc-24-iterator-generators-and-the-iterator-protocol" markdown="1">
-Read the figure from the top down. An accent box, `TrackingHistory` ("each loop gets a fresh iterator"), leads to two `__iter__` boxes, "walk one" and "walk two". Both lead to `pages` ("batched: reads one page at a time"), which leads to `page` ("islice: stops at the page it returns"). A muted, dashed box beside them reads "self-iterating cursor" and "empty on the second pass". On the right, `read_events` ("opens inside with") leads to `close()` ("file closed, reader finished"), and a muted, dashed box below reads "break alone" and "still open while named".
+From the top: `TrackingHistory` ("each loop gets a fresh iterator") leads to two walks, which both lead to `pages` (`batched`, one page at a time) and then `page` (`islice`, stops at the page it returns). A dashed box beside them is the self-iterating cursor, empty on the second pass. On the right, `read_events` opens its file inside `with` and leads to `close()`, which closes the file. A dashed box below it shows that `break` alone leaves a named reader open.
 </div>
 </details>
 
@@ -38,9 +36,9 @@ Read the figure from the top down. An accent box, `TrackingHistory` ("each loop 
 
 A display and a report read a tracking history page by page. Both want the events one at a time and neither should care how the history stores them. The obvious version fails three ways:
 
-- The display builds a list and slices it, so the first page of three from a source of 1,000,000 events reads all 1,000,000.
-- The report walks a generator once to count and once to summarise, and the second pass finds nothing and raises no error.
-- A reader of the tracking log opens its file, and a caller stops after the first event with `break`: the file is still open.
+- The display builds a list and slices it, so the first page of three from 1,000,000 events reads all 1,000,000.
+- The report walks a generator twice, and the second pass finds nothing without raising an error.
+- A caller takes the first event from a log reader and breaks out of the loop, and the file stays open.
 
 ### The solution
 
@@ -48,30 +46,28 @@ An **Iterator** moves the walk over a collection into a cursor object of its own
 
 **Bucket: dissolves.** Python builds the cursor into the language, and a generator function writes it for you.
 
+Use a generator-based iterator when:
+
+- callers only need the items in order, not indexing or a length;
+- the source is large, slow or unbounded, and a consumer may stop early;
+- the source holds a resource, such as a file, that must be released.
+
 ### How Python models it
 
-You rarely write the cursor. This is the whole of the history's iteration:
+This is the whole of the history's iteration:
 
 ```python
     def __iter__(self) -> Iterator[HandlingEvent]:
         yield from self._events
 ```
 
-A function with `yield` is a generator function, and calling it returns a generator iterator. Per the glossary, each yield suspends processing for the moment and remembers the execution state, local variables and pending try-statements included. That suspended frame holds the position a cursor class would keep in a field.
+A function containing `yield` returns a generator when called. The generator's suspended frame holds the position that a cursor class would keep in a field. A `for` loop calls `iter()` on the history, then `next()` on the result until it raises `StopIteration`.
 
-A `for` loop asks the iterable for an iterator, then calls the built-in `next()` on it until it raises `StopIteration`. Of `next()` the built-in functions page says "If *default* is given, it is returned if the iterator is exhausted, otherwise StopIteration is raised." Brandon Rhodes's Iterator page on python-patterns.guide separates the iterable, a container that hands out iterators, from the iterator, which holds a position. The page also notes that a file is its own iterator, so a second loop over a file resumes where the first stopped.
-
-`TrackingHistory` and a cursor written to the protocol by hand both visit the three events in order and yield nothing when empty. For an iterator `walk`, `iter(walk)` is `walk`, while two calls of `iter(history)` give two objects.
-
-*Tests:* `test_a_traversal_visits_every_event_in_order`, `test_an_empty_history_yields_nothing`, `test_iter_of_an_iterator_is_the_iterator_itself`.
-
-A class with `__next__` and no `__iter__` isn't iterable. At run time it raises a `TypeError` matching "is not iterable", and mypy refuses it with `attr-defined` and "(not iterable)". The mypy test runs a reduced model, a class defined in the test's own snippet.
-
-*Tests:* `test_a_class_with_only_next_is_not_iterable`, `test_mypy_refuses_a_class_with_only_next_in_a_for_loop`.
+The protocol has two halves. An *iterable* hands out iterators; an *iterator* holds a position, and `iter()` on an iterator returns the iterator itself. A class with `__next__` but no `__iter__` isn't iterable: a `for` loop raises `TypeError`, and mypy rejects it.
 
 ### One pass or many
 
-Can the object you pass around be walked twice? The comparison is the hand-written cursor in the fixtures, a class with an index whose `__iter__` returns itself:
+The GoF cursor, written to the protocol, keeps an index and returns itself from `__iter__`:
 
 ```python
 class _OneShotHistory:
@@ -92,32 +88,20 @@ class _OneShotHistory:
         return event
 ```
 
-It passes the traversal tests and differs on a second loop. The glossary says the iterator `iter()` returns for an iterable is good for a single pass over its values. An iterator is that one pass. In the glossary's words, "Attempting this with an iterator will just return the same exhausted iterator object used in the previous iteration pass, making it appear like an empty container."
+It walks once correctly. The second walk is where the two differ:
 
-| Walk | `TrackingHistory` | Self-iterating cursor |
+| Walk over 3 events | `TrackingHistory` | Self-iterating cursor |
 | --- | --- | --- |
 | Second pass | 3 events again | `[]` |
-| A loop inside a loop over 3 events | 9 pairs | 2 pairs |
+| A loop inside a loop | 9 pairs | 2 pairs |
 
-*Tests:* `test_a_tracking_history_can_be_walked_twice`, `test_a_self_iterating_history_is_empty_on_the_second_pass`, `test_nested_walks_of_a_tracking_history_are_independent`, `test_a_self_iterating_history_cuts_a_nested_walk_short`.
+The inner loop drains the shared cursor after the outer loop has taken its first event, so only 2 pairs come out. A generator expression such as `(event for event in history)` behaves like the cursor: the first `list()` gives 3 events, the second gives `[]`, and nothing complains. The Python glossary puts it this way: "Attempting this with an iterator will just return the same exhausted iterator object used in the previous iteration pass, making it appear like an empty container."
 
-The nested case comes out at 2 because the inner loop drains the one cursor after the outer loop has taken its first event. The python-patterns.guide page makes the same point with two nested loops over one list.
-
-A generator behaves like the cursor, not like the history. Walking `(event for event in history)` into a list gives 3 events, then `[]`, and `sum` over it is 0, with no error.
-
-*Tests:* `test_an_exhausted_generator_looks_empty`.
-
-The history is the idiomatic form: `__iter__` is a generator, so each call makes a new one. [The data model: dunder methods as the substrate]({{ '/docs/07-the-data-model/' | relative_url }}) covers `__iter__` on a container.
-
-mypy sees neither failure. It type-checks `sum(xs), sum(xs)` over an `Iterator[int]` and finds nothing, and it accepts a self-iterating class where an `Iterable` is asked for. A `Collection` annotation says the argument is walked more than once: a generator passed to a `Collection[str]` parameter gets `arg-type`. All three are reduced models, snippets in the test with no part in the example's source.
-
-*Tests:* `test_mypy_cannot_see_a_second_pass_over_an_iterator`, `test_mypy_accepts_a_self_iterating_history_as_an_iterable`, `test_mypy_refuses_a_generator_where_a_collection_is_needed`.
-
-When a function walks its argument twice, annotate it `Collection` or materialise once.
+mypy can't see either failure. It accepts two `sum()` calls over the same `Iterator[int]`, and it accepts the cursor where an `Iterable` is expected. When a function walks its argument twice, annotate it `Collection`, which a generator doesn't satisfy, or materialise the data once.
 
 ### Read only what you need
 
-How much of the source does a consumer read? The display wants one page, and the standard library supplies the pieces. `pages` is the two-line function that [What 1994 assumed, and what Python dissolves]({{ '/docs/02-what-1994-assumed-and-python-dissolves/' | relative_url }}) shows, re-declared here so the tests can measure it.
+The standard library supplies the pieces for paging:
 
 ```python
 def pages(history: Iterable[HandlingEvent], size: int) -> Iterator[tuple[HandlingEvent, ...]]:
@@ -132,31 +116,26 @@ def page(history: Iterable[HandlingEvent], number: int, size: int) -> tuple[Hand
     return next(islice(pages(history, size), number - 1, None), ())
 ```
 
-The `itertools` page says of `batched` "The input is consumed lazily, just enough to fill a batch." A source of 1,000,000 events that counts what it produces gives its first page of 3 after producing 3. The eager `list(source)[:3]` produces 1,000,000.
+Against a source of 1,000,000 events that counts what it produces:
 
-*Tests:* `test_the_first_page_reads_only_one_page`, `test_an_eager_list_reads_every_event_to_get_the_first_page`.
+| Call | Events produced |
+| --- | --- |
+| `list(source)[:3]` | 1,000,000 |
+| first page of `pages(source, 3)` | 3 |
+| `page(source, 2, 3)` | 6 |
 
-The same page says the last batch may be shorter than n, and 7 events give pages of 3, 3 and 1. A page size below one raises a `ValueError` matching "n must be at least one".
+`batched` keeps a short last page, so 7 events give pages of 3, 3 and 1. A page size below one raises `ValueError`, and so does page 0. A page past the end returns `()`, the default passed to `next()`, instead of raising `StopIteration`.
 
-*Tests:* `test_pages_keep_a_short_last_page`, `test_a_page_size_below_one_is_refused`.
+Two more helpers pull lazily in the same way:
 
-The same page says that with strict set to true, `batched` raises a ValueError if the final batch is shorter than n. `pages` passes `strict=False` and no test passes `True`. A run on Python 3.15.2 of `batched(range(7), 3, strict=True)` raised `ValueError: batched(): incomplete batch`. The page marks `batched` as added in 3.12 and `strict` in 3.13.
+- `out_of_order` uses `pairwise` to find consecutive events where the second comes earlier in the `HandlingKind` lifecycle: loaded, booked, departed gives the one pair, loaded then booked.
+- `events_of` uses `chain.from_iterable`, so a second history isn't touched until the first is exhausted.
 
-`page` starts from `pages`, so it reads up to its page and no further: page 2 of size 3 from the million-event source leaves the source at 6 produced. `islice`, in the page's terms, makes an iterator that returns selected elements of the iterable. Page numbers start at 1, so 0 and -1 raise `ValueError`. A page past the end is `()`, the default given to `next()`, so an exhausted `islice` gives `()` instead of `StopIteration`.
-
-*Tests:* `test_page_reads_only_up_to_the_page_it_returns`, `test_page_numbers_start_at_one`, `test_a_page_past_the_end_is_empty`.
-
-Two more functions in the module pull lazily the same way. `out_of_order` uses `pairwise`, which the page describes as returning successive overlapping pairs taken from the input iterable. It finds consecutive events where the second kind comes earlier in the `HandlingKind` order. Fed loaded, booked and departed, it gives the one pair, loaded then booked. With none or one event there's no pair.
-
-*Tests:* `test_out_of_order_finds_an_event_that_steps_back_in_the_lifecycle`, `test_out_of_order_is_empty_for_fewer_than_two_events`.
-
-`events_of` uses `chain.from_iterable`, which takes its chained inputs from a single iterable argument evaluated lazily. After three events from the first of two counting sources, the second has produced 0.
-
-*Tests:* `test_events_of_starts_each_history_only_when_the_last_is_done`.
+The `itertools` page marks `batched` as added in 3.12 and `strict` in 3.13; with `strict=True`, a short last batch raises `ValueError`.
 
 ### Delegating with yield from
 
-A reader of the log has two jobs: parse lines into events and report how many lines it read. `events_from` parses and returns the count, and `read_events` owns the file and hands the parsing to it:
+A log reader has two jobs: parse lines into events, and report how many lines it read. `events_from` parses and returns the count, and `read_events` owns the file:
 
 ```python
 def read_events(path: Path, *, opener: Opener = open_utf8) -> Generator[HandlingEvent, None, int]:
@@ -165,29 +144,28 @@ def read_events(path: Path, *, opener: Opener = open_utf8) -> Generator[Handling
         return (yield from events_from(lines))
 ```
 
-PEP 380 says "the subgenerator is allowed to return with a value, and the value is made available to the delegating generator." A test-local delegating generator receives 3 from `events_from`.
+`yield from` passes every event through and evaluates to the subgenerator's return value. `Generator[HandlingEvent, None, int]` records all three types: what it yields, what `send()` accepts and what it returns, and mypy rejects assigning that `int` to a `str`.
 
-*Tests:* `test_read_events_parses_each_line`, `test_yield_from_hands_the_line_count_to_the_caller`.
+Two details catch people:
 
-`Generator[HandlingEvent, None, int]` follows the [`typing`](https://docs.python.org/3/library/typing.html) docs' `Generator[YieldType, SendType, ReturnType]`: what it yields, what `send()` accepts and what it returns. Assigning `yield from events_from([])` to a `str` gets `assignment`, with the message `expression has type "int", variable has type "str"`.
+- **`list()` drops the return value.** Only a manual walk sees the count, on the `StopIteration` that ends it.
+- **`StopIteration` inside a generator becomes `RuntimeError`** ([PEP 479](https://peps.python.org/pep-0479/)). A stray `next()` on an empty iterator fails loudly instead of ending the feed early.
 
-*Tests:* `test_mypy_types_the_value_of_yield_from`.
-
-`list()` discards the return value. A manual walk reads the count from the `StopIteration` that ends it, and the same reader through `list()` gives only the events.
-
-*Tests:* `test_list_drops_a_generators_return_value`.
-
-A malformed line stops the reader with its number: a line with too few fields and a line with an unknown kind both raise `TrackingLogError` matching "line 2".
-
-*Tests:* `test_a_malformed_line_is_refused_with_its_number`.
-
-A second rule covers a generator that calls `next()` on an empty iterator. PEP 479 changed generators so that a `StopIteration` raised inside one is replaced with `RuntimeError`. A test-local generator calls `next(iter(nothing))` on an empty list, and the caller gets a `RuntimeError` matching "generator raised StopIteration", whose `__cause__` is the `StopIteration`. Without that rule, the generator would end quietly and look like a short feed.
-
-*Tests:* `test_stop_iteration_inside_a_generator_becomes_runtime_error`.
+A malformed line stops the reader with a `TrackingLogError` that names the line number.
 
 ### Who closes the source
 
-The consumer that stops early decides when the file closes. `read_events` holds a file, and a consumer may take one event and leave. The `contextlib` documentation says `closing` returns a context manager that closes its argument when the block completes:
+A reader opens nothing until the first event is asked for. After that the file is open, and a consumer that stops early decides when it closes:
+
+| Consumer | File after the loop |
+| --- | --- |
+| Reads to the end | Closed |
+| Calls `reader.close()` | Closed |
+| Wraps the reader in `contextlib.closing` | Closed at the end of the block |
+| Breaks out of the loop, reader still named | Open |
+| Breaks out and drops every reference | Closed when collected, at no promised time |
+
+`close()` raises `GeneratorExit` at the suspended `yield`, the exception passes through the `with` inside `read_events`, and the file closes. `contextlib.closing` makes that call for you:
 
 ```python
     with closing(read_events(tracking_log, opener=recording_opener)) as reader:
@@ -199,33 +177,9 @@ The consumer that stops early decides when the file closes. `read_events` holds 
     assert _closed(handle)
 ```
 
-The reader is open inside the block and closed after it.
+Use `closing`, or call `close()`, whenever a consumer may stop early and the file must close at a known point. mypy helps here: `close()` exists on `Generator` but not on `Iterator`, which is why `read_events` is annotated `Generator`.
 
-*Tests:* `test_contextlib_closing_closes_the_reader_at_the_end_of_the_block`.
-
-The `with` block in `read_events` closes the file when the reader's frame unwinds. The cases below show when that happens.
-
-A reader never started hasn't opened anything: the list of opened handles is empty and the state is `GEN_CREATED`. After the first `next()` the file is open.
-
-*Tests:* `test_a_reader_never_started_opens_no_file`, `test_closing_a_reader_closes_its_file`.
-
-The built-in types page says `close()` raises a GeneratorExit exception at the point where the generator function is suspended, the same as calling `throw(GeneratorExit)`. The exception passes through the `with`, and the file closes: the handle is closed and the state is `GEN_CLOSED`.
-
-*Tests:* `test_closing_a_reader_closes_its_file`.
-
-`break` doesn't call `close()`. After a loop breaks on the first event, the handle is still open and the reader is `GEN_SUSPENDED`, because the name `reader` still holds it. `contextlib.closing` makes that `close()` call at the end of its block, as in the listing above.
-
-*Tests:* `test_breaking_out_of_a_loop_leaves_a_named_reader_open`.
-
-A reader nobody names is a different case. The yield-expressions reference says "If the generator is not resumed before it is finalized (by reaching a zero reference count or by being garbage collected), the generator-iterator’s close() method will be called, allowing any pending finally clauses to execute." The test deletes the name and calls `gc.collect()` before asserting, because the language doesn't promise when finalisation runs. A caller that must close at a known point calls `close()` or uses `closing`.
-
-*Tests:* `test_an_abandoned_reader_closes_its_file_when_collected`.
-
-mypy knows which iterators can be closed. `close()` on `events_from([])` annotated `Iterator[HandlingEvent]` gets `attr-defined` with `has no attribute "close"`, and passing it to `closing` gets `type-var`. Passing `read_events` to `closing` is clean, which is why it's annotated `Generator`.
-
-*Tests:* `test_mypy_refuses_close_on_an_iterator`, `test_mypy_refuses_contextlib_closing_on_an_iterator`, `test_mypy_accepts_contextlib_closing_on_a_reader`.
-
-Asynchronous generators aren't part of this chapter; see [asyncio and the patterns]({{ '/docs/38-asyncio-and-the-patterns/' | relative_url }}).
+Asynchronous generators follow the same rules with `aclose()`; see [asyncio and the patterns]({{ '/docs/38-asyncio-and-the-patterns/' | relative_url }}).
 
 ## When not to use it
 
@@ -249,115 +203,19 @@ uv run pytest -v --no-header
 uv run mypy --strict src tests
 ```
 
-A fresh run produces:
+All 42 cases pass and mypy is clean. Two experiments show what the idiomatic version buys:
 
-```text
-============================= test session starts ==============================
-collecting ... collected 42 items
-
-tests/test_laziness.py::test_the_first_page_reads_only_one_page PASSED   [  2%]
-tests/test_laziness.py::test_an_eager_list_reads_every_event_to_get_the_first_page PASSED [  4%]
-tests/test_laziness.py::test_pages_keep_a_short_last_page PASSED         [  7%]
-tests/test_laziness.py::test_a_page_size_below_one_is_refused PASSED     [  9%]
-tests/test_laziness.py::test_page_reads_only_up_to_the_page_it_returns PASSED [ 11%]
-tests/test_laziness.py::test_page_numbers_start_at_one[zero] PASSED      [ 14%]
-tests/test_laziness.py::test_page_numbers_start_at_one[negative] PASSED  [ 16%]
-tests/test_laziness.py::test_a_page_past_the_end_is_empty PASSED         [ 19%]
-tests/test_laziness.py::test_out_of_order_finds_an_event_that_steps_back_in_the_lifecycle PASSED [ 21%]
-tests/test_laziness.py::test_out_of_order_is_empty_for_fewer_than_two_events[none] PASSED [ 23%]
-tests/test_laziness.py::test_out_of_order_is_empty_for_fewer_than_two_events[one] PASSED [ 26%]
-tests/test_laziness.py::test_events_of_starts_each_history_only_when_the_last_is_done PASSED [ 28%]
-tests/test_protocol.py::test_a_traversal_visits_every_event_in_order[iterable] PASSED [ 30%]
-tests/test_protocol.py::test_a_traversal_visits_every_event_in_order[self-iterator] PASSED [ 33%]
-tests/test_protocol.py::test_an_empty_history_yields_nothing[iterable] PASSED [ 35%]
-tests/test_protocol.py::test_an_empty_history_yields_nothing[self-iterator] PASSED [ 38%]
-tests/test_protocol.py::test_a_tracking_history_can_be_walked_twice PASSED [ 40%]
-tests/test_protocol.py::test_a_self_iterating_history_is_empty_on_the_second_pass PASSED [ 42%]
-tests/test_protocol.py::test_nested_walks_of_a_tracking_history_are_independent PASSED [ 45%]
-tests/test_protocol.py::test_a_self_iterating_history_cuts_a_nested_walk_short PASSED [ 47%]
-tests/test_protocol.py::test_an_exhausted_generator_looks_empty PASSED   [ 50%]
-tests/test_protocol.py::test_iter_of_an_iterator_is_the_iterator_itself PASSED [ 52%]
-tests/test_protocol.py::test_a_class_with_only_next_is_not_iterable PASSED [ 54%]
-tests/test_protocol.py::test_stop_iteration_inside_a_generator_becomes_runtime_error PASSED [ 57%]
-tests/test_reading.py::test_read_events_parses_each_line PASSED          [ 59%]
-tests/test_reading.py::test_yield_from_hands_the_line_count_to_the_caller PASSED [ 61%]
-tests/test_reading.py::test_list_drops_a_generators_return_value PASSED  [ 64%]
-tests/test_reading.py::test_a_malformed_line_is_refused_with_its_number[too-few-fields] PASSED [ 66%]
-tests/test_reading.py::test_a_malformed_line_is_refused_with_its_number[unknown-kind] PASSED [ 69%]
-tests/test_reading.py::test_a_reader_never_started_opens_no_file PASSED  [ 71%]
-tests/test_reading.py::test_closing_a_reader_closes_its_file PASSED      [ 73%]
-tests/test_reading.py::test_breaking_out_of_a_loop_leaves_a_named_reader_open PASSED [ 76%]
-tests/test_reading.py::test_contextlib_closing_closes_the_reader_at_the_end_of_the_block PASSED [ 78%]
-tests/test_reading.py::test_an_abandoned_reader_closes_its_file_when_collected PASSED [ 80%]
-tests/test_static.py::test_mypy_refuses_close_on_an_iterator PASSED      [ 83%]
-tests/test_static.py::test_mypy_refuses_contextlib_closing_on_an_iterator PASSED [ 85%]
-tests/test_static.py::test_mypy_accepts_contextlib_closing_on_a_reader PASSED [ 88%]
-tests/test_static.py::test_mypy_cannot_see_a_second_pass_over_an_iterator PASSED [ 90%]
-tests/test_static.py::test_mypy_refuses_a_generator_where_a_collection_is_needed PASSED [ 92%]
-tests/test_static.py::test_mypy_types_the_value_of_yield_from PASSED     [ 95%]
-tests/test_static.py::test_mypy_refuses_a_class_with_only_next_in_a_for_loop PASSED [ 97%]
-tests/test_static.py::test_mypy_accepts_a_self_iterating_history_as_an_iterable PASSED [100%]
-
-============================== 42 passed in 3.55s ==============================
-Success: no issues found in 9 source files
-```
-
-The suite has 37 test functions and 42 cases:
-
-| Module | Functions | Cases |
-| --- | --- | --- |
-| `test_protocol.py` | 10 | 12 |
-| `test_laziness.py` | 10 | 12 |
-| `test_reading.py` | 9 | 10 |
-| `test_static.py` | 8 | 8 |
-
-For how the tests and the mypy witnesses are built, see [Proving it works: pytest, pytest-mock, and mypy]({{ '/docs/11-testing-with-pytest-pytest-mock-and-mypy/' | relative_url }}).
-
-**Experiment one: store one iterator.** In a scratch copy, add `self._walk = iter(self._events)` to `TrackingHistory.__init__` and replace the `yield from` line in `__iter__` with `return self._walk`. Running `uv run pytest -q 2>&1 | grep -E '^(FAILED|E {7}[^ ]|tests/.*Error$|[0-9]+ (passed|failed))' | sed -E 's/0x[0-9a-f]+/0x.../g'` and then `uv run mypy --strict src tests` prints:
-
-```text
-E       AssertionError: assert [HandlingEven...port='DEHAM')] == []
-tests/test_protocol.py:23: AssertionError
-E       AssertionError: assert 2 == 9
-tests/test_protocol.py:37: AssertionError
-E       assert <list_iterator object at 0x...> is not <list_iterator object at 0x...>
-tests/test_protocol.py:60: AssertionError
-FAILED tests/test_protocol.py::test_a_tracking_history_can_be_walked_twice - ...
-FAILED tests/test_protocol.py::test_nested_walks_of_a_tracking_history_are_independent
-FAILED tests/test_protocol.py::test_iter_of_an_iterator_is_the_iterator_itself
-3 failed, 39 passed in 3.41s
-Success: no issues found in 9 source files
-```
-
-The history is now a self-iterating cursor. The second pass is empty, the nested walk gives 2 pairs instead of 9, and `iter(history)` returns the same object twice. The traversal tests pass, because they walk once. mypy stays green: a method that returns an `Iterator` is type-correct.
-
-*Tests:* `test_a_tracking_history_can_be_walked_twice`, `test_nested_walks_of_a_tracking_history_are_independent`, `test_iter_of_an_iterator_is_the_iterator_itself`.
-
-**Experiment two: open without `with`.** In a fresh scratch copy, replace `with opener(path) as lines:` and its `return` in `read_events` with `lines = opener(path)` and `return (yield from events_from(lines))`. Running `uv run pytest -q 2>&1 | grep -E '^(FAILED|[0-9]+ (passed|failed))'` and then `uv run mypy --strict src tests` prints:
-
-```text
-FAILED tests/test_reading.py::test_read_events_parses_each_line - pytest.Pyte...
-FAILED tests/test_reading.py::test_list_drops_a_generators_return_value - Exc...
-FAILED tests/test_reading.py::test_a_malformed_line_is_refused_with_its_number[too-few-fields]
-FAILED tests/test_reading.py::test_a_malformed_line_is_refused_with_its_number[unknown-kind]
-FAILED tests/test_reading.py::test_closing_a_reader_closes_its_file - Asserti...
-FAILED tests/test_reading.py::test_breaking_out_of_a_loop_leaves_a_named_reader_open
-FAILED tests/test_reading.py::test_contextlib_closing_closes_the_reader_at_the_end_of_the_block
-FAILED tests/test_reading.py::test_an_abandoned_reader_closes_its_file_when_collected
-8 failed, 34 passed in 3.47s
-Success: no issues found in 9 source files
-```
-
-Four tests fail their `closed` assertion: `close()`, `closing` and collection no longer close the file, and the `break` test fails at the `close()` that ends it. The other four fail through pytest's unraisable-exception handling. The root `filterwarnings = ["error"]` turns the `ResourceWarning` for an unclosed file into `PytestUnraisableExceptionWarning`, which reaches the tests that read a reader to the end and the two malformed-line cases. mypy stays green again, since a reader without `with` is type-correct.
+- **Store one iterator.** In a scratch copy, make `TrackingHistory.__init__` keep `self._walk = iter(self._events)` and have `__iter__` return it. The second-pass, nested-walk and fresh-iterator tests fail, and mypy stays green.
+- **Open without `with`.** In a scratch copy, open the file in `read_events` with a plain assignment. Eight reader tests fail: the file no longer closes, and the root `filterwarnings = ["error"]` setting turns the unclosed-file `ResourceWarning` into a failure. mypy stays green again.
 
 ## What you can do now
 
-- Say what Iterator dissolves into: `TrackingHistory.__iter__` is a generator, and the three choices remain.
-- Choose one pass or many: the history walks twice and nests, and `_OneShotHistory` is empty on the second pass, as the tests and experiment one show.
-- Read only what you need: `pages` and `page` read 3 and 6 events of a million, and `pairwise` and `chain.from_iterable` do the same in `out_of_order` and `events_of`.
-- Delegate and type it: `read_events` and `events_from` return the line count through `yield from`, `Generator[HandlingEvent, None, int]` types it, and `list()` drops it.
-- Close the source: `close()` and `contextlib.closing` close the reader, `break` alone leaves a named reader open, and experiment two shows what the `with` supplies.
+- Write `__iter__` as a generator, as `TrackingHistory` does, so every loop gets a fresh iterator.
+- Spot a single-pass object before it's walked twice, and annotate `Collection` where a function needs two passes.
+- Page through a source with `pages` and `page`, which read 3 and 6 events of a million.
+- Return a value through `yield from` and type it with `Generator[HandlingEvent, None, int]`.
+- Close a reader with `close()` or `contextlib.closing` when a consumer stops early.
 
 ## For deeper coverage
 
-*Design Patterns* (Gamma, Helm, Johnson and Vlissides, 1994) is the source for Iterator. Rhodes's [The Iterator Pattern](https://python-patterns.guide/gang-of-four/iterator/) covers the iterable, the iterator and objects that are their own iterator. The [glossary](https://docs.python.org/3/glossary.html) defines iterable, iterator and generator iterator. The [built-in functions](https://docs.python.org/3/builtins/functions.html) page covers `iter` and `next`, the [built-in types](https://docs.python.org/3/builtins/stdtypes.html) page covers the generator methods, and the [expressions reference](https://docs.python.org/3/reference/expressions.html) covers yield expressions. The [`itertools`](https://docs.python.org/3/library/itertools.html) and [`contextlib`](https://docs.python.org/3/library/contextlib.html) pages cover `batched`, `islice`, `pairwise`, `chain.from_iterable` and `closing`. [PEP 255](https://peps.python.org/pep-0255/), "Simple Generators" by Schemenauer, Peters and Hetland, introduced generators. [PEP 380](https://peps.python.org/pep-0380/), "Syntax for Delegating to a Subgenerator" by Gregory Ewing, added `yield from`. [PEP 479](https://peps.python.org/pep-0479/), by Chris Angelico and Guido van Rossum, changed `StopIteration` inside a generator. The [bibliography page]({{ '/bibliography/' | relative_url }}) lists the books.
+*Design Patterns* (Gamma, Helm, Johnson and Vlissides, 1994) is the source for Iterator. Brandon Rhodes's [The Iterator Pattern](https://python-patterns.guide/gang-of-four/iterator/) covers the iterable, the iterator and objects that are their own iterator. The [glossary](https://docs.python.org/3/glossary.html) defines iterable, iterator and generator iterator. The [built-in functions](https://docs.python.org/3/builtins/functions.html) page covers `iter` and `next`, the [built-in types](https://docs.python.org/3/builtins/stdtypes.html) page covers the generator methods, and the [expressions reference](https://docs.python.org/3/reference/expressions.html) covers yield expressions. The [`itertools`](https://docs.python.org/3/library/itertools.html), [`contextlib`](https://docs.python.org/3/library/contextlib.html) and [`typing`](https://docs.python.org/3/library/typing.html) pages cover `batched`, `islice`, `pairwise`, `chain.from_iterable`, `closing` and `Generator`. [PEP 255](https://peps.python.org/pep-0255/), "Simple Generators" by Schemenauer, Peters and Hetland, introduced generators. [PEP 380](https://peps.python.org/pep-0380/), "Syntax for Delegating to a Subgenerator" by Gregory Ewing, added `yield from`. [PEP 479](https://peps.python.org/pep-0479/), by Chris Angelico and Guido van Rossum, changed `StopIteration` inside a generator. The [bibliography page]({{ '/bibliography/' | relative_url }}) lists the books.
