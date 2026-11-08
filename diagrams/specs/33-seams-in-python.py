@@ -5,11 +5,11 @@ from generate_diagram import emit
 emit(
     "33-seams-in-python",
     1020,
-    610,
+    420,
     nodes=[
         {
             "x": 40,
-            "y": 30,
+            "y": 20,
             "w": 440,
             "h": 60,
             "style": "user",
@@ -17,7 +17,7 @@ emit(
         },
         {
             "x": 40,
-            "y": 150,
+            "y": 110,
             "w": 440,
             "h": 80,
             "style": "accent",
@@ -28,7 +28,7 @@ emit(
         },
         {
             "x": 40,
-            "y": 380,
+            "y": 260,
             "w": 440,
             "h": 70,
             "style": "box",
@@ -39,7 +39,7 @@ emit(
         },
         {
             "x": 560,
-            "y": 145,
+            "y": 105,
             "w": 400,
             "h": 90,
             "style": "ghost",
@@ -51,7 +51,7 @@ emit(
         },
         {
             "x": 560,
-            "y": 375,
+            "y": 255,
             "w": 400,
             "h": 80,
             "style": "ghost",
@@ -63,32 +63,32 @@ emit(
         },
         {
             "x": 40,
-            "y": 520,
+            "y": 360,
             "w": 920,
-            "h": 50,
+            "h": 44,
             "style": "ink",
             "lines": ["mypy checks neither the target string nor the replacement"],
         },
     ],
     edges=[
-        {"x1": 260, "y1": 90, "x2": 260, "y2": 150},
+        {"x1": 260, "y1": 80, "x2": 260, "y2": 110},
         {
             "x1": 90,
-            "y1": 230,
+            "y1": 190,
             "x2": 90,
-            "y2": 380,
+            "y2": 260,
             "label": "request_quote: looked up in seams.legacy",
-            "lx": 150,
-            "ly": -40,
+            "lx": 118,
+            "ly": -12,
         },
         {
             "x1": 430,
-            "y1": 230,
+            "y1": 190,
             "x2": 430,
-            "y2": 380,
+            "y2": 260,
             "label": "airco.price: looked up on seams.airco",
             "lx": -110,
-            "ly": 25,
+            "ly": 18,
         },
     ],
 )

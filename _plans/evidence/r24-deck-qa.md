@@ -109,3 +109,25 @@ Rebuilt with `node deck-301.js` (42 slides, minimum notes words 63 on the Refere
 | flourish/importance | The gates verify accuracy at chosen points, and everything between those points is trust. | The gates verify accuracy at the rows and shapes they list. |
 | scope (slide) | ["Each move", " has a Python form, and subclass and override is the one kept for comparison."] | ["The parameter forms", " are the Python ones, and subclass and override stays as the comparison."] |
 | philosophy (slide) | ["A golden quote", " asks a different question: not is this right, but did this change."] | ["A golden quote", " asks whether anything changed."] |
+
+## Repair round 1 (2026-11-08, D5)
+
+Items applied to `presentation/deck-301.js` unless a path is named. Every new sentence was checked against its witness before it went in.
+
+Blocking:
+
+1. Slide 9 notes: three tests assert exact outcome counts of both runs, and `test_an_unknown_option_fails_under_strict_config` asserts `ExitCode.USAGE_ERROR` and the stderr line "Unknown config option". The same fix is in `_docs/42-appendix-b-pytest.md` and in the card blurb of `_examples/42-appendix-b-pytest.md`. The remaining "exact outcome counts" sentences in `_docs`, `_examples` and `examples/42-*` say "most" or name inner sessions in general and were left.
+2. Slide 31 notes: the five-fail, 18-pass count and the mypy exit are now two separate causes.
+3. Slide 33 notes: the desk takes each collaborator as a keyword parameter, which matches the composition-root section of the final-project chapter.
+4. Slide 12 notes: `book_cheapest` calls the stub with the booking reference (`booking.py` calls `notify(reference)`); the same correction is in row 285 and the D2 dated note of `_plans/reconciliation-plan.md` and in the Step D2 note of `_plans/r24-plan.md`.
+5. Slide 2: Reference entry removed, notes name the seven themes and add one sentence on the reference section, `fontSize: 18, gap: 14` in both calls. Notes: 120 words.
+6. Figure 33: canvas 1020 x 420, positions as briefed, edge labels staggered beside their own arrows (left label right of the left arrow, right label left of the right arrow).
+7. Figure 40: canvas 960 x 410; the amber arrow now rises from the gate row's top edge in the gap between the shape review and the oracle, labelled "propose: every gate's findings go back in the next prompt" (`propose` builds `findings` over every gate). The chapter walk-through and the slide 36 notes were updated to match. The include caption and `_data/diagrams.yml` caption still describe the drawing and were not changed.
+
+Figure label sizes on the slide (points = 72 x min(12.09/W, 4.95/H) x 11): figure 33, 9.3 pt (was 6.4); figure 40, 9.6 pt.
+
+Should-fix 8 to 14, nits, and items 15 to 21 are applied as briefed: slide 6 quotation, slide 11 caption, slide 5 notes and mypy cell, slide 38, slide 35, README lines of examples 36 and 35 (`CENT` matches the `refactored.py` docstring), slide 7 teardown sentence replaced by a sentence on what the slide shows (128 words), slide 12 Dummy Object passage cut to one sentence, slide 17 bullet, slide 21 closing sentence (91 words), slide 27 notes sentence (134 words), slide 40 notes, slide 42 two bullets, and the nits for slides 10, 30, 4, 3, 15, 23, 31 and the Stub cell.
+
+Pointer grep (`follow|next|previous|earlier|later|above|below|before it|after it|chapter|appendix|book|this (deck|slide)|these slides|in order`) over notes and slide text: every hit is a verb or an identifier (`book`, `booked`, `booking`, `book_best`, `test_unittest_mock_patch_follows_the_same_lookup_rule`), "next band's price", "next prompt" (the loop's next request), or "books" on the reference slides. No positional pointer. The plan's step 8 list adds only allowed hits ("member" in a mypy test name and in "a missing member"; "above 5 kg" a weight). Case-sensitive cross-language grep: no hits. AI-claim grep (including "most ", typically, tend, assistants may/might/will, accura): two hits, both inside attributed quotations (Fowler's Strangler Fig "often" and OWASP's "accuracy").
+
+Pages viewed after the rebuild: 2, 5, 6, 7, 9, 11, 12, 15, 17, 21, 27, 31, 33, 35, 36, 38, 40 and 42, plus both figure PNGs at full size. Decks 101 and 201 rebuild with only `docProps/core.xml` differing; the committed files were restored.

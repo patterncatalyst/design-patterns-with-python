@@ -39,7 +39,7 @@ filterwarnings = ["error"]
 
 The excerpt leaves out `testpaths`, the line that lists the directories holding the tests.
 
-Four of its settings refuse what pytest's defaults let through. Each has a test that runs an inner session with the setting and without it, and asserts the exact outcome counts of both.
+Four of its settings refuse what pytest's defaults let through. Each has a test that runs an inner session with the setting and without it. Three assert the exact outcome counts of both runs; the `--strict-config` test asserts the usage-error exit status and the message that names the option.
 
 | Setting | Without it | With it | Witness |
 | --- | --- | --- | --- |
