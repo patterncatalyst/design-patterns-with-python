@@ -824,7 +824,6 @@ VERSION_ALLOW: dict[str, tuple[str, ...]] = {
         "source for 3.17.0",
         "On 3.17.0 only",
     ),
-    "_docs/46-appendix-f-programming-principles.md": ("on Python 3.15.2, with",),
     "_examples/09-protocol-and-structural-typing.md": (
         "A 3.15 `sentinel`",
         "on 3.15 an undecorated",
