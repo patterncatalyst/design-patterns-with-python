@@ -142,7 +142,7 @@ DECK_BANNED = (
         "cross-language word",
     ),
 )
-DECK_BOOK_RE = re.compile(r"\bthe book('s)?\b", re.IGNORECASE)
+DECK_BOOK_RE = re.compile(r"\b(the|this) book('s)?\b", re.IGNORECASE)
 DECK_SLIDE_RE = re.compile(r"ppt/slides/slide(\d+)\.xml$")
 DECK_FIELD_RE = re.compile(r"<a:fld\b.*?</a:fld>", re.DOTALL)
 DECK_PARA_RE = re.compile(r"<a:p\b.*?</a:p>|<a:p/>", re.DOTALL)
@@ -1397,6 +1397,7 @@ def deck_self_test(expect: Callable[[str, bool], None]) -> None:
     for bad in (
         "the table above",
         "as the book says",
+        "as this book says",
         "this deck covers",
         "these slides rest on",
         "the dividers name it",
@@ -1413,6 +1414,10 @@ def deck_self_test(expect: Callable[[str, bool], None]) -> None:
     expect(
         "deck book pointer on the closing slide",
         not run([*good, ("Body", long + " the book's site and repository")]),
+    )
+    expect(
+        "deck this-book pointer on the closing slide",
+        not run([*good, ("Body", long + " this book's site and repository")]),
     )
     expect(
         "deck positional ref 2",

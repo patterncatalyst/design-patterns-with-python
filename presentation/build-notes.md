@@ -2,7 +2,7 @@
 
 This directory holds the companion slide decks for *Design Patterns with Python*,
 built with the `lgtm-presentation` skill's pptxgenjs engine. The builders
-(`deck-101.js` and `deck-201.js`) read code slides from the shipped examples by
+(`deck-101.js`, `deck-201.js` and `deck-301.js`) read code slides from the shipped examples by
 path and line range, so a slide is byte-exact with its source.
 
 ## Pins
@@ -24,9 +24,10 @@ From this directory, and only here:
 ```bash
 npm ci
 node -e "console.log(require.resolve('pptxgenjs'))"   # must point under ./node_modules
-./render-png.sh                                       # the figure PNGs, both decks
+./render-png.sh                                       # the figure PNGs, all three decks
 node deck-101.js
 node deck-201.js
+node deck-301.js
 ```
 
 Never `npm install -g`, never set `NODE_PATH`. The deck must load the copy in
@@ -74,9 +75,9 @@ its presentation with `newDeck()`, sets the metadata, and calls
 The slide counter and the floors live inside the closure, so two decks never
 share state. `deck-helpers.js` is not touched by the module.
 
-### Identity proof for Deck 101
+### Identity proof for Deck 101 and Deck 201
 
-Moving the helpers out of `deck-101.js` must not change Deck 101. The proof:
+Moving the helpers out of `deck-101.js` must not change Deck 101, and the same proof covers Deck 201 (substitute `201` and its file name; Deck 301 has no committed predecessor to compare). The proof:
 
 ```bash
 node deck-101.js                       # rebuild in place
@@ -86,7 +87,7 @@ unzip -q -d old old.pptx
 diff -rq old new                       # only docProps/core.xml may differ
 ```
 
-Run the commands from `presentation/`; the unzip targets can sit in any scratch directory. Both trees hold 342 parts;
+Run the commands from `presentation/`; the unzip targets can sit in any scratch directory. Both Deck 101 trees hold 342 parts and both Deck 201 trees 255;
 `docProps/core.xml` differs only in its `created` and `modified` timestamps.
 After the proof, `git checkout` restores the committed `.pptx`, so its bytes do
 not change and a refactor commit holds only code. Re-run the proof whenever
@@ -95,8 +96,8 @@ not change and a refactor commit holds only code. Re-run the proof whenever
 ## Figures
 
 `render-png.sh` renders `diagrams/<NN>-*.svg` to `png/` at width 1600. With no
-arguments it renders both decks' lists (101: eleven figures; 201: five);
-`--deck 101` or `--deck 201` selects one list, and figure numbers on the
+arguments it renders all three decks' lists (101: eleven figures; 201: five;
+301: two, figures 33 and 40); `--deck 101`, `--deck 201` or `--deck 301` selects one list, and figure numbers on the
 command line override both. Run
 `./render-png.sh --check` to render into a temporary directory and compare each
 committed PNG with a fresh render; the render is deterministic, so any
