@@ -33,7 +33,11 @@ Lessons carried from r16 to r23: grep everywhere, including front matter, cards,
 
 ## Owner decisions
 
-None recorded yet. The owner reviews the numbered decisions below; where an owner decision differs, it is recorded here with a date and the numbered decision is amended in place.
+2026-11-07, at the plan gate:
+
+- O1: 42 slides as planned. Decisions 0 to 4 and 6 to 11 are taken as recommended, with figures 33 and 40 after F1 and F2, and no toolchain slide.
+- O2, which **differs from the recommendation for P5**: narrow the six "teardown runs when the test fails" sentences so each cites only what the chapter 11 experiment shows. Add no pytester witness, and leave chapter 11's counts unchanged. Every other defect in decision 5 (P1 to P4, P6 to P21, F1, F2, K1 to K3 and V1) is fixed as recommended.
+- O3: the AI sidebar wording ("An assistant may ...") stays as approved at r10b. The r25 retro decides between rewording the sidebars and amending CLAUDE.md. The deck carries none of those sentences.
 
 ## Decisions with recommendations
 
