@@ -40,97 +40,98 @@ PR, squash-merge with branch deletion, an `rNN.x` tag and a notes-only release.
 | r19 | Ch 39-40: final project, working with AI and LLM tools |
 | r20 | Appendices A-C |
 | r21 | Appendices D-F |
-| r22 (active) | Deck 101 |
-| r23-r24 | Decks 201, 301 |
+| r22 | Deck 101 |
+| r23 (active) | Deck 201 |
+| r24 | Deck 301 |
 | r25 | Retro and QA sweep |
 
 ## Registry
 
 | ID | Item | Iteration | Status |
 | --- | --- | --- | --- |
-| PDP-001 | Upstream survey (versions, bibliography editions) | r01 | todo |
+| PDP-001 | Upstream survey (versions, bibliography editions) | r01 | done |
 | PDP-002 | Repo created, Pages homepage, release/r01 branch | r01 | done |
-| PDP-003 | Site scaffold (chrome, _config, red accent) | r01 | todo |
-| PDP-004 | 15 parts plus 47 doc stubs, chapters.toml | r01 | todo |
-| PDP-005 | uv workspace toolchain (S4a gate spike) | r01 | todo |
-| PDP-006 | Scripts: prereqs, verify, site-build, validate, host_ids, diagrams | r01 | todo |
-| PDP-007 | Iteration plan and registry (this file) | r01 | todo |
-| PDP-008 | Shipping domain model | r01 | todo |
-| PDP-009 | Reconciliation plan | r01 | todo |
-| PDP-010 | Spike 010: Decorator objects vs @decorator | r01 | todo |
-| PDP-011 | Spike 011: Protocol, ParamSpec, PEP 695 | r01 | todo |
-| PDP-012 | Spike 012: singledispatch on 3.14 | r01 | todo |
-| PDP-013 | Spike 013: __init_subclass__ vs metaclass | r01 | todo |
-| PDP-014 | Spike 014: match and assert_never | r01 | todo |
-| PDP-015 | Spike 015: GIL and asyncio determinism | r01 | todo |
-| PDP-016 | Examples card and verified bibliography | r01 | todo |
-| PDP-017 | CI, CLAUDE.md, README | r01 | todo |
-| PDP-018 | Validation wave | r01 | todo |
-| PDP-019 | Ship: PR, CI, merge, tag, release, ruleset | r01 | todo |
-| PDP-020 | Hub PR: sites.yml, books.yml, book_categories.yml | r01 | todo |
-| PDP-100a | Ch0 Prerequisites and the toolchain: example | r01 | todo |
-| PDP-100b | Ch0 Prerequisites and the toolchain: figure | r01 | todo |
-| PDP-100c | Ch0 Prerequisites and the toolchain: prose | r01 | todo |
+| PDP-003 | Site scaffold (chrome, _config, red accent) | r01 | done |
+| PDP-004 | 15 parts plus 47 doc stubs, chapters.toml | r01 | done |
+| PDP-005 | uv workspace toolchain (S4a gate spike) | r01 | done |
+| PDP-006 | Scripts: prereqs, verify, site-build, validate, host_ids, diagrams | r01 | done |
+| PDP-007 | Iteration plan and registry (this file) | r01 | done |
+| PDP-008 | Shipping domain model | r01 | done |
+| PDP-009 | Reconciliation plan | r01 | done |
+| PDP-010 | Spike 010: Decorator objects vs @decorator | r01 | done |
+| PDP-011 | Spike 011: Protocol, ParamSpec, PEP 695 | r01 | done |
+| PDP-012 | Spike 012: singledispatch on 3.14 | r01 | done |
+| PDP-013 | Spike 013: __init_subclass__ vs metaclass | r01 | done |
+| PDP-014 | Spike 014: match and assert_never | r01 | done |
+| PDP-015 | Spike 015: GIL and asyncio determinism | r01 | done |
+| PDP-016 | Examples card and verified bibliography | r01 | done |
+| PDP-017 | CI, CLAUDE.md, README | r01 | done |
+| PDP-018 | Validation wave | r01 | done |
+| PDP-019 | Ship: PR, CI, merge, tag, release, ruleset | r01 | done |
+| PDP-020 | Hub PR: sites.yml, books.yml, book_categories.yml | r01 | done |
+| PDP-100a | Ch0 Prerequisites and the toolchain: example | r01 | done |
+| PDP-100b | Ch0 Prerequisites and the toolchain: figure | r01 | done |
+| PDP-100c | Ch0 Prerequisites and the toolchain: prose | r01 | done |
 | PDP-101a | Ch1 Patterns as decisions under forces: example | r02 | n.a. (argument chapter) |
-| PDP-101b | Ch1 Patterns as decisions under forces: figure | r02 | todo |
-| PDP-101c | Ch1 Patterns as decisions under forces: prose | r02 | todo |
+| PDP-101b | Ch1 Patterns as decisions under forces: figure | r02 | done |
+| PDP-101c | Ch1 Patterns as decisions under forces: prose | r02 | done |
 | PDP-102a | Ch2 What 1994 assumed, and what Python dissolves: example | r02 | covered by PDP-103a |
-| PDP-102b | Ch2 What 1994 assumed, and what Python dissolves: figure | r02 | todo |
-| PDP-102c | Ch2 What 1994 assumed, and what Python dissolves: prose | r02 | todo |
-| PDP-103a | Ch3 The three-way split: example (three-way-split witnesses) | r02 | todo |
-| PDP-103b | Ch3 The three-way split: figure | r02 | todo |
-| PDP-103c | Ch3 The three-way split: prose | r02 | todo |
+| PDP-102b | Ch2 What 1994 assumed, and what Python dissolves: figure | r02 | done |
+| PDP-102c | Ch2 What 1994 assumed, and what Python dissolves: prose | r02 | done |
+| PDP-103a | Ch3 The three-way split: example (three-way-split witnesses) | r02 | done |
+| PDP-103b | Ch3 The three-way split: figure | r02 | done |
+| PDP-103c | Ch3 The three-way split: prose | r02 | done |
 | PDP-104a | Ch4 Naming patterns for teams and AI: example | r02 | n.a. (argument chapter) |
-| PDP-104b | Ch4 Naming patterns for teams and AI: figure | r02 | todo |
-| PDP-104c | Ch4 Naming patterns for teams and AI: prose | r02 | todo |
-| PDP-105a | Ch5 SRP, OCP, and LSP: example | r03 | active |
-| PDP-105b | Ch5 SRP, OCP, and LSP: figure | r03 | active |
-| PDP-105c | Ch5 SRP, OCP, and LSP: prose | r03 | active |
-| PDP-106a | Ch6 ISP, DIP, and DI without a framework: example | r03 | active |
-| PDP-106b | Ch6 ISP, DIP, and DI without a framework: figure | r03 | active |
-| PDP-106c | Ch6 ISP, DIP, and DI without a framework: prose | r03 | active |
-| PDP-107a | Ch7 The data model: example | r04 | active |
-| PDP-107b | Ch7 The data model: figure | r04 | active |
-| PDP-107c | Ch7 The data model: prose | r04 | active |
-| PDP-108a | Ch8 Dataclasses and value semantics: example | r04 | active |
-| PDP-108b | Ch8 Dataclasses and value semantics: figure | r04 | active |
-| PDP-108c | Ch8 Dataclasses and value semantics: prose | r04 | active |
-| PDP-109a | Ch9 Protocol and structural typing: example | r05 | active |
-| PDP-109b | Ch9 Protocol and structural typing: figure | r05 | active |
-| PDP-109c | Ch9 Protocol and structural typing: prose | r05 | active |
-| PDP-110a | Ch10 Context managers: example | r05 | active |
-| PDP-110b | Ch10 Context managers: figure | r05 | active |
-| PDP-110c | Ch10 Context managers: prose | r05 | active |
-| PDP-111a | Ch11 Testing with pytest, pytest-mock, and mypy: example | r05 | active |
-| PDP-111b | Ch11 Testing with pytest, pytest-mock, and mypy: figure | r05 | active |
-| PDP-111c | Ch11 Testing with pytest, pytest-mock, and mypy: prose | r05 | active |
-| PDP-112a | Ch12 Strategy: the callable: example | r06 | active |
-| PDP-112b | Ch12 Strategy: the callable: figure | r06 | active |
-| PDP-112c | Ch12 Strategy: the callable: prose | r06 | active |
-| PDP-113a | Ch13 Template Method and the function alternative: example | r06 | active |
-| PDP-113b | Ch13 Template Method and the function alternative: figure | r06 | active |
-| PDP-113c | Ch13 Template Method and the function alternative: prose | r06 | active |
-| PDP-114a | Ch14 State and finite state machines: example | r07 | active |
-| PDP-114b | Ch14 State and finite state machines: figure | r07 | active |
-| PDP-114c | Ch14 State and finite state machines: prose | r07 | active |
-| PDP-115a | Ch15 Command, undo, and command queues: example | r07 | active |
-| PDP-115b | Ch15 Command, undo, and command queues: figure | r07 | active |
-| PDP-115c | Ch15 Command, undo, and command queues: prose | r07 | active |
-| PDP-116a | Ch16 Factory Method and Abstract Factory: example | r08 | active |
-| PDP-116b | Ch16 Factory Method and Abstract Factory: figure | r08 | active |
-| PDP-116c | Ch16 Factory Method and Abstract Factory: prose | r08 | active |
-| PDP-117a | Ch17 Builder, dataclasses, and Prototype: example | r08 | active |
-| PDP-117b | Ch17 Builder, dataclasses, and Prototype: figure | r08 | active |
-| PDP-117c | Ch17 Builder, dataclasses, and Prototype: prose | r08 | active |
-| PDP-118a | Ch18 Singleton: module, Borg, metaclass: example | r08 | active |
-| PDP-118b | Ch18 Singleton: module, Borg, metaclass: figure | r08 | active |
-| PDP-118c | Ch18 Singleton: module, Borg, metaclass: prose | r08 | active |
-| PDP-119a | Ch19 Adapter, Facade, Bridge: example | r09 | active |
-| PDP-119b | Ch19 Adapter, Facade, Bridge: figure | r09 | active |
-| PDP-119c | Ch19 Adapter, Facade, Bridge: prose | r09 | active |
-| PDP-120a | Ch20 Decorator pattern vs decorator syntax, and Proxy: example | r09 | active |
-| PDP-120b | Ch20 Decorator pattern vs decorator syntax, and Proxy: figure | r09 | active |
-| PDP-120c | Ch20 Decorator pattern vs decorator syntax, and Proxy: prose | r09 | active |
+| PDP-104b | Ch4 Naming patterns for teams and AI: figure | r02 | done |
+| PDP-104c | Ch4 Naming patterns for teams and AI: prose | r02 | done |
+| PDP-105a | Ch5 SRP, OCP, and LSP: example | r03 | done |
+| PDP-105b | Ch5 SRP, OCP, and LSP: figure | r03 | done |
+| PDP-105c | Ch5 SRP, OCP, and LSP: prose | r03 | done |
+| PDP-106a | Ch6 ISP, DIP, and DI without a framework: example | r03 | done |
+| PDP-106b | Ch6 ISP, DIP, and DI without a framework: figure | r03 | done |
+| PDP-106c | Ch6 ISP, DIP, and DI without a framework: prose | r03 | done |
+| PDP-107a | Ch7 The data model: example | r04 | done |
+| PDP-107b | Ch7 The data model: figure | r04 | done |
+| PDP-107c | Ch7 The data model: prose | r04 | done |
+| PDP-108a | Ch8 Dataclasses and value semantics: example | r04 | done |
+| PDP-108b | Ch8 Dataclasses and value semantics: figure | r04 | done |
+| PDP-108c | Ch8 Dataclasses and value semantics: prose | r04 | done |
+| PDP-109a | Ch9 Protocol and structural typing: example | r05 | done |
+| PDP-109b | Ch9 Protocol and structural typing: figure | r05 | done |
+| PDP-109c | Ch9 Protocol and structural typing: prose | r05 | done |
+| PDP-110a | Ch10 Context managers: example | r05 | done |
+| PDP-110b | Ch10 Context managers: figure | r05 | done |
+| PDP-110c | Ch10 Context managers: prose | r05 | done |
+| PDP-111a | Ch11 Testing with pytest, pytest-mock, and mypy: example | r05 | done |
+| PDP-111b | Ch11 Testing with pytest, pytest-mock, and mypy: figure | r05 | done |
+| PDP-111c | Ch11 Testing with pytest, pytest-mock, and mypy: prose | r05 | done |
+| PDP-112a | Ch12 Strategy: the callable: example | r06 | done |
+| PDP-112b | Ch12 Strategy: the callable: figure | r06 | done |
+| PDP-112c | Ch12 Strategy: the callable: prose | r06 | done |
+| PDP-113a | Ch13 Template Method and the function alternative: example | r06 | done |
+| PDP-113b | Ch13 Template Method and the function alternative: figure | r06 | done |
+| PDP-113c | Ch13 Template Method and the function alternative: prose | r06 | done |
+| PDP-114a | Ch14 State and finite state machines: example | r07 | done |
+| PDP-114b | Ch14 State and finite state machines: figure | r07 | done |
+| PDP-114c | Ch14 State and finite state machines: prose | r07 | done |
+| PDP-115a | Ch15 Command, undo, and command queues: example | r07 | done |
+| PDP-115b | Ch15 Command, undo, and command queues: figure | r07 | done |
+| PDP-115c | Ch15 Command, undo, and command queues: prose | r07 | done |
+| PDP-116a | Ch16 Factory Method and Abstract Factory: example | r08 | done |
+| PDP-116b | Ch16 Factory Method and Abstract Factory: figure | r08 | done |
+| PDP-116c | Ch16 Factory Method and Abstract Factory: prose | r08 | done |
+| PDP-117a | Ch17 Builder, dataclasses, and Prototype: example | r08 | done |
+| PDP-117b | Ch17 Builder, dataclasses, and Prototype: figure | r08 | done |
+| PDP-117c | Ch17 Builder, dataclasses, and Prototype: prose | r08 | done |
+| PDP-118a | Ch18 Singleton: module, Borg, metaclass: example | r08 | done |
+| PDP-118b | Ch18 Singleton: module, Borg, metaclass: figure | r08 | done |
+| PDP-118c | Ch18 Singleton: module, Borg, metaclass: prose | r08 | done |
+| PDP-119a | Ch19 Adapter, Facade, Bridge: example | r09 | done |
+| PDP-119b | Ch19 Adapter, Facade, Bridge: figure | r09 | done |
+| PDP-119c | Ch19 Adapter, Facade, Bridge: prose | r09 | done |
+| PDP-120a | Ch20 Decorator pattern vs decorator syntax, and Proxy: example | r09 | done |
+| PDP-120b | Ch20 Decorator pattern vs decorator syntax, and Proxy: figure | r09 | done |
+| PDP-120c | Ch20 Decorator pattern vs decorator syntax, and Proxy: prose | r09 | done |
 | PDP-121a | Ch21 Composite and Flyweight: example | r10 | done |
 | PDP-121b | Ch21 Composite and Flyweight: figure | r10 | done |
 | PDP-121c | Ch21 Composite and Flyweight: prose | r10 | done |
@@ -197,8 +198,8 @@ PR, squash-merge with branch deletion, an `rNN.x` tag and a notes-only release.
 | PDP-144 | Appendix D: Test patterns (Meszaros) | r21 | done |
 | PDP-145 | Appendix E: Pattern-to-force quick reference | r21 | done |
 | PDP-146 | Appendix F: Programming principles reviewed in code | r21 | done |
-| PDP-150 | Deck 101 | r22 | active |
-| PDP-151 | Deck 201 | r23 | todo |
+| PDP-150 | Deck 101 | r22 | done |
+| PDP-151 | Deck 201 | r23 | active |
 | PDP-152 | Deck 301 | r24 | todo |
 
 2026-11-04 (r05): Python 3.15.2. PDP-109a to PDP-111c are active for r05, and the book moves to Python 3.15.2. Earlier iterations keep their status.
@@ -236,3 +237,5 @@ PR, squash-merge with branch deletion, an `rNN.x` tag and a notes-only release.
 2026-11-07 (r21): PDP-144 to PDP-146 are active for r21 (appendices D to F, Part 14). PDP-141 to PDP-143 are closed (r20 is merged as 97207d4 and tagged r20.x), r20 is closed and r21 is marked active in the roadmap. Earlier iterations keep their status.
 
 2026-11-07 (r22): PDP-150 is active for r22 (Deck 101). PDP-144 to PDP-146 are closed (r21 is merged as db8f3ce and tagged r21.x), r21 is closed and r22 is marked active in the roadmap. Earlier iterations keep their status.
+
+2026-11-07 (r23): PDP-151 is active for r23 (Deck 201). PDP-150 is closed (r22 is tagged r22.x), r22 is closed and r23 is marked active in the roadmap. Registry bookkeeping (B1): every iteration to r22 is tagged, so the 31 rows left `todo` for r01 and r02 and the 48 rows left `active` for r03 to r09 are now `done`, as is PDP-150. PDP-101a and PDP-104a stay `n.a. (argument chapter)` and PDP-102a stays `covered by PDP-103a`. PDP-152 stays `todo`.

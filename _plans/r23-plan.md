@@ -424,7 +424,7 @@ Build, from `<repo>/presentation`: `npm ci`; `./render-png.sh 07 09 10 31 37`; `
 
 | Step | What | Depends | Status |
 | --- | --- | --- | --- |
-| Z0 | Bookkeeping with dated notes: `iteration-plan.md` closes r22 (PDP-150 `done`), marks PDP-151 and r23 `active`, and fixes the stale rows (B1); re-check every pin; record the owner's decisions; `verify.sh` and `validate.py` green | - | todo |
+| Z0 | Bookkeeping with dated notes: `iteration-plan.md` closes r22 (PDP-150 `done`), marks PDP-151 and r23 `active`, and fixes the stale rows (B1); re-check every pin; record the owner's decisions; `verify.sh` and `validate.py` green | - | done |
 | Z1a | `deck-lib.js` and the `deck-101.js` refactor with the identity proof (decision 3); `render-png.sh` default list (B2); `build-notes.md` (B3); the five new PNGs after Z1c's figure fixes | Z0, Z1c for the PNGs | todo |
 | Z1b | `_plans/evidence/r23-deck-witness-census.md`, after Z1c, so lines, anchors and the figure census are taken from the fixed tree | Z1c | todo |
 | Z1c | Decision 5's book fixes P1 to P14 and F1 to F9, each with its chapter's tests, `verify.sh` and `validate.py` green and every recurrence grepped; figures regenerated through `diagrams/specs` | Z0 | todo |
@@ -521,3 +521,6 @@ Rows 357 to 391 go in at Z2, after the census exists (so its `run:` path resolve
 - **Line lengths.** Ranges run to 95 characters. Mitigation: per-call font size from the longest line.
 
 ## Corrections after the build
+
+Step Z0: `iteration-plan.md` closes r22 (PDP-150 `done`), marks PDP-151 and r23 `active`, and sets the 80 stale rows to `done` (B1): the 31 `todo` rows for r01 and r02 (PDP-001, 003 to 020, 100a to 104c less the three exceptions below), PDP-105a to PDP-120c (48 `active` rows for r03 to r09), and PDP-150 (the 49th `active` row). PDP-101a and PDP-104a keep `n.a. (argument chapter)` and PDP-102a keeps `covered by PDP-103a`. A dated 2026-11-07 (r23) note is appended. Pins re-checked 2026-11-07 against upstream and unchanged: pptxgenjs 4.0.1 (`dist-tags.latest`; `beta` 4.0.1-beta.2 not used), image-size 2.1.0, cairosvg 2.9.1, CPython 3.15.2 (endoflife.date and python.org cycle 3.15), uv 0.13.7, pytest 9.2.0, pytest-mock 3.17.0, mypy 2.4.1, ruff 0.17.4. No pin row changed, so `r01-build-plan.md` is untouched.
+
