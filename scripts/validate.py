@@ -390,7 +390,11 @@ def check_prose(rel: str, text: str, kind: str, status: str) -> tuple[list[Findi
             count = text.count(SIDEBAR)
             if count != 1:
                 errors.append(
-                    Finding(rel, 1, f"pattern chapter has {count} Explore-with-your-agent callouts, need 1")
+                    Finding(
+                        rel,
+                        1,
+                        f"pattern chapter has {count} Explore-with-your-agent callouts, need 1",
+                    )
                 )
     return errors, warnings
 
