@@ -281,3 +281,24 @@ Before the fixes below, 10 of 47 docs overflowed at 390 px (none at 1280 px, and
 - The block is the output of experiment two, whose command is `uv run mypy --strict src tests | grep -v "^ "` in a scratch copy.
 - In a fresh copy (new `uv sync`, no cache) the six errors come out in the doc's order, with or without `pytest -q` first (two runs each, plus three cold runs). If the reader has already run the chapter's own `mypy` on the clean code (the Build, run, observe step), the cache is warm and the list comes out with `tests/conftest.py:202` before `tests/test_prototype.py`. The doc's order is the cold one, and C3a's note that it was the warm one is the other way round.
 - Decision: the fence stays as it is and the command now carries `--no-incremental`, which gives the doc's order from any cache state (checked in the warm state too). The sentence says why. The count of six errors and the prose after the fence are unchanged.
+
+## C4a reconciliation (2026-11-08)
+
+### Legacy rows, re-witnessed (decision 6)
+
+The 32 rows (1 to 5, 17 to 27, 31 to 46) each name the tests, `run:` file or `source:` URL that witness the chapter's sentence today; the old free-text "how to verify" cell and the old status note moved into the row's history. The 190 distinct test cases named by rows 1 to 5, 17 to 46 and 437 onward were run from the repo root with `--import-mode=importlib`, three times forward and once with the node ids reversed: `190 passed` each time. Rows 5 and 26 were `open` and are `verified (r25)`. Row 27 was `open` and is `adjusted (r25)`: it said "in most cases" and "unnecessary", which chapter 9 doesn't claim, so it now reads that `Optional` plus mypy dissolves Null Object where absence must be handled and that a null object stays where doing nothing is the correct answer. No chapter sentence needed narrowing: each of the 32 claims is stated in its chapter at or below what its tests assert (checked by reading the sentence beside each test).
+
+Row 4 says Singleton has two meanings; chapter 3's own example witnesses the module form (`test_module_is_one_instance_for_every_importer`), and the class forms are witnessed by chapter 18's `test_every_form_gives_each_caller_the_same_rates` and `test_borg_instances_share_state_but_are_distinct_and_unequal`.
+
+Row 23 (no timed sleep in the async tests): a grep for `sleep(`, `time.`, `perf_counter` and `random` over the tests of examples 37 and 38 finds one use, the `asyncio.sleep(0)` yield at `examples/38-*/tests/test_stowage.py:51`, which its docstring names as a yield to the loop and `conftest.py` names as the only one. No timed sleep, clock or random appears in either member's tests.
+
+### Rows 437 onward
+
+- 452: all six Python fences of chapter 2 were compared line by line with the sources and tests of example 3: 0 lines missing.
+- 456: `pytest --collect-only` in example 30 reports 41 tests from 27 test functions; the full suite run now gives `41 passed`.
+- 457: in a scratch copy of `test_loop.py` with `await asyncio.sleep(0)` inserted before `quote(consignment)`, the test fails: `At index 1 diff: 'tracking polled' != 'rating finished'`.
+- 458, 461, 463 and 460 are the C3a, C2d and C3b records above.
+
+### VA5 mutation proof
+
+`CLAIMS_FIRST_ENFORCED` is 1 and the legacy branch is gone. In a scratch copy of `validate.py`: (a) with the skip condition made `r.row < 10**9`, `--self-test` exits 1 with "claim errors include row 46 with no token and every unresolved row" and "claim row 1 without a token is an error"; (b) with the constant set back to 47, it exits 1 with "claims are enforced from row 1" and the same two. The real file passes.

@@ -96,7 +96,7 @@ STALE_EXEMPT = ("since ", "before ", "until ", "new in ")
 STALE_WINDOW = 16
 PYTEST_MOCK_RE = re.compile(r"pytest[- ]mock[\s|=`*-]*$|\bmock-$", re.IGNORECASE)
 CLAIMS_REL = "_plans/reconciliation-plan.md"
-CLAIMS_FIRST_ENFORCED = 47
+CLAIMS_FIRST_ENFORCED = 1
 CLAIM_ROW_RE = re.compile(r"^\|\s*(\d+)\s*\|")
 CELL_SPLIT_RE = re.compile(r"(?<!\\)\|")
 CLAIM_TEST_RE = re.compile(r"`(?:[^`\s]*::)?(test_\w+)(?:\[[^`]*\])?`")
@@ -844,22 +844,18 @@ def claim_results(
     return results
 
 
-def claim_findings(results: list[ClaimResult]) -> tuple[list[Finding], list[Finding]]:
-    """(errors, info): rows 47 and later must resolve; earlier rows are legacy."""
+def claim_findings(results: list[ClaimResult]) -> list[Finding]:
+    """Errors: every row from CLAIMS_FIRST_ENFORCED on must resolve its evidence tokens."""
     errors: list[Finding] = []
-    info: list[Finding] = []
     for r in results:
-        if r.resolved:
+        if r.resolved or r.row < CLAIMS_FIRST_ENFORCED:
             continue
         if r.evidence:
             why = "unresolved evidence: " + ", ".join(r.unresolved)
         else:
             why = "no evidence token (test_ name, source: url or run: step)"
-        if r.row >= CLAIMS_FIRST_ENFORCED:
-            errors.append(Finding(CLAIMS_REL, r.line, f"claim {r.row}: {why}"))
-        else:
-            info.append(Finding(CLAIMS_REL, r.line, f"claim {r.row}: legacy, {why}"))
-    return errors, info
+        errors.append(Finding(CLAIMS_REL, r.line, f"claim {r.row}: {why}"))
+    return errors
 
 
 def load_claims(root: Path) -> list[ClaimResult]:
@@ -883,12 +879,7 @@ def claims_table(results: list[ClaimResult]) -> str:
         "| --- | --- | --- | --- | --- |",
     ]
     for r in results:
-        if r.resolved:
-            resolved = "yes"
-        elif r.row >= CLAIMS_FIRST_ENFORCED:
-            resolved = "no"
-        else:
-            resolved = "legacy"
+        resolved = "yes" if r.resolved else "no"
         evidence = ", ".join(f"`{e}`" for e in r.evidence) or "none"
         lines.append(f"| {r.row} | {r.chapter} | {r.status} | {evidence} | {resolved} |")
     return "\n".join(lines)
@@ -1018,9 +1009,7 @@ def validate(root: Path) -> Report:
         rel = path.relative_to(root).as_posix()
         rep.errors.extend(check_stale_versions(rel, path.read_text(encoding="utf-8"), minor))
 
-    claim_errors, claim_info = claim_findings(load_claims(root))
-    rep.errors.extend(claim_errors)
-    rep.info.extend(claim_info)
+    rep.errors.extend(claim_findings(load_claims(root)))
 
     rep.errors.extend(check_pins(root))
     rep.errors.extend(check_decks(root))
@@ -1385,17 +1374,27 @@ def self_test() -> int:
         not res[58].resolved and not res[59].resolved and not res[60].resolved,
     )
     expect("claim source unresolved", not res[53].resolved)
-    errs, info = claim_findings(list(res.values()))
+    errs = claim_findings(list(res.values()))
+    expect("claims are enforced from row 1", CLAIMS_FIRST_ENFORCED == 1)
     expect(
-        "claim errors are 47+",
-        sorted(e.message.split(":")[0] for e in errs)
-        == [f"claim {n}" for n in (49, 50, 52, 53, 56, 57, 58, 59, 60)],
+        "claim errors include row 46 with no token and every unresolved row",
+        sorted(int(e.message.split(":")[0].split()[1]) for e in errs)
+        == [46, 49, 50, 52, 53, 56, 57, 58, 59, 60],
     )
-    expect("claim legacy is info", len(info) == 1 and "legacy" in info[0].message)
+    expect(
+        "claim row 1 without a token is an error",
+        [
+            e.message.split(":")[0]
+            for e in claim_findings(
+                claim_results("| 1 | 2 | bare | prose only | **open** |\n", set(), {}, "")
+            )
+        ]
+        == ["claim 1"],
+    )
     table = claims_table(list(res.values()))
     expect(
         "claims table",
-        "| 46 | 8 | verified | none | legacy |" in table
+        "| 46 | 8 | verified | none | no |" in table
         and "| 47 | 9 | verified | `test_alpha`, `test_beta` | yes |" in table,
     )
     expect("claims chapter range", chapter_numbers("9-11") == [9, 10, 11])
@@ -1618,7 +1617,7 @@ def main(argv: list[str]) -> int:
     if "--claims" in argv:
         results = load_claims(ROOT)
         print(claims_table(results))
-        errors, _ = claim_findings(results)
+        errors = claim_findings(results)
         for f in errors:
             print(f"error: {f}", file=sys.stderr)
         return 1 if errors else 0
