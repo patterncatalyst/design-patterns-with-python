@@ -793,7 +793,6 @@ VERSION_ALLOW: dict[str, tuple[str, ...]] = {
         "since Python 3.14",
         "On 3.15.2 `functools",
         "page for 3.15.2 still",
-        "on 3.15.2 (`test_cached_for_refuses",
     ),
     "_docs/27-descriptors-and-properties.md": ("and on 3.15.2 the message", "New in 3.12"),
     "_docs/28-singledispatch.md": ("accepted since 3.11",),
