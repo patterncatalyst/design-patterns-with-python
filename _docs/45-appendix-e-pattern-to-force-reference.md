@@ -5,7 +5,7 @@ layout: tutorial
 sectionid: docs
 part: "appendices"
 appendix: "E"
-description: "Four tables that give, for each pattern the book develops, its bucket, its force and its when-not rule in the words of the chapter that develops it, with a link to that chapter."
+description: "Four tables that give, for each pattern developed, its bucket, its force and its when-not rule in the words of the chapter that develops it, with a link to that chapter."
 ---
 
 ## Learning objectives
@@ -18,17 +18,20 @@ By the end of this appendix you can:
 
 ## Why this matters
 
-The book chooses a pattern by its force. The chapter titled [Patterns as decisions under forces]({{ '/docs/01-patterns-as-decisions-under-forces/' | relative_url }}) puts it this way: "A pattern is a solution to a problem in a context, and the problem is a set of forces pulling against each other." The force is the part that stays when a language feature removes the structure, so a lookup by force is more useful in review than a lookup by class diagram. The chapter titled [The three-way split: dissolve, survive, disambiguate]({{ '/docs/03-the-three-way-split/' | relative_url }}) adds the bucket: it places each pattern "by asking about its force, the pressure that made the pattern worth having, and about its name."
+A pattern is chosen by its force: "A pattern is a solution to a problem in a context, and the problem is a set of forces pulling against each other" ([Patterns as decisions under forces]({{ '/docs/01-patterns-as-decisions-under-forces/' | relative_url }})). The force stays when a language feature removes the structure, so in review a lookup by force beats a lookup by class diagram. The bucket comes from [The three-way split: dissolve, survive, disambiguate]({{ '/docs/03-the-three-way-split/' | relative_url }}), which places each pattern "by asking about its force, the pressure that made the pattern worth having, and about its name."
 
-Each row below is one pattern as one chapter treats it. The Bucket, Force and When not to use it cells are clauses copied from the chapter in the last column, and they stay in that chapter's voice. Some chapters write "The force is" and others state the pressure in a plain phrase; the cell is whichever the chapter wrote. A clause may begin or end mid-sentence where the chapter's sentence carries on into a link. The pipe inside the `| None` code span of the Null Object row is escaped so that the table renders; the chapter has it unescaped.
+How to read the rows:
 
-A pattern that two or three chapters treat has a row for each chapter, and the rows can differ, because each chapter asks a different question of the pattern. The Proxy rows show this best. The surrogate row has a dash in its Bucket cell because its chapter states no bucket for the surrogate. The map files Proxy under needs disambiguating, because the name covers a surrogate object and attribute interception, and the other two Proxy rows say so in their own words.
+- **Each row is one pattern as one chapter treats it.** The Bucket, Force and When-not cells are clauses copied from the chapter in the last column, in that chapter's voice. A clause may start or stop mid-sentence where the chapter's sentence runs on into a link.
+- **A pattern treated in two or three chapters has a row for each**, and the rows can differ because each chapter asks a different question. The three Proxy rows are the clearest case.
+- **A dash means the chapter states no bucket**, as for the Proxy surrogate. The three-way split files Proxy under needs disambiguating, because the name covers a surrogate object and attribute interception.
+- **The `| None` pipe in the Null Object row is escaped** so the table renders; the chapter has it unescaped.
 
-The map lists what Python gives for each pattern, and this appendix doesn't repeat that column. The table in the chapter titled [asyncio and the patterns]({{ '/docs/38-asyncio-and-the-patterns/' | relative_url }}) gives the bucket for six patterns under asyncio.
+What Python gives for each pattern is in the three-way split, and the bucket for six patterns under asyncio is in [asyncio and the patterns]({{ '/docs/38-asyncio-and-the-patterns/' | relative_url }}).
 
 ## Creational patterns
 
-Singleton is the one creational row whose Force cell is not the chapter's statement of a force. It is the chapter's quoted statement of the default answer to it.
+Singleton's Force cell is the chapter's quoted default answer to the force, not a statement of the force.
 
 | Pattern | Bucket | Force | When not to use it | Chapter |
 | --- | --- | --- | --- | --- |
@@ -40,7 +43,7 @@ Singleton is the one creational row whose Force cell is not the chapter's statem
 
 ## Structural patterns
 
-The Decorator row is for the pair, the wrapper-object pattern and the `@` syntax that shares its name, and the bucket is the chapter's verdict on the pair. The `@decorator` row in the last table answers a different question: what stays design around the syntax.
+The Decorator row covers the pair, the wrapper-object pattern and the `@` syntax that shares its name. The `@decorator` row under "Beyond the catalogue" asks what stays design around the syntax.
 
 | Pattern | Bucket | Force | When not to use it | Chapter |
 | --- | --- | --- | --- | --- |
@@ -56,7 +59,7 @@ The Decorator row is for the pair, the wrapper-object pattern and the `@` syntax
 
 ## Behavioural patterns
 
-Template Method's chapter says the pattern straddles two buckets, and the row gives that word. The map in [The three-way split: dissolve, survive, disambiguate]({{ '/docs/03-the-three-way-split/' | relative_url }}) files it under dissolves, with an ABC hook kept "only where steps share state". Visitor has two rows: one for a closed set of kinds, where the chapter's bucket is dissolves, and one for an open set that two teams extend, where it dissolves into a single generic function.
+Template Method straddles two buckets; the three-way split files it under dissolves, with an ABC hook kept "only where steps share state". Visitor has two rows: a closed set of kinds, which dissolves, and an open set that two teams extend, which dissolves into a single generic function.
 
 | Pattern | Bucket | Force | When not to use it | Chapter |
 | --- | --- | --- | --- | --- |
@@ -75,7 +78,7 @@ Template Method's chapter says the pattern straddles two buckets, and the row gi
 
 ## Beyond the catalogue
 
-These are the ideas that the book develops without a catalogue entry of their own, or that a catalogue name covers only in part. The chapter on resource acquisition says its label is descriptive and not a catalogue name. The `@decorator` row gives the chapter's own verdict, survives; the map in the three-way split files the shared name, not the discipline, under needs disambiguating.
+Ideas developed without a catalogue entry, or that a catalogue name covers only in part. "Resource acquisition" is a descriptive label, not a catalogue name. The `@decorator` row gives its chapter's verdict, survives; the three-way split files the shared name, not the discipline, under needs disambiguating.
 
 | Pattern | Bucket | Force | When not to use it | Chapter |
 | --- | --- | --- | --- | --- |
@@ -89,7 +92,7 @@ These are the ideas that the book develops without a catalogue entry of their ow
 
 ## Named elsewhere, without a bucket
 
-These techniques and anti-patterns get a name in a later chapter but no bucket. Each line gives the chapter and a clause from it.
+These techniques and anti-patterns are named, with no bucket. Each line gives the chapter and a clause from it.
 
 - Seam, in [Seams in Python: monkeypatch, injection, and duck typing]({{ '/docs/33-seams-in-python/' | relative_url }}): "A seam is a place where that change can be made from outside."
 - Characterisation test, in [Dependency-breaking techniques for modern Python]({{ '/docs/34-dependency-breaking-techniques/' | relative_url }}): "A characterisation test records what code does, so that a change can be told apart from a fix."
@@ -97,7 +100,7 @@ These techniques and anti-patterns get a name in a later chapter but no bucket. 
 - Monitor Object, in [The GIL and performance]({{ '/docs/37-the-gil-and-performance/' | relative_url }}): "so the class is a Monitor Object in the vocabulary of *Pattern-Oriented Software Architecture, Volume 2*"
 - Active Object, in [asyncio and the patterns]({{ '/docs/38-asyncio-and-the-patterns/' | relative_url }}): "The worker and its queue have the shape that *Pattern-Oriented Software Architecture, Volume 2* names Active Object."
 
-The chapter titled [Anti-patterns and pattern misuse]({{ '/docs/32-anti-patterns-and-pattern-misuse/' | relative_url }}) defines an anti-pattern as "a recurring structure whose costs outweigh its benefits in the context it sits in". It develops three:
+[Anti-patterns and pattern misuse]({{ '/docs/32-anti-patterns-and-pattern-misuse/' | relative_url }}) defines an anti-pattern as "a recurring structure whose costs outweigh its benefits in the context it sits in". Three are developed there:
 
 - The overbuilt rating engine, in the section "The rating function and its overbuilt twin".
 - Getters and setters: "A getter and setter pair is a promise that the field might need behaviour later."
@@ -105,4 +108,4 @@ The chapter titled [Anti-patterns and pattern misuse]({{ '/docs/32-anti-patterns
 
 ## For deeper coverage
 
-The method behind the rows is in [Patterns as decisions under forces]({{ '/docs/01-patterns-as-decisions-under-forces/' | relative_url }}), and the placement of each pattern is in [The three-way split: dissolve, survive, disambiguate]({{ '/docs/03-the-three-way-split/' | relative_url }}). The catalogue behind the pattern names is *Design Patterns: Elements of Reusable Object-Oriented Software* by Erich Gamma, Richard Helm, Ralph Johnson and John Vlissides (Addison-Wesley, 1994); its Introduction defines the pattern template, its Motivation and Applicability sections describe the forces, and its Consequences sections list what each pattern buys and what it costs. The architect Christopher Alexander, from whom that book took the idea of forces, is credited in the chapter titled Patterns as decisions under forces. The book is listed with publisher and year on the [bibliography page]({{ '/bibliography/' | relative_url }}).
+The method behind the rows is in [Patterns as decisions under forces]({{ '/docs/01-patterns-as-decisions-under-forces/' | relative_url }}), and the placement of each pattern is in [The three-way split: dissolve, survive, disambiguate]({{ '/docs/03-the-three-way-split/' | relative_url }}). The pattern names come from *Design Patterns: Elements of Reusable Object-Oriented Software* by Erich Gamma, Richard Helm, Ralph Johnson and John Vlissides (Addison-Wesley, 1994): its Introduction defines the pattern template, its Motivation and Applicability sections describe the forces, and its Consequences sections list what each pattern buys and costs. Christopher Alexander, from whom it took the idea of forces, is credited in Patterns as decisions under forces. The [bibliography page]({{ '/bibliography/' | relative_url }}) lists the books.
