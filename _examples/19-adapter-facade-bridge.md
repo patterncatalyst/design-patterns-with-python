@@ -23,7 +23,7 @@ table and leaks the SDK's own methods.
 ## Facade
 
 `ship` is one module function with a narrow public surface. It picks the gateway from a read-only
-registry, chooses the booking kind and turns an unknown code into a domain error. Its signature
+registry it is given, chooses the booking kind and turns an unknown code into a domain error. Its signature
 names no SDK type. A caller that branches on the carrier code sends kilograms to a pounds API.
 
 ## Bridge

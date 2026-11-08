@@ -39,6 +39,7 @@ Then change into the example directory:
 cd examples/21-composite-and-flyweight
 uv run pytest -v
 uv run mypy --strict src tests bench
+uv run python -I bench/commodity_memory.py
 ```
 
 The example README lists what each test verifies.

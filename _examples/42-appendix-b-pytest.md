@@ -1,25 +1,24 @@
 ---
-layout: example
-order: 42
-title: "pytest reference"
-description: A pytest reference whose rows name their witnesses, most of them tests, and most of those run through an inner pytest session with pytester, which asserts the exact outcome counts.
-github_path: examples/42-appendix-b-pytest
-card_eyebrow: "Appendices · pytest reference"
-card_blurb: "Each row of the reference names its witness, and most are tests on the pinned pytest. Strictness options, import modes and command-line options run in an inner session, and the test asserts the outcome counts or the exit status."
-card_title: "pytest run inside pytest"
----
+layout: example order: 42 title: "pytest reference" description: A pytest reference whose rows
+name their witnesses, most of them tests, and most of those run through an inner pytest session
+with pytester, which asserts the outcome counts, the node ids or the exit status. github_path:
+examples/42-appendix-b-pytest card_eyebrow: "Appendices · pytest reference" card_blurb: "Each
+row of the reference names its witness, and most are tests on the pinned pytest. Strictness
+options, import modes and command-line options run in an inner session, and the test asserts the
+outcome counts or the exit status." card_title: "pytest run inside pytest" ---
 
 One small rating module carries the examples. `quote` prices a `Consignment` by weight and zone,
 `rate_batch` raises one exception group holding every failure, `legacy_quote` is deprecated, and
-`write_quotes` writes lines to the stream it is given, or to the current `sys.stdout` when it is given none.
+`write_quotes` writes lines to the stream it is given, or to the current `sys.stdout` when it is
+given none.
 
 ## Inner sessions
 
 Tests of configuration, import modes, command-line options, fixture order and case ids write a
 project into a temporary directory, run pytest on it with the `pytester` fixture and assert the
-exact outcome counts. Each test module
-that uses `pytester` loads it with `pytest_plugins`. The same line in a `conftest.py` below the
-root fails collection, and a test asserts that.
+outcome counts, the node ids or the exit status. Each test module that uses `pytester` loads it
+with `pytest_plugins`. The same line in a `conftest.py` below the root fails collection, and a
+test asserts that.
 
 ## Fixtures, parametrisation and assertions
 

@@ -50,8 +50,9 @@ Building the site needs Docker Engine and no local Ruby: `bash scripts/site-buil
 ## Companion decks
 
 - [101: Patterns and SOLID in Python](presentation/design-patterns-with-python-101-patterns-and-solid.pptx):
-  62 slides with speaker notes. Code on the slides is read from the tested examples at build time.
-  `presentation/build-notes.md` says how to rebuild it.
+  62 slides with speaker notes, on choosing a pattern by the forces it answers and what Python does to it.
+  Code on the slides is read from the tested examples at build time; `presentation/build-notes.md`
+  says how to rebuild it.
 - [201: Idiomatic Python](presentation/design-patterns-with-python-201-idiomatic-python.pptx):
   45 slides with speaker notes, on what the language gives you so you don't write the pattern.
   Code on the slides is read from the tested examples at build time; `presentation/build-notes.md`

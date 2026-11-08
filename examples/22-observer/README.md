@@ -34,9 +34,8 @@ Lifetime.
   lambda that closes over its owner keeps the owner alive, an owner with slots and no weak-reference
   slot is refused at `subscribe` with `TypeError`, and a reference cycle holds a subscriber until the
   collector runs. Unsubscribing after the owner has gone is harmless.
-- Every lifetime test builds its subscriber in a helper or deletes its names, then calls
-  `gc.collect()` before asserting. The cycle test pauses the collector with the `collector_paused`
-  fixture and restores its state.
+- Every test that asserts a subscriber was dropped or kept alive calls `gc.collect()` first. The
+  cycle test pauses the collector with the `collector_paused` fixture and restores its state.
 
 Re-entrancy.
 

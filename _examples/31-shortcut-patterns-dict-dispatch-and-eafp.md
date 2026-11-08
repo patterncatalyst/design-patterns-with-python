@@ -57,6 +57,7 @@ Then change into the example directory:
 cd examples/31-shortcut-patterns-dict-dispatch-and-eafp
 uv run pytest -v
 uv run mypy --strict src tests
+uv run python -I bench/lookup_cost.py
 ```
 
 The example README lists what each test verifies.

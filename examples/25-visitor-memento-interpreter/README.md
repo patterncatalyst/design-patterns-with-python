@@ -26,13 +26,14 @@ The visitor.
 The memento.
 
 - `Booking` is an entity with a frozen `BookingRequest`, a working `documents` set and an
-  append-only `audit` list. `BookingSnapshot(request, documents: frozenset[DocumentKind])` is frozen.
-  `rollback(booking)` restores when the block raises an `Exception`, appends `"rolled back"` and re-raises. The audit is
-  left out of the snapshot, so a refused amendment survives the rollback.
+  append-only `audit` list. `BookingSnapshot(request, documents: frozenset[DocumentKind])` is
+  frozen. `rollback(booking)` restores when the block raises an `Exception`, appends
+  `"rolled back"` and re-raises. The audit is left out of the snapshot, so a refused amendment
+  survives the rollback.
 - `memento_form` is `snapshot`, `shallow` (`copy.copy`) or `deepcopy`, all run on one failed
-  amendment. The shallow form shares the document set and keeps a document attached inside the failed
-  block. The deep form restores the audit too, which erases the refused attempt, and copies the
-  frozen request a snapshot shares.
+  amendment. The shallow form shares the document set and keeps a document attached inside the
+  failed block. The deep form restores the audit too, which erases the refused attempt, and
+  copies the frozen request a snapshot shares.
 - mypy refuses to change a snapshot, and the run time refuses too.
 
 The interpreter.
@@ -77,7 +78,8 @@ uv run mypy --strict src tests
 
 `tests/test_visitor.py`
 
-- `test_every_visitor_form_describes_a_journey_the_same_way`: `match`, `singledispatch` and `accept`.
+- `test_every_visitor_form_describes_a_journey_the_same_way`: `match`, `singledispatch` and
+  `accept`.
 - `test_status_after_maps_each_event_to_a_consignment_status`: one case per event.
 - `test_a_singledispatch_visitor_gives_an_unregistered_event_its_fallback`: `Delivered` gets the
   fallback's answer.
@@ -107,7 +109,8 @@ uv run mypy --strict src tests
 - `test_closures_built_the_same_way_are_not_equal`: a closure equals only itself.
 - `test_a_rule_in_another_currency_is_refused`: `cannot add USD to EUR`.
 - `test_the_larger_of_two_rules_in_different_currencies_is_refused`: `cannot compare USD with EUR`.
-- `test_a_weight_must_be_positive_and_finite_for_a_priced_consignment`: zero, negative, NaN, infinity.
+- `test_a_weight_must_be_positive_and_finite_for_a_priced_consignment`: zero, negative, NaN,
+  infinity.
 
 `tests/test_static.py`
 

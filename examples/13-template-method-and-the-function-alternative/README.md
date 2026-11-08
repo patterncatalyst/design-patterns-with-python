@@ -70,36 +70,48 @@ uv run mypy --strict src tests
 
 `tests/test_hooks.py`
 
-- `test_declare_customs_runs_its_steps_in_order`: recording hooks see classify per commodity, then duty, then extra documents.
-- `test_a_hook_left_out_takes_its_default`: `SINGAPORE` has no extra documents, so only the invoice is listed.
+- `test_declare_customs_runs_its_steps_in_order`: recording hooks see classify per commodity,
+  then duty, then extra documents.
+- `test_a_hook_left_out_takes_its_default`: `SINGAPORE` has no extra documents, so only the
+  invoice is listed.
 - `test_a_declaration_needs_at_least_one_commodity`: both forms refuse an empty consignment.
-- `test_a_declaration_in_two_currencies_is_refused`: both forms raise `CustomsError` naming both currencies.
+- `test_a_declaration_in_two_currencies_is_refused`: both forms raise `CustomsError` naming both
+  currencies.
 - `test_the_commercial_invoice_is_always_first`: the invoice leads the document list in both forms.
-- `test_a_required_hook_cannot_be_left_out`: `TypeError` naming `classify`, with a typed ignore for mypy.
+- `test_a_required_hook_cannot_be_left_out`: `TypeError` naming `classify`, with a typed ignore
+  for mypy.
 - `test_an_unclassified_commodity_is_refused`: `CustomsError`, with the `KeyError` suppressed.
 - `test_duty_rounds_half_up_to_cents`: a half-cent case where half-even differs.
-- `test_a_tariff_code_without_a_duty_rate_is_refused`: `CustomsError`, with the `KeyError` suppressed.
-- `test_a_declaration_lists_a_line_per_commodity_and_totals_them`: lines, country, declared value and duty.
-- `test_every_value_in_the_model_is_frozen`: every dataclass in the model refuses attribute assignment.
+- `test_a_tariff_code_without_a_duty_rate_is_refused`: `CustomsError`, with the `KeyError`
+  suppressed.
+- `test_a_declaration_lists_a_line_per_commodity_and_totals_them`: lines, country, declared
+  value and duty.
+- `test_every_value_in_the_model_is_frozen`: every dataclass in the model refuses attribute
+  assignment.
 
 `tests/test_template.py`
 
 - `test_the_template_and_the_hooks_give_the_same_declaration`: equal declarations from both forms.
 - `test_a_declarer_without_its_documents_cannot_be_built`: `TypeError` naming the abstract method.
 - `test_final_marks_the_template_without_enforcing_it`: `__final__` is set and an override runs.
-- `test_a_subclass_that_skips_the_base_check_declares_nothing`: a declaration with no lines from the open template, and a refusal from the final one.
-- `test_two_destinations_share_the_schedule_and_differ_in_documents`: equal duty and lines, different documents.
+- `test_a_subclass_that_skips_the_base_check_declares_nothing`: a declaration with no lines from
+  the open template, and a refusal from the final one.
+- `test_two_destinations_share_the_schedule_and_differ_in_documents`: equal duty and lines,
+  different documents.
 
 `tests/test_protocol_defaults.py`
 
-- `test_protocol_defaults_reach_only_explicit_subclasses`: the explicit subclass gets the default, the structural class raises `AttributeError`.
+- `test_protocol_defaults_reach_only_explicit_subclasses`: the explicit subclass gets the
+  default, the structural class raises `AttributeError`.
 
 `tests/test_static.py`
 
 - `test_mypy_rejects_overriding_the_final_template`: `[misc]` on an override of `declare`.
 - `test_mypy_accepts_an_override_that_skips_the_base_step`: clean.
-- `test_mypy_checks_hooks_at_construction`: `[call-arg]` for a missing required hook, `[arg-type]` for a wrong signature.
-- `test_mypy_requires_every_protocol_member_for_a_structural_match`: `[assignment]` naming the missing member.
+- `test_mypy_checks_hooks_at_construction`: `[call-arg]` for a missing required hook,
+  `[arg-type]` for a wrong signature.
+- `test_mypy_requires_every_protocol_member_for_a_structural_match`: `[assignment]` naming the
+  missing member.
 
 Classes named with a leading underscore in the test modules are test fixtures and aren't part of
 the model code.

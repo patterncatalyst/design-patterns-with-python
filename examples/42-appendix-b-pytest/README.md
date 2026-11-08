@@ -3,8 +3,8 @@
 The tests in this example show the pytest features the book's suites rely on, each on the pinned
 pytest. Where a row depends on configuration, collection or the order of several tests, the test
 writes a project into a temporary directory, runs pytest on it with the `pytester` fixture and
-asserts the exact outcome counts. The remaining rows run directly. Nothing here uses a mock or a
-patch.
+asserts the outcome counts, the node ids or the exit status. The remaining rows run directly.
+Nothing here uses a mock or a patch.
 
 ## What it witnesses
 
@@ -120,7 +120,7 @@ uv run mypy --strict src tests
 
 - `test_mypy_checks_a_typed_fixture_use`
 
-An in-process inner session inherits the warning filters of the run that started it, so the tests
-in `test_config.py` clear them first and let each inner configuration decide. No test sleeps or reads a clock, and none
-asserts on a path. The static test runs `mypy --strict --warn-unreachable`
-through `mypy.api`.
+An in-process inner session inherits the warning filters of the run that started it, so the
+tests in `test_config.py` clear them first and let each inner configuration decide. No test
+sleeps or reads a clock, and none asserts on a path. The static test runs
+`mypy --strict --warn-unreachable` through `mypy.api`.
