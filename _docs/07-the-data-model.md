@@ -166,7 +166,7 @@ A value has three readers. `repr` is for a developer and a log, and the dataclas
 ```
 <!-- fmt:on -->
 
-Delegating to `str` lets `f"{price:>12}"` align a `Money` like text, giving `   EUR 12.50`. Without `__format__`, a spec raises: `_StrOnlyMoney` has `__str__`, prints fine, and `f"{plain:>12}"` raises `TypeError` matching `unsupported format string`. All three forms are in `test_repr_str_and_format_serve_different_readers`, which asserts that they differ.
+Delegating to `str` lets `f"{price:>12}"` align a `Money` like text, right-aligning `EUR 12.50` in twelve columns. Without `__format__`, a spec raises: `_StrOnlyMoney` has `__str__`, prints fine, and `f"{plain:>12}"` raises `TypeError` matching `unsupported format string`. All three forms are in `test_repr_str_and_format_serve_different_readers`, which asserts that they differ.
 
 ## When a dunder costs more than it buys
 

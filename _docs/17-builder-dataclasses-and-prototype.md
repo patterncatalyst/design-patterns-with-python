@@ -290,7 +290,7 @@ Success: no issues found in 8 source files
 
 The keyword case of the booking table fails for the insured request, and so do both cases of `test_replace_reruns_the_cross_field_checks`. The positional and builder cases still pass, because the positional fixture holds its own copy of the check and the builder hands its values to that fixture. mypy finds nothing wrong: a rule that's missing is valid code.
 
-**Experiment two: make the field a list.** In a fresh scratch copy, import `field` and change `documents` in `BookingRequest` to `list[str] = field(default_factory=list)`. The same filtered pytest run, then `uv run mypy --strict src tests | grep -v "^ "`, prints:
+**Experiment two: make the field a list.** In a fresh scratch copy, import `field` and change `documents` in `BookingRequest` to `list[str] = field(default_factory=list)`. The same filtered pytest run, then `uv run mypy --strict --no-incremental src tests | grep -v "^ "`, prints (`--no-incremental` fixes the order of the list, which otherwise depends on what mypy cached from an earlier run):
 
 ```text
 E       AssertionError: assert {'consignment...in', 'weight'} == {'consignment...in', 'weight'}

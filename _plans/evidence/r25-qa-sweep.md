@@ -229,3 +229,55 @@ In a scratch copy, `test_deepcopy_fails_with_a_type_error_when_the_loader_answer
 | 41:50 | uv sync / mypy from the root, edit named in prose | match |
 | 41:202 | uv sync / mypy from the root, edit named in prose | match |
 | 46:199 | `uv run pytest -q` and mypy in the member | match |
+
+## C3b integration (2026-11-08)
+
+### Gates (real repo, branch release/r25 at b365523)
+
+| Gate | Result |
+| --- | --- |
+| `bash scripts/verify.sh` | `1407 passed in 164.46s`, `verify: all steps passed` (ruff check, ruff format, mypy per member and on scripts all clean) |
+| `uv run ruff format --check .` | `667 files already formatted` |
+| `uv run ruff check .` | `All checks passed!` |
+| `uv run python scripts/validate.py` | `validate: 0 error(s), 6 warning(s)` (the six owner-accepted appendix word-floor warnings) |
+| `validate.py --claims` | every row resolved (legacy, yes); 0 unresolved |
+| `validate.py --self-test` | `self-test: ok` |
+| `python3 scripts/host_ids.py check` | `887 text file(s), 0 hit(s)` |
+| ban scan (`--exclude .venv-ft`) | `total: 0 matching lines (0 ban-tier)` |
+| idiom scan over `examples spikes scripts` | 69 ban-tier hits, all `print()` in CLI and benchmark scripts whose output is their purpose (host_ids.py 19, the three `bench/` scripts of examples 21 and 37 and the spike 29, validate.py 8, render and generate scripts 3); 2 watch hits kept |
+| `bash scripts/site-build.sh` | `site-build: ok (Gemfile.lock unchanged)` (md5 identical before and after, also after the CSS change) |
+| `presentation/render-png.sh --check --deck 101, 201, 301` | `same` for all 13 figures (6, 5 and 2) |
+| Legibility | `check_figure_legibility` runs inside `validate.py`; 0 errors, so all 41 figures pass the 8 px floor at 982 px |
+
+### Link sweep
+
+- 208 URL tokens in the reader files (`_docs`, `_examples`, `_parts`, `bibliography.html`, `index.html`, `examples.html`, `README.md`, `examples/*/README.md`) reduce to 199 distinct pages; 13 carry a fragment.
+- 198 end at 200 with no redirect. The one extracted non-URL is the Liquid text `https://github.com/{{`, not a link.
+- 2 redirect, both expected and not links: `https://astral.sh/uv/install.sh` (the uv installer command URL, one hop to `releases.astral.sh`) and the clone URL `https://github.com/patterncatalyst/design-patterns-with-python`, which the README writes with `.git` (one hop to the repository page; 200).
+- 0 non-200. All 13 fragments resolve (`id=` or `name=` found on the fetched page).
+- No link edited.
+
+### Figure breakout and overflow, measured
+
+Method: the built `_site` served from a local port; headless Firefox (no webdriver installed) loaded a harness page that opened each of the 47 docs in an iframe 390 and 1280 px wide and posted `documentElement.scrollWidth`, `clientWidth` and `innerWidth` back. The iframe has a classic 12 px scrollbar, so the viewport for layout is 378 and 1268 px; a page scrolls sideways when `scrollWidth` exceeds `clientWidth`.
+
+| Chapter | 390 px: scrollWidth / clientWidth | 1280 px: scrollWidth / clientWidth |
+| --- | --- | --- |
+| 19 | 378 / 378 | 1268 / 1268 |
+| 21 | 378 / 378 | 1268 / 1268 |
+| 25 | 378 / 378 | 1268 / 1268 |
+| 31 | 378 / 378 | 1268 / 1268 |
+| 34 | 378 / 378 | 1268 / 1268 |
+| 37 | 378 / 378 | 1268 / 1268 |
+
+Before the fixes below, 10 of 47 docs overflowed at 390 px (none at 1280 px, and none of the figure chapters above): 03, 35, 45, 46, 42 (wide tables, up to 617 px), 29 (the long title `__init_subclass__`), 11, 39, 44 (tables and the title) and 07.
+
+- `assets/css/site.css`: at 640 px and below a table in the chapter body becomes `display: block; max-width: 100%; overflow-x: auto`, so it scrolls inside its own box; headings in the body and the chapter `h1` break long identifiers (`overflow-wrap: anywhere`, `min-width: 0`).
+- Chapter 07 was not CSS. Line 169 had a code span with leading spaces (`` `   EUR 12.50` ``) that kramdown did not close, so the paragraph rendered with stray backticks and the later code spans inverted into prose. The sentence now reads "right-aligning `EUR 12.50` in twelve columns", which `test_repr_str_and_format_serve_different_readers` asserts (`f"{price:>12}" == "   EUR 12.50"`). No other built page has a stray backtick in a paragraph.
+- After the fixes: 0 of 47 docs overflow at 390 px or at 1280 px (94 measurements).
+
+### Chapter 17, block 17:295
+
+- The block is the output of experiment two, whose command is `uv run mypy --strict src tests | grep -v "^ "` in a scratch copy.
+- In a fresh copy (new `uv sync`, no cache) the six errors come out in the doc's order, with or without `pytest -q` first (two runs each, plus three cold runs). If the reader has already run the chapter's own `mypy` on the clean code (the Build, run, observe step), the cache is warm and the list comes out with `tests/conftest.py:202` before `tests/test_prototype.py`. The doc's order is the cold one, and C3a's note that it was the warm one is the other way round.
+- Decision: the fence stays as it is and the command now carries `--no-incremental`, which gives the doc's order from any cache state (checked in the warm state too). The sentence says why. The count of six errors and the prose after the fence are unchanged.
