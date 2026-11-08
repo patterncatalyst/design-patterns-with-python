@@ -35,7 +35,7 @@ The force is four needs at once. Two values with the same content should be equa
 
 The structure that pattern calls for, written by hand, is private fields with read accessors, a constructor that checks the invariant, an `__eq__` and `__hash__` pair that must be kept in step, and methods that return a modified copy. The pair that has to stay in step is the one that drifts.
 
-This pattern dissolves. A feature resolves the force without the pattern's structure: one `@dataclass(frozen=True, slots=True)` declaration produces the constructor, `repr`, equality, hash and an assignment guard, and `dataclasses.replace` is the copy-with-change method. Dataclasses arrived with [PEP 557](https://peps.python.org/pep-0557/), new in Python 3.7; the [`dataclasses` documentation](https://docs.python.org/3/library/dataclasses.html) covers the current behaviour, including `slots`, `kw_only` and `weakref_slot`, added later, and is the source for the generated behaviour below. What remains is the part no decorator can supply.
+This pattern dissolves. A feature resolves the force without the pattern's structure: one `@dataclass(frozen=True, slots=True)` declaration produces the constructor, `repr`, equality, hash and an assignment guard, and `dataclasses.replace` is the copy-with-change method. Dataclasses arrived with [PEP 557](https://peps.python.org/pep-0557/), new in Python 3.7; the [`dataclasses` documentation](https://docs.python.org/3.15/library/dataclasses.html) covers the current behaviour, including `slots`, `kw_only` and `weakref_slot`, added later, and is the source for the generated behaviour below. What remains is the part no decorator can supply.
 
 ## One declaration: frozen and slotted
 
@@ -280,4 +280,4 @@ Martin Fowler's *Patterns of Enterprise Application Architecture* (2002) include
 
 On the Python side, Luciano Ramalho's *Fluent Python*, second edition, has a chapter on data class builders, and Brett Slatkin's *Effective Python*, third edition, has practical rules on dataclasses. Both are in the bibliography.
 
-The language references are [PEP 557](https://peps.python.org/pep-0557/) for the design and the [`dataclasses` documentation](https://docs.python.org/3/library/dataclasses.html) for frozen instances, `__post_init__`, `replace`, mutable default values, `slots` and `weakref_slot`, and `kw_only`.
+The language references are [PEP 557](https://peps.python.org/pep-0557/) for the design and the [`dataclasses` documentation](https://docs.python.org/3.15/library/dataclasses.html) for frozen instances, `__post_init__`, `replace`, mutable default values, `slots` and `weakref_slot`, and `kw_only`.

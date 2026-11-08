@@ -228,9 +228,9 @@ Everything installed lives in four places. `rm -rf .venv` removes the environmen
 ## For deeper coverage
 
 - [uv documentation](https://docs.astral.sh/uv/): projects, workspaces, lockfiles, and Python version management.
-- [pytest documentation](https://docs.pytest.org/): fixtures, parametrisation, and configuration discovery.
-- [mypy documentation](https://mypy.readthedocs.io/): the strict flag set and per-module configuration.
+- [pytest documentation](https://docs.pytest.org/en/stable/): fixtures, parametrisation, and configuration discovery.
+- [mypy documentation](https://mypy.readthedocs.io/en/stable/): the strict flag set and per-module configuration.
 - [ruff documentation](https://docs.astral.sh/ruff/): rule sets, formatter behaviour, and configuration.
 - [PEP 557, Data Classes](https://peps.python.org/pep-0557/): the original specification of `@dataclass`, including `__post_init__` and `replace`.
 - [The bibliography]({{ '/bibliography/' | relative_url }}): Luciano Ramalho's *Fluent Python* covers dataclasses and the data model in depth, and Brett Slatkin's *Effective Python* is the companion for everyday idiom.
-- [dataclasses in the standard library](https://docs.python.org/3/library/dataclasses.html): `frozen`, `slots`, and `kw_only` as they work in 3.15.
+- [dataclasses in the standard library](https://docs.python.org/3.15/library/dataclasses.html): `frozen`, `slots`, and `kw_only` as they work in 3.15.

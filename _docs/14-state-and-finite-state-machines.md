@@ -319,6 +319,6 @@ mypy reports success, because the entry is well typed. Four tests fail. `test_de
 
 ## For deeper coverage
 
-*Design Patterns* (Gamma, Helm, Johnson and Vlissides) is the source for State. The language references are the [`typing` documentation](https://docs.python.org/3/library/typing.html) for `assert_never`, the typing guide on [unreachable code and exhaustiveness checking](https://typing.python.org/en/latest/guides/unreachable.html), [PEP 634](https://peps.python.org/pep-0634/) and [PEP 636](https://peps.python.org/pep-0636/) for structural pattern matching, [PEP 814](https://peps.python.org/pep-0814/) for `frozendict`, and the [`random`](https://docs.python.org/3/library/random.html) documentation on reproducibility.
+*Design Patterns* (Gamma, Helm, Johnson and Vlissides) is the source for State. The language references are the [`typing` documentation](https://docs.python.org/3.15/library/typing.html) for `assert_never`, the typing guide on [unreachable code and exhaustiveness checking](https://typing.python.org/en/latest/guides/unreachable.html), [PEP 634](https://peps.python.org/pep-0634/) and [PEP 636](https://peps.python.org/pep-0636/) for structural pattern matching, [PEP 814](https://peps.python.org/pep-0814/) for `frozendict`, and the [`random`](https://docs.python.org/3.15/library/random.html) documentation on reproducibility.
 
 Luciano Ramalho's *Fluent Python*, second edition, has the chapter "with, match, and else Blocks" on `match`. Both books are in the hub's list and on the [bibliography page]({{ '/bibliography/' | relative_url }}).

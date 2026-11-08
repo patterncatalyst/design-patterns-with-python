@@ -239,4 +239,4 @@ Robert C. Martin's *Agile Software Development, Principles, Patterns, and Practi
 
 Martin Fowler's article [Inversion of Control Containers and the Dependency Injection pattern](https://martinfowler.com/articles/injection.html), first published in January 2004, names constructor, setter and interface injection and compares them with a service locator. Mark Seemann's post [Composition Root](https://blog.ploeh.dk/2011/07/28/CompositionRoot/) describes where to compose the object graph.
 
-The language references are [PEP 544](https://peps.python.org/pep-0544/) on Protocols, the [functools documentation](https://docs.python.org/3/library/functools.html) for `partial`, and the [unittest.mock documentation on autospeccing](https://docs.python.org/3/library/unittest.mock.html#autospeccing) for `create_autospec`.
+The language references are [PEP 544](https://peps.python.org/pep-0544/) on Protocols, the [functools documentation](https://docs.python.org/3.15/library/functools.html) for `partial`, and the [unittest.mock documentation on autospeccing](https://docs.python.org/3.15/library/unittest.mock.html#autospeccing) for `create_autospec`.

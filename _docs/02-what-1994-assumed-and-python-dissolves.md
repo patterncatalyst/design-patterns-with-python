@@ -200,7 +200,7 @@ When a review comment says "this should be a function", the justification is tha
 - *Fluent Python*, second edition (Luciano Ramalho; O'Reilly). The data model, first-class functions, protocols, generators and the import system, which are the features this chapter relies on.
 - *Effective Python*, third edition (Brett Slatkin; Addison-Wesley). Short rules on generators, closures, `partial`, typing and module-level state; read by topic.
 - PEP 544, [Protocols: Structural subtyping](https://peps.python.org/pep-0544/); PEP 255, [Simple Generators](https://peps.python.org/pep-0255/); PEP 695, [Type Parameter Syntax](https://peps.python.org/pep-0695/), which also introduces the `type` statement.
-- The Python reference, [data model](https://docs.python.org/3/reference/datamodel.html), for `__iter__`, `__next__` and callables.
+- The Python reference, [data model](https://docs.python.org/3.15/reference/datamodel.html), for `__iter__`, `__next__` and callables.
 - Brandon Rhodes, [python-patterns.guide](https://python-patterns.guide/), for the catalogue read through Python.
 
 The full list of books, with editions and links, is on the [bibliography]({{ '/bibliography/' | relative_url }}) page.
