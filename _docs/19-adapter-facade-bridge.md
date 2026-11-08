@@ -19,39 +19,46 @@ By the end of this chapter you can:
 
 ## Why this matters
 
-A shipping desk books consignments with two carriers. Their SDKs disagree about almost everything, and three failures follow.
+A shipping desk books consignments with two carriers whose SDKs disagree about almost everything. The obvious versions fail three ways:
 
-A caller branches on the carrier code and reaches into each SDK. For Fastline it sends the consignment's weight, 10 kg, in a field that Fastline reads as pounds. The booking succeeds and the carrier holds a 4.54 kg consignment.
+- A caller branches on the carrier code and reaches into each SDK. For Fastline it sends 10 kg in a field Fastline reads as pounds, and the carrier holds a 4.54 kg consignment.
+- A client whose parameter is a plain `float` is accepted wherever a kilogram `float` is expected. The unit is in a parameter name, and mypy doesn't read names.
+- Booking kinds multiply with carriers. Standard and insured, times two carriers, is four classes, and the two Fastline ones repeat Fastline's translation.
 
-A client whose parameter is a plain `float` is accepted wherever a kilogram `float` is expected, because mypy sees two floats. The unit is in a parameter name, and mypy doesn't read names.
+{% include excalidraw.html name="19-adapter-facade-bridge" described="true" caption="Figure 19.1: One call, two axes, one translation. The facade picks a gateway and a booking kind; each kind works through the narrow gateway Protocol, which one client already satisfies and the other reaches through an adapter that converts units." %}
 
-Booking kinds multiply with carriers. A standard booking and an insured booking, times two carriers, is four classes, and the two Fastline ones repeat Fastline's translation.
+<details class="figure-description" markdown="1">
+<summary>Describe the figure</summary>
+<div id="desc-19-adapter-facade-bridge" markdown="1">
+From the top: an accent box, `ship(consignment, carrier, ...)`, is labelled "Facade: one call, domain types only". It forks to `StandardBooking` and `InsuredBooking`, each labelled "Bridge: each kind holds a gateway". Both lead to `CarrierGateway`, "book, insure: the narrow Protocol". That box forks again, to `AircoClient`, "shape already matches: no adapter", and to `FastlineGateway`, "Adapter: shape, pounds, errors". An arrow runs down from `FastlineGateway` to a dashed `FastlineClient`, "carrier SDK". A dashed `Weight.pounds`, "units converted in one place", has a dashed arrow into `FastlineGateway`.
+</div>
+</details>
 
-{% include excalidraw.html name="19-adapter-facade-bridge" caption="Figure 19.1: One call, two axes, one translation. The facade picks a gateway and a booking kind; each kind works through the narrow gateway Protocol, which one client already satisfies and the other reaches through an adapter that converts units." %}
+The figure stacks the three patterns: the facade on top, the bridge's two kinds in the middle, and the adapter at the SDK boundary.
 
-Read the figure from the top down. An accent box, `ship(consignment, carrier, ...)`, is labelled "Facade: one call, domain types only". It forks to `StandardBooking` and `InsuredBooking`, each labelled "Bridge: each kind holds a gateway". Both lead to `CarrierGateway`, "book, insure: the narrow Protocol". That box forks again, to `AircoClient`, "shape already matches: no adapter", and to `FastlineGateway`, "Adapter: shape, pounds, errors". An arrow runs down from `FastlineGateway` to a dashed `FastlineClient`, "carrier SDK". A dashed `Weight.pounds`, "units converted in one place", has a dashed arrow into `FastlineGateway`.
+## Pattern: Adapter
 
-## When no adapter is needed
+### The problem
 
-The sorting question from [The three-way split: dissolve, survive, disambiguate]({{ '/docs/03-the-three-way-split/' | relative_url }}) is whether a pattern dissolves, survives or shares its name with something else. All three patterns in this chapter survive. Each is lighter than in 1994, and each gets lighter in a different place: the adapter where the shapes already match, the facade in where it lives, the bridge in how the link is written.
+The desk wants every carrier behind one `CarrierGateway` Protocol with `book` and `insure`. Airco's client already has that shape. Fastline's has `submit_shipment` and `add_cover`, takes pounds as strings, and raises its own error.
 
-The *Design Patterns* catalogue by Gamma, Helm, Johnson and Vlissides (1994) describes Adapter for two parts that disagree about shape: one calls, the other supplies, and an object between them translates. The book gives two forms, one that subclasses the supplier and one that holds it. The force survives in Python. What 1994 assumed about nominal interfaces, and what Python dissolves, is covered in [What 1994 assumed, and what Python dissolves]({{ '/docs/02-what-1994-assumed-and-python-dissolves/' | relative_url }}), and it applies here: when the supplier already has the shape, the adapter has nothing to do.
+### The solution
 
-`AircoClient` has `book` and `insure` with the shape of the `CarrierGateway` Protocol, so the desk registers it as it is. `test_a_client_whose_shape_matches_needs_no_adapter` checks that `type(gateways["AIRCO"]) is AircoClient` and that a booking through it succeeds. `test_mypy_accepts_a_client_whose_shape_matches_the_protocol` assigns an `AircoClient()` to a `CarrierGateway` and mypy 2.4.1 prints nothing. [Protocol, duck typing, and structural typing with mypy]({{ '/docs/09-protocol-and-structural-typing/' | relative_url }}) covers the mechanism, including why the Protocol's parameters are positional-only.
+An **Adapter** sits between two parts that disagree about shape: one calls, the other supplies, and an object between them translates.
 
-The check runs against the Protocol and not against a base class. `AircoClient` doesn't import `CarrierGateway` or know it exists, and that's why a vendor's client can sit in the registry unchanged.
+**Bucket: survives.** Duck typing removes the adapter where the shapes already match, and the unit and error translation still need an object.
 
-A client with a different shape is refused. `FastlineClient` has `submit_shipment` and `add_cover`, and `test_mypy_rejects_a_client_with_a_different_shape` assigns one to a `CarrierGateway`. The test's own snippet, run through the test's own helper, prints:
+*Design Patterns* by Gamma, Helm, Johnson and Vlissides (1994) gives two forms, one that subclasses the supplier and one that holds it. [The three-way split: dissolve, survive, disambiguate]({{ '/docs/03-the-three-way-split/' | relative_url }}) defines the buckets, and [What 1994 assumed, and what Python dissolves]({{ '/docs/02-what-1994-assumed-and-python-dissolves/' | relative_url }}) covers the nominal interfaces the catalogue assumed.
+
+### How Python models it
+
+`AircoClient` has `book` and `insure` with the Protocol's shape, so the desk registers it as it is, and mypy 2.4.1 accepts it as a `CarrierGateway`. `AircoClient` doesn't import `CarrierGateway` or know it exists, so a vendor's client can sit in the registry unchanged. [Protocol, duck typing, and structural typing with mypy]({{ '/docs/09-protocol-and-structural-typing/' | relative_url }}) covers the mechanism. A client with a different shape is refused:
 
 ```text
 <string>:5: error: Incompatible types in assignment (expression has type "FastlineClient", variable has type "CarrierGateway")  [assignment]
 ```
 
-So duck typing removes an adapter where the shapes already match, and the type checker says where they don't. Whether the units inside the shapes match is a separate question.
-
-## An adapter translates shape, units and errors
-
-`FastlineGateway` is an object adapter. It holds a `FastlineClient`, offers the two Protocol methods with the SDK in its `client` field, and does three kinds of translation:
+`FastlineGateway` is an object adapter. It holds the SDK in its `client` field and translates shape, units and errors:
 
 <!-- fmt:off -->
 ```python
@@ -87,11 +94,14 @@ class FastlineGateway:
 ```
 <!-- fmt:on -->
 
-Callers see two methods and a `Weight`, and everything particular to Fastline stays behind `client`.
+| Translation | Fastline side | Domain side |
+| --- | --- | --- |
+| Shape | a payload of strings, a numeric receipt | `book` returns an `FL-` reference |
+| Unit | `"weight_lb": "22.05"` for 10 kg; 1.005 lb rounds half up to `1.01` | `Weight` in kilograms |
+| Error | `FastlineRejectedError` over its limit | `CarrierError`, the SDK's error kept as `__cause__` |
+| Cover | integer cents: `(1001, 25000, "EUR")` | `Money`, 250.00 EUR |
 
-The shape: Fastline takes a payload of strings and returns a numeric receipt, and the adapter turns that into the `FL-` reference string the Protocol promises. `test_the_fastline_adapter_translates_the_booking_call` records the payload the SDK received, `{"ref": "CN-1", "weight_lb": "22.05"}`, and a second booking of 1.005 lb that rounds half up to `1.01`.
-
-The unit: the pound is converted in one place, on the value type. `Weight` holds kilograms as a `Decimal`, a frozen value that refuses zero, negative and non-finite amounts, and `test_a_consignment_weight_must_be_positive_and_finite` checks all three. Pounds have one way in, `from_pounds`, and one way out, the `pounds` property.
+The pound is converted in one place, on the value type. `Weight` holds kilograms as a `Decimal` and refuses zero, negative and non-finite amounts. Pounds have one way in and one way out, with 0.45359237 kg to the pound:
 
 <!-- fmt:off -->
 ```python
@@ -105,11 +115,11 @@ The unit: the pound is converted in one place, on the value type. `Weight` holds
 ```
 <!-- fmt:on -->
 
-`test_weight_converts_between_kilograms_and_pounds_exactly` checks the factor, 0.45359237 kg to the pound, and that 10 kg reads 22.05 lb. `test_a_pounds_api_called_with_kilograms_books_the_wrong_weight` runs the branching caller from the opening: it sends `"10"` as `weight_lb`, and `Weight.from_pounds` reads that back as 4.54 kg.
+The branching caller from the opening sends `"10"` as `weight_lb`, which `Weight.from_pounds` reads back as 4.54 kg. A 600 kg booking, about 1,323 lb against an illustrative limit of 1,000, raises `CarrierError` with the cause attached.
 
-The error: Fastline raises its own `FastlineRejectedError` for a shipment over its limit. The adapter raises `CarrierError` from it, so a caller depends on the domain's error and the SDK's stays as `__cause__`. `test_a_carrier_rejection_becomes_a_carrier_error` books 600 kg, which is about 1,323 lb against an illustrative limit of 1,000, and finds the cause attached. Cover goes the same way: `insure` turns a `Money` into integer cents, and `test_an_insured_booking_records_the_declared_value_with_the_carrier` sees `(1001, 25000, "EUR")` arrive at the SDK for 250.00 EUR.
+### Units and the type checker
 
-The `float` case is where static checking runs out. `test_mypy_cannot_see_pounds_passed_as_kilograms_through_a_float` type-checks a client whose `book` takes `pounds: float` against a Protocol whose `book` takes `kilograms: float`. Exit status 0, no output. That snippet is a reduced model: it declares its own small Protocol and doesn't import the package, because the point is the two `float` parameters. When the Protocol says `Weight`, the same client is refused. `test_mypy_rejects_a_float_where_a_weight_belongs` prints:
+Static checking runs out at a `float`. A client whose `book` takes `pounds: float` type-checks against a Protocol whose `book` takes `kilograms: float`, with no output. When the Protocol says `Weight`, the same client is refused:
 
 ```text
 <string>:13: error: Incompatible types in assignment (expression has type "PoundsClient", variable has type "CarrierGateway")  [assignment]
@@ -120,20 +130,25 @@ The `float` case is where static checking runs out. `test_mypy_cannot_see_pounds
 <string>:13: note:         def book(self, str, float, /) -> str
 ```
 
-The class adapter is the other form. It subclasses the client and adds the two Protocol methods:
+### Object adapter or class adapter
 
-```python
-# Comparison: a class adapter. Inheriting from the SDK client makes the client's own methods part
-# of the adapter's public surface.
-class _FastlineClassAdapter(FastlineClient):
-    def book(self, consignment_id: ConsignmentId, weight: Weight, /) -> str:
-```
+The class adapter subclasses `FastlineClient` and adds the two Protocol methods. It passes the same booking table, and it leaks: `submit_shipment` is on the class adapter and not on `FastlineGateway`. A caller holding the class adapter can call `submit_shipment` with a payload it builds itself and skip the translation. With the object adapter, it would have to reach through the public `client` field.
 
-It passes the same booking table, because the `gateway_form` fixture runs the adapter test against both forms. It also leaks: `test_a_class_adapter_still_exposes_the_clients_own_methods` finds `submit_shipment` on the class adapter and not on `FastlineGateway`. So a caller holding the class adapter can call `submit_shipment` with a payload it builds itself and skip the translation. The object adapter has no `submit_shipment` of its own; a caller would have to reach through its public `client` field to skip the translation.
+## Pattern: Facade
 
-## A Facade is a function with a narrow surface
+### The problem
 
-The *Design Patterns* catalogue gives Facade to a subsystem with many parts and a caller that wants a few operations. One object stands in front, so callers learn its few calls and not the parts. In Python a module already is that object. What survives is the choice of calls and the translation behind them.
+Callers want to ship a consignment with a carrier. They shouldn't learn Fastline's units, build payloads, or see an SDK type, and the desk should be able to replace an SDK without touching them.
+
+### The solution
+
+A **Facade** puts one object in front of a subsystem with many parts and a caller that wants a few operations, so callers learn its few calls and not the parts.
+
+**Bucket: survives.** In Python a module already is that object, and what survives is the choice of calls and the translation behind them.
+
+### How Python models it
+
+The facade is a module function:
 
 <!-- fmt:off -->
 ```python
@@ -157,15 +172,30 @@ def ship(
 ```
 <!-- fmt:on -->
 
-`test_ship_books_each_carrier_through_one_call` runs it for both carriers and compares the booking with what each SDK recorded. An unknown code is refused with the domain's own error, `test_an_unknown_carrier_is_refused_at_the_desk` matching `unknown carrier 'NOSUCH'`, and `from None` keeps the `KeyError` out of the report. The registry is a `frozendict` typed as a `Mapping`, so `test_the_desk_registry_is_read_only` finds that assigning into it raises `TypeError`.
+- **Narrow surface.** `ship` takes a consignment and a carrier code and returns a `Booking`. `desk.__all__` lists `default_gateways` and `ship`, and their resolved type hints name no class from the `sdks` module. A facade that returned `FastlineReceipt` would narrow the calls and keep the leak.
+- **Intent, not mechanism.** Declared value is an optional keyword, and its presence selects the booking kind.
+- **Domain errors.** An unknown code raises `UnknownCarrierError`, "unknown carrier 'NOSUCH'", and `from None` keeps the `KeyError` out of the report.
+- **Read-only registry.** `gateways` is a `frozendict` typed as a `Mapping`; assigning into it raises `TypeError`.
 
-`ship` takes a consignment and a carrier code and returns a `Booking`. It doesn't take a client or a payload, so a caller can't learn Fastline's units by using it, and the desk can replace an SDK without touching its callers. Declared value is an optional keyword, and its presence selects the booking kind, so the caller says what they want and the desk decides how it's carried out. A facade that returned `FastlineReceipt` would have narrowed the calls and kept the leak. `desk.__all__` lists `default_gateways` and `ship`, and `test_the_desk_names_no_sdk_type_in_its_public_surface` resolves their type hints and finds no class from the `sdks` module in them. The branching caller from the opening is what a desk looks like without that surface. For where `gateways` comes from, [ISP, DIP, and dependency injection without a framework]({{ '/docs/06-isp-dip-and-di-without-a-framework/' | relative_url }}) covers the composition root.
+[ISP, DIP, and dependency injection without a framework]({{ '/docs/06-isp-dip-and-di-without-a-framework/' | relative_url }}) covers the composition root that builds `gateways`.
 
-## Bridge: two axes, one narrow Protocol
+## Pattern: Bridge
 
-Gamma, Helm, Johnson and Vlissides give Bridge to a design with two things that vary, such as what an operation means and how it's carried out, so each can change without disturbing the other. Brandon Rhodes uses the same reading in [The Composition Over Inheritance Principle](https://python-patterns.guide/gang-of-four/composition-over-inheritance/). His example subclasses a logger once per output and once per filter, which multiplies, and he resolves it with Adapter, Bridge and Decorator in turn. He quotes the Gang of Four principle as "Favor object composition over class inheritance." and concludes that the principle matters more than any one pattern. python-patterns.guide has no page named Adapter, Facade or Bridge, and The Composition Over Inheritance Principle is where it treats Adapter and Bridge.
+### The problem
 
-Here the two axes are the booking kind and the carrier:
+Two things vary: the booking kind (standard or insured) and the carrier. A class per pair needs N×M classes, and each carrier's translation is repeated in every kind.
+
+### The solution
+
+A **Bridge** splits a design with two things that vary, such as what an operation means and how it's carried out, so each can change without disturbing the other.
+
+**Bucket: survives.** The link between the two sides is a Protocol-typed attribute, and the decision is which narrow set of primitives the implementor side promises.
+
+Brandon Rhodes reads it the same way in [The Composition Over Inheritance Principle](https://python-patterns.guide/gang-of-four/composition-over-inheritance/), where a logger subclassed once per output and once per filter multiplies, and he resolves it with Adapter, Bridge and Decorator in turn. He quotes the Gang of Four: "Favor object composition over class inheritance." python-patterns.guide has no page named Adapter, Facade or Bridge; that page is where it treats Adapter and Bridge.
+
+### How Python models it
+
+The booking kind is the abstraction, and each kind holds a gateway:
 
 <!-- fmt:off -->
 ```python
@@ -198,15 +228,20 @@ class InsuredBooking:
 ```
 <!-- fmt:on -->
 
-The `gateway` field is a Protocol-typed attribute, the mechanism [ISP, DIP, and dependency injection without a framework]({{ '/docs/06-isp-dip-and-di-without-a-framework/' | relative_url }}) covers. The decision is which axis is the abstraction and which narrow set of primitives the other side promises.
+The `gateway` field is the mechanism [ISP, DIP, and dependency injection without a framework]({{ '/docs/06-isp-dip-and-di-without-a-framework/' | relative_url }}) covers. Insurance is the second primitive: `InsuredBooking` calls `book` and then `insure`, so the carrier's way of recording cover stays inside the gateway. Airco keeps the `Money` it was given, and Fastline's adapter turns it into cents. Zero and negative declared values are refused at construction.
 
-`test_every_booking_kind_works_with_every_carrier` runs two kinds against two carriers, in two designs, the bridge and a class per kind and carrier, as eight cases. Both designs pass. The difference is the class count. `test_the_class_per_pair_design_needs_a_class_for_every_kind_and_carrier` parses `bookings.py` with `ast` and finds two classes, and parses the fixture and finds five: an abstract base and four pairs, the two Fastline ones repeating its translation. That's N×M against N+M. A third kind adds one class to the bridge and one per carrier to the other design, and a third carrier adds one gateway to the bridge and one class per kind to the other. Which kind to build is a creation question, and [Factory Method and Abstract Factory]({{ '/docs/16-factory-method-and-abstract-factory/' | relative_url }}) takes it up.
+### What the bridge saves and costs
 
-Insurance is the second primitive. `InsuredBooking` calls `book` and then `insure` on whichever gateway it holds, so the carrier's way of recording cover stays inside the gateway: Airco keeps the `Money` it was given, and Fastline's adapter turns it into cents. The bridge's two sides don't know each other's details.
+Two kinds against two carriers pass in both designs. The class counts differ:
 
-An insured booking records the declared value with the carrier, and `test_an_insured_booking_without_a_declared_value_is_a_booking_error` shows zero and negative amounts refused at construction.
+| Change | Bridge | Class per kind and carrier |
+| --- | --- | --- |
+| Today | 2 classes in `bookings.py` | 5: an abstract base and four pairs |
+| A third kind | 1 class | 1 per carrier |
+| A third carrier | 1 gateway | 1 per kind |
+| A new primitive | each gateway owes it | each class owes it |
 
-The cost sits on the implementor, and the benefit sits on the abstraction. A new booking kind is a class that calls the same two primitives, and no gateway changes: `test_a_new_booking_kind_needs_no_gateway_change` defines one in the test and runs it over both real gateways. A new primitive is a promise that each gateway has to keep. `test_mypy_reports_an_implementor_missing_a_primitive` assigns a class with `book` alone and prints:
+A new booking kind calls the same two primitives, and no gateway changes. A new primitive is a promise every gateway has to keep, and mypy names an implementor that misses one:
 
 ```text
 <string>:11: error: Incompatible types in assignment (expression has type "BookOnly", variable has type "CarrierGateway")  [assignment]
@@ -214,11 +249,13 @@ The cost sits on the implementor, and the benefit sits on the abstraction. A new
 <string>:11: note:     insure
 ```
 
-Keep the set small. The experiments below widen it by one method.
+The cost sits on the implementor, and the benefit on the abstraction, so keep the Protocol small. Which kind to build is a creation question; [Factory Method and Abstract Factory]({{ '/docs/16-factory-method-and-abstract-factory/' | relative_url }}) takes it up.
 
 ## When not to use it
 
-Call the client when there's one carrier and the SDK already fits. An adapter that only renames parameters isn't needed, because the Protocol's parameters are positional-only. A facade over a subsystem with one caller can be inlined. A bridge where one axis doesn't vary is a parameter, and the second hierarchy is a cost with no return.
+- **Adapter.** Call the client when there's one carrier and the SDK already fits. An adapter that only renames parameters isn't needed, because the Protocol's parameters are positional-only.
+- **Facade.** A facade over a subsystem with one caller can be inlined.
+- **Bridge.** A bridge where one axis doesn't vary is a parameter, and the second hierarchy is a cost with no return.
 
 <blockquote class="ai-sidebar" markdown="1">
 **Specifying an adapter.** "Integrate a carrier" leaves open which clients need an adapter, what units cross the boundary and what the caller sees of the SDK. Paste a prompt that states the form:
@@ -238,104 +275,18 @@ uv run pytest -v --no-header
 uv run mypy --strict src tests
 ```
 
-A fresh run produces:
+All 35 cases pass and mypy is clean. [Proving it works: pytest, pytest-mock, and mypy]({{ '/docs/11-testing-with-pytest-pytest-mock-and-mypy/' | relative_url }}) covers how the mypy checks are built. Two experiments, each in a fresh scratch copy:
 
-```text
-============================= test session starts ==============================
-collecting ... collected 35 items
-
-tests/test_adapter.py::test_a_client_whose_shape_matches_needs_no_adapter PASSED [  2%]
-tests/test_adapter.py::test_the_fastline_adapter_translates_the_booking_call[object-adapter] PASSED [  5%]
-tests/test_adapter.py::test_the_fastline_adapter_translates_the_booking_call[class-adapter] PASSED [  8%]
-tests/test_adapter.py::test_a_class_adapter_still_exposes_the_clients_own_methods PASSED [ 11%]
-tests/test_adapter.py::test_weight_converts_between_kilograms_and_pounds_exactly PASSED [ 14%]
-tests/test_adapter.py::test_a_pounds_api_called_with_kilograms_books_the_wrong_weight PASSED [ 17%]
-tests/test_adapter.py::test_an_unknown_carrier_is_refused_at_the_desk PASSED [ 20%]
-tests/test_adapter.py::test_the_desk_registry_is_read_only PASSED        [ 22%]
-tests/test_adapter.py::test_a_consignment_weight_must_be_positive_and_finite[zero] PASSED [ 25%]
-tests/test_adapter.py::test_a_consignment_weight_must_be_positive_and_finite[negative] PASSED [ 28%]
-tests/test_adapter.py::test_a_consignment_weight_must_be_positive_and_finite[nan] PASSED [ 31%]
-tests/test_bridge.py::test_every_booking_kind_works_with_every_carrier[bridge-standard-FASTLINE] PASSED [ 34%]
-tests/test_bridge.py::test_every_booking_kind_works_with_every_carrier[bridge-standard-AIRCO] PASSED [ 37%]
-tests/test_bridge.py::test_every_booking_kind_works_with_every_carrier[bridge-insured-FASTLINE] PASSED [ 40%]
-tests/test_bridge.py::test_every_booking_kind_works_with_every_carrier[bridge-insured-AIRCO] PASSED [ 42%]
-tests/test_bridge.py::test_every_booking_kind_works_with_every_carrier[class-per-pair-standard-FASTLINE] PASSED [ 45%]
-tests/test_bridge.py::test_every_booking_kind_works_with_every_carrier[class-per-pair-standard-AIRCO] PASSED [ 48%]
-tests/test_bridge.py::test_every_booking_kind_works_with_every_carrier[class-per-pair-insured-FASTLINE] PASSED [ 51%]
-tests/test_bridge.py::test_every_booking_kind_works_with_every_carrier[class-per-pair-insured-AIRCO] PASSED [ 54%]
-tests/test_bridge.py::test_the_class_per_pair_design_needs_a_class_for_every_kind_and_carrier PASSED [ 57%]
-tests/test_bridge.py::test_an_insured_booking_records_the_declared_value_with_the_carrier[FASTLINE] PASSED [ 60%]
-tests/test_bridge.py::test_an_insured_booking_records_the_declared_value_with_the_carrier[AIRCO] PASSED [ 62%]
-tests/test_bridge.py::test_an_insured_booking_without_a_declared_value_is_a_booking_error[zero] PASSED [ 65%]
-tests/test_bridge.py::test_an_insured_booking_without_a_declared_value_is_a_booking_error[negative] PASSED [ 68%]
-tests/test_bridge.py::test_a_new_booking_kind_needs_no_gateway_change[FASTLINE] PASSED [ 71%]
-tests/test_bridge.py::test_a_new_booking_kind_needs_no_gateway_change[AIRCO] PASSED [ 74%]
-tests/test_facade.py::test_ship_books_each_carrier_through_one_call[FASTLINE] PASSED [ 77%]
-tests/test_facade.py::test_ship_books_each_carrier_through_one_call[AIRCO] PASSED [ 80%]
-tests/test_facade.py::test_the_desk_names_no_sdk_type_in_its_public_surface PASSED [ 82%]
-tests/test_facade.py::test_a_carrier_rejection_becomes_a_carrier_error PASSED [ 85%]
-tests/test_static.py::test_mypy_accepts_a_client_whose_shape_matches_the_protocol PASSED [ 88%]
-tests/test_static.py::test_mypy_rejects_a_client_with_a_different_shape PASSED [ 91%]
-tests/test_static.py::test_mypy_cannot_see_pounds_passed_as_kilograms_through_a_float PASSED [ 94%]
-tests/test_static.py::test_mypy_rejects_a_float_where_a_weight_belongs PASSED [ 97%]
-tests/test_static.py::test_mypy_reports_an_implementor_missing_a_primitive PASSED [100%]
-
-============================== 35 passed in 2.24s ==============================
-Success: no issues found in 11 source files
-```
-
-The suite has 21 test functions and 35 cases. The shared method for the tests and the mypy witnesses is in [Proving it works: pytest, pytest-mock, and mypy]({{ '/docs/11-testing-with-pytest-pytest-mock-and-mypy/' | relative_url }}).
-
-**Experiment one: send kilograms.** In a fresh scratch copy with its `.venv` removed and `uv sync --locked --all-packages` run, in `FastlineGateway.book` replace `weight.pounds` with `weight.kilograms`. Running `uv run pytest -q 2>&1 | grep -E '^(FAILED|E {7}[^ ]|tests/.*Error$|[0-9]+ (passed|failed))'` and then `uv run mypy --strict src tests` gives:
-
-```text
-E       AssertionError: assert [{'ref': 'CN-..._lb': '0.46'}] == [{'ref': 'CN-..._lb': '1.01'}]
-tests/test_adapter.py:34: AssertionError
-E       AssertionError: assert [{'ref': 'CN-...lb': '10.00'}] == [{'ref': 'CN-...lb': '22.05'}]
-tests/test_facade.py:24: AssertionError
-E       Failed: DID NOT RAISE CarrierError
-FAILED tests/test_adapter.py::test_the_fastline_adapter_translates_the_booking_call[object-adapter]
-FAILED tests/test_facade.py::test_ship_books_each_carrier_through_one_call[FASTLINE]
-FAILED tests/test_facade.py::test_a_carrier_rejection_becomes_a_carrier_error
-3 failed, 32 passed in 2.31s
-Success: no issues found in 11 source files
-```
-
-Three tests fail. The object adapter's payload test sees `0.46` for the 1.005 lb booking, and the desk test sees `10.00` where it expected `22.05`. The third failure is less obvious: 600 kg sent as pounds is 600.00 lb, under the 1,000 lb limit, so Fastline accepts it and the rejection test finds nothing raised. The class adapter, which has its own copy of the conversion, keeps passing. mypy stays green, because a `Decimal` of kilograms and a `Decimal` of pounds have the same type.
-
-**Experiment two: widen the Protocol.** In another fresh scratch copy, add `def cancel(self, reference: str, /) -> None: ...` to `CarrierGateway`. The same pytest filter, then the same mypy command, gives:
-
-```text
-E       assert 1 == 0
-tests/test_static.py:96: AssertionError
-E       assert 'note:     insure' in '<string>:11: error: Incompatible types in assignment (expression has type "BookOnly", variable has type "CarrierGatew...:11: note: "BookOnly" is missing following "CarrierGateway" protocol members:\n<string>:11: note:     cancel, insure\n'
-tests/test_static.py:129: AssertionError
-FAILED tests/test_static.py::test_mypy_accepts_a_client_whose_shape_matches_the_protocol
-FAILED tests/test_static.py::test_mypy_reports_an_implementor_missing_a_primitive
-2 failed, 33 passed in 2.48s
-src/adapter_facade_bridge/desk.py:14: error: Dict entry 0 has incompatible type "str": "AircoClient"; expected "str": "CarrierGateway"  [dict-item]
-src/adapter_facade_bridge/desk.py:14: error: Dict entry 1 has incompatible type "str": "FastlineGateway"; expected "str": "CarrierGateway"  [dict-item]
-tests/test_adapter.py:22: error: Non-overlapping identity check (left operand type: "type[CarrierGateway]", right operand type: "type[AircoClient]")  [comparison-overlap]
-tests/test_adapter.py:23: error: Statement is unreachable  [unreachable]
-tests/conftest.py:54: error: Dict entry 0 has incompatible type "str": "AircoClient"; expected "str": "CarrierGateway"  [dict-item]
-tests/conftest.py:54: error: Dict entry 1 has incompatible type "str": "FastlineGateway"; expected "str": "CarrierGateway"  [dict-item]
-tests/conftest.py:115: error: Incompatible return value type (got "_FastlineClassAdapter", expected "CarrierGateway")  [return-value]
-tests/conftest.py:115: note: "_FastlineClassAdapter" is missing following "CarrierGateway" protocol member:
-tests/conftest.py:115: note:     cancel
-tests/conftest.py:123: error: Incompatible return value type (got "tuple[FastlineGateway, FastlineClient]", expected "tuple[CarrierGateway, FastlineClient]")  [return-value]
-tests/conftest.py:125: error: Incompatible return value type (got "tuple[_FastlineClassAdapter, _FastlineClassAdapter]", expected "tuple[CarrierGateway, FastlineClient]")  [return-value]
-Found 9 errors in 3 files (checked 11 source files)
-```
-
-pytest has two failures. The test that assigns an `AircoClient` to a `CarrierGateway` now sees mypy exit 1, because Airco has no `cancel`. In `test_mypy_reports_an_implementor_missing_a_primitive`, the snippet's implementor lacks `cancel` as well as `insure`, so mypy lists both members on one note line and the test's `note:     insure` assertion no longer matches. Booking behaviour is unchanged. mypy reports the registry in `desk.py`, three test fixtures and the test that reads the registry, and the class adapter fixture reports the member `cancel` as missing. Each implementor owes the new method, and the checker finds the ones in this example.
+- **Send kilograms.** In `FastlineGateway.book`, replace `weight.pounds` with `weight.kilograms`. Three tests fail: the payload reads `0.46` and `10.00` where `1.01` and `22.05` were due, and 600 kg sent as 600.00 lb passes under the 1,000 lb limit, so no `CarrierError` is raised. The class adapter, with its own copy of the conversion, still passes, and mypy is clean: kilograms and pounds are both `Decimal`.
+- **Widen the Protocol.** Add `def cancel(self, reference: str, /) -> None: ...` to `CarrierGateway`. Booking behaviour is unchanged, two static checks fail, and mypy reports nine errors: the registry in `desk.py`, the fixtures and the class adapter all owe `cancel`.
 
 ## What you can do now
 
-- Say when structural typing removes an adapter: `AircoClient` is registered as it is, and `FastlineClient` is refused for its different shape.
-- Show how a `float` gets pounds past mypy: `test_mypy_cannot_see_pounds_passed_as_kilograms_through_a_float` exits 0, and `test_mypy_rejects_a_float_where_a_weight_belongs` refuses the same client once the Protocol takes a `Weight`.
-- Choose between the two adapters: the class adapter exposes `submit_shipment`, and `FastlineGateway` doesn't.
-- Write a facade that names no SDK type: `ship` passes `test_the_desk_names_no_sdk_type_in_its_public_surface`.
-- Split two axes with a Bridge: the class-count test finds two classes against five, and `test_mypy_reports_an_implementor_missing_a_primitive` names the cost on the implementor.
+- Register a client whose shape matches the Protocol as it is, and let mypy refuse one that doesn't.
+- Put units in a `Weight` parameter, because a `float` lets pounds pass as kilograms.
+- Prefer an object adapter, which doesn't expose `submit_shipment` as a class adapter does.
+- Write a facade, `ship`, whose public surface names no SDK type.
+- Split two axes with a Bridge, two classes against five, and keep the implementor's Protocol small.
 
 ## For deeper coverage
 
