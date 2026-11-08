@@ -19,21 +19,32 @@ By the end of this chapter you can:
 
 ## Why this matters
 
-A rate quote has three owners. The carrier contract sets the tariff, and it changes when the contract is renegotiated. Tax law sets what a destination country adds, on its own calendar. Compliance decides what must be recorded about a finished quote. When one function does all three, a change to the tax rate for one country is a change to the function that prices every consignment, and the pricing tests have to be rerun and believed again. The cost is the review and the retest that follow an edit in a place that had no reason to change.
+A rate quote has three owners. The carrier contract sets the tariff and changes when it's renegotiated. Tax law sets what a destination country adds, on its own calendar. Compliance decides what's recorded about a finished quote. When one function does all three, a tax change for one country is an edit to the function that prices every consignment, and the pricing tests have to be rerun and believed again.
 
-The three principles in this chapter are the old answers to that cost, and the force behind each is still present in modern Python. What changes is the mechanism: a `Protocol` instead of an interface hierarchy, a mapping of callables instead of a subclass per variant, and a contract suite for the part of the Liskov principle that no signature can express. The example is one rate quote, and its fourteen test functions, nineteen cases in all, witness each claim below.
+The three principles are the old answers to that cost, and the force behind each is still there in Python. The mechanism changes: a `Protocol` instead of an interface hierarchy, a mapping of callables instead of a subclass per variant, and a contract suite for the part of Liskov that no signature expresses.
 
-{% include excalidraw.html name="05-srp-ocp-lsp" caption="Figure 5.1: One quote, three responsibilities. Pricing sits behind the RateCalculator Protocol and hands its net to tax rules keyed by destination country; the finished quote goes to an audit callable. Each changes for its own reason, and one contract suite checks every calculator." %}
+{% include excalidraw.html name="05-srp-ocp-lsp" described="true" caption="Figure 5.1: One quote, three responsibilities. Pricing sits behind the RateCalculator Protocol and hands its net to tax rules keyed by destination country; the finished quote goes to an audit callable. Each changes for its own reason, and one contract suite checks every calculator." %}
 
-The figure reads top to bottom. The coordinator asks the calculator for a net price, passes that net to the tax rule chosen by the destination country, builds the quote and hands it to the audit callable. The contract suite stands beside the calculator because pricing is the collaborator whose contract has clauses no signature states.
+<details class="figure-description" markdown="1">
+<summary>Describe the figure</summary>
+<div id="desc-05-srp-ocp-lsp" markdown="1">
+The figure reads top to bottom. `quote`, the coordinator, takes one consignment and returns one `RateQuote`. It asks the `RateCalculator` (`BaseRate` or `FlatRate`; pricing changes with the tariff) for a net price, and passes that net to the rule from `TAX_RULES`, a percentage chosen by destination country (tax changes with tax law). The `RateQuote` holds the net from pricing and the tax computed on that net, and goes to the `AuditSink` callable (audit changes with compliance). The contract suite stands beside the calculator and checks every calculator, because pricing is the collaborator whose contract has clauses no signature states.
+</div>
+</details>
+
+The coordinator calls pricing, then tax, then audit, and the contract suite checks pricing.
 
 ## Three reasons to change in one rate calculation
 
-Picture a single `price` function that looks up the zone rate, multiplies by weight, adds destination tax and appends the result to an audit log. It's short and it works. Then three requests arrive in the same quarter. The carrier moves the Asia zone to a new per-kilogram rate. A destination country revises its tax rate. Compliance asks that every quote also record who requested it.
+A single `price` function looks up the zone rate, multiplies by weight, adds destination tax and appends the result to an audit log. Then three requests arrive in one quarter:
 
-Each request has a different author and a different test that ought to move. The tariff change should alter prices and nothing about audit. The tax change should alter tax and nothing about pricing. The audit change should alter no number on the quote. In the single function, a reader can't see that from the signature, and a reviewer has to read the whole body to check it.
+| Request | From | Should change |
+| --- | --- | --- |
+| Move the Asia zone to a new per-kilogram rate | The carrier | Prices, not audit |
+| Revise one country's tax rate | Tax law | Tax, not pricing |
+| Record who requested each quote | Compliance | No number on the quote |
 
-This is the situation the single responsibility principle describes. Robert C. Martin states it as "a class should have only one reason to change" in *Agile Software Development: Principles, Patterns, and Practices* (2002). A reason to change is a person or a process that will ask for the edit. Pricing, tax and audit have three, so the code that serves them belongs in three places. The principle separates the reasons to change in the code. It doesn't say the data flows separately, and in this example it doesn't, as the next section shows.
+In one function, nothing in the signature shows that, and a reviewer reads the whole body to check it. Robert C. Martin states the single responsibility principle as "a class should have only one reason to change" in *Agile Software Development: Principles, Patterns, and Practices* (2002). A reason to change is a person or process that will ask for the edit. Three reasons mean three places. The principle separates the code, not the data flow, which still runs from pricing into tax.
 
 ## Single responsibility: three collaborators and a coordinator
 
@@ -54,7 +65,7 @@ class RateCalculator(Protocol):
     def price(self, consignment: Consignment, /) -> Money: ...
 ```
 
-Tax and audit are narrower still. A tax rule is a callable from a net amount to a tax amount, `type TaxRule = Callable[[Money], Money]`, and an audit sink is a callable from a finished quote to nothing, `type AuditSink = Callable[[RateQuote], None]`. Neither needs a class, because neither carries state the caller has to manage. The coordinator is one function over the three:
+Tax and audit are narrower. A tax rule is `type TaxRule = Callable[[Money], Money]`, and an audit sink is `type AuditSink = Callable[[RateQuote], None]`. Neither carries state the caller manages, so neither needs a class. The coordinator is one function:
 
 ```python
 def quote(
@@ -76,15 +87,21 @@ def quote(
     return result
 ```
 
-The witness is `test_each_change_moves_only_the_fields_it_feeds`. It quotes an Asia consignment as a baseline, replaces one collaborator at a time and compares the fields of the two `RateQuote` values. Replacing the tariff changes `net` and `tax`. Replacing the `"SG"` tax rule changes `tax` alone. Replacing the audit sink changes no field, and the new sink receives the quote while the old one does not. The first row looks like a violation until you recall that tax is a percentage of the net: a new tariff reaches the tax through the data. The code that computes the tax is untouched. The test states the expected set for each case, so a collaborator that started reaching into another's output would fail it.
+Replace one collaborator at a time on an Asia consignment and compare the quotes:
 
-Two more tests check the edges of the split. `test_audit_receives_exactly_the_quote_returned` checks that the sink gets the same object `quote` returns, once. `test_pricing_and_tax_run_alone` builds a `BaseRate` and a `percent` rule with no sink and no rule table, and checks exact amounts: pricing and tax can be exercised without constructing the rest.
+| Replaced | Fields that change |
+| --- | --- |
+| The tariff | `net` and `tax` |
+| The `"SG"` tax rule | `tax` |
+| The audit sink | None; the new sink gets the quote and the old one doesn't |
+
+The tariff row changes `tax` because tax is a percentage of the net: the change reaches tax through the data, and the tax code is untouched. The sink receives the same object `quote` returns, once. `BaseRate` and a `percent` rule run alone, with no sink and no rule table, and give exact amounts.
 
 ## Open for extension: a new tax rule is data
 
-Bertrand Meyer introduced the open-closed principle in *Object-Oriented Software Construction*, whose first edition appeared in 1988. His version rested on inheritance: a module stays closed once it is in use, and a new variant is a subclass that extends it. Martin's restatement, collected in his 2002 book, rests on abstraction instead, so that a module depends on an abstract contract and new behaviour arrives behind it. In both, the aim is to take a change you have already seen, a new destination in this case, without reopening code that is tested and in service.
+Bertrand Meyer introduced the open-closed principle in *Object-Oriented Software Construction* (first edition 1988), resting on inheritance: a module in use stays closed, and a new variant is a subclass. Martin's 2002 restatement rests on abstraction: a module depends on an abstract contract, and new behaviour arrives behind it. Either way, the aim is to take a change you've already seen, here a new destination, without reopening tested code.
 
-In Python the extension point is often a callable in a mapping that the caller passes in. The rule constructor and the default table are short:
+In Python the extension point is often a callable in a mapping the caller passes in:
 
 ```python
 def percent(rate: Decimal) -> TaxRule:
@@ -106,17 +123,17 @@ TAX_RULES: Mapping[str, TaxRule] = MappingProxyType(
 )
 ```
 
-The rates are invented for the example and say nothing about any country's law. `percent` is a closure that fixes a rate, and `TAX_RULES` is a read-only view over a dict, so no module can add to it by assignment. `test_default_tax_table_is_read_only` asserts that `TAX_RULES["HK"] = exempt` raises `TypeError`. The assertion line needs one `# type: ignore[index]`, because `Mapping` has no `__setitem__`, so mypy reports `[index]` on the line.
+The rates are invented and say nothing about any country's law. `percent` is a closure that fixes a rate. `TAX_RULES` is a read-only view: `TAX_RULES["HK"] = exempt` raises `TypeError`, and mypy reports `[index]` on that line because `Mapping` has no `__setitem__`.
 
-A new rule arrives as data. `test_a_new_tax_rule_is_added_without_editing_quote` passes `{**TAX_RULES, "HK": exempt}` to `quote`, where `exempt` is a function defined in the test module that returns zero. A Hong Kong consignment is taxed at `0.00`, and afterwards `"HK"` is still not in `TAX_RULES`. The new rule lives in the caller's mapping, `quote` is unchanged, and the shared default is untouched.
+A new rule arrives as data. Passing `{**TAX_RULES, "HK": exempt}` to `quote`, where `exempt` returns zero, taxes a Hong Kong consignment at `0.00`, and `"HK"` is still absent from `TAX_RULES` afterwards. `quote` is unchanged and the shared default is untouched.
 
-The failure mode is the missing rule. A destination with no entry is a `RatingError` naming the country, and `test_missing_tax_rule_is_a_rating_error` checks that nothing reaches the audit sink. The alternative, treating a missing rule as zero tax, would quote a consignment cheaper than the law allows and say nothing. A mapping of rules has a limit: it protects against the change you have seen, a new country. A change in what a rule needs to know, such as the shipper's status as well as the net, isn't a data change: it alters the `TaxRule` signature, which no mapping absorbs.
+A destination with no entry raises `RatingError` naming the country, and nothing reaches the audit sink. Treating a missing rule as zero tax would quote cheaper than the law allows, silently. The mapping protects against the change you've seen, a new country. A change in what a rule needs to know, such as the shipper's status as well as the net, alters the `TaxRule` signature, and no mapping absorbs that.
 
 ## Liskov substitution: the contract the type does not state
 
-Barbara Liskov introduced the idea in her OOPSLA '87 keynote, "Data Abstraction and Hierarchy", published in *SIGPLAN Notices* 23(5) in 1988. Liskov and Wing gave the behavioural definition in "A Behavioral Notion of Subtyping" (*ACM TOPLAS* 16(6), 1994): properties that can be proved of the supertype's objects have to hold for the subtype's objects. Martin's 2002 book lists it among the principles of object-oriented design. In practice, a subtype may accept more than its supertype and promise more, and it may not accept less or promise less.
+Barbara Liskov introduced the idea in her OOPSLA '87 keynote, "Data Abstraction and Hierarchy" (*SIGPLAN Notices* 23(5), 1988). Liskov and Wing gave the behavioural definition in "A Behavioral Notion of Subtyping" (*ACM TOPLAS* 16(6), 1994): properties provable of the supertype's objects must hold for the subtype's. In practice, a subtype may accept more and promise more, never less.
 
-Half of that rule is a type signature, and mypy checks it. Each snippet below is a string in `tests/test_lsp.py`, run through `mypy --strict` with the package importable, and the output is as the run printed it. A subtype of `Consignment`, and a subclass of `BaseRate` whose `price` accepts only that subtype:
+Half of that is a type signature, and mypy checks it. A subclass of `BaseRate` whose `price` accepts only a subtype of `Consignment`:
 
 ```python
 class SeaConsignment(Consignment):
@@ -135,11 +152,17 @@ class Narrowed(BaseRate):
 <string>:15: note: See https://mypy.readthedocs.io/en/stable/common_issues.html#incompatible-overrides
 ```
 
-mypy names the principle, because a narrowed parameter, one that accepts only a subtype, is a stronger precondition: a caller holding a `BaseRate` may pass any `Consignment`. Widening the return type to `Money | None` gives `[override]` with `Return type "Money | None" of "price" incompatible with return type "Money" in supertype`. That is a weaker postcondition, and mypy prints the Liskov note only for argument errors, not for return types. Spelling the method `prcie` under `@override` gives `[misc]`: `Method "prcie" is marked as an override, but no base method was found with this name`. `@override`, from PEP 698, turns a silent new method into an error. The opposite direction is accepted: a `price` that takes `Consignment | None` passes `mypy --strict` with no output, which is the weaker precondition that the rule allows.
+A narrowed parameter is a stronger precondition: a caller holding a `BaseRate` may pass any `Consignment`. The other cases under `mypy --strict`:
 
-A Protocol moves the check to the place of use. A class with `price(...) -> Decimal` that is not declared a `RateCalculator` is accepted until it is passed as `calculator=` to `quote`, where mypy reports `[arg-type]` with the expected and actual signatures under `Following member(s) of "DecimalRate" have conflicts`.
+| Override | mypy |
+| --- | --- |
+| Return widened to `Money \| None` (weaker postcondition) | `[override]`, `Return type "Money \| None" of "price" incompatible with return type "Money" in supertype`; no Liskov note |
+| Method spelled `prcie` under `@override` | `[misc]`, `Method "prcie" is marked as an override, but no base method was found with this name` |
+| Argument widened to `Consignment \| None` (weaker precondition) | Accepted, no output |
 
-The other half is behaviour, and no signature carries it. A calculator that refuses a zone the contract accepts, or that prices in dollars, has the right types. The contract helper in the test module checks the docstring above: every zone at 0.5 kg and at 1200 kg, EUR, non-negative, quantised to cents, the heavier consignment never cheaper, and a zone outside `ZONES` raising `RatingError`. Three negative fixtures live in the test module and aren't model code. One strengthens a precondition:
+`@override`, from PEP 698, turns a silent new method into an error. A Protocol moves the check to the place of use: a class with `price(...) -> Decimal`, not declared a `RateCalculator`, is accepted until it's passed as `calculator=` to `quote`, where mypy reports `[arg-type]` under `Following member(s) of "DecimalRate" have conflicts`.
+
+The other half is behaviour. A calculator that refuses a zone the contract accepts, or prices in dollars, has the right types. The contract suite checks the docstring: every zone at 0.5 kg and at 1200 kg, EUR, non-negative, quantised to cents, heavier never cheaper, and a zone outside `ZONES` raising `RatingError`. Three negative fixtures break it. One strengthens a precondition:
 
 ```python
 class AsiaOnlyRate(BaseRate):
@@ -151,23 +174,25 @@ class AsiaOnlyRate(BaseRate):
         return super().price(consignment)
 ```
 
-The second, `DollarRate`, is a structural class that returns `Money(Decimal("10.00"), "USD")` and so weakens a postcondition. `test_mypy_cannot_see_a_behavioural_violation` passes copies of both to `quote` and gets exit status 0 with empty output. The contract suite is what fails: `rejected zone EU` for the first, `priced in USD` for the second. A third, `AnyZoneRate`, prices `POLAR` at zero instead of raising, and fails with `accepted zone POLAR that the contract rejects`. The suite runs against `BaseRate` and `FlatRate` as well, and a calculator added later joins it with one more entry in the parametrize list.
+| Fixture | Breaks | mypy | Contract suite |
+| --- | --- | --- | --- |
+| `AsiaOnlyRate` | Precondition strengthened | Exit 0, no output | `rejected zone EU` |
+| `DollarRate`, returning `Money(Decimal("10.00"), "USD")` | Postcondition weakened | Exit 0, no output | `priced in USD` |
+| `AnyZoneRate`, pricing `POLAR` at zero | Accepts a zone it should reject | Not run | `accepted zone POLAR that the contract rejects` |
+
+The suite also runs against `BaseRate` and `FlatRate`, and a new calculator joins it with one more entry in the parametrize list.
 
 ## Where Python changes how the principles apply
 
-The forces are the ones the principles name. Three Python features change how much structure it takes to honour them.
-
-Structural typing means a substitutable implementation doesn't need to inherit. `FlatRate` isn't a subclass of anything and satisfies `RateCalculator` by having the right `price`. That removes the requirement to build a hierarchy, and it leaves the contract in place: a class that matches by shape still has to keep the promises in the docstring, which is why the contract suite takes any `RateCalculator` and not any `BaseRate`. The shape-versus-promise distinction is developed in [Protocol, duck typing, and structural typing with mypy]({{ '/docs/09-protocol-and-structural-typing/' | relative_url }}).
-
-The narrowest abstraction is a callable. Tax and audit have one operation each and no state to share, so `type` aliases over `Callable` express them, and a lambda, a closure, a bound method such as `records.append` or a `functools.partial` all fit. Pricing has a contract with several clauses, so it keeps a named `Protocol`.
-
-The extension point is data. A dict of callables replaces what a subclass-per-variant hierarchy would have needed.
+- **Structural typing.** `FlatRate` subclasses nothing and satisfies `RateCalculator` by having the right `price`. That removes the hierarchy, not the contract: a class that matches by shape still has to keep the docstring's promises, so the contract suite takes any `RateCalculator`, not any `BaseRate`. [Protocol, duck typing, and structural typing with mypy]({{ '/docs/09-protocol-and-structural-typing/' | relative_url }}) develops shape against promise.
+- **The narrowest abstraction is a callable.** Tax and audit have one operation and no shared state, so a lambda, a closure, a bound method such as `records.append` or a `functools.partial` fits. Pricing has a contract with several clauses, so it keeps a named `Protocol`.
+- **The extension point is data.** A dict of callables replaces a subclass-per-variant hierarchy.
 
 ## When the principle costs more than it buys
 
-A tax rule that never varies doesn't need a mapping. If the book shipped to one country and the rate were a constant, a function that multiplies by it would be the right size, and the table would be indirection that a reader has to learn and the tests have to cover. The same goes for the split itself: pulling audit out of `price` before a second reason to change exists adds a parameter and a name for a single caller. The test for a split is a request you have actually received that would touch two things at once.
-
-A contract suite pays off when two implementations exist. With one calculator, the contract is a docstring and the calculator's own tests. With two, the suite is the only place where the second is held to the first's promises.
+- **A tax rule that never varies doesn't need a mapping.** Shipping to one country at a constant rate, a function that multiplies by it is the right size; the table is indirection for readers and tests.
+- **Split on a request you've received.** Pulling audit out of `price` before a second reason to change exists adds a parameter and a name for one caller.
+- **A contract suite pays off with two implementations.** With one calculator, the contract is a docstring and its own tests. With two, a shared suite is the only place the second is held to the first's promises.
 
 <blockquote class="ai-sidebar" markdown="1">
 **Specifying a split.** "Split the rate calculation" leaves open how many Protocols it needs, where the tax rules live and what an override may accept. Paste a prompt that states the form:
@@ -179,64 +204,29 @@ If an override narrows `price`, ask for the contract case it fails.
 
 ## Build, run, observe
 
-From the repository root, run the one-time sync, then work from the example directory:
+From the repository root, once, `uv sync --locked --all-packages`. Then:
 
 ```bash
-uv sync --locked --all-packages
 cd examples/05-srp-ocp-lsp
 uv run pytest -v --no-header
 uv run mypy --strict src tests
 ```
 
-A fresh run produces:
+All 19 cases pass, and mypy reports no issues in 10 source files. Make each experiment in a scratch copy:
 
-```text
-============================= test session starts ==============================
-collecting ... collected 19 items
-
-tests/test_lsp.py::test_calculator_honours_the_rate_contract[BaseRate] PASSED [  5%]
-tests/test_lsp.py::test_calculator_honours_the_rate_contract[FlatRate] PASSED [ 10%]
-tests/test_lsp.py::test_contract_catches_a_strengthened_precondition PASSED [ 15%]
-tests/test_lsp.py::test_contract_catches_a_weakened_postcondition PASSED [ 21%]
-tests/test_lsp.py::test_contract_catches_an_accepted_unknown_zone PASSED [ 26%]
-tests/test_lsp.py::test_mypy_rejects_an_incompatible_override[narrowed-argument] PASSED [ 31%]
-tests/test_lsp.py::test_mypy_rejects_an_incompatible_override[widened-return] PASSED [ 36%]
-tests/test_lsp.py::test_mypy_rejects_an_incompatible_override[misspelled-override] PASSED [ 42%]
-tests/test_lsp.py::test_mypy_accepts_an_override_that_widens_the_argument PASSED [ 47%]
-tests/test_lsp.py::test_mypy_checks_a_structural_calculator_where_it_is_used PASSED [ 52%]
-tests/test_lsp.py::test_mypy_cannot_see_a_behavioural_violation PASSED   [ 57%]
-tests/test_ocp.py::test_a_new_tax_rule_is_added_without_editing_quote PASSED [ 63%]
-tests/test_ocp.py::test_default_tax_table_is_read_only PASSED            [ 68%]
-tests/test_ocp.py::test_missing_tax_rule_is_a_rating_error PASSED        [ 73%]
-tests/test_srp.py::test_each_change_moves_only_the_fields_it_feeds[tariff] PASSED [ 78%]
-tests/test_srp.py::test_each_change_moves_only_the_fields_it_feeds[tax-rule] PASSED [ 84%]
-tests/test_srp.py::test_each_change_moves_only_the_fields_it_feeds[audit-sink] PASSED [ 89%]
-tests/test_srp.py::test_audit_receives_exactly_the_quote_returned PASSED [ 94%]
-tests/test_srp.py::test_pricing_and_tax_run_alone PASSED                 [100%]
-
-============================== 19 passed in 2.73s ==============================
-```
-
-```text
-Success: no issues found in 10 source files
-```
-
-Two experiments, each made in a scratch copy of the example and reverted afterwards.
-
-First, make `FlatRate.price` return `Money(Decimal("10.00"), "USD")` in place of the zone lookup. `mypy --strict src tests` still prints `Success: no issues found in 10 source files`, because the signature is unchanged. `uv run pytest` reports `1 failed, 18 passed`. The failing test is `tests/test_lsp.py::test_calculator_honours_the_rate_contract[FlatRate]`, with `AssertionError: priced in USD, contract requires EUR`. The type checker passed a calculator that breaks the contract, and the suite caught it in one parametrised case while `BaseRate` stayed green.
-
-Second, widen `FlatRate.price` to take `Consignment | None` and raise `RatingError` on `None`. mypy and pytest both stay green: `Success: no issues found in 10 source files` and `19 passed`. A weaker precondition is allowed, and nothing in the contract suite objects, because it never passes `None`.
+- **Price in dollars.** Make `FlatRate.price` return `Money(Decimal("10.00"), "USD")`. mypy stays clean, because the signature is unchanged. pytest reports `1 failed, 18 passed`: the `FlatRate` contract case fails with `AssertionError: priced in USD, contract requires EUR`, and `BaseRate` stays green.
+- **Accept `None`.** Widen `FlatRate.price` to take `Consignment | None` and raise `RatingError` on `None`. mypy and pytest both stay green: a weaker precondition is allowed, and the contract suite never passes `None`.
 
 ## What you can do now
 
-- Separate pricing, tax and audit: `RateCalculator`, `TaxRule` and `AuditSink` sit behind one `quote`, and `test_each_change_moves_only_the_fields_it_feeds` shows which change touches which part.
-- Add a destination tax rule as data: `{**TAX_RULES, "HK": exempt}` goes to `quote`, and `test_a_new_tax_rule_is_added_without_editing_quote` shows `quote` unchanged.
-- State Liskov as a contract: mypy enforces the `[override]` half, and `test_mypy_cannot_see_a_behavioural_violation` shows the half it can't.
-- Write one contract suite: the same helper runs against every `RateCalculator`, and experiment one shows it catching a `FlatRate` that prices in dollars.
+- Separate pricing, tax and audit behind `RateCalculator`, `TaxRule` and `AuditSink`, coordinated by one `quote`, and say which change moves which field.
+- Add a destination tax rule as data, with `{**TAX_RULES, "HK": exempt}` passed to an unchanged `quote`.
+- State Liskov as a contract: mypy enforces the `[override]` half, and `AsiaOnlyRate` and `DollarRate` pass it while breaking the other half.
+- Write one contract suite that every `RateCalculator` runs, and watch it catch a `FlatRate` that prices in dollars.
 - Judge the cost: a one-country table and a one-calculator suite are indirection without a second case to pay for it.
 
 ## For deeper coverage
 
-Martin's *Agile Software Development: Principles, Patterns, and Practices* is the source for the single responsibility formulation and for the restatement of open-closed on abstraction. Meyer's *Object-Oriented Software Construction*, second edition, is the book where open-closed and Design by Contract are developed; the contract vocabulary of preconditions and postconditions in this chapter comes from that tradition. *Python Object-Oriented Programming* by Steven F. Lott and Dusty Phillips (fifth edition) treats inheritance and composition in Python, and the book list is on the [bibliography page]({{ '/bibliography/' | relative_url }}).
+Martin's *Agile Software Development: Principles, Patterns, and Practices* is the source for the single responsibility formulation and for the restatement of open-closed on abstraction. Meyer's *Object-Oriented Software Construction*, second edition, is the book where open-closed and Design by Contract are developed; the contract vocabulary of preconditions and postconditions comes from that tradition. *Python Object-Oriented Programming* by Steven F. Lott and Dusty Phillips (fifth edition) treats inheritance and composition in Python, and the books are listed on the [bibliography page]({{ '/bibliography/' | relative_url }}).
 
-The behavioural definition of substitution is in Liskov and Wing, "A Behavioral Notion of Subtyping", *ACM Transactions on Programming Languages and Systems* 16(6), 1994, and the original statement is in Liskov's OOPSLA '87 keynote, "Data Abstraction and Hierarchy". The Python references are [PEP 544](https://peps.python.org/pep-0544/) on Protocols, [PEP 698](https://peps.python.org/pep-0698/) on `typing.override`, the typing specification's chapter on protocols, and the mypy documentation on [incompatible overrides](https://mypy.readthedocs.io/en/stable/common_issues.html#incompatible-overrides). The next chapter, [ISP, DIP, and dependency injection without a framework]({{ '/docs/06-isp-dip-and-di-without-a-framework/' | relative_url }}), picks up how the collaborators reach the coordinator.
+The behavioural definition of substitution is in Liskov and Wing, "A Behavioral Notion of Subtyping", *ACM Transactions on Programming Languages and Systems* 16(6), 1994, and the original statement is in Liskov's OOPSLA '87 keynote, "Data Abstraction and Hierarchy". The Python references are [PEP 544](https://peps.python.org/pep-0544/) on Protocols, [PEP 698](https://peps.python.org/pep-0698/) on `typing.override`, the typing specification's chapter on protocols, and the mypy documentation on [incompatible overrides](https://mypy.readthedocs.io/en/stable/common_issues.html#incompatible-overrides). [ISP, DIP, and dependency injection without a framework]({{ '/docs/06-isp-dip-and-di-without-a-framework/' | relative_url }}) picks up how the collaborators reach the coordinator.

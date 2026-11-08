@@ -4,7 +4,7 @@ order: 0
 layout: tutorial
 sectionid: docs
 part: "orientation"
-description: "The Python 3.15, uv, ruff, mypy, and pytest toolchain this book builds against on Fedora, and the consignment smoke-test example that proves it works."
+description: "The Python 3.15, uv, ruff, mypy and pytest toolchain on Fedora, and a consignment example that checks it works."
 ---
 
 ## Learning objectives
@@ -12,21 +12,21 @@ description: "The Python 3.15, uv, ruff, mypy, and pytest toolchain this book bu
 By the end of this chapter you can:
 
 - Install uv and a pinned CPython 3.15 on Fedora without containers and without touching system Python.
-- Create the single locked environment for the whole repository with one `uv sync` and explain why it runs once, from the root.
+- Create the single locked environment for the whole repository with one `uv sync` from the root.
 - Run `scripts/check-prereqs.sh` and read its table.
-- Name the four verification gates (ruff check, ruff format, `mypy --strict`, pytest) and run them for one example or for all of them.
-- Read the consignment model in `examples/00-prerequisites` and say what each of its tests proves.
-- Point VS Code or PyCharm at the project interpreter and remove everything this chapter installed.
+- Run the four gates (ruff check, ruff format, `mypy --strict`, pytest) for one example or for all of them.
+- Read the consignment value objects in `examples/00-prerequisites`.
+- Point VS Code or PyCharm at the project interpreter, and remove everything you installed.
 
 ## Why this matters
 
-Every example in this book is a small Python package with its own tests, and every chapter ends by running it. That only works if the reader's machine and the author's machine resolve to the same interpreter, the same dependency versions, and the same checks. The toolchain here is local only. The reference platform is Fedora 44, and nothing in the book asks for Docker, Podman, a virtual machine, or a cloud account. What you install in this chapter is what CI installs, so a green run on your machine predicts a green pull request.
+Every example is a small Python package with its own tests. A run on your machine has to resolve the same interpreter, the same dependency versions and the same checks as CI, so a green local run predicts a green pull request. Everything is local: the reference platform is Fedora 44, with no Docker, Podman, virtual machine or cloud account.
 
-A misspelled attribute or a `None` passed where a value is required fails only when that line runs. `mypy --strict` as a build gate moves that failure to before the merge. The patterns in later chapters lean on this: a `Protocol`, an optional value, or a frozen dataclass is useful only when a tool rejects code that breaks it.
+A misspelled attribute or a `None` passed where a value is required fails only when that line runs. `mypy --strict` as a build gate moves that failure to before the merge. A `Protocol`, an optional value or a frozen dataclass is useful only when a tool rejects code that breaks it.
 
 ## The toolchain and its pins
 
-Five tools on one interpreter do all the work, and uv installs or drives each of them. uv is the single entry point for interpreter management, virtual environments, dependency resolution, and the lockfile, so there is no separate `pyenv`, `venv`, `pip`, or `pip-tools` step to learn. ruff covers linting and formatting in one binary, replacing the usual flake8, isort, and black trio. mypy checks types. pytest runs the tests, and pytest-mock supplies the `mocker` fixture for the chapters that need a test double.
+uv manages the interpreter, the virtual environment, dependency resolution and the lockfile, so there's no separate `pyenv`, `venv`, `pip` or `pip-tools`. ruff lints and formats in one binary, in place of flake8, isort and black. mypy checks types, pytest runs the tests, and pytest-mock supplies the `mocker` fixture.
 
 | Tool | Version | Role |
 | --- | --- | --- |
@@ -37,15 +37,28 @@ Five tools on one interpreter do all the work, and uv installs or drives each of
 | ruff | 0.17.4 | Lint and format |
 | mypy | 2.4.1 | Static types, run with `--strict` |
 
-Verified 2026-11-05; re-verified before each release. The pins live in three places. `.python-version` holds `3.15.2`, which uv reads to pick the interpreter. The root `pyproject.toml` lists the four Python packages as exact `==` pins in a single `dev` dependency group, and `uv.lock` records the full resolution with hashes. Members of the repository carry no tool configuration of their own, so the root `[tool.ruff]`, `[tool.mypy]`, and `[tool.pytest.ini_options]` tables apply to every example. Strict mode, a 100-column line, and the selected lint rules are therefore identical everywhere.
+Verified 2026-11-05; re-verified before each release. The pins live in three files:
 
-{% include excalidraw.html name="00-prerequisites" caption="Figure 0.1: The local build-and-test loop. One locked environment feeds lint, format, strict type checking and tests in order; a red step returns you to the source, and the prerequisites script gates the toolchain first." %}
+- `.python-version` holds `3.15.2`, which uv reads to pick the interpreter.
+- The root `pyproject.toml` pins the four Python packages with exact `==` in one `dev` dependency group.
+- `uv.lock` records the full resolution with hashes.
 
-The prerequisites script runs once. After that, each edit passes through the same four gates in the order shown, and none of them needs a network after the first sync.
+Examples carry no tool configuration of their own, so the root `[tool.ruff]`, `[tool.mypy]` and `[tool.pytest.ini_options]` tables apply everywhere: strict mode, a 100-column line and the same lint rules in every example.
+
+{% include excalidraw.html name="00-prerequisites" described="true" caption="Figure 0.1: The local build-and-test loop. One locked environment feeds lint, format, strict type checking and tests in order; a red step returns you to the source, and the prerequisites script gates the toolchain first." %}
+
+<details class="figure-description" markdown="1">
+<summary>Describe the figure</summary>
+<div id="desc-00-prerequisites" markdown="1">
+From the top: "Edit the source" (`src/consignments/consignment.py`) leads to `uv sync --locked --all-packages` (one interpreter, one lockfile, one `.venv`), with `scripts/check-prereqs.sh` beside it, gating the toolchain first. Below the sync come `ruff check, ruff format --check`, then `mypy --strict src tests`, then `pytest`, and at the bottom "green", ready to build on. A dashed "red" box beside the three gates sends a failure back to fixing the source and rerunning.
+</div>
+</details>
+
+The prerequisites script runs once. After that, each edit passes the four gates in order, and none needs a network after the first sync.
 
 ## Installing on Fedora
 
-Install uv, then let uv install the interpreter. The first line uses the official installer, which places `uv` in `~/.local/bin`; the commented alternative installs the Fedora package instead. Use one or the other.
+Install uv, then let uv install the interpreter. Use the official installer, which puts `uv` in `~/.local/bin`, or the Fedora package:
 
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -53,7 +66,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 uv python install 3.15.2
 ```
 
-uv downloads a standalone CPython build into its own directory under your home. It doesn't replace the system `python3`, which Fedora's own tools depend on, and it needs no `dnf` package or root. It does link `~/.local/bin/python3.15`, which can shadow a system `python3.15` earlier on `PATH`. Open a new shell so `~/.local/bin` is on `PATH`, then confirm with `uv --version`.
+uv puts a standalone CPython build in its own directory under your home. It doesn't replace the system `python3` that Fedora's tools depend on, and it needs no root. It does link `~/.local/bin/python3.15`, which can shadow a system `python3.15` earlier on `PATH`. Open a new shell and confirm with `uv --version`.
 
 ## Cloning and the one-time sync
 
@@ -63,7 +76,15 @@ cd design-patterns-with-python
 uv sync --locked --all-packages
 ```
 
-The repository is a uv workspace. The root `pyproject.toml` is virtual, meaning it is not a package itself, and every directory under `examples/` is a member with its own `src/` layout. `uv sync` builds one `.venv` at the root and installs every member into it in editable mode. `--locked` fails the command if `uv.lock` is out of date instead of silently re-resolving, which keeps your environment identical to CI's. The sync runs once because every later command reuses the result. `--all-packages` matters because of the members: from the root, a plain `uv sync --locked` installs the dev tools but removes every member, so a test run fails to import the member's package, and inside a member directory before the root sync uv treats the member as the project and wouldn't install pytest or mypy. Syncing all packages from the root installs everything once, and a plain `uv run` from any member directory then reuses that environment.
+The repository is a uv workspace. The root `pyproject.toml` is virtual, meaning it isn't a package itself, and every directory under `examples/` is a member with its own `src/` layout. `uv sync` builds one `.venv` at the root and installs every member into it in editable mode.
+
+| Flag or choice | Why |
+| --- | --- |
+| `--locked` | Fails if `uv.lock` is out of date instead of re-resolving, so your environment matches CI's. |
+| `--all-packages` | A plain `uv sync --locked` from the root installs the dev tools but removes every member, so tests can't import their package. |
+| Run from the root | Inside a member before the root sync, uv treats the member as the project and installs no pytest or mypy. |
+
+After that one sync, a plain `uv run` from any member directory reuses the environment.
 
 ## Checking the machine
 
@@ -71,28 +92,39 @@ The repository is a uv workspace. The root `pyproject.toml` is virtual, meaning 
 bash scripts/check-prereqs.sh
 ```
 
-The script installs nothing and creates no environment. It confirms that uv is on `PATH`, that a 3.15 interpreter resolves, that git exists, and that ruff, mypy and pytest run from the existing `.venv`; before the sync those three rows fail with a hint to run `uv sync --locked --all-packages`. It prints a table and exits non-zero if any row fails. If one does, it also prints the uv install command, and it always ends with the teardown command. Run it first when something behaves oddly: most environment problems show up as one failing row.
+The script installs nothing. It confirms that uv is on `PATH`, that a 3.15 interpreter resolves, that git exists, and that ruff, mypy and pytest run from `.venv`. Before the sync those three rows fail with a hint to run `uv sync --locked --all-packages`. It prints a table, exits non-zero if any row fails (printing the uv install command), and always ends with the teardown command. Run it first when something behaves oddly.
 
 ## The four gates
 
-Every example must pass four checks, in this order:
+Every example passes four checks, in this order:
 
-1. `uv run ruff check .` for lint rules: pycodestyle, pyflakes, import order, pyupgrade, bugbear, simplify, ruff's own `RUF` rules, and the pytest-style and naming sets.
-2. `uv run ruff format --check .` to confirm the code is already formatted.
-3. `uv run mypy --strict src tests` for types, with unreachable code and redundant casts also reported.
-4. `uv run pytest` for behaviour.
+1. `uv run ruff check .`: pycodestyle, pyflakes, import order, pyupgrade, bugbear, simplify, ruff's `RUF` rules, and the pytest-style and naming sets.
+2. `uv run ruff format --check .`: the code is already formatted.
+3. `uv run mypy --strict src tests`: types, with unreachable code and redundant casts reported.
+4. `uv run pytest`: behaviour.
 
-`bash scripts/verify.sh` runs all of them across the repository, preceded by the locked sync, with a strict type check of the repository's own scripts before the tests. It stops at the first failure and prints `verify: all steps passed` at the end. This is the command to run before opening a pull request, and it is what CI runs.
+`bash scripts/verify.sh` runs them across the repository after the locked sync, with a strict type check of the repository's scripts before the tests. It stops at the first failure and ends with `verify: all steps passed`. CI runs the same command, so run it before opening a pull request.
+
+Each gate catches defects the others accept:
+
+| Gate | Catches |
+| --- | --- |
+| ruff check | An unused import, a mutable default argument, a bare `except` |
+| ruff format | Layout arguments in review |
+| mypy | A wrong argument type, a missing attribute, a `None` reaching a call that needs a value |
+| pytest | Well-typed but wrong behaviour: a hash that disagrees with equality, an off-by-one validator |
+
+A type checker can't know that `"CN-1"` is too short, and a test suite proves an annotation correct only on the lines it runs.
 
 ## Running one example or all of them
 
-Each example is also runnable by itself. From an example directory, `uv run pytest` and `uv run mypy --strict src tests` use the shared root environment and the root configuration, because pytest, ruff and mypy each walk up from the current directory to the first `pyproject.toml` that defines their settings. From the root, `uv run pytest` collects every example, and the ruff commands take a path such as `examples/00-prerequisites`.
+From an example directory, `uv run pytest` and `uv run mypy --strict src tests` use the shared root environment and the root configuration: pytest, ruff and mypy each walk up to the first `pyproject.toml` that defines their settings. From the root, `uv run pytest` collects every example, and the ruff commands take a path such as `examples/00-prerequisites`.
 
-mypy is the exception to "run it from the root". Examples keep their tests in a `tests/` directory without `__init__.py`, so two examples that both contain `tests/test_model.py` would give mypy two modules called `test_model` and it would stop with a duplicate-module error. pytest avoids the problem through `--import-mode=importlib` in the root configuration, but mypy has no equivalent. The answer is to run mypy once per example, from inside it, which is what `verify.sh` does in a loop. Adding `__init__.py` to every `tests/` directory would also work, but it changes import behaviour in ways that complicate the examples, so the layout stays minimal.
+mypy is the exception. Examples keep their tests in a `tests/` directory without `__init__.py`, so two examples whose test files share a name give mypy two modules with one name, and it stops with a duplicate-module error. pytest avoids this with `--import-mode=importlib` in the root configuration; mypy has no equivalent. Run mypy once per example from inside it, as `verify.sh` does in a loop. Adding `__init__.py` to every `tests/` would also work, but it changes import behaviour in ways that complicate the examples.
 
 ## The example: a consignment
 
-The shipping domain runs through the whole book, and this chapter's example is its smallest piece: a consignment with an identifier, two ports, and a weight. The whole model is in `examples/00-prerequisites/src/consignments/consignment.py`. Identifiers and weights are value objects, written as frozen, slotted dataclasses that validate themselves on construction.
+The example is a consignment with an identifier, two ports and a weight, in `examples/00-prerequisites/src/consignments/consignment.py`. Identifiers and weights are value objects: frozen, slotted dataclasses that validate themselves on construction.
 
 ```python
 @dataclass(frozen=True, slots=True)
@@ -106,9 +138,13 @@ class ConsignmentId:
             raise ValueError(f"consignment id must look like CN-12345678, got {self.value!r}")
 ```
 
-Three options on the decorator do separate jobs. `frozen=True` makes assignment to a field raise `FrozenInstanceError` and, together with the default `eq=True`, generates a `__hash__` consistent with equality, so instances work as dictionary keys and set members. `slots=True` generates `__slots__`, which removes the per-instance `__dict__` and rejects attributes that weren't declared. `__post_init__` runs after the generated `__init__`, which makes it the place for validation: an invalid `ConsignmentId` can't be constructed, so no later code needs to check one. `Weight` follows the same shape and rejects zero, negative, NaN, and infinite values.
+| Option | Effect |
+| --- | --- |
+| `frozen=True` | Assigning a field raises `FrozenInstanceError`; with the default `eq=True`, a `__hash__` consistent with equality is generated, so instances work as dict keys and set members. |
+| `slots=True` | Generates `__slots__`: no per-instance `__dict__`, and undeclared attributes are rejected. |
+| `__post_init__` | Runs after the generated `__init__`, so an invalid `ConsignmentId` can't be constructed and no later code checks one. |
 
-`Consignment` composes them:
+`Weight` has the same shape and rejects zero, negative, NaN and infinite values. `Consignment` composes them:
 
 ```python
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -125,41 +161,40 @@ class Consignment:
         return replace(self, weight=new)
 ```
 
-`kw_only=True` forces every argument to be named at the call site. With two string fields of the same type in a row, `Consignment(id=..., origin="NLRTM", destination="SGSIN", weight=...)` can't silently swap the ports the way a positional call could. The class body also validates both port codes in its own `__post_init__`, elided here. Since the instance is frozen, a change to weight can't be an assignment. `dataclasses.replace` calls `__init__` again, so `__post_init__` checks the copy (the port codes) like any new instance; the `Weight` was validated when it was built. The method annotation `-> Consignment` needs no quotes: since Python 3.14, annotations are evaluated lazily (PEP 649), so a class can name itself in its own signatures.
+`kw_only=True` forces every argument to be named, so `Consignment(id=..., origin="NLRTM", destination="SGSIN", weight=...)` can't swap the two string ports the way a positional call could. The class also validates both port codes, five uppercase letters, in its own `__post_init__`, elided here.
 
-## What the tests prove
+A frozen instance can't change its weight by assignment. `dataclasses.replace` calls `__init__` again, so `__post_init__` checks the copy like any new instance, and the original keeps its weight. The annotation `-> Consignment` needs no quotes: since Python 3.14, annotations are evaluated lazily (PEP 649), so a class can name itself in its own signatures.
 
-`tests/test_consignment.py` holds six behaviour tests and three parametrised groups, which pytest expands to 26 cases. Each group covers one validation rule.
+The behaviour that follows:
 
-- Equal values compare equal, and a consignment with a different weight doesn't. Dataclass equality is field by field, with no identity involved.
-- Two equal consignments have the same hash, collapse to one member of a set, and find each other as dictionary keys. This is the observable result of `frozen=True` with `eq=True`.
-- `reweigh` returns a different object with the new weight and the same id, and the original keeps its weight.
-- `dataclasses.replace` can change any single field, here the destination, and leaves the others alone.
+- Equality is field by field, with no identity involved; two equal consignments share a hash and collapse to one set member.
 - `str()` of a `ConsignmentId` is its bare value, which is what log lines and error messages show.
-- Assigning to a field raises `FrozenInstanceError`. The one `# type: ignore[misc]` in the file marks the line where mypy itself reports the illegal assignment; the test then proves the runtime agrees.
-- Malformed ids, non-positive or non-finite weights, and port codes that are not five uppercase letters raise `ValueError` with the expected message, for both origin and destination. The `match=` argument ties each case to the specific rule, so a test can't pass by failing for an unrelated reason.
-
-## What each gate catches
-
-The gates overlap less than they seem to. ruff check finds an unused import, a mutable default argument, or a bare `except` before anything runs, and ruff format settles layout so reviews don't argue about it. mypy finds the wrong argument type, the attribute that doesn't exist, and the `None` that reaches a call expecting a value, none of which a passing test proves absent unless a test happens to hit that line. pytest finds behaviour that is well typed and wrong: a hash that disagrees with equality, a validator with an off-by-one. Changing the return annotation of `reweigh` to `str` makes mypy fail and leaves pytest green, and a test that passes a malformed id shows the reverse, since a type checker can't know that `"CN-1"` is too short. Skipping any one gate leaves a class of defect that the other three accept.
+- Malformed ids, non-positive or non-finite weights and bad port codes raise `ValueError` with a message naming the rule.
 
 ## Bumping a pin
 
-Pins move in the same order every time. Survey upstream first and read the release notes of anything with a minor-version jump, because a new mypy release can add strict-mode errors to code that passed yesterday. Then edit the exact `==` pin in the root `pyproject.toml`, run `uv lock` to record the new resolution and hashes, and run `uv sync --locked --all-packages` to install it. Finish with `bash scripts/verify.sh` and commit `pyproject.toml` and `uv.lock` together. A change to one without the other is the usual cause of the `--locked` failure described below. A new interpreter follows the same path, with `.python-version` as the file to edit and `uv python install` as the extra step.
+1. Survey upstream and read the release notes for any minor-version jump: a new mypy can add strict-mode errors to code that passed yesterday.
+2. Edit the exact `==` pin in the root `pyproject.toml`.
+3. Run `uv lock`, then `uv sync --locked --all-packages`.
+4. Run `bash scripts/verify.sh`, and commit `pyproject.toml` and `uv.lock` together.
+
+Committing one without the other is the usual cause of a `--locked` failure. A new interpreter follows the same path, with `.python-version` to edit and `uv python install` as an extra step.
 
 ## Troubleshooting
 
-Most failures come from the environment, not the code, and `bash scripts/check-prereqs.sh` names the failing row. The common ones:
+`bash scripts/check-prereqs.sh` names the failing row for most environment problems.
 
-- **The wrong Python is picked up.** If `python --version` prints the system 3.x release, you're bypassing the environment. Use `uv run python` or activate `.venv`, and check that `.python-version` is present in the checkout. `uv python list` shows what uv can see.
-- **`uv sync --locked` refuses to run.** The message says the lockfile needs updating. Either `pyproject.toml` changed without a matching `uv lock`, or you edited a pin by hand. Run `uv lock`, review the diff to `uv.lock`, and sync again. Dropping `--locked` hides the problem rather than fixing it.
-- **Tools report the old versions after a pin bump.** `uv run` re-syncs the environment after `uv lock` on its own. An activated `.venv`, or a direct call to a tool in `.venv/bin`, doesn't, so run `uv sync --locked --all-packages` after `uv lock`.
-- **mypy reports a duplicate module.** It was run once from the root over several examples. Run it from inside one example, as `verify.sh` does.
-- **The editor underlines every import.** The editor is using the system interpreter. Select `.venv/bin/python` at the repository root, as described next.
+| Symptom | Cause and fix |
+| --- | --- |
+| `python --version` prints the system release | You're bypassing the environment. Use `uv run python` or activate `.venv`; check `.python-version` is present. `uv python list` shows what uv sees. |
+| `uv sync --locked` says the lockfile needs updating | `pyproject.toml` changed without `uv lock`, or a pin was edited by hand. Run `uv lock`, review the `uv.lock` diff, sync again. Dropping `--locked` hides the problem. |
+| Old tool versions after a pin bump | `uv run` re-syncs after `uv lock`; an activated `.venv` or a direct call into `.venv/bin` doesn't. Run `uv sync --locked --all-packages`. |
+| mypy reports a duplicate module | It ran from the root over several examples. Run it inside one example. |
+| The editor underlines every import | The editor uses the system interpreter. Select `.venv/bin/python` at the repository root. |
 
 ## Editors
 
-VS Code and PyCharm both work, and the book never asks for an editor-only action. In either one, select `.venv/bin/python` at the repository root as the interpreter. VS Code needs the Python and Ruff extensions; PyCharm takes the interpreter through its project settings and can run ruff and mypy as external tools. Whatever the editor highlights, the authoritative result is the CLI output of the four gates, because those are the commands CI runs.
+Use VS Code or PyCharm, with `.venv/bin/python` at the repository root as the interpreter. VS Code needs the Python and Ruff extensions; PyCharm takes the interpreter in its project settings and can run ruff and mypy as external tools. The CLI output of the four gates is authoritative, because CI runs those commands.
 
 ## Build, run, observe
 
@@ -181,49 +216,51 @@ All prerequisites found.
 Teardown: rm -rf .venv && uv cache clean
 ```
 
-Then run the example's tests from its directory.
+Then run the consignment example from its directory:
 
 ```text
 $ cd examples/00-prerequisites
-$ uv run pytest -v
+$ uv run pytest
 ============================= test session starts ==============================
-platform linux -- Python 3.15.2, pytest-9.2.0, pluggy-1.7.0 -- <repo>/.venv/bin/python
-cachedir: .pytest_cache
+platform linux -- Python 3.15.2, pytest-9.2.0, pluggy-1.7.0
 rootdir: <repo>
 configfile: pyproject.toml
 plugins: mock-3.17.0
-collecting ... collected 26 items
+collected 26 items
 
-tests/test_consignment.py::test_equal_values_compare_equal PASSED        [  3%]
-tests/test_consignment.py::test_consignment_is_usable_as_dict_key_and_set_member PASSED [  7%]
-tests/test_consignment.py::test_reweigh_returns_new_consignment_and_leaves_original_unchanged PASSED [ 11%]
-...
-tests/test_consignment.py::test_invalid_port_code_is_rejected[destination-NL1TM] PASSED [100%]
+tests/test_consignment.py ..........................                     [100%]
 
 ============================== 26 passed in 0.03s ==============================
-```
-
-`rootdir` and `configfile` show that pytest found the root `pyproject.toml` from inside the example, which is the configuration discovery described above.
-
-```text
 $ uv run mypy --strict src tests
 Success: no issues found in 3 source files
 ```
 
-Three files are checked: the module, the package `__init__`, and the test file. To see the gate refuse something, change the annotation of `reweigh` to return `str` and rerun. mypy reports four errors in two files: the `[return-value]` error at that line, plus three in the tests (two `[attr-defined]` and one `[comparison-overlap]`). pytest still passes all 26 tests, because nothing at runtime depends on the annotation. That gap is the reason the type check is a separate gate. Finally, run `bash scripts/verify.sh` from the root to execute every gate for every example in one pass.
+All 26 cases pass, and mypy checks the module, the package `__init__` and the tests. `rootdir` and `configfile` show that pytest found the root `pyproject.toml` from inside `examples/00-prerequisites`.
+
+- **Break the annotation.** Change `reweigh` to return `str`. mypy reports four errors in two files: `[return-value]` at that line, and two `[attr-defined]` and one `[comparison-overlap]` in the tests. pytest still passes all 26, because nothing at runtime reads the annotation.
+
+Finally, `bash scripts/verify.sh` from the root runs every gate for every example.
 
 ## Teardown
 
-Everything installed lives in four places. `rm -rf .venv` removes the environment, `uv cache clean` empties uv's download and build cache, and `uv python uninstall 3.15.2` removes the interpreter if no other project of yours uses it. Removing uv itself is `rm ~/.local/bin/uv ~/.local/bin/uvx` for the installer route, or `sudo dnf remove uv` for the package. Nothing else on the system changes.
+| Remove | Command |
+| --- | --- |
+| The environment | `rm -rf .venv` |
+| uv's download and build cache | `uv cache clean` |
+| The interpreter, if nothing else uses it | `uv python uninstall 3.15.2` |
+| uv, installer route | `rm ~/.local/bin/uv ~/.local/bin/uvx` |
+| uv, package route | `sudo dnf remove uv` |
+
+Nothing else on the system changes.
 
 ## What you can do now
 
-- Install uv and a pinned CPython without containers: the installer plus `.python-version`, which leaves system Python alone.
-- Build the one locked environment: `uv sync --locked --all-packages` from the root, producing the root `.venv`.
-- Read the machine check: `scripts/check-prereqs.sh` and its table.
-- Run the four gates for one example or all of them: ruff check, ruff format, `mypy --strict` per member, pytest, and `bash scripts/verify.sh`.
-- Say what the consignment tests prove: `Consignment`, `ConsignmentId` and `Weight`, the 26 cases in `tests/test_consignment.py`, and the `reweigh` experiment.
-- Point an editor at `.venv/bin/python` and undo the install with the Teardown commands.
+- Install uv and a pinned CPython without containers, using the installer and `.python-version`, leaving system Python alone.
+- Build the one locked environment with `uv sync --locked --all-packages` from the root.
+- Read the `scripts/check-prereqs.sh` table and fix the failing row.
+- Run ruff check, ruff format, `mypy --strict` per member and pytest, or all of them with `bash scripts/verify.sh`.
+- Write a validating value object like `ConsignmentId`, `Weight` and `Consignment`, and see mypy and pytest disagree over `reweigh`.
+- Point an editor at `.venv/bin/python` and undo the install with the teardown commands.
 
 ## For deeper coverage
 

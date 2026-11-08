@@ -4,7 +4,7 @@ order: 6
 layout: tutorial
 sectionid: docs
 part: "principles"
-description: "A consumer names the smallest Protocol it uses, policy owns that abstraction, and one plain function wires the adapters, shown on a booking service whose tests witness each claim."
+description: "A consumer names the smallest Protocol it uses, policy owns that abstraction, and one plain function wires the adapters, shown on a runnable booking service."
 ---
 
 ## Learning objectives
@@ -19,28 +19,33 @@ By the end of this chapter you can:
 
 ## Why this matters
 
-A booking service that constructs its own carrier client can't run in a test suite that has no carrier. The usual repair is a fake, and the repair goes wrong in a predictable way: the carrier interface has grown to offer booking, cancellation and tracking, so every fake must implement all three even when the test exercises one. Each unused method is code to maintain that no assertion reads, and each new method on the interface breaks the fakes that predate it.
+A booking service that constructs its own carrier client can't run in a test without a carrier. The usual repair is a fake, and it goes wrong predictably: the carrier interface offers booking, cancellation and tracking, so every fake implements all three even when a test uses one. Each unused method is code no assertion reads, and each new method on the interface breaks the fakes that predate it.
 
-Two principles name the pressure. Robert C. Martin's interface segregation principle says a client should not be forced to depend on methods it does not use. His dependency inversion principle says high-level policy should not depend on low-level detail, and that both should depend on abstractions. In a language where an interface is a base class, honouring them costs a hierarchy. In Python both forces remain and the mechanism is smaller: a `Protocol` the consumer declares, an adapter that satisfies it without importing it, and a function that hands the adapter over. The example for this chapter is one booking service and one tracking function, with tests that witness each claim.
+Robert C. Martin's interface segregation principle says a client shouldn't be forced to depend on methods it doesn't use. His dependency inversion principle says high-level policy shouldn't depend on low-level detail, and both should depend on abstractions. Where an interface is a base class, honouring them costs a hierarchy. In Python the mechanism is smaller: a `Protocol` the consumer declares, an adapter that satisfies it without importing it, and a function that hands the adapter over.
 
-{% include excalidraw.html name="06-isp-dip-and-di-without-a-framework" caption="Figure 6.1: Dependency injection without a framework. The composition root builds one carrier adapter and passes it to each consumer, which names only the small Protocol it needs; the adapter satisfies both Protocols structurally and imports neither." %}
+{% include excalidraw.html name="06-isp-dip-and-di-without-a-framework" described="true" caption="Figure 6.1: Dependency injection without a framework. The composition root builds one carrier adapter and passes it to each consumer, which names only the small Protocol it needs; the adapter satisfies both Protocols structurally and imports neither." %}
 
-Read the figure from the top. The root builds one adapter, and the two arrows out of the adapter show that same object reaching both consumers. Each consumer names only the Protocol below it, and the dashed arrows show that the adapter satisfies both Protocols structurally and imports neither.
+<details class="figure-description" markdown="1">
+<summary>Describe the figure</summary>
+<div id="desc-06-isp-dip-and-di-without-a-framework" markdown="1">
+From the top: `build_app(carrier)`, the composition root, builds one adapter, `FastlineGateway` or `AircoGateway`, with no base class. Two arrows take that same object to both consumers: `BookingService(gateway, audit)` and `partial(tracking_history, gateway=...)`, each injected by the root. Below each consumer is the only Protocol it names: `BookingGateway` (`book`, `cancel`) and `TrackingGateway` (`track`). Dashed arrows from the adapter to both Protocols show that it satisfies them structurally and imports neither.
+</div>
+</details>
+
+One adapter object reaches both consumers, and each consumer names only its own Protocol.
 
 ## A gateway with three methods and consumers that use one
 
-A carrier can book a consignment, cancel a booking and report the handling events recorded for a consignment. A single gateway with those three methods is the natural first design, and it's correct for the code that wires a whole carrier together. It's the wrong thing for a consumer to depend on. Booking calls `book` and `cancel`. Tracking calls `track`. Neither calls the other's methods.
+A carrier can book a consignment, cancel a booking and report handling events. A gateway with those three methods is right for the code that wires a whole carrier together and wrong for a consumer to depend on: booking calls `book` and `cancel`, and tracking calls `track`.
 
-The wiring code does need a name for the whole carrier, and the example gives it one in the composition root:
+The wiring code still needs a name for the whole carrier, so the composition root declares one:
 
 ```python
 class CarrierGateway(BookingGateway, TrackingGateway, Protocol):
     """A whole carrier: everything booking and tracking each need, named once for the wiring."""
 ```
 
-The class has no body of its own. It combines two smaller Protocols, and it lives in `app.py`, not in a policy module. That placement is the design decision. The wide name exists for the one function that builds a whole carrier, and no consumer imports it.
-
-The interface segregation principle is about what a client depends on, not about how many methods an adapter has. `FastlineGateway` still has three methods. What changes is that nothing in the booking or tracking policy is typed against all three.
+It combines two smaller Protocols and lives in `app.py`, not in a policy module. The wide name exists for the one function that builds a carrier, and no consumer imports it. Segregation is about what a client depends on, not how many methods an adapter has: `FastlineGateway` still has three, but nothing in booking or tracking is typed against all three.
 
 ## Segregation with Protocols the consumer owns
 
@@ -55,13 +60,13 @@ class BookingGateway(Protocol):
     def cancel(self, reference: str, /) -> None: ...
 ```
 
-Tracking asks for one, `track(self, consignment_id: ConsignmentId, /) -> tuple[HandlingEvent, ...]`, in `TrackingGateway`. The positional-only `/` matters: without it the parameter name is part of the member's signature, because a caller may pass it by keyword, and the typing specification then requires an implementer to use the same name.
+Tracking asks for one, `track(self, consignment_id: ConsignmentId, /) -> tuple[HandlingEvent, ...]`, in `TrackingGateway`. The positional-only `/` matters: without it a caller may pass the argument by keyword, so the typing specification requires an implementer to use the same parameter name.
 
-The adapters name none of this. `FastlineGateway` and `AircoGateway` are plain classes with `book`, `track` and `cancel`, no base class and no import of either policy module. The test `test_adapters_satisfy_every_role_without_naming_one` assigns each adapter to a variable annotated `BookingGateway`, one annotated `TrackingGateway` and one annotated `CarrierGateway`, and checks that none of those Protocols appears in the adapter's method resolution order. The annotated assignments are the static witness: pytest executes them but doesn't check the annotations, and the member's `mypy --strict` run does, so a green pytest run alone doesn't cover that half of the claim. A Protocol is structural, so an adapter satisfies it by having the right members, as [Protocol, duck typing, and structural typing with mypy]({{ '/docs/09-protocol-and-structural-typing/' | relative_url }}) develops.
+`FastlineGateway` and `AircoGateway` are plain classes with `book`, `track` and `cancel`, no base class and no import of either policy module. Each type-checks as a `BookingGateway`, a `TrackingGateway` and a `CarrierGateway`, and none of those appears in its method resolution order. That half of the claim is static: `mypy --strict` checks the annotated assignments, and pytest alone doesn't. [Protocol, duck typing, and structural typing with mypy]({{ '/docs/09-protocol-and-structural-typing/' | relative_url }}) develops structural matching.
 
-Splitting a Protocol therefore costs implementers nothing. An adapter that already satisfied one wide Protocol satisfies its halves, and a new consumer can declare a third small Protocol without touching an adapter.
+Splitting a Protocol costs implementers nothing: an adapter that satisfied the wide Protocol satisfies its halves, and a new consumer can declare a third without touching an adapter.
 
-The benefit appears in the fakes. Pass a class that implements only `track` where `CarrierGateway` is required, and mypy refuses it. The snippet in `test_a_fat_protocol_forces_fakes_to_stub_unused_methods`, run through `mypy --strict`, prints:
+The benefit is in the fakes. A class with only `track`, passed where `CarrierGateway` is required:
 
 ```text
 <string>:18: error: Argument 1 to "needs_a_whole_carrier" has incompatible type "TrackOnly"; expected "CarrierGateway"  [arg-type]
@@ -69,13 +74,16 @@ The benefit appears in the fakes. Pass a class that implements only `track` wher
 <string>:18: note:     book, cancel
 ```
 
-The same class passed to `tracking_history`, which asks only for a `TrackingGateway`, type-checks cleanly. The test `test_a_fat_protocol_forces_fakes_to_stub_unused_methods` asserts both outcomes: exit status 1 with exactly the `arg-type` code and the names `book, cancel` for the wide parameter, and exit status 0 with no output for the narrow one. `FakeTracker`, defined in that test module, has one method because its consumer calls one.
+The same class passed to `tracking_history`, which asks only for a `TrackingGateway`, type-checks with no output. `FakeTracker` has one method because its consumer calls one.
 
 ## Dependency inversion: the policy names the abstraction
 
-Martin states the dependency inversion principle in two clauses. High-level modules should not depend on low-level modules, and both should depend on abstractions. Abstractions should not depend on details, and details should depend on abstractions. The second clause is the one a Protocol makes cheap. The abstraction is declared by the policy that needs it, in the same module, so the adapter depends on the policy's abstraction, and in Python it does so without an import, because structural typing needs none.
+Martin's two clauses:
 
-`BookingService` is the policy. It is a frozen dataclass with two collaborators, and it knows no carrier:
+1. High-level modules shouldn't depend on low-level modules; both should depend on abstractions.
+2. Abstractions shouldn't depend on details; details should depend on abstractions.
+
+A Protocol makes the second clause cheap. The policy declares the abstraction in its own module, and the adapter conforms to it without an import, because structural typing needs none. `BookingService` is the policy, a frozen dataclass that knows no carrier:
 
 ```python
 @dataclass(frozen=True, slots=True)
@@ -95,31 +103,43 @@ class BookingService:
         self.audit(f"cancelled {reference}")
 ```
 
-`AuditSink` is a type alias for `Callable[[str], None]`, so the service asks for a function and any function with that shape is a sink. The test passes `records.append`.
+`AuditSink` is `Callable[[str], None]`, so `records.append` is a sink. Around `FakeBooker`, the service books with no adapter built, and the reference, the recorded request and the audit line all come from the fake and the service.
 
-Three tests witness the inversion. `test_booking_service_runs_against_an_injected_fake` builds the service around `FakeBooker`, books, and checks that the reference, the recorded request and the audit record all came from the fake and the service, with no adapter built. `test_policy_modules_do_not_import_the_adapters` parses the source of `booking` and `tracking` with `ast` and asserts that neither imports `isp_dip_di.carriers` or `isp_dip_di.app`. `test_adapters_import_neither_policy_nor_protocols` parses `carriers` and asserts that it imports none of `booking`, `tracking` or `app`. Both import directions are checked, so the check is symmetric: policy doesn't reach down to the adapter, and the adapter doesn't reach up to the policy.
+The import direction is checked both ways by parsing source with `ast`:
 
-Reading imports with `ast` finds names written as import statements. It would miss a module loaded by a string passed to `importlib`, and the example uses none. It also checks direct imports only, which is enough here because `domain` imports nothing from the package.
+| Module | Must not import |
+| --- | --- |
+| `booking`, `tracking` | `isp_dip_di.carriers`, `isp_dip_di.app` |
+| `carriers` | `booking`, `tracking`, `app` |
+
+Reading imports with `ast` finds import statements. It would miss a module loaded by a string passed to `importlib`, which the booking code doesn't use, and it checks direct imports only, which is enough because `domain` imports nothing from the package.
 
 ## Injection without a container
 
-The word "injection" for handing a collaborator to the code that uses it comes from Martin Fowler's January 2004 article on inversion of control containers and the dependency injection pattern. Strip away the container and the idea is plain. Something other than the consumer decides which collaborator it gets.
+The word "injection" comes from Martin Fowler's January 2004 article on inversion of control containers. Without the container, the idea is that something other than the consumer decides which collaborator it gets.
 
-For a class, constructor injection is a dataclass field. `BookingService(gateway, audit)` is the whole mechanism, and a frozen dataclass fixes the wiring: neither field can be reassigned after construction.
-
-For a function, the collaborator can be bound ahead of time with `functools.partial`. The tracking policy is a function whose signature is `def tracking_history(consignment_id: ConsignmentId, *, gateway: TrackingGateway) -> TrackingHistory:`, and the root binds the gateway:
+- **A class** takes it as a dataclass field. `BookingService(gateway, audit)` is the whole mechanism, and `frozen=True` stops either field being reassigned.
+- **A function** gets it bound ahead of time. `tracking_history(consignment_id, *, gateway)` is bound by the root:
 
 ```python
     return App(BookingService(gateway, audit), partial(tracking_history, gateway=gateway))
 ```
 
-The result is a callable that takes only a consignment id. A closure over `gateway` does the same job and reads equally well. The `partial` is the one the tests can inspect: `test_partial_injects_a_collaborator_into_a_function` checks that `app.track.func` is `tracking_history` and that the bound keyword reaches the function, so the tracking function shows the booking made through the service.
+The result takes only a consignment id. A closure over `gateway` does the same job. The `partial` is inspectable: `app.track.func` is `tracking_history`, and a booking made through the service shows up in its history.
 
-There is a gap in what mypy checks here, and it is a limitation of mypy 2.4.1, not a rule of the language. mypy checks the argument bound into the `partial` and the call through it. `partial(tracking_history, gateway=42)` is an `[arg-type]` error, and so is calling the result with an `int`. mypy doesn't check the assignment of a `partial` to a mismatched `Callable` annotation: `wrong: Callable[[int], TrackingHistory] = partial(tracking_history, gateway=gateway)` type-checks with no output. The test `test_mypy_checks_a_partial_at_binding_and_call_but_not_at_assignment` records all three results, and it will start to fail if a later mypy closes the gap, which is the signal to revise this paragraph. A closure's signature is fully checked, so if the annotation at the assignment matters, the closure is the safer spelling.
+mypy 2.4.1 checks a `partial` in two places and not the third:
+
+| Code | mypy |
+| --- | --- |
+| `partial(tracking_history, gateway=42)` | `[arg-type]` |
+| Calling the bound `partial` with an `int` | `[arg-type]` |
+| `wrong: Callable[[int], TrackingHistory] = partial(tracking_history, gateway=gateway)` | No output |
+
+That's a limitation of mypy, not a rule of the language, and a later mypy may close it. A closure's signature is fully checked, so prefer it when the annotation at the assignment matters.
 
 ## The composition root
 
-Somewhere, a concrete adapter has to be named. The composition root is that place, and it is as close to the program's entry point as it can be. Mark Seemann describes the pattern in his post "Composition Root": application code relies on injection and is never composed itself, and the object graph is built once at the entry point. In this example the root is an ordinary function in `app.py`:
+Somewhere a concrete adapter has to be named, as close to the entry point as possible. Mark Seemann's "Composition Root" describes it: application code relies on injection and is never composed itself, and the object graph is built once at the entry point. Here the root is an ordinary function in `app.py`:
 
 ```python
 def build_app(
@@ -138,25 +158,31 @@ def build_app(
     return App(BookingService(gateway, audit), partial(tracking_history, gateway=gateway))
 ```
 
-`app` imports `carriers` and neither policy module does (`test_policy_modules_do_not_import_the_adapters`), and `test_build_app_shares_one_gateway_between_booking_and_tracking` checks that both consumers get the same gateway object. Choosing a carrier is an argument to `build_app`, and `test_swapping_the_carrier_changes_no_consumer` shows that `FASTLINE` and `AIRCO` produce references prefixed with their code through the same `BookingService` and the same `tracking_history`.
-
-An unknown code fails at start-up, where the mistake is cheap to find. `build_app("NOSUCH", ...)` raises `ValueError: unknown carrier 'NOSUCH', expected one of ['AIRCO', 'FASTLINE']`, and `test_unknown_carrier_fails_at_the_composition_root` matches on the code. Tests that need a different adapter pass a substitute `gateways=` mapping. `test_composition_root_accepts_a_substitute_without_patching` wires `FakeCarrier` that way and checks that `GATEWAYS` is unchanged afterwards, so no test needs to patch module state.
+- `app` imports `carriers`; neither policy module does.
+- Both consumers get the same gateway object.
+- `FASTLINE` and `AIRCO` produce references prefixed with their code through the same `BookingService` and `tracking_history`.
+- An unknown code fails at start-up, where it's cheap: `build_app("NOSUCH", ...)` raises `ValueError: unknown carrier 'NOSUCH', expected one of ['AIRCO', 'FASTLINE']`.
+- A test passes a substitute `gateways=` mapping holding `FakeCarrier`, and `GATEWAYS` is unchanged afterwards, so no test patches module state.
 
 ## Fakes, autospec, and what mypy checks
 
-A hand-written fake is ordinary typed code. `FakeBooker` in `tests/test_dip.py` has `book` and `cancel`, records the requests it receives, and is checked structurally against `BookingGateway` at the point it is passed in. Interface segregation keeps it small: it needs two methods because booking uses two. `FakeTracker` needs one, and `FakeCarrier` in `tests/test_composition_root.py` has all three because the root's mapping promises a `CarrierGateway`.
+A hand-written fake is ordinary typed code, checked structurally where it's passed in. Segregation keeps it small:
 
-When a test asserts on interactions, `mocker.create_autospec` from pytest-mock builds a mock that copies the signatures of a real class. It's a convenient tool with one property to keep in view: a mock is assignable to every type, so mypy checks nothing at the call site. An autospec of the wrong Protocol type-checks where a gateway is expected. `test_autospec_bypasses_mypy` passes `create_autospec(TrackingGateway, instance=True)` as the booking gateway and gets exit status 0 and empty output.
+| Fake | Methods | Because |
+| --- | --- | --- |
+| `FakeBooker` | `book`, `cancel` | Booking uses two |
+| `FakeTracker` | `track` | Tracking uses one |
+| `FakeCarrier` | All three | The root's mapping promises a `CarrierGateway` |
 
-The autospec still enforces the shape at runtime, only later. `test_autospec_enforces_the_protocol_shape_at_runtime` shows the wrong autospec reaching the missing method through `BookingService.cancel`, which raises `AttributeError`, and `wrong.track()` raises `TypeError` for the missing argument. With an autospec of `BookingGateway`, `service.cancel("FASTLINE:CN-1")` records the call and `assert_called_once_with` confirms it. The practical rule is that a hand-written fake gets a static check and an autospec gets a runtime one. The testing chapter, [Proving it works: pytest, pytest-mock, and mypy]({{ '/docs/11-testing-with-pytest-pytest-mock-and-mypy/' | relative_url }}), covers the fixtures and the mock tools in full.
+When a test asserts on interactions, `mocker.create_autospec` from pytest-mock copies the signatures of a real class. A mock is assignable to every type, though, so mypy checks nothing at the call site: `create_autospec(TrackingGateway, instance=True)` passed as the booking gateway type-checks with no output.
+
+The autospec enforces the shape at run time instead. That wrong autospec raises `AttributeError` when `BookingService.cancel` reaches the missing method, and `wrong.track()` raises `TypeError` for the missing argument. With an autospec of `BookingGateway`, `service.cancel("FASTLINE:CN-1")` records the call for `assert_called_once_with`. A fake gets a static check; an autospec gets a run-time one. [Proving it works: pytest, pytest-mock, and mypy]({{ '/docs/11-testing-with-pytest-pytest-mock-and-mypy/' | relative_url }}) covers the mock tools in full.
 
 ## When the principle costs more than it buys
 
-A Protocol with one implementation and no test double adds a name without adding a seam. If nothing substitutes for the adapter and nothing is likely to, the class itself is the contract and the extra declaration is reading cost. The same holds for a split: two Protocols for a consumer that needs both methods describe a boundary that doesn't exist.
-
-Don't inject the standard library. A function that needs the current directory can call `pathlib.Path.cwd()`. Wrapping `json` or `os` behind a Protocol adds indirection around something a test can already use directly. Inject what varies between environments or what a test must control: a carrier, a clock the test must fix, a message sink.
-
-Hand wiring stops being short at some size. When dozens of services have lifetimes, scopes and ordered start-up, writing the root as a function becomes the problem, and a container library is a reasonable tool for that problem. The signal is the size of the wiring, not the presence of injection.
+- **A Protocol with one implementation and no test double** adds a name without a seam. If nothing substitutes for the adapter, the class is the contract. Two Protocols for a consumer that needs both methods describe a boundary that doesn't exist.
+- **Don't inject the standard library.** A function that needs the current directory can call `pathlib.Path.cwd()`. Inject what varies between environments or what a test must control: a carrier, a clock a test must fix, a message sink.
+- **Hand wiring has a size limit.** With dozens of services, lifetimes, scopes and ordered start-up, the root function becomes the problem, and a container library is a reasonable tool. The signal is the size of the wiring, not the presence of injection.
 
 <blockquote class="ai-sidebar" markdown="1">
 **Specifying seams.** "Make booking testable" leaves open what the seam is, who owns it and where the adapter is chosen. Paste a prompt that states the form:
@@ -168,49 +194,18 @@ If a fake has to stub a method its consumer never calls, ask for the narrower Pr
 
 ## Build, run, observe
 
-From the repository root, once, `uv sync --locked --all-packages`. Then from the example directory:
+From the repository root, once, `uv sync --locked --all-packages`. Then:
 
 ```bash
+cd examples/06-isp-dip-and-di-without-a-framework
 uv run pytest -v --no-header
 uv run mypy --strict src tests
 ```
 
-A fresh run produces:
+All 17 cases pass, and mypy reports no issues in 10 source files. Make each experiment in a scratch copy:
 
-```text
-============================= test session starts ==============================
-collecting ... collected 17 items
-
-tests/test_composition_root.py::test_build_app_shares_one_gateway_between_booking_and_tracking PASSED [  5%]
-tests/test_composition_root.py::test_partial_injects_a_collaborator_into_a_function PASSED [ 11%]
-tests/test_composition_root.py::test_swapping_the_carrier_changes_no_consumer PASSED [ 17%]
-tests/test_composition_root.py::test_composition_root_accepts_a_substitute_without_patching PASSED [ 23%]
-tests/test_composition_root.py::test_unknown_carrier_fails_at_the_composition_root PASSED [ 29%]
-tests/test_dip.py::test_booking_service_runs_against_an_injected_fake PASSED [ 35%]
-tests/test_dip.py::test_policy_modules_do_not_import_the_adapters[booking] PASSED [ 41%]
-tests/test_dip.py::test_policy_modules_do_not_import_the_adapters[tracking] PASSED [ 47%]
-tests/test_dip.py::test_adapters_import_neither_policy_nor_protocols PASSED [ 52%]
-tests/test_dip.py::test_autospec_bypasses_mypy PASSED                    [ 58%]
-tests/test_dip.py::test_autospec_enforces_the_protocol_shape_at_runtime PASSED [ 64%]
-tests/test_dip.py::test_mypy_checks_a_partial_at_binding_and_call_but_not_at_assignment[binding] PASSED [ 70%]
-tests/test_dip.py::test_mypy_checks_a_partial_at_binding_and_call_but_not_at_assignment[call] PASSED [ 76%]
-tests/test_dip.py::test_mypy_checks_a_partial_at_binding_and_call_but_not_at_assignment[assignment] PASSED [ 82%]
-tests/test_isp.py::test_adapters_satisfy_every_role_without_naming_one[FASTLINE] PASSED [ 88%]
-tests/test_isp.py::test_adapters_satisfy_every_role_without_naming_one[AIRCO] PASSED [ 94%]
-tests/test_isp.py::test_a_fat_protocol_forces_fakes_to_stub_unused_methods PASSED [100%]
-
-============================== 17 passed in 3.32s ==============================
-```
-
-```text
-Success: no issues found in 10 source files
-```
-
-Two edits make the checks visible: one that breaks the import direction, and one that shrinks a fake.
-
-**Experiment one: let policy import an adapter.** In a scratch copy, add `from isp_dip_di.carriers import FastlineGateway` to `src/isp_dip_di/booking.py`, just above the `domain` import, and run `uv run pytest`. The result is one failure and sixteen passes: `tests/test_dip.py::test_policy_modules_do_not_import_the_adapters[booking]` fails on the line `assert not imports & {"isp_dip_di.carriers", "isp_dip_di.app"}`, and the assertion message lists `isp_dip_di.carriers` and `isp_dip_di.carriers.FastlineGateway` among the collected imports. The `tracking` case still passes, and mypy stays clean. `ruff check` reports the new line as `F401`, an unused import, so a linter alone would catch this edit only because the name is unused. Had `booking.py` used `FastlineGateway`, the import test would still be the one to notice. Revert the line.
-
-**Experiment two: shrink a fake past its Protocol.** In a scratch copy, delete the `cancel` method from `FakeBooker` in `tests/test_dip.py` and run both commands. All seventeen tests still pass, because no test calls `cancel` on that fake. mypy is the one that objects, with one error on the line that constructs the service:
+- **Let policy import an adapter.** Add `from isp_dip_di.carriers import FastlineGateway` to `src/isp_dip_di/booking.py`, above the `domain` import. One case fails, the import check for `booking`, listing `isp_dip_di.carriers` among the collected imports; `tracking` still passes and mypy stays clean. `ruff check` flags the line as `F401` only because the name is unused; if `booking.py` used it, the import check would be the only one to notice.
+- **Shrink a fake past its Protocol.** Delete `cancel` from `FakeBooker` in `tests/test_dip.py`. All 17 cases still pass, because none calls `cancel` on that fake. mypy objects where the service is built:
 
 ```text
 tests/test_dip.py:74: error: Argument 1 to "BookingService" has incompatible type "FakeBooker"; expected "BookingGateway"  [arg-type]
@@ -218,15 +213,15 @@ tests/test_dip.py:74: note: "FakeBooker" is missing following "BookingGateway" p
 tests/test_dip.py:74: note:     cancel
 ```
 
-A passing pytest run doesn't prove a fake still satisfies the Protocol it stands in for. Restore the method.
+A green pytest run doesn't prove a fake still satisfies the Protocol it stands in for.
 
 ## What you can do now
 
-- Split a wide gateway: `BookingGateway` and `TrackingGateway` replace `CarrierGateway` as the consumers' types, and `test_a_fat_protocol_forces_fakes_to_stub_unused_methods` shows a one-method fake refused by the wide one and accepted by the narrow one.
-- Show the dependency direction: `test_policy_modules_do_not_import_the_adapters` and `test_adapters_import_neither_policy_nor_protocols` read the imports with `ast` in both directions.
+- Split a wide gateway into `BookingGateway` and `TrackingGateway`, and keep `CarrierGateway` for the wiring, so a one-method fake fits its consumer.
+- Show the dependency direction by reading imports with `ast`: policy never imports `carriers`, and `carriers` never imports policy.
 - Inject without a container: `BookingService` takes its gateway as a field, and `functools.partial` binds it into `tracking_history`.
-- Write a composition root: `build_app` is the one function that chooses an adapter, and `test_build_app_shares_one_gateway_between_booking_and_tracking` checks the result.
-- Say what mypy checks: `test_mypy_checks_a_partial_at_binding_and_call_but_not_at_assignment` marks the `partial` gap, and `test_autospec_bypasses_mypy` shows where a mock skips the check.
+- Write a composition root: `build_app` is the one function that chooses an adapter, and both consumers share what it builds.
+- Say what mypy checks: the `partial` assignment gap, the static check on a fake, and the autospec that skips it.
 
 ## For deeper coverage
 
