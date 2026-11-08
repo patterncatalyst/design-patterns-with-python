@@ -313,8 +313,11 @@ Three tests fail. The object adapter's payload test sees `0.46` for the 1.005 lb
 ```text
 E       assert 1 == 0
 tests/test_static.py:96: AssertionError
+E       assert 'note:     insure' in '<string>:11: error: Incompatible types in assignment (expression has type "BookOnly", variable has type "CarrierGatew...:11: note: "BookOnly" is missing following "CarrierGateway" protocol members:\n<string>:11: note:     cancel, insure\n'
+tests/test_static.py:129: AssertionError
 FAILED tests/test_static.py::test_mypy_accepts_a_client_whose_shape_matches_the_protocol
-1 failed, 34 passed in 2.42s
+FAILED tests/test_static.py::test_mypy_reports_an_implementor_missing_a_primitive
+2 failed, 33 passed in 2.48s
 src/adapter_facade_bridge/desk.py:14: error: Dict entry 0 has incompatible type "str": "AircoClient"; expected "str": "CarrierGateway"  [dict-item]
 src/adapter_facade_bridge/desk.py:14: error: Dict entry 1 has incompatible type "str": "FastlineGateway"; expected "str": "CarrierGateway"  [dict-item]
 tests/test_adapter.py:22: error: Non-overlapping identity check (left operand type: "type[CarrierGateway]", right operand type: "type[AircoClient]")  [comparison-overlap]
@@ -329,7 +332,7 @@ tests/conftest.py:125: error: Incompatible return value type (got "tuple[_Fastli
 Found 9 errors in 3 files (checked 11 source files)
 ```
 
-pytest has one failure: the test that assigns an `AircoClient` to a `CarrierGateway` now sees mypy exit 1, because Airco has no `cancel`. Booking behaviour is unchanged. mypy reports the registry in `desk.py`, three test fixtures and the test that reads the registry, and the class adapter fixture reports the member `cancel` as missing. Each implementor owes the new method, and the checker finds the ones in this example.
+pytest has two failures. The test that assigns an `AircoClient` to a `CarrierGateway` now sees mypy exit 1, because Airco has no `cancel`. In `test_mypy_reports_an_implementor_missing_a_primitive`, the snippet's implementor lacks `cancel` as well as `insure`, so mypy lists both members on one note line and the test's `note:     insure` assertion no longer matches. Booking behaviour is unchanged. mypy reports the registry in `desk.py`, three test fixtures and the test that reads the registry, and the class adapter fixture reports the member `cancel` as missing. Each implementor owes the new method, and the checker finds the ones in this example.
 
 ## What you can do now
 

@@ -199,7 +199,7 @@ If `__getattr__` reads an attribute it doesn't own, ask what `copy.copy` does.
 
 ## Build, run, observe
 
-The example has 26 test functions and 40 cases. From the repository root, once, `uv sync --locked --all-packages`. Then:
+The example has 27 test functions and 41 cases. From the repository root, once, `uv sync --locked --all-packages`. Then:
 
 ```bash
 cd examples/30-dynamic-attributes-and-proxy
@@ -207,7 +207,7 @@ uv run pytest -v
 uv run mypy --strict src tests
 ```
 
-All 40 cases pass, and mypy reports no issues. Both experiments below run in a fresh scratch copy of the repository, so the real example doesn't change. Each prints the output of this filter, then mypy:
+All 41 cases pass, and mypy reports no issues. Both experiments below run in a fresh scratch copy of the repository, so the real example doesn't change. Each prints the output of this filter, then mypy:
 
 ```bash
 uv run pytest -q 2>&1 | grep -E '^(FAILED|E {3}[^ ]|E {7}[^ ]|E {9}[^ ]|tests/.*Error$|[0-9]+ (passed|failed))'
@@ -220,12 +220,12 @@ uv run mypy --strict src tests
 E       AssertionError: assert [] == ['events', 'l...rt', 'status']
 E         Right contains 3 more items, first extra item: 'events'
 E         Use -v to get more diff
-tests/test_lookup.py:195: AssertionError
+tests/test_lookup.py:201: AssertionError
 E       assert False
-tests/test_lookup.py:218: AssertionError
+tests/test_lookup.py:224: AssertionError
 FAILED tests/test_lookup.py::test_dir_lists_the_lazy_fields_before_loading - ...
 FAILED tests/test_lookup.py::test_a_misspelt_field_suggests_the_declared_name_through_dir
-2 failed, 38 passed in 2.19s
+2 failed, 39 passed in 2.51s
 Success: no issues found in 7 source files
 ```
 
@@ -242,7 +242,7 @@ FAILED tests/test_history.py::test_every_history_form_raises_attribute_error_for
 FAILED tests/test_lookup.py::test_copy_keeps_a_history_before_and_after_loading
 FAILED tests/test_lookup.py::test_each_fix_keeps_getattr_out_of_recursion[allow-list]
 FAILED tests/test_lookup.py::test_a_misspelt_field_suggests_the_declared_name_through_dir
-4 failed, 36 passed in 2.25s
+4 failed, 37 passed in 2.49s
 Success: no issues found in 7 source files
 ```
 
