@@ -427,7 +427,7 @@ Build, from `<repo>/presentation`: `npm ci`; `./render-png.sh 07 09 10 31 37`; `
 | Z0 | Bookkeeping with dated notes: `iteration-plan.md` closes r22 (PDP-150 `done`), marks PDP-151 and r23 `active`, and fixes the stale rows (B1); re-check every pin; record the owner's decisions; `verify.sh` and `validate.py` green | - | done |
 | Z1a | `deck-lib.js` and the `deck-101.js` refactor with the identity proof (decision 3); `render-png.sh` default list (B2); `build-notes.md` (B3); the five new PNGs after Z1c's figure fixes | Z0, Z1c for the PNGs | todo |
 | Z1b | `_plans/evidence/r23-deck-witness-census.md`, after Z1c, so lines, anchors and the figure census are taken from the fixed tree | Z1c | todo |
-| Z1c | Decision 5's book fixes P1 to P14 and F1 to F9, each with its chapter's tests, `verify.sh` and `validate.py` green and every recurrence grepped; figures regenerated through `diagrams/specs` | Z0 | todo |
+| Z1c | Decision 5's book fixes P1 to P14 and F1 to F9, each with its chapter's tests, `verify.sh` and `validate.py` green and every recurrence grepped; figures regenerated through `diagrams/specs` | Z0 | done |
 | Z2 | Rows 357 to 391 into `_plans/reconciliation-plan.md` with a dated note; every quote, line or test that differs from this plan goes in Corrections; a failed witness cuts the slide | Z1b | todo |
 | Z3 | `deck-201.js` (Sonnet executor) from the inventory and the census, notes written to the settled voice rules, with no chapter, appendix, book or positional pointer | Z1a, Z2 | todo |
 | Z4a | Build and QA pipeline steps 1 to 12 (executor view of every page); `_plans/evidence/r23-deck-qa.md`; README "Companion decks" entry | Z3 | todo |
@@ -521,6 +521,14 @@ Rows 357 to 391 go in at Z2, after the census exists (so its `run:` path resolve
 - **Line lengths.** Ranges run to 95 characters. Mitigation: per-call font size from the longest line.
 
 ## Corrections after the build
+- Step Z1a (part 1): `deck-lib.js` exports `{ createDeck, ROOT }`. `createDeck(pres)` returns `{ S, divider, bullets, bulletSlide, tableSlide, codeSlide, figSlide, notes, words, bump, finish }`. The slide counter and the notes floors live in the closure. `finish(out)` asserts the floors and writes the deck. The helper region was lines 27 to 165, not 27 to 164. Identity proof: rebuilt and committed Deck 101 each have 342 parts, and only the `docProps/core.xml` timestamps differ. `render-png.sh` has the per-deck lists `figs_101` and `figs_201`, plus `--deck`. A bare `--check` covers all sixteen figures and passes only once the 201 PNGs are committed. `deck-helpers.js` is unchanged (md5 47af...). Commit 1033893.
+- Step Z1c: P1 to P14 and F1 to F9 are applied (e074ef7).
+  - P4 also fixed the same message in the chapter 11 example, which the plan didn't list.
+  - P7 made the tests match the full quoted messages, so the quoted lines in chapter 26's experiment two moved from 121/123 to 123/125. They were re-run.
+  - P12 added `bench/lost_update_probe.py` with recorded outputs: 0 of 300 trials lost an update on the default build and 300 of 300 on the free-threaded build. The chapter 37 sentences now cite it, and the chapter was trimmed to stay under 2,500 words.
+  - The P9 and P10 link changes moved the `source:` URLs in reconciliation rows 170, 177, 178 and 225.
+  - Nine figures were regenerated: 07, 09, 10, 26, 28, 29, 31, 32 and 37.
+  - The orchestrator re-ran the gates at e074ef7 in the real repo: `verify.sh` passes, `validate.py` reports 0 errors and `site-build.sh` passes.
 
 Step Z0: `iteration-plan.md` closes r22 (PDP-150 `done`), marks PDP-151 and r23 `active`, and sets the 80 stale rows to `done` (B1): the 31 `todo` rows for r01 and r02 (PDP-001, 003 to 020, 100a to 104c less the three exceptions below), PDP-105a to PDP-120c (48 `active` rows for r03 to r09), and PDP-150 (the 49th `active` row). PDP-101a and PDP-104a keep `n.a. (argument chapter)` and PDP-102a keeps `covered by PDP-103a`. A dated 2026-11-07 (r23) note is appended. Pins re-checked 2026-11-07 against upstream and unchanged: pptxgenjs 4.0.1 (`dist-tags.latest`; `beta` 4.0.1-beta.2 not used), image-size 2.1.0, cairosvg 2.9.1, CPython 3.15.2 (endoflife.date and python.org cycle 3.15), uv 0.13.7, pytest 9.2.0, pytest-mock 3.17.0, mypy 2.4.1, ruff 0.17.4. No pin row changed, so `r01-build-plan.md` is untouched.
 
