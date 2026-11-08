@@ -13,7 +13,7 @@ emit(
             "w": 320,
             "h": 60,
             "style": "accent",
-            "lines": ["render_bill", "the function both stacks wrap"],
+            "lines": ["a render function", "the function both stacks wrap"],
         },
         # Left stack: timer outside.
         {

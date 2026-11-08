@@ -1,4 +1,4 @@
-"""factor * price: the left operand asks first, then the reflected method answers."""
+"""factor * price: the left operand's type asks first, then the reflected method answers."""
 
 from generate_diagram import emit
 
@@ -21,7 +21,7 @@ emit(
             "w": 360,
             "h": 56,
             "style": "box",
-            "lines": ["Decimal.__mul__(factor, price)", "left operand's type asks first"],
+            "lines": ["type(factor).__mul__(factor, price)", "left operand's type asks first"],
         },
         {
             "x": 230,
@@ -45,7 +45,7 @@ emit(
             "w": 300,
             "h": 56,
             "style": "accent",
-            "lines": ["TypeError", "only when both decline"],
+            "lines": ["TypeError", "when both decline, as for a float"],
         },
     ],
     edges=[
@@ -66,7 +66,7 @@ emit(
             "x2": 650,
             "y2": 470,
             "dashed": True,
-            "label": "NotImplemented again",
+            "label": "NotImplemented again (float factor)",
             "lx": 100,
             "ly": 0,
         },

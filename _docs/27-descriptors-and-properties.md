@@ -67,7 +67,7 @@ A setter that guards one field is a pair of `property` definitions. The comparis
     @height_cm.setter
     def height_cm(self, value: Decimal) -> None:
         if not value.is_finite() or value <= 0:
-            raise ValueError(f"height_cm must be positive, got {value}")
+            raise ValueError(f"height_cm must be positive and finite, got {value}")
         self._height_cm = value
 ```
 <!-- fmt:on -->
@@ -101,14 +101,14 @@ A descriptor puts the rule in one place and lets any number of fields use it. Th
 
     def __set__(self, instance: object, value: Decimal) -> None:
         if not value.is_finite() or value <= 0:
-            raise ValueError(f"{self.public_name} must be positive, got {value}")
+            raise ValueError(f"{self.public_name} must be positive and finite, got {value}")
         vars(instance)[self.private_name] = value
 ```
 <!-- fmt:on -->
 
 A descriptor sits in the class body, and Martin Teichmann's [PEP 487](https://peps.python.org/pep-0487/) states what that leaves it unable to do: "Descriptors are defined in the body of a class, but they do not know anything about that class, they do not even know the name they are accessed with." The PEP's remedy is `__set_name__`, which the [data model](https://docs.python.org/3/reference/datamodel.html) describes as "Automatically called at the time the owning class owner is created." The guide adds the limit that matters in practice: "notifications only take place at the time of class creation." It continues: "If descriptors are added to the class afterwards, __set_name__() will need to be called manually."
 
-With the name in hand, each field gets its own message and its own storage. A valid `Dimensions` holds `_length_cm`, `_width_cm` and `_height_cm` in its instance dictionary (`test_set_name_gives_each_field_its_own_storage`). Six fields in three classes, `Consignment.kilograms`, the three extents and `Container.tare_kg` and `max_payload_kg`, are six separate instances of one class, read through `vars()` on each class (`test_one_descriptor_class_validates_every_field`). A field from each class refuses -1 on construction with its own name in the message, for example "kilograms must be positive, got -1" (`test_a_positive_field_refuses_a_bad_value_on_every_class`, over `kilograms`, `height_cm`, `tare_kg` and `max_payload_kg`). Assigning zero to `tare_kg` on a built container raises and leaves the old value in place (`test_assignment_to_a_container_field_is_validated`).
+With the name in hand, each field gets its own message and its own storage. A valid `Dimensions` holds `_length_cm`, `_width_cm` and `_height_cm` in its instance dictionary (`test_set_name_gives_each_field_its_own_storage`). Six fields in three classes, `Consignment.kilograms`, the three extents and `Container.tare_kg` and `max_payload_kg`, are six separate instances of one class, read through `vars()` on each class (`test_one_descriptor_class_validates_every_field`). A field from each class refuses -1 on construction with its own name in the message, for example "kilograms must be positive and finite, got -1" (`test_a_positive_field_refuses_a_bad_value_on_every_class`, over `kilograms`, `height_cm`, `tare_kg` and `max_payload_kg`). Assigning zero to `tare_kg` on a built container raises and leaves the old value in place (`test_assignment_to_a_container_field_is_validated`).
 
 The `instance is None` branch is class access. The data model says `__get__` is called with the instance "or None when the attribute is accessed through the owner". `Positive` raises there, and `Container.tare_kg` is an `AttributeError` that names the field (`test_class_access_to_a_positive_field_raises_attribute_error`). The two overloads tell mypy that class access never returns and that instance access gives a `Decimal`.
 
@@ -157,7 +157,7 @@ class Dimensions:
 
 The [dataclasses documentation](https://docs.python.org/3/library/dataclasses.html) says how a default is found: "To determine whether a field contains a default value, @dataclass will call the descriptor’s __get__() method using its class access form". It continues: "If the descriptor returns a value in this case, it will be used as the field’s default. On the other hand, if the descriptor raises AttributeError in this situation, no default value will be provided for the field." That's why `Positive` raises. `fields(Dimensions)` reports no default for any of the three, and `Dimensions()` fails with "missing 3 required positional arguments" (`test_a_descriptor_field_has_no_default_when_class_access_raises`). The conventional `return self` has a cost. A test-local subclass that returns itself makes the descriptor the default, so `_Box()` builds a box by handing the descriptor to `__set__`, which fails on "has no attribute 'is_finite'" (`test_a_descriptor_that_returns_itself_on_class_access_becomes_the_default`).
 
-Frozen is why `Positive` writes through `vars()`. A test-local subclass that stores with `setattr` makes constructing a frozen box fail with `FrozenInstanceError` and "cannot assign to field '_length_cm'" (`test_a_frozen_dataclass_refuses_a_descriptor_that_writes_with_setattr`). Assignment after construction is refused for the same reason, with "cannot assign to field 'length_cm'" (`test_a_frozen_dataclass_refuses_assignment_to_a_descriptor_field`). `dataclasses.replace` builds a new instance through `__init__`, so it validates: a width of -2 raises "width_cm must be positive, got -2" (`test_replace_validates_the_new_value`). Two `Dimensions` with equal extents compare and hash equal, and one with a different height doesn't (`test_equal_dimensions_compare_and_hash_equal`).
+Frozen is why `Positive` writes through `vars()`. A test-local subclass that stores with `setattr` makes constructing a frozen box fail with `FrozenInstanceError` and "cannot assign to field '_length_cm'" (`test_a_frozen_dataclass_refuses_a_descriptor_that_writes_with_setattr`). Assignment after construction is refused for the same reason, with "cannot assign to field 'length_cm'" (`test_a_frozen_dataclass_refuses_assignment_to_a_descriptor_field`). `dataclasses.replace` builds a new instance through `__init__`, so it validates: a width of -2 raises "width_cm must be positive and finite, got -2" (`test_replace_validates_the_new_value`). Two `Dimensions` with equal extents compare and hash equal, and one with a different height doesn't (`test_equal_dimensions_compare_and_hash_equal`).
 
 mypy 2.4.1 reads the descriptor through `__set__`. This is the snippet in `test_mypy_types_a_positive_field_by_its_set_value`, run through the test's own `_run`; it builds `Dimensions(120, ...)` with an `int`, assigns `5` to `tare_kg` and assigns to a frozen field:
 

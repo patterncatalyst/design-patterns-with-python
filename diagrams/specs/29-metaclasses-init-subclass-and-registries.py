@@ -13,7 +13,10 @@ emit(
             "w": 400,
             "h": 60,
             "style": "user",
-            "lines": ["FastlineGateway", 'class FastlineGateway(CarrierBase, code="FASTLINE")'],
+            "lines": [
+                "a class statement",
+                'e.g. class FastlineGateway(CarrierBase, code="FASTLINE")',
+            ],
         },
         {
             "x": 130,
@@ -49,7 +52,7 @@ emit(
             "w": 400,
             "h": 60,
             "style": "box",
-            "lines": ["__set_name__", "each attribute that defines it learns its name"],
+            "lines": ["__set_name__", "only if an attribute defines it: it learns its name"],
         },
         {
             "x": 130,
@@ -70,7 +73,7 @@ emit(
             "w": 400,
             "h": 60,
             "style": "box",
-            "lines": ["class decorators", "wrap the finished class"],
+            "lines": ["class decorators", "only if the class has any: they wrap it"],
         },
         {
             "x": 650,

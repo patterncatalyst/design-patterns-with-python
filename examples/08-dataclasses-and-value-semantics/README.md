@@ -80,7 +80,7 @@ uv run mypy --strict src tests
 - `test_an_amendment_is_a_new_value_and_the_other_booking_keeps_the_old`: `replace` gives a new
   consignment and the original and the other booking are unchanged.
 - `test_replace_runs_post_init`: `replace` with an invalid weight or bay raises `ValueError`.
-- `test_a_mutable_dataclass_is_not_a_dict_key`: the hash is `None` and a dict lookup raises
+- `test_a_mutable_dataclass_is_not_a_dict_key`: the hash is `None` and a dict literal keyed by it raises
   `TypeError`.
 
 `tests/test_generated.py`

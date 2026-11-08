@@ -26,7 +26,7 @@ dropped `is_finite()` accepts infinity.
 A data descriptor beats the instance dictionary, and the instance dictionary beats a
 `cached_property`. On a dataclass, class access decides whether a field has a default, a frozen
 class needs a descriptor that writes through `vars()`, and `slots=True` replaces the descriptor with
-a slot that accepts a negative weight.
+a slot that accepts a negative length.
 
 ## cached_property
 

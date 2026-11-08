@@ -1,0 +1,5 @@
+Python 3.15.2, free-threading build, GIL enabled: False
+date: 2026-11-07, machine: 16-thread x86-64 CPU
+switch interval: 0.005 s
+threads: 4, additions per thread: 5000, trials: 300
+trials with a lost update: 300 of 300

@@ -126,5 +126,12 @@ emit(
             "anchor": "middle",
             "color": "#555",
         },
+        {
+            "x": 500,
+            "y": 375,
+            "text": "amber arrows: next in the MRO when the class before is unregistered",
+            "anchor": "middle",
+            "color": "#555",
+        },
     ],
 )

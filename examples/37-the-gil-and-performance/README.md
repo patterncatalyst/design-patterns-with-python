@@ -33,6 +33,12 @@ test asserts any of its figures. The recorded outputs are `bench/gil_bench.out.t
 and `bench/gil_bench.ft.out.txt` (free-threaded build). They name the interpreter, the build and a
 class of machine, never a model. Your figures will differ.
 
+`bench/lost_update_probe.py` runs 300 trials of four threads, each adding 1 to a shared attribute
+5,000 times with no lock, and counts the trials that lost an update. The recorded outputs are
+`bench/lost_update_probe.out.txt` (default build) and `bench/lost_update_probe.ft.out.txt`
+(free-threaded build). No test asserts a count, and the counts depend on the build and the
+scheduler.
+
 ## Layout
 
 - `src/gil_and_performance/domain.py`: `ConsignmentId`, `Consignment`, `Money`, `RateQuote`,
@@ -44,6 +50,7 @@ class of machine, never a model. Your figures will differ.
 - `tests/conftest.py`: a lock that records its callers, a barrier gap, and a helper that reserves
   from two threads.
 - `bench/gil_bench.py`: the benchmark and its recorded outputs.
+- `bench/lost_update_probe.py`: the lost-update probe and its recorded outputs.
 
 ## Run it
 
@@ -58,15 +65,17 @@ Then from this directory:
 ```bash
 uv run pytest
 uv run mypy --strict src tests
-uv run python bench/gil_bench.py
+uv run python bench/gil_bench.py --cpu-class "16-thread x86-64 CPU"
+uv run python bench/lost_update_probe.py --cpu-class "16-thread x86-64 CPU"
 ```
 
 To run the tests on the free-threaded build, from the repository root:
 
 ```bash
-uv python install 3.15t
-UV_PROJECT_ENVIRONMENT=.venv-ft uv sync --python 3.15t --locked --all-packages
+uv python install 3.15.2t
+UV_PROJECT_ENVIRONMENT=.venv-ft uv sync --python 3.15.2t --locked --all-packages
 .venv-ft/bin/python -m pytest examples/37-the-gil-and-performance
+.venv-ft/bin/python examples/37-the-gil-and-performance/bench/lost_update_probe.py --cpu-class "16-thread x86-64 CPU"
 ```
 
 ## What the tests verify

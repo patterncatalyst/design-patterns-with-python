@@ -14,7 +14,7 @@ from testing_baseline.domain import Money, Weight
     ],
 )
 def test_weight_rejects_a_mass_that_is_not_positive_and_finite(kilograms: float) -> None:
-    with pytest.raises(ValueError, match="kilograms must be positive"):
+    with pytest.raises(ValueError, match="kilograms must be positive and finite"):
         Weight(kilograms)
 
 

@@ -1,3 +1,4 @@
+import re
 from collections.abc import Callable
 from decimal import Decimal
 from typing import TYPE_CHECKING
@@ -72,7 +73,7 @@ def _container_max(max_payload_kg: Decimal) -> object:
 def test_a_positive_field_refuses_a_bad_value_on_every_class(
     build: Callable[[Decimal], object], name: str
 ) -> None:
-    with pytest.raises(ValueError, match=f"{name} must be positive, got -1"):
+    with pytest.raises(ValueError, match=f"{name} must be positive and finite, got -1"):
         build(Decimal(-1))
 
 
@@ -131,7 +132,8 @@ def test_a_copy_pasted_property_validator_drifts() -> None:
 
 
 def test_a_property_without_a_setter_refuses_assignment(container: Container) -> None:
-    with pytest.raises(AttributeError, match="has no setter"):
+    message = "property 'payload_kg' of 'Container' object has no setter"
+    with pytest.raises(AttributeError, match=re.escape(message)):
         container.payload_kg = Decimal(1)  # type: ignore[misc]
 
 

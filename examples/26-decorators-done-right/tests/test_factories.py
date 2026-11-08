@@ -1,3 +1,4 @@
+import re
 from typing import TYPE_CHECKING
 
 import pytest
@@ -72,7 +73,8 @@ def test_cached_for_refuses_an_unhashable_argument(clock: FakeClock) -> None:
 
     cached = cached_for(seconds=WINDOW, clock=clock)(render)
 
-    with pytest.raises(TypeError, match="unhashable type"):
+    message = "cannot use 'tuple' as a dict key (unhashable type: 'list')"
+    with pytest.raises(TypeError, match=re.escape(message)):
         cached(["BL-1"])
 
 

@@ -34,5 +34,5 @@ class Positive:
 
     def __set__(self, instance: object, value: Decimal) -> None:
         if not value.is_finite() or value <= 0:
-            raise ValueError(f"{self.public_name} must be positive, got {value}")
+            raise ValueError(f"{self.public_name} must be positive and finite, got {value}")
         vars(instance)[self.private_name] = value

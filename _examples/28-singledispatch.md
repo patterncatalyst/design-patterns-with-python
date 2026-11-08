@@ -41,7 +41,8 @@ module is imported and gets its code after.
 
 ## singledispatchmethod
 
-`SurchargeSchedule.surcharge` dispatches on the container kind and on the argument after `self`.
+`SurchargeSchedule.surcharge` dispatches on one argument, the container kind, which is the argument
+after `self`.
 mypy does not check its arguments.
 
 ## Build, run, observe

@@ -36,7 +36,7 @@ def test_equal_values_are_interchangeable() -> None:
 
 @pytest.mark.parametrize("kilograms", [0.0, -1.0, math.inf, -math.inf, math.nan])
 def test_weight_must_be_positive_and_finite(kilograms: float) -> None:
-    with pytest.raises(ValueError, match="kilograms must be positive"):
+    with pytest.raises(ValueError, match="kilograms must be positive and finite"):
         Weight(kilograms)
 
 

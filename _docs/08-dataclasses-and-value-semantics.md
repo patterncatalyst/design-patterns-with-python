@@ -50,7 +50,7 @@ class Weight:
 
     def __post_init__(self) -> None:
         if not (math.isfinite(self.kilograms) and self.kilograms > 0):
-            raise ValueError(f"kilograms must be positive, got {self.kilograms}")
+            raise ValueError(f"kilograms must be positive and finite, got {self.kilograms}")
 ```
 
 `inf > 0` is true, so the finiteness test is what rejects it. The decorator writes `__init__`, `__repr__`, `__eq__`, `__hash__` and the ordering methods, and with `frozen=True` it writes a `__setattr__` and `__delattr__` that raise `FrozenInstanceError`. `test_a_frozen_value_refuses_assignment` assigns to `kilograms` and matches the message `cannot assign to field 'kilograms'`. The same assignment is a static error. `test_mypy_checks_the_generated_methods[frozen-assignment]` runs this through `mypy --strict`:

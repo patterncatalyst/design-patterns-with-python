@@ -56,7 +56,7 @@ Then from the example directory:
 ```bash
 cd examples/31-shortcut-patterns-dict-dispatch-and-eafp
 uv run pytest -v
-uv run mypy --strict src tests bench
+uv run mypy --strict src tests
 ```
 
 The example README lists what each test verifies.

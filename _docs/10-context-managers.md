@@ -25,7 +25,7 @@ The first failure is a leak and the second is a lie. Both come from the same gap
 
 {% include excalidraw.html name="10-context-managers" caption="Figure 10.1: Both ways out of a manifest write. After __enter__ opens path.partial, the body writes lines; __exit__ then replaces the partial with path on success, or unlinks it and lets the exception propagate." %}
 
-Read the figure from the top. The accent box is the `with ManifestWriter(path) as out:` line. `__enter__` opens `path.partial`, and the body writes lines to the partial file. The flow then forks. On the left the body returns, so `__exit__(None, None, None)` closes the file and replaces the partial with `path`, and the manifest is committed. On the right the body raises, so `__exit__(type, exc, tb)` closes the file, unlinks the partial and returns `None`, and the exception propagates.
+Read the figure from the top. The accent box is the `with ManifestWriter(path) as out:` line. `__enter__` opens `path.partial`, and the body writes lines to the partial file. The flow then forks. On the left the body returns, so `__exit__(None, None, None)` closes the file and replaces the partial with `path`, and the manifest is committed. On the right the body raises, so `__exit__(exc_type, exc, traceback)` closes the file, unlinks the partial and returns `None`, and the exception propagates.
 
 ## Resource Acquisition: the force and why it survives
 
@@ -130,7 +130,7 @@ One manifest per destination port means several writers, and the question is wha
 def write_manifests(
     manifests: Iterable[Manifest], directory: Path, *, opener: Opener = open_utf8
 ) -> list[Path]:
-    """Write every manifest or none: a failure discards the partials of all those entered."""
+    """Write one manifest per entry: a failed open discards the partials of every writer entered."""
     paths: list[Path] = []
     with ExitStack() as stack:
         for manifest in manifests:
@@ -144,7 +144,7 @@ def write_manifests(
 
 The [`ExitStack` documentation](https://docs.python.org/3/library/contextlib.html) says each instance "maintains a stack of registered callbacks that are called in reverse order when the instance is closed", which is the order a nest of `with` statements would unwind in: the last resource acquired is the first released. `test_exit_stack_unwinds_entered_writers_in_reverse_order` makes the opener fail on the third call. The recorded opens are the first and second partials, and the recorded closes are the second and then the first. The directory ends up empty, because each writer's `__exit__` saw the exception and discarded its partial. The writers decide what release means, and the stack decides the order.
 
-The function docstring states the contract: the manifests for a sailing are committed together or not at all. `test_exit_stack_commits_every_manifest_on_success` checks the success path: three files committed, no partials.
+The function docstring states the contract, and it's a narrow one: a failed open discards the partials of every writer entered. `test_exit_stack_commits_every_manifest_on_success` checks the success path: three files committed, no partials. On success each writer commits on its own as the stack unwinds, so the contract says nothing about a failure at commit time.
 
 ## Swallowing an exception
 

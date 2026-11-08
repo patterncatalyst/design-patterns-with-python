@@ -22,6 +22,4 @@
 <path d="M530,100 L640,180" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
 <path d="M220,260 L220,330" fill="none" stroke="#555" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#a)"/>
 <path d="M640,260 L640,330" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
-<path d="M220,410 L220,470" fill="none" stroke="#555" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#a)"/>
-<path d="M640,410 L640,470" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
 </svg>

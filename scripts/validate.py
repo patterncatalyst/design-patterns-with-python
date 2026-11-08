@@ -123,11 +123,16 @@ DECK_BANNED = (
             r"\b(next|previous|following|closing|last|earlier|later)\s+(\w+\s+)?(slides?|sections?)\b"
             r"|\b(that|which)\s+follows?\b(?!\s+from)"
             r"|\b(listings?|slides?|figures?|tables?|sections?)\s+(before|after)\s+it\b"
-            r"|\bclose\s+the\s+section\b",
+            r"|\bclose\s+the\s+section\b"
+            r"|\b(?:tables?|listings?|figures?|slides?|code|lists?|bullets?|diagrams?|examples?)"
+            r"\s+(?:above|below)\b|\bthe\s+(?:above|below)\b|\b(?:above|below)\s*(?:[.,;:)]|$)"
+            r"|\b(?:shown|listed|given|see|as)\s+(?:above|below)\b"
+            r"|\bthe dividers\b|\bwhere they're used\b",
             re.IGNORECASE,
         ),
         "positional slide reference",
     ),
+    (re.compile(r"\b(this|these) (deck|slides?)\b", re.IGNORECASE), "self-reference"),
     (
         re.compile(r"\b(chapters?|appendix|appendices)\b", re.IGNORECASE),
         "chapter or appendix pointer",
@@ -137,6 +142,7 @@ DECK_BANNED = (
         "cross-language word",
     ),
 )
+DECK_BOOK_RE = re.compile(r"\bthe book('s)?\b", re.IGNORECASE)
 DECK_SLIDE_RE = re.compile(r"ppt/slides/slide(\d+)\.xml$")
 DECK_FIELD_RE = re.compile(r"<a:fld\b.*?</a:fld>", re.DOTALL)
 DECK_PARA_RE = re.compile(r"<a:p\b.*?</a:p>|<a:p/>", re.DOTALL)
@@ -1041,6 +1047,11 @@ def check_deck(
         for pattern, label in DECK_BANNED:
             if pattern.search(text):
                 err(f"{where}: {label}")
+    # Only the closing slide may point to the book as a whole.
+    closing = f" {len(slides)}"
+    for where, text in texts:
+        if not where.endswith(closing) and DECK_BOOK_RE.search(text):
+            err(f"{where}: book pointer")
 
     cfg = host_ids.Config()
     for name, body in xml.items():
@@ -1381,6 +1392,28 @@ def deck_self_test(expect: Callable[[str, bool], None]) -> None:
     )
     expect("deck slide ref", bool(run([*good[:2], ("Body", long + " on slide 4")])))
     expect("deck positional ref", bool(run([*good[:2], ("Body", long + " the next slide shows")])))
+    # The trailing good[2] keeps the bad slide off the closing position and meets its floor,
+    # so each case fails only on its phrase.
+    for bad in (
+        "the table above",
+        "as the book says",
+        "this deck covers",
+        "these slides rest on",
+        "the dividers name it",
+    ):
+        expect(
+            f"deck pointer: {bad}",
+            bool(run([*good[:2], ("Body", long + " " + bad), good[2]])),
+        )
+    expect("deck pointer control", not run([*good[:2], ("Body", long), good[2]]))
+    expect(
+        "deck plain above",
+        not run([*good[:2], ("Body", long + " a weight above 30 kg"), good[2]]),
+    )
+    expect(
+        "deck book pointer on the closing slide",
+        not run([*good, ("Body", long + " the book's site and repository")]),
+    )
     expect(
         "deck positional ref 2",
         bool(run([*good[:2], ("Body", long + " the last catalogue section covers")])),

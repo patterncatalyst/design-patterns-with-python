@@ -4,8 +4,11 @@
 #   ./render-png.sh 05 06 12 19 21 25   render those figures into png/
 #   ./render-png.sh --check 05 06 ...   render into a temp dir and fail if any
 #                                       committed PNG differs from a fresh render
+#   ./render-png.sh --deck 101|201      use that deck's figure list (add --check
+#                                       to compare instead of write)
 #
-# With no figure numbers it uses the eleven figures that pass the arrow census.
+# With no figure numbers it uses both decks' lists together: the eleven figures
+# of Deck 101 and the five of Deck 201 (sixteen in all).
 # cairosvg runs through `uv run --no-project`: it is never added to the
 # workspace, and nothing is installed globally.
 set -euo pipefail
@@ -15,14 +18,27 @@ diagrams="$here/../diagrams"
 CAIROSVG="2.9.1"
 WIDTH=1600
 
+# Per-deck figure lists. Keep each in step with the figures its builder uses.
+figs_101=(05 06 12 13 14 16 19 21 22 23 25)
+figs_201=(07 09 10 31 37)
+
 check=0
-if [[ "${1:-}" == "--check" ]]; then
-  check=1
-  shift
-fi
+deck=""
+while [[ "${1:-}" == --* ]]; do
+  case "$1" in
+    --check) check=1; shift ;;
+    --deck)  deck="${2:?render-png: --deck needs 101 or 201}"; shift 2 ;;
+    *) echo "render-png: unknown option $1" >&2; exit 2 ;;
+  esac
+done
 figs=("$@")
 if [[ ${#figs[@]} -eq 0 ]]; then
-  figs=(05 06 12 13 14 16 19 21 22 23 25)
+  case "$deck" in
+    101) figs=("${figs_101[@]}") ;;
+    201) figs=("${figs_201[@]}") ;;
+    "")  figs=("${figs_101[@]}" "${figs_201[@]}") ;;
+    *) echo "render-png: unknown deck $deck" >&2; exit 2 ;;
+  esac
 fi
 
 out="$here/png"

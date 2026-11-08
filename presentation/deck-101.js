@@ -1,20 +1,14 @@
 // deck-101.js: "Design Patterns with Python", 101: Patterns and SOLID in Python.
 // Build from presentation/ with: node deck-101.js
-// Code slides are read from the shipped examples by path and line range at
-// build time and the first line of each range is asserted, so a listing is
-// byte-exact with its source or the build fails.
+// The slide helpers live in deck-lib.js; code slides are read from the shipped
+// examples by path and line range and anchor-asserted there.
 
 "use strict";
 
-const fs = require("fs");
-const path = require("path");
 const H = require("./deck-helpers.js");
-const {
-  COLOR, FONT, W, ASSETS, PNG,
-  newDeck, addFooter, addContentTitle, addCaption, addCodeSlide, addDiagramSlide, addNotes,
-} = H;
+const { createDeck } = require("./deck-lib.js");
+const { COLOR, FONT, W, ASSETS, newDeck, addContentTitle } = H;
 
-const ROOT = path.resolve(__dirname, "..");
 const OUT = "design-patterns-with-python-101-patterns-and-solid.pptx";
 
 const pres = newDeck();
@@ -24,152 +18,14 @@ pres.author = "PatternCatalyst";
 pres.company = "PatternCatalyst";
 pres.lastModifiedBy = "PatternCatalyst";
 
-let pageNum = 0;
-const floors = []; // [slide number, words, floor, label]
-
-function words(text) {
-  return text.trim().split(/\s+/).length;
-}
-
-function notes(slide, text, floor, label) {
-  const n = words(text);
-  floors.push([pageNum, n, floor, label]);
-  addNotes(slide, text);
-}
-
-// A content slide: footer and logo come with it.
-function S() {
-  const s = pres.addSlide();
-  pageNum += 1;
-  addFooter(s, pageNum);
-  return s;
-}
-
-// Section divider. The AB0000 background is what the deck check keys on.
-function divider(code, title, subtitle, text) {
-  const s = pres.addSlide();
-  pageNum += 1;
-  s.background = { color: COLOR.redDark };
-  s.addImage({ path: `${ASSETS}/section-panel.png`, x: 0, y: 0, w: W, h: 7.5 });
-  s.addText(code, {
-    x: 6.27, y: 2.32, w: 6.40, h: 0.50,
-    fontFace: FONT.title, fontSize: 22, bold: true, color: COLOR.white, charSpacing: 6,
-    align: "left", valign: "middle",
-  });
-  s.addText(title, {
-    x: 6.24, y: 2.84, w: 6.70, h: 1.60,
-    fontFace: FONT.title, fontSize: title.length > 28 ? 32 : title.length > 18 ? 36 : 44, bold: true, color: COLOR.white,
-    align: "left", valign: "top",
-  });
-  s.addText(subtitle, {
-    x: 6.27, y: 4.55, w: 6.60, h: 0.80,
-    fontFace: FONT.body, fontSize: 16, italic: true, color: "FFD9D9",
-    align: "left", valign: "top",
-  });
-  s.addImage({ path: `${ASSETS}/redhat-logo-white.png`, x: 11.42, y: 6.88, w: 1.33, h: 0.31 });
-  notes(s, text, 45, "divider");
-}
-
-// Bullets with a bold subject. Each item is [subject, rest]; rest carries its own
-// leading space or punctuation.
-function runsFor(items, gap) {
-  const runs = [];
-  for (const [subject, rest] of items) {
-    runs.push({
-      text: subject,
-      options: { bold: true, color: COLOR.ink, bullet: { code: "25CF" }, paraSpaceAfter: gap },
-    });
-    runs.push({ text: rest, options: { breakLine: true } });
-  }
-  return runs;
-}
-
-function bullets(s, items, o = {}) {
-  s.addText(runsFor(items, o.gap ?? 12), {
-    x: o.x ?? 0.62, y: o.y ?? 1.85, w: o.w ?? 12.09, h: o.h ?? 4.7,
-    fontFace: FONT.body, fontSize: o.fontSize ?? 18, color: COLOR.body,
-    align: "left", valign: "top", lineSpacingMultiple: 1.15,
-  });
-}
-
-function bulletSlide(eyebrow, title, items, text, o = {}) {
-  const s = S();
-  addContentTitle(s, eyebrow, title);
-  bullets(s, items, o);
-  notes(s, text, 90, "bullets");
-}
-
-// A table slide. Rows are arrays of strings; the first column is set in bold.
-function tableSlide(eyebrow, title, header, rows, colW, text, o = {}) {
-  const s = S();
-  addContentTitle(s, eyebrow, title);
-  const fs = o.fontSize ?? 12;
-  const head = header.map((h) => ({
-    text: h,
-    options: { bold: true, color: COLOR.white, fill: { color: COLOR.ink }, fontFace: FONT.body, fontSize: fs, valign: "middle" },
-  }));
-  const body = rows.map((r, ri) =>
-    r.map((c, ci) => ({
-      text: c,
-      options: {
-        bold: ci === 0,
-        color: ci === 0 ? COLOR.ink : COLOR.body,
-        fontFace: FONT.body,
-        fontSize: fs,
-        valign: "middle",
-        fill: { color: ri % 2 ? COLOR.panel : COLOR.white },
-      },
-    })),
-  );
-  s.addTable([head, ...body], {
-    x: 0.62, y: o.y ?? 1.55, w: 12.09, colW, rowH: o.rowH ?? 0.34,
-    border: { type: "solid", color: COLOR.grid, pt: 0.5 },
-  });
-  notes(s, text, 90, "table");
-}
-
-// A code slide whose listing is read from the source file.
-function codeSlide(eyebrow, title, file, first, last, anchor, caption, text) {
-  const full = path.join(ROOT, file);
-  const all = fs.readFileSync(full, "utf8").split("\n");
-  const lines = all.slice(first - 1, last);
-  if (lines[0] !== anchor) {
-    throw new Error(`anchor mismatch in ${file}:${first}\n  want: ${JSON.stringify(anchor)}\n  have: ${JSON.stringify(lines[0])}`);
-  }
-  if (lines.length !== last - first + 1) throw new Error(`short range in ${file}`);
-  const longest = Math.max(...lines.map((l) => l.length));
-  const byWidth = Math.floor((1370 / longest) * 2) / 2;
-  const byHeight = Math.floor(((4.2 * 72) / (lines.length * 1.4)) * 2) / 2;
-  const fontSize = Math.min(lines.length <= 4 ? 22 : 18, byWidth, byHeight);
-  const h = Math.min(4.55, Math.max(1.0, (lines.length * fontSize * 1.4) / 72 + 0.45));
-  const s = S();
-  addCodeSlide(s, eyebrow, title, "PYTHON", lines, null, { fontSize, h });
-  addCaption(s, caption, Math.min(6.50, 1.85 + h + 0.15));
-  notes(s, text, 90, "code");
-  return { file, first, last, longest, fontSize };
-}
-
-// A figure on its own slide, full width.
-// The PNG's own aspect sets the frame, so "contain" never stretches it.
-function figSlide(eyebrow, title, png, caption, text) {
-  const s = S();
-  const head = fs.readFileSync(path.join(__dirname, PNG, `${png}.png`));
-  const pw = head.readUInt32BE(16);
-  const ph = head.readUInt32BE(20);
-  const box = { x: 0.62, y: 1.45, w: 12.09, h: 4.95 };
-  const scale = Math.min(box.w / pw, box.h / ph);
-  const w = pw * scale;
-  const h = ph * scale;
-  addDiagramSlide(s, eyebrow, title, png, caption, { x: box.x + (box.w - w) / 2, y: box.y + (box.h - h) / 2, w, h });
-  notes(s, text, 90, "figure");
-}
+const { S, divider, bullets, bulletSlide, tableSlide, codeSlide, figSlide, notes, bump, finish } = createDeck(pres);
 
 // ===========================================================================
 // 1 Cover
 // ===========================================================================
 {
   const s = pres.addSlide();
-  pageNum += 1;
+  bump();
   s.background = { color: COLOR.white };
   s.addImage({ path: `${ASSETS}/cover-panel.png`, x: 0, y: 0, w: W, h: 7.5 });
   s.addText("DESIGN PATTERNS WITH PYTHON", {
@@ -215,7 +71,7 @@ function figSlide(eyebrow, title, png, caption, text) {
   ];
   bullets(s, left, { w: 5.95, fontSize: 16, gap: 10 });
   bullets(s, right, { x: 6.85, w: 5.86, fontSize: 16, gap: 10 });
-  notes(s, `The deck runs in nine sections. The first two set up the question: what a pattern is, and what changed between 1994 and Python 3.15. SOLID comes third, because the principles are the forces the catalogue's patterns answer. The four middle sections walk the catalogue by what a pattern does: selecting behaviour, creating objects, composing structure, coordinating and traversing. Choosing well turns the catalogue back into a judgement about when to leave a pattern out, and the reference section closes with versions and reading. What to show: nothing needs running here. Fallback: the section names on the dividers carry the same route.`, 90, "route");
+  notes(s, `The deck runs in nine sections. Why patterns and What 1994 assumed set up the question: what a pattern is, and what changed between 1994 and Python 3.15. SOLID in Python treats the principles as the forces the catalogue's patterns answer. Four sections walk the catalogue by what a pattern does: selecting behaviour, creating objects, composing structure, coordinating and traversing. Choosing well turns the catalogue back into a judgement about when to leave a pattern out, and Reference gives the versions, sources and reading. What to show: nothing needs running here. Fallback: each bullet names a section and its subject.`, 90, "route");
 }
 
 // ===========================================================================
@@ -229,7 +85,7 @@ bulletSlide("WHY PATTERNS", "Decisions under forces", [
   ["The shape", " is what is left after those forces are traded off, so the useful question is which forces are present in your system."],
   ["Consequences", " are the ledger: what the pattern buys, and what it costs in indirection and extra objects."],
   ["A pattern has a price,", " paid whether or not the benefit turns up. A hook for variation that never varies buys nothing."],
-], `The catalogue's own framing isn't a menu of diagrams. A pattern is a solution to a problem in a context, and the problem is a set of forces. Gamma, Helm, Johnson and Vlissides, in Design Patterns, give their patterns a Consequences section that lists what it buys and what it costs, and that section is the ledger used throughout the catalogue sections. A pattern whose consequences you can't state has a cost nobody has counted. No code appears here: the claim rests on that reading of the catalogue, and no test backs it. What to show: pick a pattern from the catalogue sections and ask which force is present and what the ledger says. Fallback: the Consequences idea is stated in four bullets and needs no demonstration.`);
+], `The catalogue's own framing isn't a menu of diagrams. A pattern is a solution to a problem in a context, and the problem is a set of forces. Gamma, Helm, Johnson and Vlissides, in Design Patterns, give their patterns a Consequences section that lists what it buys and what it costs, and that section is the ledger a pattern is judged by. A pattern whose consequences you can't state has a cost nobody has counted. No code appears here: the claim rests on that reading of the catalogue, and no test backs it. What to show: pick a pattern and ask which force is present and what the ledger says. Fallback: the Consequences idea is stated in four bullets and needs no demonstration.`);
 
 codeSlide("WHY PATTERNS", "Proof that runs",
   "examples/00-prerequisites/src/consignments/consignment.py", 36, 43,
@@ -313,7 +169,7 @@ bulletSlide("WHAT 1994 ASSUMED", "Names for assistants", [
   ["Names are compressed claims.", " A reviewer who finds one implementation behind a RateStrategy has found a mismatch without reading anything else."],
   ["A prompt", " that says \"use the Strategy pattern\" leaves the mechanism open. Naming the role and the mechanism gives a result to compare line by line."],
   ["State the bucket:", " \"this is a dissolved pattern, no base class\" turns a preference into a testable constraint."],
-], `A pattern name does work in a team and in a prompt for the same reason: it compresses claims that can be checked. Calling something a RateStrategy asserts several interchangeable rate computations, a caller that selects one, and a narrow shared surface. A reviewer can check those assertions against the code. In a prompt, naming the pattern alone leaves the mechanism open, so the reply may be a class hierarchy where a function was wanted. Naming the role and the mechanism, a callable type alias and a plain function that fits it, produces a result that can be compared with the instruction. Stating the bucket does the same in one sentence. No test backs this slide; it rests on prose. What to show: a prompt written both ways. Fallback: the four bullets give the contrast.`);
+], `A pattern name does work in a team and in a prompt for the same reason: it compresses claims that can be checked. Calling something a RateStrategy asserts several interchangeable rate computations, a caller that selects one, and a narrow shared surface. A reviewer can check those assertions against the code. In a prompt, naming the pattern alone leaves the mechanism open, so the reply may be a class hierarchy where a function was wanted. Naming the role and the mechanism, a callable type alias and a plain function that fits it, produces a result that can be compared with the instruction. Stating the bucket does the same in one sentence. No test backs the claim; it rests on prose. What to show: a prompt written both ways. Fallback: the four bullets give the contrast.`);
 
 // ===========================================================================
 // Section: SOLID in Python
@@ -358,7 +214,7 @@ codeSlide("SOLID IN PYTHON", "The composition root",
 
 figSlide("SOLID IN PYTHON", "Wiring the application", "06-isp-dip-and-di-without-a-framework",
   "The composition root builds one carrier adapter and passes it to the booking and tracking consumers, which name the small Protocol they need.",
-  `The figure shows dependency injection without a framework. The composition root builds one carrier adapter and passes it to two consumers, booking and tracking. The consumers name the small Protocol they need, and the adapter satisfies both Protocols structurally and imports neither. That's the inversion: the policy code points at an abstraction it owns, and the concrete adapter is named in one place. The arrows match the arguments in build_app, so the figure and the build_app listing describe the same call. What to show: the figure beside the build_app listing. Fallback: the caption gives the direction of the dependencies in words.`);
+  `The figure shows dependency injection without a framework. The composition root builds one carrier adapter and passes it to two consumers, booking and tracking. The consumers name the small Protocol they need, and the adapter satisfies both Protocols structurally and imports neither. That's the inversion: the policy code points at an abstraction it owns, and the concrete adapter is named in one place. The arrows match the arguments in build_app, so the figure and the code describe the same call. What to show: the figure at full width, following the adapter to both consumers. Fallback: the caption gives the direction of the dependencies in words.`);
 
 tableSlide("SOLID IN PYTHON", "Principles beyond SOLID",
   ["Principle", "What its test shows"], [
@@ -393,7 +249,7 @@ codeSlide("SELECTING AND VARYING BEHAVIOUR", "Strategy as a callable",
 
 figSlide("SELECTING AND VARYING BEHAVIOUR", "Rules in a registry", "12-strategy-the-callable",
   "The caller names a rule, the read-only RATE_RULES registry returns a callable, and quote records the name with the price.",
-  `The figure follows one quote through the registry. The caller names a rule, the read-only RATE_RULES mapping returns a callable, and quote prices the consignment with it and records the rule's name next to the price. Whether the callable is a function, a partial or a frozen dataclass makes no difference to the call, which is the point of the slot. The arrows correspond to lines in the code, so the figure is a reading aid for the registry listing. What to show: the figure at full width, tracing a name to a callable to a price. Fallback: the caption says the same in one sentence, and the registry listing has it.`);
+  `The figure follows one quote through the registry. The caller names a rule, the read-only RATE_RULES mapping returns a callable, and quote prices the consignment with it and records the rule's name next to the price. Whether the callable is a function, a partial or a frozen dataclass makes no difference to the call, which is the point of the slot. The arrows correspond to lines in the code, so the figure is a reading aid for the registry. What to show: the figure at full width, tracing a name to a callable to a price. Fallback: the caption says the same in one sentence.`);
 
 codeSlide("SELECTING AND VARYING BEHAVIOUR", "Hooks, not subclasses",
   "examples/13-template-method-and-the-function-alternative/src/template_method/hooks.py", 28, 35,
@@ -465,7 +321,7 @@ codeSlide("COMPOSING AND ADAPTING STRUCTURE", "A bridge over a Protocol",
 
 figSlide("COMPOSING AND ADAPTING STRUCTURE", "One call, two axes", "19-adapter-facade-bridge",
   "The facade picks a gateway and a booking kind; the kinds work through the narrow gateway Protocol, and one client reaches it through an adapter.",
-  `The figure combines the three patterns in one call. The facade picks a gateway and a booking kind. The booking kinds work through the narrow gateway Protocol, which is the bridge. One carrier client already satisfies the Protocol, and the other reaches it through an adapter that converts units, which is why a dashed arrow marks the unit read from the consignment's weight. The arrows correspond to calls in the code, including the registration of the facade's collaborators. What to show: the figure at full width, then follow a single ship call from the facade to a carrier. Fallback: the caption gives the flow, and the bridge listing shows the booking kind.`);
+  `The figure combines the three patterns in one call. The facade picks a gateway and a booking kind. The booking kinds work through the narrow gateway Protocol, which is the bridge. One carrier client already satisfies the Protocol, and the other reaches it through an adapter that converts units, which is why a dashed arrow marks the unit read from the consignment's weight. The arrows correspond to calls in the code, including the registration of the facade's collaborators. What to show: the figure at full width, then follow a single ship call from the facade to a carrier. Fallback: the caption gives the flow.`);
 
 bulletSlide("COMPOSING AND ADAPTING STRUCTURE", "Two things called Decorator", [
   ["The pattern", " builds a value: a wrapper object that holds another and presents the same interface, composed while the program runs."],
@@ -554,7 +410,7 @@ codeSlide("COORDINATING AND TRAVERSING", "A tariff, two readings",
 
 figSlide("COORDINATING AND TRAVERSING", "Match, snapshot, tariff tree", "25-visitor-memento-interpreter",
   "Operations over the event union are matches; a booking rolls back from a frozen snapshot; one tariff tree is priced and explained.",
-  `The figure draws three columns from the same module. In the first, each operation over the closed event union is one match, and mypy reports a kind it leaves out. In the second, a booking rolls back from a frozen snapshot that leaves the audit alone. In the third, one tariff tree is both priced and explained. The arrows trace the code in the match, rollback and tariff listings. What to show: the figure at full width, one column at a time. Fallback: the caption lists the three columns, one per pattern.`);
+  `The figure draws three columns from the same module. In the first, each operation over the closed event union is one match, and mypy reports a kind it leaves out. In the second, a booking rolls back from a frozen snapshot that leaves the audit alone. In the third, one tariff tree is both priced and explained. The arrows trace the code in the match, the rollback and the tariff evaluation. What to show: the figure at full width, one column at a time. Fallback: the caption lists the three columns, one per pattern.`);
 
 // ===========================================================================
 // Section: Choosing well
@@ -603,7 +459,7 @@ tableSlide("CHOOSING WELL", "Pattern to force",
   bullets(s, [
     ["Review line:", " if the reply adds an accept method or snapshots with copy.copy, ask for the test that fails."],
   ], { y: 5.85, h: 0.9, fontSize: 17 });
-  notes(s, `A request for a visitor or a memento names a 1994 shape and leaves open the decisions that matter, so the prompt states them: the closed set of event kinds, a match per operation that ends in assert_never, a frozen snapshot that leaves the audit out, a rollback context manager that re-raises, and tariff rules as frozen nodes. The review line is a check on the reply. An accept method means the Visitor shape came back, and copy.copy means the snapshot may share state with the booking; in either case ask for the test that fails. No test backs this slide; the prompt and the review line stand as written. What to show: the prompt beside the visitor, memento and tariff listings it describes. Fallback: the prompt reads as a checklist on its own.`, 90, "bullets");
+  notes(s, `A request for a visitor or a memento names a 1994 shape and leaves open the decisions that matter, so the prompt states them: the closed set of event kinds, a match per operation that ends in assert_never, a frozen snapshot that leaves the audit out, a rollback context manager that re-raises, and tariff rules as frozen nodes. The review line is a check on the reply. An accept method means the Visitor shape came back, and copy.copy means the snapshot may share state with the booking; in either case ask for the test that fails. No test backs the claim; the prompt and the review line stand as written. What to show: read the prompt aloud and name each decision it fixes. Fallback: the prompt reads as a checklist on its own.`, 90, "bullets");
 }
 
 // ===========================================================================
@@ -665,16 +521,4 @@ bulletSlide("REFERENCE", "Site and repository", [
 // ===========================================================================
 // Checks and write
 // ===========================================================================
-const short = floors.filter(([, n, floor]) => n < floor);
-if (short.length) {
-  throw new Error("notes under floor: " + short.map(([p, n, f, l]) => `slide ${p} ${l} ${n}<${f}`).join(", "));
-}
-if (floors.length !== pageNum) throw new Error(`notes ${floors.length} != slides ${pageNum}`);
-
-pres
-  .writeFile({ fileName: OUT })
-  .then((p) => console.log("WROTE", p, "slides:", pageNum, "min notes words:", Math.min(...floors.map((f) => f[1]))))
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  });
+finish(OUT);

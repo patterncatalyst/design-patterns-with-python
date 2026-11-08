@@ -51,7 +51,7 @@ emit(
             "style": "box",
             "lines": [
                 "body raises",
-                "__exit__(type, exc, tb)",
+                "__exit__(exc_type, exc, traceback)",
                 "close, unlink partial, return None",
             ],
         },

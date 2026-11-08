@@ -65,8 +65,8 @@ uv run mypy --strict src tests
 To run the tests on the free-threaded build, from the repository root:
 
 ```bash
-uv python install 3.15t
-UV_PROJECT_ENVIRONMENT=.venv-ft uv sync --python 3.15t --locked --all-packages
+uv python install 3.15.2t
+UV_PROJECT_ENVIRONMENT=.venv-ft uv sync --python 3.15.2t --locked --all-packages
 .venv-ft/bin/python -m pytest examples/38-asyncio-and-the-patterns
 ```
 

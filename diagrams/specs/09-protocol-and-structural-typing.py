@@ -1,4 +1,7 @@
-"""One booking call, three checks: absence, shape and declaration."""
+"""One booking call, three checks: absence, shape and declaration.
+
+The test fixture below the absence lane is a note, not a step: no code swaps it in.
+"""
 
 from generate_diagram import emit
 
@@ -33,17 +36,5 @@ edges = []
 for x, lines in LANES:
     nodes.append({"x": x, "y": LANE_Y, "w": LANE_W, "h": LANE_H, "style": "box", "lines": lines})
     edges.append({"x1": 445, "y1": 86, "x2": x + LANE_W // 2, "y2": LANE_Y})
-edges.append(
-    {
-        "x1": 155,
-        "y1": LANE_Y + LANE_H,
-        "x2": 155,
-        "y2": 330,
-        "dashed": True,
-        "label": "swapped in",
-        "lx": 50,
-        "ly": 0,
-    }
-)
 
 emit("09-protocol-and-structural-typing", 890, 430, nodes=nodes, edges=edges)

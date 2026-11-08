@@ -25,7 +25,7 @@ Each is a question about what a caller may assume about a collaborator: whether 
 
 {% include excalidraw.html name="09-protocol-and-structural-typing" caption="Figure 9.1: Three checks behind one booking call. The optional return makes absence a branch to narrow, the CarrierGateway Protocol is compared where a gateway is passed, and the CarrierBase ABC is checked at construction." %}
 
-Read the figure from the top. The accent box is the call, `book_with(code, consignment)`, with three checks behind it side by side. The left lane is absence: `find_gateway` returns `CarrierGateway | None`, narrowed before use. The middle lane is shape: `CarrierGateway` is compared where a gateway is passed, and `FastlineGateway` has no base class. The right lane is declaration: `CarrierBase` is checked at construction, and `AircoGateway` inherits it. A dashed arrow marked "swapped in" runs from the absence lane to the `_NullGateway` test fixture, labelled "absence hidden: accepted, books nothing".
+Read the figure from the top. The accent box is the call, `book_with(code, consignment)`, with three checks behind it side by side. The left lane is absence: `find_gateway` returns `CarrierGateway | None`, narrowed before use. The middle lane is shape: `CarrierGateway` is compared where a gateway is passed, and `FastlineGateway` has no base class. The right lane is declaration: `CarrierBase` is checked at construction, and `AircoGateway` inherits it. Below the absence lane, connected to nothing, sits the `_NullGateway` test fixture, labelled "absence hidden: accepted, books nothing": a test assigns it directly, and no arrow stands for that.
 
 ## Shape at the point of use
 
@@ -90,7 +90,7 @@ class _NullGateway:
         return ""
 ```
 
-`test_a_null_gateway_hides_a_lost_booking` books through it and gets `""` back with nothing raised. `test_mypy_accepts_a_null_gateway` assigns the same class to a `CarrierGateway` variable and mypy exits 0 with no output. The shape is right, so the checker is satisfied, and nothing was booked. A null object turns "no carrier" into a success that carries no information.
+`test_a_null_gateway_hides_a_lost_booking` books through it and gets `""` back with nothing raised. `test_mypy_accepts_a_null_gateway` assigns a class of the same shape to a `CarrierGateway` variable and mypy exits 0 with no output. The shape is right, so the checker is satisfied, and nothing was booked. A null object turns "no carrier" into a success that carries no information.
 
 A null object is right where doing nothing is the correct answer. `no_discount` returns `Money(Decimal("0.00"), "EUR")`, and `quote` subtracts the discount from the gross. `test_no_discount_is_a_null_object_that_loses_nothing` shows that the default changes nothing and that a real discount subtracts. Zero is a discount, so no caller is misled.
 
@@ -198,7 +198,7 @@ Choose by who owns the need and whether code is shared. A consumer that needs a 
 
 A Protocol marked `@runtime_checkable` can be used with `isinstance`. The check is for names. `test_runtime_checkable_checks_names_only` passes a class whose `book` takes no consignment and returns an `int`, and a class where `book = 3`, and both satisfy `isinstance`. A data Protocol, one with a non-method member such as `code: str`, refuses `issubclass`: `test_a_data_protocol_refuses_issubclass` gets `TypeError` with `Protocols with non-method members don't support issubclass`, though `isinstance` on an instance works.
 
-On 3.15 there is a deprecation. The [What's New in Python 3.15](https://docs.python.org/3/whatsnew/3.15.html) page says: "It is deprecated to call isinstance() and issubclass() checks on protocol classes that were not explicitly decorated with runtime_checkable() but that inherit from a runtime-checkable protocol class." The page adds that the call will raise `TypeError` in 3.20. `test_an_undecorated_subprotocol_warns_on_isinstance` defines a sub-protocol without the decorator and catches a `DeprecationWarning` whose message says it isn't explicitly decorated. Put the decorator on each Protocol that is meant for `isinstance`. The example's own Protocols aren't runtime-checkable, because `mypy --strict` already compares them at every call.
+On 3.15 there is a deprecation. The [What's New in Python 3.15](https://docs.python.org/3.15/whatsnew/3.15.html) page says: "It is deprecated to call isinstance() and issubclass() checks on protocol classes that were not explicitly decorated with runtime_checkable() but that inherit from a runtime-checkable protocol class." The page adds that the call will raise `TypeError` in 3.20. `test_an_undecorated_subprotocol_warns_on_isinstance` defines a sub-protocol without the decorator and catches a `DeprecationWarning` whose message says it isn't explicitly decorated. Put the decorator on each Protocol that is meant for `isinstance`. The example's own Protocols aren't runtime-checkable, because `mypy --strict` already compares them at every call.
 
 ## When not to use it
 
@@ -330,6 +330,6 @@ The failing assertion is the clean-run check on the `PricingRule` snippet, which
 
 Bobby Woolf's "Null Object", in *Pattern Languages of Program Design 3* (Addison-Wesley, 1998), is the source for the pattern, and it's on the [bibliography page]({{ '/bibliography/' | relative_url }}).
 
-The sources for the language features are [PEP 544](https://peps.python.org/pep-0544/) for Protocols, the [typing specification](https://typing.python.org/en/latest/spec/protocol.html) and the [mypy protocols documentation](https://mypy.readthedocs.io/en/stable/protocols.html) for the rules, [PEP 695](https://peps.python.org/pep-0695/) for variance inference, [PEP 698](https://peps.python.org/pep-0698/) for `override`, [PEP 661](https://peps.python.org/pep-0661/) for `sentinel`, [PEP 814](https://peps.python.org/pep-0814/) for `frozendict`, and [What's New in Python 3.15](https://docs.python.org/3/whatsnew/3.15.html) for the `runtime_checkable` deprecation.
+The sources for the language features are [PEP 544](https://peps.python.org/pep-0544/) for Protocols, the [typing specification](https://typing.python.org/en/latest/spec/protocol.html) and the [mypy protocols documentation](https://mypy.readthedocs.io/en/stable/protocols.html) for the rules, [PEP 695](https://peps.python.org/pep-0695/) for variance inference, [PEP 698](https://peps.python.org/pep-0698/) for `override`, [PEP 661](https://peps.python.org/pep-0661/) for `sentinel`, [PEP 814](https://peps.python.org/pep-0814/) for `frozendict`, and [What's New in Python 3.15](https://docs.python.org/3.15/whatsnew/3.15.html) for the `runtime_checkable` deprecation.
 
 Luciano Ramalho's *Fluent Python*, second edition, and Brett Slatkin's *Effective Python*, third edition, both treat typing and protocols, and both are in the bibliography.
