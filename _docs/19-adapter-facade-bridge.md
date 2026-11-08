@@ -221,7 +221,7 @@ Keep the set small. The experiments below widen it by one method.
 Call the client when there's one carrier and the SDK already fits. An adapter that only renames parameters isn't needed, because the Protocol's parameters are positional-only. A facade over a subsystem with one caller can be inlined. A bridge where one axis doesn't vary is a parameter, and the second hierarchy is a cost with no return.
 
 <blockquote class="ai-sidebar" markdown="1">
-**Reviewing assistant-written adapters.** Asked to "integrate a carrier", an assistant may write an abstract adapter base class, adapt a client whose shape already matches, pass a `float` weight to an API that expects pounds, or return the SDK's receipt from the facade. Paste a prompt that states the form:
+**Specifying an adapter.** "Integrate a carrier" leaves open which clients need an adapter, what units cross the boundary and what the caller sees of the SDK. Paste a prompt that states the form:
 
 > Register a client that already satisfies `CarrierGateway` as it is. For one that doesn't, write an object adapter that holds the client, converts units through `Weight.pounds` and `Weight.from_pounds`, and raises `CarrierError` from the SDK's error. Write the facade as a module function, `ship`, whose signature names only domain types. Make booking kinds a bridge over the narrow Protocol, not a class per kind and carrier.
 
@@ -341,4 +341,4 @@ pytest has one failure: the test that assigns an `AircoClient` to a `CarrierGate
 
 ## For deeper coverage
 
-*Design Patterns* (Gamma, Helm, Johnson and Vlissides) is the source for Adapter, Facade and Bridge. Brandon Rhodes's [The Composition Over Inheritance Principle](https://python-patterns.guide/gang-of-four/composition-over-inheritance/) gives the Python view of Adapter and Bridge where they meet. [PEP 544](https://peps.python.org/pep-0544/) specifies Protocols, and the [typing documentation](https://docs.python.org/3.15/library/typing.html) covers them. The [bibliography page]({{ '/bibliography/' | relative_url }}) lists the books, and the hub carries the same list.
+*Design Patterns* (Gamma, Helm, Johnson and Vlissides) is the source for Adapter, Facade and Bridge. Brandon Rhodes's [The Composition Over Inheritance Principle](https://python-patterns.guide/gang-of-four/composition-over-inheritance/) gives the Python view of Adapter and Bridge where they meet. [PEP 544](https://peps.python.org/pep-0544/) specifies Protocols, and the [typing documentation](https://docs.python.org/3.15/library/typing.html) covers them. The [bibliography page]({{ '/bibliography/' | relative_url }}) lists the books.

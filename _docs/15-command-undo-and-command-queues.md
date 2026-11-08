@@ -223,7 +223,7 @@ If a database transaction already gives you undo, a second stack of inverses rep
 
 <blockquote class="ai-sidebar" markdown="1">
 
-**Reviewing assistant-written commands.** Asked for "the Command pattern", an assistant may write a `Command` base with `execute` and `undo`, record the old value when the command is built, or store the caller's `dict` in a command. Paste a prompt that states the form:
+**Specifying commands.** "The Command pattern" leaves open when the inverse is recorded, what the command may hold and what a failed queue leaves behind. Paste a prompt that states the form:
 
 > Make each amendment a frozen, slotted dataclass in a closed union, with immutable field types (`frozendict`, `tuple`). Write `apply(request, amendment)` as a `match` ending in `assert_never` that returns the new request and the inverse read from the request it changed. Keep undo and redo in `deque`s, the undo stack with `maxlen`, and clear redo on a new amendment. Apply a queue on a local request, so a failure leaves the booking unchanged.
 
@@ -322,4 +322,4 @@ The batch's first amendment is applied to the booking before the second one rais
 
 ## For deeper coverage
 
-*Design Patterns* (Gamma, Helm, Johnson and Vlissides) is the source for Command. Harry Percival and Bob Gregory's *Architecture Patterns with Python* has the chapter "Commands and Command Handler", published free at [cosmicpython.com](https://www.cosmicpython.com/book/preface). The [`collections` documentation](https://docs.python.org/3.15/library/collections.html) covers `deque` and `maxlen`, [PEP 814](https://peps.python.org/pep-0814/) and the [3.15 What's New](https://docs.python.org/3.15/whatsnew/3.15.html) cover `frozendict`, and the [`dataclasses` documentation](https://docs.python.org/3.15/library/dataclasses.html) covers `frozen` and `replace`. [PEP 634](https://peps.python.org/pep-0634/) specifies the `match` statement. The [bibliography page]({{ '/bibliography/' | relative_url }}) lists the books, and the hub carries the same list.
+*Design Patterns* (Gamma, Helm, Johnson and Vlissides) is the source for Command. Harry Percival and Bob Gregory's *Architecture Patterns with Python* has the chapter "Commands and Command Handler", published free at [cosmicpython.com](https://www.cosmicpython.com/book/preface). The [`collections` documentation](https://docs.python.org/3.15/library/collections.html) covers `deque` and `maxlen`, [PEP 814](https://peps.python.org/pep-0814/) and the [3.15 What's New](https://docs.python.org/3.15/whatsnew/3.15.html) cover `frozendict`, and the [`dataclasses` documentation](https://docs.python.org/3.15/library/dataclasses.html) covers `frozen` and `replace`. [PEP 634](https://peps.python.org/pep-0634/) specifies the `match` statement. The [bibliography page]({{ '/bibliography/' | relative_url }}) lists the books.
