@@ -62,9 +62,6 @@ emit(
         {"x1": 785, "x2": 785, "y1": 90, "y2": 190},
         {
             "amber": True,
-            "label": "propose: every gate's findings go back in the next prompt",
-            "lx": -26,
-            "ly": 4,
             "x1": 632,
             "x2": 632,
             "y1": 190,
@@ -73,5 +70,21 @@ emit(
         {"x1": 175, "x2": 175, "y1": 270, "y2": 330},
         {"x1": 480, "x2": 480, "y1": 270, "y2": 330},
         {"x1": 785, "x2": 785, "y1": 270, "y2": 330},
+    ],
+    notes=[
+        {
+            "x": 622,
+            "y": 136,
+            "anchor": "end",
+            "color": "#b8650a",
+            "text": "propose: every gate's findings",
+        },
+        {
+            "x": 622,
+            "y": 151,
+            "anchor": "end",
+            "color": "#b8650a",
+            "text": "go back in the next prompt",
+        },
     ],
 )

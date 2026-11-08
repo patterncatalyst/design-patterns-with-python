@@ -21,9 +21,9 @@
 <path d="M440,90 L440,190" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
 <path d="M785,90 L785,190" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
 <path d="M632,190 L632,90" fill="none" stroke="#b8650a" stroke-width="2" marker-end="url(#am)"/>
-<text x="606.0" y="144.0" font-size="11" fill="#ffffff" stroke="#ffffff" stroke-width="3" paint-order="stroke" text-anchor="middle">propose: every gate&#x27;s findings go back in the next prompt</text>
-<text x="606.0" y="144.0" font-size="11" fill="#b8650a" text-anchor="middle">propose: every gate&#x27;s findings go back in the next prompt</text>
 <path d="M175,270 L175,330" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
 <path d="M480,270 L480,330" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
 <path d="M785,270 L785,330" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
+<text x="622" y="136" font-size="11" fill="#b8650a" text-anchor="end">propose: every gate&#x27;s findings</text>
+<text x="622" y="151" font-size="11" fill="#b8650a" text-anchor="end">go back in the next prompt</text>
 </svg>
