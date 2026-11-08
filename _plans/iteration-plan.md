@@ -43,8 +43,8 @@ PR, squash-merge with branch deletion, an `rNN.x` tag and a notes-only release.
 | r22 | Deck 101 |
 | r23 | Deck 201 |
 | r24 | Deck 301 |
-| r25 (active) | Retro and QA sweep |
-| r26 | Terse rewording: r26 gates, tooling and pilot (docs 01, 03, 23, 24, read by the owner before r27) |
+| r25 | Retro and QA sweep |
+| r26 (active) | Terse rewording: r26 gates, tooling and pilot (docs 01, 03, 23, 24, read by the owner before r27) |
 | r27 | Terse rewording: remaining pattern chapters |
 | r28 | Terse rewording: framing, foundations, legacy, AI, appendices and deck notes |
 
@@ -204,7 +204,8 @@ PR, squash-merge with branch deletion, an `rNN.x` tag and a notes-only release.
 | PDP-150 | Deck 101 | r22 | done |
 | PDP-151 | Deck 201 | r23 | done |
 | PDP-152 | Deck 301 | r24 | done |
-| PDP-021 | Retro and QA sweep | r25 | active |
+| PDP-021 | Retro and QA sweep | r25 | done |
+| PDP-022 | Terse rewording: gates and pilot | r26 | active |
 
 2026-11-04 (r05): Python 3.15.2. PDP-109a to PDP-111c are active for r05, and the book moves to Python 3.15.2. Earlier iterations keep their status.
 
@@ -247,3 +248,5 @@ PR, squash-merge with branch deletion, an `rNN.x` tag and a notes-only release.
 2026-11-07 (r24): r23 is closed: PR #24 was squash-merged as 6c27a6f and tagged r23.x, so PDP-151 is `done`. PDP-152 is active for r24 (Deck 301), and r24 is marked active in the roadmap (K1).
 
 2026-11-08 (r25): r24 is closed: PR #25 was squash-merged as e32dea5 and tagged r24.x, so PDP-152 is `done` (BK2). PDP-021 ("Retro and QA sweep", infrastructure range) is active for r25, and r25 is marked active in the roadmap. Owner decision O2 adds r26 to r28 (terse rewording) to the roadmap: r26 gates, tooling and pilot (docs 01, 03, 23, 24, read by the owner before r27); r27 remaining pattern chapters; r28 framing, foundations, legacy, AI, appendices and deck notes. The book is not declared complete at r25.x.
+
+2026-11-08 (r26): r25 is closed: PR #26 was squash-merged as 15cc747 and tagged r25.x, so PDP-021 is `done` (BK2). PDP-022 ("Terse rewording: gates and pilot", infrastructure range) is active for r26, and r26 is marked active in the roadmap. The book is not declared complete: r27 and r28 follow the owner's reading of the pilot.

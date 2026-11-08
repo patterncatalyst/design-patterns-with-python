@@ -19,27 +19,50 @@ By the end of this chapter you can:
 
 ## Why this matters
 
-A customs declaration has an order. Refuse a consignment with nothing in it, classify each commodity, total the declared value in one currency, assess duty, then list the documents with the commercial invoice first. Destinations differ in how they classify, how they assess duty and which extra documents they want. They shouldn't differ in the order, or in whether the refusal happens.
+A customs declaration has an order, and destinations vary only some of its steps. The familiar base class lets one destination override a preparation step, skip the base version and issue a declaration with no commodity lines, and mypy accepts it. A function that takes the varying steps fixes the order with nothing to override.
 
-The familiar way to write that is a base class with the order in one method and the varying steps as overridable ones. It works until a destination subclass overrides a preparation step, forgets to call the base version, and issues a declaration with no commodity lines. mypy accepts that code. The failure is quiet: a declaration is issued, and it's wrong.
+{% include excalidraw.html name="13-template-method-and-the-function-alternative" described="true" caption="Figure 13.1: One customs skeleton, two ways to vary it. declare_customs fixes the order and the invariant steps and takes hooks for the rest; CustomsDeclarer keeps the same skeleton final and lets a family of destinations share its schedule." %}
 
-Two other designs have failures of their own. In a bag of hooks where every hook has a default, a destination can omit its classification and still get a declaration, because nothing is missing as far as the type is concerned. A `Protocol` given default method bodies suggests that every class that matches inherits the defaults, and a class that matches structurally doesn't.
+<details class="figure-description" markdown="1">
+<summary>Describe the figure</summary>
+<div id="desc-13-template-method-and-the-function-alternative" markdown="1">
+Read from the top down, in the order `declare_customs` runs. Two arrows feed the accent box at the top. From the left, `CustomsHooks` supplies functions per destination, with Singapore shown. From the right, `CustomsDeclarer` supplies bound methods that become hooks, and `NetherlandsDeclarer` and `GermanyDeclarer` point up into it. Below the box, the grey steps are invariant and the blue ones are hooks: refuse an empty consignment, classify each commodity, total in one currency, assess duty, then the commercial invoice first. A side box, `extra_documents` with the default "none", feeds that last step. The column ends at `CustomsDeclaration`.
+</div>
+</details>
 
-{% include excalidraw.html name="13-template-method-and-the-function-alternative" caption="Figure 13.1: One customs skeleton, two ways to vary it. declare_customs fixes the order and the invariant steps and takes hooks for the rest; CustomsDeclarer keeps the same skeleton final and lets a family of destinations share its schedule." %}
+The figure shows one skeleton fed either by hooks or by a class's bound methods.
 
-Read the figure from the top down, in the order `declare_customs` runs. Two arrows feed the accent box at the top. From the left, `CustomsHooks` supplies functions per destination, with Singapore as the example. From the right, `CustomsDeclarer` supplies bound methods that become hooks, and `NetherlandsDeclarer` and `GermanyDeclarer` point up into it. Below the box, the grey steps are invariant and the blue ones are hooks: refuse an empty consignment, classify each commodity, total in one currency, assess duty, then the commercial invoice first. A side box, `extra_documents` with the default "none", feeds that last step. The column ends at `CustomsDeclaration`.
+## Pattern: Template Method
 
-## An order variants can't change
+### The problem
 
-*Design Patterns* by Gamma, Helm, Johnson and Vlissides (1994) catalogues Template Method for a procedure whose order a base class fixes while subclasses supply the steps that vary. The force is the one above, a sequence that has to hold across variants that differ in a few steps.
+A declaration refuses a consignment with nothing in it, classifies each commodity, totals the declared value in one currency, assesses duty, then lists the documents with the commercial invoice first. Destinations differ in how they classify, how they assess duty and which extra documents they want. They shouldn't differ in the order, or in whether the refusal happens. The force is a sequence that has to hold across variants that differ in a few steps.
 
-The pattern straddles two buckets. The hook structure dissolves: a function that takes the varying steps as arguments fixes the order as well as a base class does, with nothing to inherit from. The inheritance form survives where a family of variants shares state and code across several steps. Where that line falls is the question [The three-way split: dissolve, survive, disambiguate]({{ '/docs/03-the-three-way-split/' | relative_url }}) left open for this pattern, and the sections below answer it.
+Three designs fail quietly:
 
-Each hook here is a strategy in the sense of [Strategy: the callable]({{ '/docs/12-strategy-the-callable/' | relative_url }}), a plain function chosen by the caller. What a hook shares with its neighbours is a fixed order and the invariant steps around it. A skeleton like this has three kinds of step, and the design is mostly deciding which kind each one is. An invariant step sits outside every hook and no variant can touch it. A required hook has no default, so a variant that forgets it fails at construction. An optional hook has a default, so omitting it is a decision the variant made. The mistake to look for is a step in the wrong kind: an invariant left inside an overridable method, or a required hook given a default because it was convenient.
+- **A base class with overridable steps.** A destination subclass overrides a preparation step, forgets to call the base version, and issues a declaration with no commodity lines. mypy accepts it.
+- **A bag of hooks that all have defaults.** A destination omits its classification and still gets a declaration, because nothing is missing as far as the type is concerned.
+- **A `Protocol` with default method bodies.** It suggests every matching class inherits the defaults, and a class that matches structurally doesn't.
 
-The tariff codes and duty rates in the example are illustrative and make no claim about any destination's rules.
+### The solution
 
-## The function form: fixed steps and hooks
+A **Template Method** fixes the order of a procedure in one place and lets variants supply only the steps that differ.
+
+**Bucket: dissolves.** A function that takes the varying steps as arguments fixes the order as well as a base class does; the inheritance form survives where a family of variants shares state and code across several steps.
+
+*Design Patterns* by Gamma, Helm, Johnson and Vlissides (1994) builds it with a base class. [The three-way split: dissolve, survive, disambiguate]({{ '/docs/03-the-three-way-split/' | relative_url }}) left open where the line falls for this pattern; the sections below draw it.
+
+A skeleton has three kinds of step:
+
+| Kind | Default | A variant that leaves it out |
+| --- | --- | --- |
+| Invariant | not a hook | can't touch it |
+| Required hook | none | fails at construction |
+| Optional hook | yes | made a decision |
+
+The mistake to look for is a step of the wrong kind: an invariant inside an overridable method, or a required hook given a default because it was convenient. Each hook is a strategy in the sense of [Strategy: the callable]({{ '/docs/12-strategy-the-callable/' | relative_url }}). The tariff codes and duty rates are illustrative and make no claim about any destination's rules.
+
+### How Python models it
 
 The varying steps are a frozen dataclass. `classify` and `duty` have no default, and `extra_documents` has one:
 
@@ -72,11 +95,9 @@ def declare_customs(consignment: Consignment, *, hooks: CustomsHooks) -> Customs
     return CustomsDeclaration(consignment.id, hooks.country, lines, declared_value, duty, documents)
 ```
 
-Two of the lookups raise on a miss rather than guess. `lookup_tariff_code` and `schedule_duty` turn a missing table entry into a `CustomsError` that names the commodity or the tariff code, with the original `KeyError` suppressed, and `test_an_unclassified_commodity_is_refused` and `test_a_tariff_code_without_a_duty_rate_is_refused` check both on both forms. Duty rounds half up to the cent: `test_duty_rounds_half_up_to_cents` uses 28.50 at 5%, where half up gives 1.43 and half even would give 1.42.
+A hook can't remove the empty-consignment guard or drop the invoice, because neither is a hook. The hooks run in order: `classify` for each commodity, then `duty`, then `extra_documents`. Mixed currencies are refused at the total, because `Money` adds only within one currency. `lookup_tariff_code` and `schedule_duty` turn a missing table entry into a `CustomsError` naming the commodity or the tariff code, with the original `KeyError` suppressed. Duty rounds half up to the cent: 28.50 at 5% gives 1.43, where half even would give 1.42.
 
-A hook can't remove the empty-consignment guard or drop the invoice, because neither is a hook. `test_declare_customs_runs_its_steps_in_order` hands in recording hooks and sees `classify` for each commodity, then `duty`, then `extra_documents`. `test_a_declaration_in_two_currencies_is_refused` shows the total step refusing mixed currencies, because `Money` adds only within one currency, and the invoice-first test checks `documents[0]` on both forms.
-
-Leaving out a hook with no default is a `TypeError` at construction, and `test_a_required_hook_cannot_be_left_out` matches `missing 1 required keyword-only argument: 'classify'`. mypy sees the same mistake before the code runs. The test that runs the snippet through the test module's own helper reports:
+Leaving out a required hook is a `TypeError` at construction (`missing 1 required keyword-only argument: 'classify'`), and mypy sees it first:
 
 ```text
 <string>:9: error: Missing named argument "classify" for "CustomsHooks"  [call-arg]
@@ -88,13 +109,11 @@ A hook with the wrong signature fails at the same place, and the message names t
 <string>:16: error: Argument "duty" to "CustomsHooks" has incompatible type "Callable[[Money, Decimal], Money]"; expected "Callable[[tuple[DeclarationLine, ...]], Money]"  [arg-type]
 ```
 
-Leaving out `extra_documents` is fine. `SINGAPORE` doesn't pass one, and `test_a_hook_left_out_takes_its_default` shows it takes `no_extra_documents`, so its document list holds the commercial invoice alone.
+Leaving out `extra_documents` is fine. `SINGAPORE` doesn't pass one, takes `no_extra_documents`, and lists the commercial invoice alone.
 
-## Defaults in a Protocol reach only subclasses
+### Defaults in a Protocol reach only subclasses
 
-It's tempting to describe the hooks as a `Protocol` and put the default `extra_documents` in its body. [PEP 544](https://peps.python.org/pep-0544/), by Levkivskyi, Lehtosalo and Langa, says where that default goes. In its section "Explicitly declaring implementation" it states: "The default implementations cannot be used if the subtype relationship is implicit and only via structural subtyping". A class that lists the protocol as a base inherits the body. A class that merely has matching methods doesn't.
-
-The test fixtures make the difference concrete:
+It's tempting to describe the hooks as a `Protocol` and put the default `extra_documents` in its body. [PEP 544](https://peps.python.org/pep-0544/), by Levkivskyi, Lehtosalo and Langa, says where that default goes. Its section "Explicitly declaring implementation" states: "The default implementations cannot be used if the subtype relationship is implicit and only via structural subtyping". A class that lists the protocol as a base inherits the body. A class that merely has matching methods doesn't:
 
 ```python
 class _DocumentHooks(Protocol):
@@ -115,7 +134,7 @@ class _StructuralHooks:
         return "0000.00"
 ```
 
-`test_protocol_defaults_reach_only_explicit_subclasses` calls `extra_documents` on both. The explicit subclass returns `()`. The structural one raises `AttributeError` with `has no attribute 'extra_documents'`. The type checker agrees that the structural class doesn't match: `test_mypy_requires_every_protocol_member_for_a_structural_match` assigns one to a `DestinationRules` variable and reports:
+`extra_documents` on the explicit subclass returns `()`. On the structural one it raises `AttributeError`. mypy agrees that the structural class doesn't match:
 
 ```text
 <string>:19: error: Incompatible types in assignment (expression has type "Structural", variable has type "DestinationRules")  [assignment]
@@ -123,11 +142,11 @@ class _StructuralHooks:
 <string>:19: note:     extra_documents
 ```
 
-A default that should apply to every caller belongs where every caller reaches it: on a dataclass field, as `CustomsHooks` does, or in the template function. For explicit subclasses of a `Protocol` being nominal and what that does to the checker, see [Protocol, duck typing, and structural typing with mypy]({{ '/docs/09-protocol-and-structural-typing/' | relative_url }}).
+Put a default that should apply to every caller where every caller reaches it: on a dataclass field, as `CustomsHooks` does, or in the template function. For explicit `Protocol` subclasses being nominal, see [Protocol, duck typing, and structural typing with mypy]({{ '/docs/09-protocol-and-structural-typing/' | relative_url }}).
 
-## When steps share state: the ABC form
+### When steps share state: the ABC form
 
-Singapore's hooks are separate functions that share no state. The Netherlands and Germany are a different shape. Both classify with the same EU table and assess duty from the same EU schedule, and they differ in country and documents. Written as hooks, that's the same schedule bound into a hook for each destination. The repetition is the sign that the family has become one thing, and a class says so:
+Singapore's hooks share no state. The Netherlands and Germany both classify with the same EU table and assess duty from the same EU schedule, and differ in country and documents. Written as hooks, that's the same schedule bound into each destination's hook. The repetition says the family is one thing, and a class says so:
 
 <!-- fmt:off -->
 ```python
@@ -163,15 +182,18 @@ class CustomsDeclarer(ABC):
 ```
 <!-- fmt:on -->
 
-The class holds two pieces of state that the function form has to thread through hooks: the classification table and the duty schedule. `extra_documents` is abstract, so a subclass without it can't be built: `test_a_declarer_without_its_documents_cannot_be_built` expects a `TypeError` naming the abstract method, and the `abc` module's [documentation](https://docs.python.org/3.15/library/abc.html) describes the mechanism. `declare` is final and hands the declarer's own bound methods to `declare_customs`, so the skeleton exists once and the class adds no second copy of the order.
+The class holds the classification table and the duty schedule, which the function form would thread through hooks. `extra_documents` is abstract, so a subclass without it raises `TypeError` at construction; the [`abc` documentation](https://docs.python.org/3/library/abc.html) describes the mechanism. `declare` is final and hands the declarer's bound methods to `declare_customs`, so the order exists once.
 
-`test_two_destinations_share_the_schedule_and_differ_in_documents` gives equal lines and equal duty and different documents, with the two instances sharing one classification object. `test_the_template_and_the_hooks_give_the_same_declaration` shows the class form and the function form produce an equal declaration for the Netherlands. The shared invariant tests run on both forms through a fixture with two parameters, `hooks` and `template`, so each of those checks runs against both.
+The two destinations give equal lines and duty, different documents, and share one classification object. For the Netherlands the class form and the function form produce equal declarations, and every invariant check runs against both.
 
-The line between the two forms follows from the shared state. One destination, or steps that share nothing, means hooks. A family whose steps read the same state and share code means a class.
+| Shape | Form |
+| --- | --- |
+| One destination, or steps that share nothing | hooks |
+| A family whose steps read the same state and share code | a class with a final template |
 
-## Keeping the skeleton fixed
+### Keeping the skeleton fixed
 
-The failure to guard against is an invariant that lives in an overridable step. The test fixtures show it in a template with a `check` method:
+The failure to guard against is an invariant in an overridable step:
 
 <!-- fmt:off -->
 ```python
@@ -199,23 +221,19 @@ class _ForgetfulDeclarer(_OpenDeclarer):
 ```
 <!-- fmt:on -->
 
-`test_a_subclass_that_skips_the_base_check_declares_nothing` runs an empty consignment through both. `_OpenDeclarer` raises `no commodities to declare`. `_ForgetfulDeclarer` returns a declaration whose `lines` is `()`. The override didn't call the base version, so the guard is gone, and nothing in the signature said it had to be called. `test_mypy_accepts_an_override_that_skips_the_base_step` runs the same shape through mypy, and the run exits 0 with empty output.
+With an empty consignment, `_OpenDeclarer` raises `no commodities to declare`, and `_ForgetfulDeclarer` returns a declaration whose `lines` is `()`. The override didn't call the base version, so the guard is gone, and nothing in the signature said it had to be called. mypy accepts the shape with no output.
 
-`typing.final` on `declare` is the way to close that gap: the invariant lives in a method the checker refuses to let a subclass override. The [`typing` documentation](https://docs.python.org/3.15/library/typing.html) says that decorating a method with `@final` "indicates to a type checker that the method cannot be overridden in a subclass", and adds: "There is no runtime checking of these properties." [PEP 591](https://peps.python.org/pep-0591/) specifies the feature. Both halves are in the example. mypy rejects an override:
+`typing.final` on `declare` closes that gap for the checker. The [`typing` documentation](https://docs.python.org/3/library/typing.html) says `@final` on a method "indicates to a type checker that the method cannot be overridden in a subclass", and adds: "There is no runtime checking of these properties." [PEP 591](https://peps.python.org/pep-0591/) specifies the feature. mypy rejects an override:
 
 ```text
 <string>:7: error: Cannot override final attribute "declare" (previously declared in base class "CustomsDeclarer")  [misc]
 ```
 
-The runtime doesn't. `test_final_marks_the_template_without_enforcing_it` shows `CustomsDeclarer.declare.__final__` is `True`, and that a subclass overriding `declare` runs its override and returns its own declaration. The decorator marks the method for the checker, and the check happens only where the checker runs. A skeleton that's a plain function has no such gap, because there's nothing to override.
+The runtime doesn't. `CustomsDeclarer.declare.__final__` is `True`, and a subclass that overrides `declare` still runs its override. The check happens only where the checker runs. A skeleton that's a plain function has no such gap, because there's nothing to override.
 
 ## When not to use it
 
-Write a function when there is one variant.
-
-If every hook is optional, nothing is fixed. That's a pipeline of strategies, and a list of callables says it more directly than a skeleton. If the order itself changes by destination, the thing to model is a list of stages; [Mediator and Chain of Responsibility]({{ '/docs/23-mediator-and-chain-of-responsibility/' | relative_url }}) is the place for clearance stages that can stop a consignment.
-
-A class is the wrong tool when the steps share nothing. Binding unrelated functions into a class to get an overridable method adds inheritance and buys no shared state.
+- **Template Method.** Write a function when there is one variant. If every hook is optional, nothing is fixed: that's a pipeline of strategies, and a list of callables says it more directly. If the order itself changes by destination, model a list of stages; [Mediator and Chain of Responsibility]({{ '/docs/23-mediator-and-chain-of-responsibility/' | relative_url }}) covers clearance stages that can stop a consignment. A class is the wrong tool when the steps share nothing: binding unrelated functions into a class adds inheritance and buys no shared state.
 
 <blockquote class="ai-sidebar" markdown="1">
 
@@ -223,7 +241,7 @@ A class is the wrong tool when the steps share nothing. Binding unrelated functi
 
 > Write `declare_customs` as a function that fixes the order and the invariant steps (refuse an empty consignment, total in one currency, invoice first) and takes `CustomsHooks`, a frozen keyword-only dataclass with `classify` and `duty` undefaulted and `extra_documents` defaulted. Use an ABC only when destinations share a table and a schedule, and mark its `declare` with `typing.final`. No default bodies in a `Protocol`.
 
-If an invariant sits inside a hook, ask for the test where a variant skips it.
+If an invariant sits inside a hook, ask for a test where a variant skips it.
 
 </blockquote>
 
@@ -233,97 +251,25 @@ From the repository root, once, `uv sync --locked --all-packages`. Then:
 
 ```bash
 cd examples/13-template-method-and-the-function-alternative
-uv run pytest -v
+uv run pytest -v --no-header
 uv run mypy --strict src tests
 ```
 
-A fresh run produces:
+All 28 cases pass, the shared invariants against both forms, and mypy reports `Success: no issues found in 9 source files`. Two experiments, each in a scratch copy:
 
-```text
-============================= test session starts ==============================
-platform linux -- Python 3.15.2, pytest-9.2.0, pluggy-1.7.0 -- <repo>/.venv/bin/python
-cachedir: .pytest_cache
-rootdir: <repo>
-configfile: pyproject.toml
-plugins: mock-3.17.0
-collecting ... collected 28 items
-
-tests/test_hooks.py::test_declare_customs_runs_its_steps_in_order PASSED [  3%]
-tests/test_hooks.py::test_a_hook_left_out_takes_its_default PASSED       [  7%]
-tests/test_hooks.py::test_a_declaration_needs_at_least_one_commodity[hooks] PASSED [ 10%]
-tests/test_hooks.py::test_a_declaration_needs_at_least_one_commodity[template] PASSED [ 14%]
-tests/test_hooks.py::test_a_declaration_in_two_currencies_is_refused[hooks] PASSED [ 17%]
-tests/test_hooks.py::test_a_declaration_in_two_currencies_is_refused[template] PASSED [ 21%]
-tests/test_hooks.py::test_the_commercial_invoice_is_always_first[hooks] PASSED [ 25%]
-tests/test_hooks.py::test_the_commercial_invoice_is_always_first[template] PASSED [ 28%]
-tests/test_hooks.py::test_a_required_hook_cannot_be_left_out PASSED      [ 32%]
-tests/test_hooks.py::test_an_unclassified_commodity_is_refused[hooks] PASSED [ 35%]
-tests/test_hooks.py::test_an_unclassified_commodity_is_refused[template] PASSED [ 39%]
-tests/test_hooks.py::test_duty_rounds_half_up_to_cents PASSED            [ 42%]
-tests/test_hooks.py::test_a_tariff_code_without_a_duty_rate_is_refused[hooks] PASSED [ 46%]
-tests/test_hooks.py::test_a_tariff_code_without_a_duty_rate_is_refused[template] PASSED [ 50%]
-tests/test_hooks.py::test_a_declaration_lists_a_line_per_commodity_and_totals_them[hooks] PASSED [ 53%]
-tests/test_hooks.py::test_a_declaration_lists_a_line_per_commodity_and_totals_them[template] PASSED [ 57%]
-tests/test_hooks.py::test_every_value_in_the_model_is_frozen PASSED      [ 60%]
-tests/test_protocol_defaults.py::test_protocol_defaults_reach_only_explicit_subclasses PASSED [ 64%]
-tests/test_static.py::test_mypy_rejects_overriding_the_final_template PASSED [ 67%]
-tests/test_static.py::test_mypy_accepts_an_override_that_skips_the_base_step PASSED [ 71%]
-tests/test_static.py::test_mypy_checks_hooks_at_construction[missing-required] PASSED [ 75%]
-tests/test_static.py::test_mypy_checks_hooks_at_construction[wrong-signature] PASSED [ 78%]
-tests/test_static.py::test_mypy_requires_every_protocol_member_for_a_structural_match PASSED [ 82%]
-tests/test_template.py::test_the_template_and_the_hooks_give_the_same_declaration PASSED [ 85%]
-tests/test_template.py::test_a_declarer_without_its_documents_cannot_be_built PASSED [ 89%]
-tests/test_template.py::test_final_marks_the_template_without_enforcing_it PASSED [ 92%]
-tests/test_template.py::test_a_subclass_that_skips_the_base_check_declares_nothing PASSED [ 96%]
-tests/test_template.py::test_two_destinations_share_the_schedule_and_differ_in_documents PASSED [100%]
-
-============================== 28 passed in 2.30s ==============================
-Success: no issues found in 9 source files
-```
-
-The suite has 21 test functions and 28 cases. Seventeen of those cases are in the hooks module's tests, and the rest cover the class form, the `Protocol` fixture and the static witnesses.
-
-**Experiment one: remove `@final`.** In a scratch copy, delete the `@final` line above `declare` in `CustomsDeclarer`. Running `uv run pytest -q 2>&1 | grep -E '^(FAILED|E {7}[^ ]|tests/.*Error$|[0-9]+ (passed|failed))'` and then the member's mypy run gives:
-
-```text
-E       assert 0 == 1
-tests/test_static.py:47: AssertionError
-E       AssertionError: assert False is True
-tests/test_template.py:74: AssertionError
-FAILED tests/test_static.py::test_mypy_rejects_overriding_the_final_template
-FAILED tests/test_template.py::test_final_marks_the_template_without_enforcing_it
-2 failed, 26 passed in 2.34s
-tests/test_template.py:41: error: Unused "type: ignore" comment  [unused-ignore]
-Found 1 error in 1 file (checked 9 source files)
-```
-
-The runtime test fails because `__final__` is no longer set. The static test fails because the override snippet is now accepted. The member's own mypy run reports the unused `type: ignore` on the `_OverridingDeclarer` fixture, the subclass that overrides `declare` in the runtime test, because the ignore no longer has an error to cover.
-
-**Experiment two: remove the no-commodities guard.** In a fresh scratch copy, delete the two-line `if not consignment.commodities:` block in `declare_customs`. The same filtered run, then the member's mypy run, gives:
-
-```text
-E       IndexError: list index out of range
-E       IndexError: list index out of range
-E       IndexError: list index out of range
-FAILED tests/test_hooks.py::test_a_declaration_needs_at_least_one_commodity[hooks]
-FAILED tests/test_hooks.py::test_a_declaration_needs_at_least_one_commodity[template]
-FAILED tests/test_template.py::test_a_subclass_that_skips_the_base_check_declares_nothing
-3 failed, 25 passed in 2.18s
-Success: no issues found in 9 source files
-```
-
-Both cases of `test_a_declaration_needs_at_least_one_commodity` fail, and so does the Netherlands check at the end of `test_a_subclass_that_skips_the_base_check_declares_nothing`. The next step in the function, taking the first of the values, hits an empty list. Without the guard the failure is an `IndexError` from a later line and not a refusal that names the consignment. mypy stays green, because nothing in a type says a consignment must have a commodity.
+- **Remove `@final` from `declare`.** Two tests fail: `__final__` is no longer set, and mypy now accepts the override snippet. mypy on the member reports an `Unused "type: ignore" comment` on the overriding fixture, because the ignore has no error left to cover.
+- **Remove the no-commodities guard.** Three tests fail with `IndexError: list index out of range` from the totalling step, a later line, instead of a refusal that names the consignment. mypy stays green, because no type says a consignment must have a commodity.
 
 ## What you can do now
 
 - Say what dissolves and what survives: `declare_customs` takes `CustomsHooks`, and the ABC form survives where steps share state.
-- Write the skeleton: `test_a_required_hook_cannot_be_left_out` and `test_a_hook_left_out_takes_its_default`, with the guard and the invoice outside every hook.
-- Place a default where it is reached: `test_protocol_defaults_reach_only_explicit_subclasses` against a dataclass default.
+- Write a skeleton with required hooks undefaulted, optional hooks defaulted, and the guard and the invoice outside every hook.
+- Put a default where every caller reaches it, on a dataclass field, not in a `Protocol` body.
 - Read `typing.final`: a type-check error on an override, and a runtime `__final__` attribute that stops nothing.
-- Choose between hooks and the ABC form: `CustomsDeclarer` and `test_two_destinations_share_the_schedule_and_differ_in_documents` share a schedule and state, so the ABC form fits.
+- Choose between hooks and the ABC form: `CustomsDeclarer` fits because its destinations share a schedule and state.
 
 ## For deeper coverage
 
-*Design Patterns* (Gamma, Helm, Johnson and Vlissides) is the source for Template Method. [PEP 544](https://peps.python.org/pep-0544/) covers protocols and explicit subclassing, [PEP 591](https://peps.python.org/pep-0591/) and the [`typing.final` documentation](https://docs.python.org/3.15/library/typing.html) cover final methods, and the [`abc`](https://docs.python.org/3.15/library/abc.html) and [`dataclasses`](https://docs.python.org/3.15/library/dataclasses.html) documentation cover abstract methods, `kw_only` and field defaults.
+*Design Patterns* (Gamma, Helm, Johnson and Vlissides) is the source for Template Method. [PEP 544](https://peps.python.org/pep-0544/) covers protocols and explicit subclassing, [PEP 591](https://peps.python.org/pep-0591/) and the [`typing.final` documentation](https://docs.python.org/3/library/typing.html) cover final methods, and the [`abc`](https://docs.python.org/3/library/abc.html) and [`dataclasses`](https://docs.python.org/3/library/dataclasses.html) documentation cover abstract methods, `kw_only` and field defaults.
 
 Luciano Ramalho's *Fluent Python*, second edition, has a chapter titled "Inheritance: For Better or For Worse" on when subclassing pays for itself. Brett Slatkin's *Effective Python*, third edition, has short rules on classes and typing in the same spirit. Both are on the [bibliography page]({{ '/bibliography/' | relative_url }}).

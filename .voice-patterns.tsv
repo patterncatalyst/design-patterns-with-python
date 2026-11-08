@@ -1,0 +1,5 @@
+# Book-specific thesis phrases (T11). Columns: tier, case, label, regex.
+terse	i	thesis framing ("the bucket is")	\bthe bucket is\b
+terse	i	thesis framing ("sorts it")	\bsorts it\b
+terse	i	thesis framing ("the force behind")	\bthe force behind\b
+terse	i	thesis framing ("That's the force")	\bthat('s| is) the force\b

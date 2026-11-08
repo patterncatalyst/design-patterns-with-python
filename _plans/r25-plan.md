@@ -406,8 +406,8 @@ C1a and C1b run first, alone, because they touch many files mechanically. Then C
 | C4a | Reconciliation: the 32 legacy rows re-witnessed (decision 6), VA5, rows 437 onward added with resolving tokens | C3b | done |
 | C5a | Opus validation with the three independent readers (QA steps 7 and 8); rows that start `open` closed | C4a | done |
 | C5b | Repair rounds (at most two), each followed by a confirmation, the last one included (QA step 9) | C5a | done |
-| C6 | PR, `ci-ok` green, the hub PR (decision 12) opened; ask the owner before merging either | C5b | todo |
-| C7 | After the owner's word: squash-merge, delete the branch, tag `r25.x` on main, notes-only release; PRD status and series line set to complete; `iteration-plan.md` closes r25 | C6 | todo |
+| C6 | PR, `ci-ok` green, the hub PR (decision 12) opened; ask the owner before merging either | C5b | done |
+| C7 | After the owner's word: squash-merge, delete the branch, tag `r25.x` on main, notes-only release; PRD status and series line set to complete; `iteration-plan.md` closes r25 | C6 | done |
 
 ## Reconciliation rows
 
@@ -464,6 +464,7 @@ Row 30's deepcopy claim (VO6) gets a row at C4a only if TS2 adds its test. A def
 - **Orphaned processes.** soffice, node, the HTTP server and headless Firefox. Mitigation: `pgrep -x soffice.bin`, `pgrep -af 'http.server|firefox'` before handback.
 
 ## Corrections after the build
+- Step C6 and C7: done (recorded 2026-11-08 at r26 B0, BK1). PR #26 was squash-merged as 15cc747 and tagged `r25.x`, with the notes-only release "r25.x: Retro and QA sweep". Hub PR #63 (the URL fix) was merged as 903c077 and hub PR #62 (the Python book no longer cites Mythical Man-Month or Code Complete) as 9a3b034. Under owner decision O2 the PRD status says the terse rewording is in progress, not complete; that line is updated outside this repo.
 - Step C1a: done in 3621f97.
   - **VA1:** CLAUDE.md's gate now has `--exclude .venv-ft` (the command reports 0).
   - **VA2:** Decks 201 and 301 refuse the three-way-split labels in every inflection, with 101 exempt. Every deck refuses "the deck" outside the opening sentence of the cover notes.

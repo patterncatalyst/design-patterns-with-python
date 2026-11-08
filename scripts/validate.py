@@ -22,7 +22,7 @@ import sys
 import tempfile
 import tomllib
 import zipfile
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -32,7 +32,12 @@ ROOT = Path(__file__).resolve().parent.parent
 EXPECTED_DOCS = 47
 EM_DASH = "\u2014"
 PROSE_STATUSES = frozenset({"done", "drafted", "verified"})
-MIN_WORDS = 1900
+# Docs the terse rewording has finished (r26 plan, decision 6). r26 adds each pilot doc as it
+# lands; r27 and r28 extend the set. Empty on an unreworded tree, so the checks cost nothing.
+TERSE_DOCS: frozenset[int] = frozenset(range(47))
+# Pattern-kind chapters about Python mechanisms (decorators, descriptors, singledispatch,
+# metaclasses, dynamic attributes, shortcut idioms): they keep their own H2s, not `## Pattern:`.
+IDIOM_DOCS: frozenset[int] = frozenset(range(26, 32))
 MAX_WORDS = 2500
 CAPTION_MIN = 20
 CAPTION_MAX = 45
@@ -378,11 +383,8 @@ def check_prose(rel: str, text: str, kind: str, status: str) -> tuple[list[Findi
         if kind != "appendix" and figures != 1:
             errors.append(Finding(rel, 1, f"{figures} figure includes, need exactly 1"))
         words = word_count(text)
-        # The floor is a target, not a gate (owner decision 2026-11-05): never pad to reach it.
-        if words < MIN_WORDS:
-            message = f"prose has {words} words, below the {MIN_WORDS} target"
-            warnings.append(Finding(rel, 1, message))
-        elif words > MAX_WORDS:
+        # No floor (owner decision, r25 O2): length serves the reader. The ceiling stays.
+        if words > MAX_WORDS:
             errors.append(Finding(rel, 1, f"prose has {words} words, above {MAX_WORDS}"))
         if kind == "pattern":
             count = text.count(SIDEBAR)
@@ -391,6 +393,208 @@ def check_prose(rel: str, text: str, kind: str, status: str) -> tuple[list[Findi
                     Finding(rel, 1, f"pattern chapter has {count} ai-sidebar blocks, need 1")
                 )
     return errors, warnings
+
+
+# ------------------------------------------------- terse rewording checks (r26)
+
+TESTS_LINE_RE = re.compile(r"^\s*[-*]?\s*\*Tests?:\*")
+TEST_REF_RE = re.compile(r"`(test_\w+)(?:\[[^`]*\])?`")
+TEST_TICK_RE = re.compile(r"`test_\w+")
+FENCE_LINE_RE = re.compile(r"^\s*(```+|~~~+)")
+H3_RE = re.compile(r"^###\s+(.+?)\s*$")
+BUCKET_RE = re.compile(r"\*\*Bucket: (?:dissolves|survives|needs disambiguating)\.\*\*")
+BUCKET_ANY_RE = re.compile(r"\*\*Bucket:")
+BOLD_RE = re.compile(r"\*\*[^*]+\*\*")
+RELATIVE_URL_RE = re.compile(r"\{\{\s*'([^']*)'\s*\|\s*relative_url\s*\}\}")
+FORCE_RE = re.compile(r"\bforces?\b", re.IGNORECASE)
+LAYOUT_H3 = ("The problem", "The solution", "How Python models it")
+DETAILS_OPEN = '<details class="figure-description"'
+
+
+def tests_line_findings(
+    rel: str, lines: list[tuple[int, str, str | None]], defined: set[str]
+) -> list[Finding]:
+    """`*Tests:*` lines: position rules, and every name a defined test."""
+    out: list[Finding] = []
+    for i, (n, line, fence) in enumerate(lines):
+        if fence is not None or not TESTS_LINE_RE.match(line):
+            continue
+        names = TEST_REF_RE.findall(line)
+        rest = TEST_REF_RE.sub("", TESTS_LINE_RE.sub("", line, count=1))
+        if not names or re.sub(r"[\s,.]|\band\b", "", rest):
+            out.append(Finding(rel, n, "*Tests:* line must hold only backticked test names"))
+        for name in names:
+            if name not in defined:
+                out.append(Finding(rel, n, f"*Tests:* names {name}, which is not a defined test"))
+        if i == 0 or lines[i - 1][1].strip():
+            out.append(Finding(rel, n, "*Tests:* line needs a blank line before it"))
+        prior = next(((ln, fn) for _, ln, fn in reversed(lines[:i]) if ln.strip()), ("", None))
+        if prior[0].lstrip().startswith("#") or prior[1] is not None:
+            out.append(Finding(rel, n, "*Tests:* line must follow a paragraph, list or table"))
+        if i + 1 < len(lines) and lines[i + 1][1].strip():
+            out.append(Finding(rel, n, "*Tests:* line needs a blank line after it"))
+    return out
+
+
+def check_tests_lines(rel: str, text: str, defined: set[str]) -> list[Finding]:
+    return tests_line_findings(rel, body_lines(text), defined)
+
+
+def check_terse_tests(rel: str, text: str) -> list[Finding]:
+    """A backticked test name on a prose line that is not a `*Tests:*` line.
+
+    Counted on the lines `scan.sh --terse-stats` counts: tables, headings, HTML, Liquid and
+    blockquote lines are skipped, as are fences and front matter.
+    """
+    out: list[Finding] = []
+    for n, line in prose_lines(text):
+        s = line.strip()
+        if not s or s.startswith(("|", "#", "<", "{%", "{{", ">")):
+            continue
+        if TEST_TICK_RE.search(s) and not TESTS_LINE_RE.match(line):
+            out.append(Finding(rel, n, "test name inside prose; move it to a *Tests:* line"))
+    return out
+
+
+def check_described_figures(rel: str, text: str) -> list[Finding]:
+    """A `described="true"` include needs its `desc-<name>` description right after it."""
+    out: list[Finding] = []
+    for m in INCLUDE_RE.finditer(text):
+        params = dict(PARAM_RE.findall(m.group(1)))
+        if params.get("described") != "true":
+            continue
+        line = text.count("\n", 0, m.start()) + 1
+        tail = text[m.end() :]
+        nxt = re.search(r"\{%-?\s*include\s+excalidraw\.html|^##\s", tail, re.MULTILINE)
+        window = tail[: nxt.start()] if nxt else tail
+        want = f'id="desc-{params.get("name", "")}"'
+        pos = window.find(want)
+        head = window[:pos] if pos >= 0 else ""
+        if pos < 0 or DETAILS_OPEN not in head or "</details>" in head or head.count("\n\n") > 2:
+            out.append(Finding(rel, line, f"described figure needs {DETAILS_OPEN}> with {want}"))
+    return out
+
+
+def check_undescribed_figures(rel: str, text: str) -> list[Finding]:
+    """In a `TERSE_DOCS` doc every figure include carries `described="true"` (its walk-through
+    lives in the figure description, CLAUDE.md's spine)."""
+    out: list[Finding] = []
+    for m in INCLUDE_RE.finditer(text):
+        params = dict(PARAM_RE.findall(m.group(1)))
+        if params.get("described") != "true":
+            line = text.count("\n", 0, m.start()) + 1
+            out.append(
+                Finding(rel, line, 'figure include needs described="true" and a description')
+            )
+    return out
+
+
+def check_pattern_layout(rel: str, text: str) -> list[Finding]:
+    """The O1 layout for a pattern chapter: one `## Pattern: <Name>` H2 per pattern."""
+    out: list[Finding] = []
+    lines = prose_lines(text)
+    h2s = [(n, m.group(1)) for n, ln in lines if (m := H2_RE.match(ln))]
+    starts = [i for i, (_, title) in enumerate(h2s) if title.startswith("Pattern: ")]
+    if not starts:
+        return [Finding(rel, 1, "pattern chapter has no '## Pattern: <Name>' H2")]
+    titles = [t for _, t in h2s]
+    why = titles.index("Why this matters") if "Why this matters" in titles else -1
+    when = titles.index("When not to use it") if "When not to use it" in titles else -1
+    for i in starts:
+        n, title = h2s[i]
+        if why < 0 or when < 0 or not why < i < when:
+            msg = f"'## {title}' must sit between Why this matters and When not to use it"
+            out.append(Finding(rel, n, msg))
+        end = h2s[i + 1][0] if i + 1 < len(h2s) else 10**9
+        block = [(ln_no, ln) for ln_no, ln in lines if n < ln_no < end]
+        h3s = [(ln_no, m.group(1)) for ln_no, ln in block if (m := H3_RE.match(ln))]
+        if tuple(t for _, t in h3s[:3]) != LAYOUT_H3:
+            wanted = ", ".join(LAYOUT_H3)
+            out.append(Finding(rel, n, f"'## {title}' must open with the H3s {wanted}, in order"))
+            continue
+        sol = [ln for ln_no, ln in block if h3s[1][0] < ln_no < h3s[2][0]]
+        buckets = sum(len(BUCKET_RE.findall(ln)) for ln in sol)
+        any_buckets = sum(len(BUCKET_ANY_RE.findall(ln)) for ln in sol)
+        if buckets != 1 or any_buckets != 1:
+            out.append(Finding(rel, h3s[1][0], "The solution needs exactly one Bucket line"))
+        definitions = [ln for ln in sol if BOLD_RE.search(BUCKET_RE.sub("", ln))]
+        if len(definitions) != 1:
+            out.append(Finding(rel, h3s[1][0], "The solution needs one bold definition"))
+    in_details = False
+    for n, ln in lines:
+        if "<details" in ln:
+            in_details = True
+        if "</details>" in ln:
+            in_details = False
+        if not in_details and ln.startswith("Read the figure"):
+            out.append(Finding(rel, n, "the walk-through belongs in the figure description"))
+    return out
+
+
+def force_count(text: str) -> int:
+    """Count "force" or "forces" (case-insensitive, whole word) in body prose.
+
+    Excluded: front matter, fenced blocks, inline code and blockquote lines (the AI sidebar and
+    quotations). Headings, tables and Liquid text count. This is the rule the r26 "force"
+    budgets use. It is reported by `--force-count` and not enforced.
+    """
+    total = 0
+    for _, line in prose_lines(text):
+        if line.lstrip().startswith(">"):
+            continue
+        total += len(FORCE_RE.findall(INLINE_CODE_RE.sub(" ", line)))
+    return total
+
+
+def appendix_e_rows(text: str) -> list[tuple[int, list[str]]]:
+    """Five-cell table rows (Pattern, Bucket, Force, When not, Chapter) with line numbers."""
+    rows: list[tuple[int, list[str]]] = []
+    for n, line in prose_lines(text):
+        if not line.startswith("|"):
+            continue
+        line = RELATIVE_URL_RE.sub(r"\1", line)
+        cells = [
+            c.strip().replace("\\|", "|") for c in CELL_SPLIT_RE.split(line.strip().strip("|"))
+        ]
+        if len(cells) != 5 or cells[0] == "Pattern" or set(cells[0]) <= {"-", " "}:
+            continue
+        rows.append((n, cells))
+    return rows
+
+
+def squash(text: str) -> str:
+    return " ".join(text.split())
+
+
+def appendix_e_findings(
+    rel: str, text: str, docs_by_slug: dict[str, str]
+) -> tuple[list[Finding], int]:
+    """Each Bucket, Force and When-not cell must appear verbatim in the chapter it links."""
+    out: list[Finding] = []
+    checked = 0
+    for n, cells in appendix_e_rows(text):
+        m = re.search(r"/docs/([\w-]+)/", cells[4])
+        if not m or m.group(1) not in docs_by_slug:
+            out.append(Finding(rel, n, f"row {cells[0]!r}: Chapter cell links no chapter"))
+            continue
+        chapter = squash(docs_by_slug[m.group(1)])
+        for label, cell in zip(("Bucket", "Force", "When not"), cells[1:4], strict=True):
+            if cell in ("", "-"):
+                continue
+            checked += 1
+            if squash(cell) not in chapter:
+                msg = f"row {cells[0]!r}: {label} cell is not verbatim in {m.group(1)}"
+                out.append(Finding(rel, n, msg))
+    return out, checked
+
+
+def check_appendix_e(root: Path) -> list[Finding]:
+    paths = sorted((root / "_docs").glob("45-*.md"))
+    if not paths:
+        return []
+    docs = {p.stem: p.read_text(encoding="utf-8") for p in (root / "_docs").glob("*.md")}
+    rel = f"_docs/{paths[0].name}"
+    return appendix_e_findings(rel, paths[0].read_text(encoding="utf-8"), docs)[0]
 
 
 def check_xrefs(rel: str, text: str) -> list[Finding]:
@@ -497,19 +701,227 @@ LINK_FILES = (
 
 
 def check_link_forms(rel: str, text: str) -> list[Finding]:
-    """Python docs pin /3.15/, /latest/ only on typing.python.org, canonical O'Reilly URLs."""
+    """Python docs use /3/ (O6: only setup surfaces may name a minor), /latest/ only on
+    typing.python.org, and canonical O'Reilly URLs."""
     out: list[Finding] = []
     for n, line in enumerate(text.split("\n"), start=1):
         for m in LINK_URL_RE.finditer(line):
             url = m.group(0)
             host = url.split("/")[2]
-            if "docs.python.org/3/" in url:
-                out.append(Finding(rel, n, "docs.python.org/3/ must be docs.python.org/3.15/"))
+            if PY_DOCS_MINOR_RE.search(url) and rel not in SETUP_SURFACES:
+                out.append(
+                    Finding(rel, n, "docs.python.org/3.N/ link: use docs.python.org/3/ (O6)")
+                )
             if "/latest/" in url and host != "typing.python.org":
                 out.append(Finding(rel, n, "/latest/ outside typing.python.org"))
             if "oreilly.com/library/view/-/" in url:
                 out.append(Finding(rel, n, "oreilly.com/library/view/-/ is not canonical"))
     return out
+
+
+# O6 (owner, 2026-11-08): the Python version is stated only on setup surfaces. Everywhere else a
+# docs link uses /3/, recorded pytest output is recorded with --no-header, and a bare version
+# mention must be a fact about a feature or a measurement named in VERSION_ALLOW.
+SETUP_SURFACES = frozenset(
+    {
+        "_docs/00-prerequisites.md",
+        "_docs/41-appendix-a-build-and-toolchain.md",
+        "README.md",
+        "index.html",
+        "examples.html",
+        "examples/README.md",
+        "examples/00-prerequisites/README.md",
+        "_examples/00-prerequisites.md",
+    }
+)
+PY_DOCS_MINOR_RE = re.compile(r"docs\.python\.org/3\.\d+/")
+PYTEST_HEADER_RE = re.compile(r"^platform linux -- Python 3\.\d+")
+VERSION_MENTION_RE = re.compile(r"(?<![\w./-])3\.1\d(?:\.\d+)?t?(?!\w|\.\d)")
+VERSION_ALLOW: dict[str, tuple[str, ...]] = {
+    "_docs/02-what-1994-assumed-and-python-dissolves.md": ("new in 3.12",),
+    "_docs/09-protocol-and-structural-typing.md": (
+        "new in 3.15",
+        "Python 3.15 adds a `sentinel`",
+        "On 3.15 there is a deprecation",
+        "What's New in Python 3.15",
+    ),
+    "_docs/10-context-managers.md": (
+        "changed in Python 3.15",
+        "Python 3.15 makes UTF-8",
+        "Python 3.15 changed what",
+        "What's New in Python 3.15",
+        "witnesses the 3.15 behaviour",
+        "the latest 3.14 release",
+        "On 3.15.2 it printed",
+        "only the 3.15 behaviour",
+    ),
+    "_docs/11-testing-with-pytest-pytest-mock-and-mypy.md": ("a Python 3.15 deprecation",),
+    "_docs/12-strategy-the-callable.md": ("new in 3.15",),
+    "_docs/14-state-and-finite-state-machines.md": (
+        "new in 3.15",
+        "under Python 3.15.2 printed",
+        "on Python 3.15.2 that",
+    ),
+    "_docs/15-command-undo-and-command-queues.md": (
+        "Python 3.15 adds the type",
+        "What's New page for 3.15",
+        "[3.15 What's New]",
+    ),
+    "_docs/16-factory-method-and-abstract-factory.md": ("that Python 3.15 adds",),
+    "_docs/17-builder-dataclasses-and-prototype.md": (
+        "in version 3.13",
+        "on Python 3.15.2, `copy.deepcopy",
+    ),
+    "_docs/18-singleton-module-borg-metaclass.md": (
+        "Python 3.15 adds a second rung",
+        "What's New page for 3.15",
+        "that Python 3.15 adds",
+    ),
+    "_docs/20-decorator-pattern-vs-decorator-syntax-and-proxy.md": (
+        "889.35, 3.15 short",
+        "consignment is 3.15 short",
+    ),
+    "_docs/21-composite-and-flyweight.md": (
+        "on Python 3.15.2 on 5 November",
+        "on CPython 3.15.2 that",
+    ),
+    "_docs/22-observer.md": ("A run on Python 3.15.2 of",),
+    "_docs/24-iterator-generators-and-the-iterator-protocol.md": (
+        "added in 3.12",
+        "`strict` in 3.13",
+    ),
+    "_docs/25-visitor-memento-interpreter.md": ("lazily since 3.14",),
+    "_docs/26-decorators-done-right.md": (
+        "since Python 3.14",
+        "On 3.15.2 `functools",
+        "page for 3.15.2 still",
+    ),
+    "_docs/27-descriptors-and-properties.md": ("and on 3.15.2 the message", "New in 3.12"),
+    "_docs/28-singledispatch.md": ("accepted since 3.11",),
+    "_docs/29-metaclasses-init-subclass-and-registries.md": ("on the 3.15 branch",),
+    "_docs/30-dynamic-attributes-and-proxy.md": (
+        "On 3.15.2, `history.stauts",
+        "On 3.15 the importing side",
+    ),
+    "_docs/31-shortcut-patterns-dict-dispatch-and-eafp.md": (
+        "new in 3.15",
+        "on Python 3.15.2 (best",
+    ),
+    "_docs/33-seams-in-python.md": ("Python 3.15.2's `unittest.mock`",),
+    "_docs/37-the-gil-and-performance.md": (
+        "the 3.14 release",
+        "recorded probe runs on 3.15.2",
+        "run on Python 3.15.2",
+        "Python 3.15.2, default build",
+        "Python 3.15.2, free-threading build",
+        "python install 3.15.2t",
+        "sync --python 3.15.2t",
+    ),
+    "_docs/38-asyncio-and-the-patterns.md": (
+        "on Python 3.15.2 that called",
+        "What's New in Python 3.15",
+    ),
+    "_docs/43-appendix-c-mocking.md": (
+        "On Python 3.15.2 `unsafe=True`",
+        "source for 3.17.0",
+        "On 3.17.0 only",
+    ),
+    "_examples/09-protocol-and-structural-typing.md": (
+        "A 3.15 `sentinel`",
+        "on 3.15 an undecorated",
+    ),
+    "_examples/10-context-managers.md": ("## Python 3.15",),
+    "_examples/12-strategy-the-callable.md": ("over a 3.15 `frozendict`",),
+    "_examples/27-descriptors-and-properties.md": ("since 3.12 its getter",),
+    "examples/09-protocol-and-structural-typing/README.md": (
+        "is a 3.15 `sentinel`",
+        "On 3.15 a sub-protocol",
+    ),
+    "examples/10-context-managers/README.md": (
+        "Python 3.15.",
+        "Before 3.15 it exited",
+        "asserts the 3.15",
+    ),
+    "examples/12-strategy-the-callable/README.md": ("over a 3.15 `frozendict`",),
+    "examples/14-state-and-finite-state-machines/README.md": ("What Python 3.15 changes",),
+    "examples/21-composite-and-flyweight/README.md": ("CPython 3.15.2 behaviour",),
+    "examples/27-descriptors-and-properties/README.md": ("Since 3.12 the getter",),
+    "examples/37-the-gil-and-performance/README.md": (
+        "python install 3.15.2t",
+        "sync --python 3.15.2t",
+    ),
+    "examples/38-asyncio-and-the-patterns/README.md": (
+        "python install 3.15.2t",
+        "sync --python 3.15.2t",
+    ),
+}
+
+
+def check_pytest_header(rel: str, text: str) -> list[Finding]:
+    """O6: a recorded pytest run in a fence is recorded with --no-header."""
+    out: list[Finding] = []
+    in_fence = False
+    for n, line in enumerate(text.split("\n"), start=1):
+        if line.startswith("```"):
+            in_fence = not in_fence
+        elif in_fence and PYTEST_HEADER_RE.match(line):
+            out.append(
+                Finding(rel, n, "pytest platform header in a fence: record with --no-header")
+            )
+    return out
+
+
+REPO_PATH_PHRASE = "with the repository path shown as `<repo>`"
+
+
+def check_repo_path_phrase(rel: str, text: str) -> list[Finding]:
+    """O6 sweep: the phrase promising a `<repo>` path must lead into a fence that shows one.
+    A run recorded with --no-header prints no rootdir, so the phrase would be stale there."""
+    out: list[Finding] = []
+    lines = text.split("\n")
+    for n, line in enumerate(lines, start=1):
+        if REPO_PATH_PHRASE not in line:
+            continue
+        i = n
+        while i < len(lines) and not lines[i].strip():
+            i += 1
+        fence: list[str] = []
+        if i < len(lines) and lines[i].startswith("```"):
+            j = i + 1
+            while j < len(lines) and not lines[j].startswith("```"):
+                fence.append(lines[j])
+                j += 1
+        if not any("<repo>" in ln for ln in fence):
+            msg = "'shown as `<repo>`' before a fence with no <repo> path (a --no-header run)"
+            out.append(Finding(rel, n, msg))
+    return out
+
+
+def check_version_mentions(
+    rel: str, text: str, allow: Mapping[str, tuple[str, ...]] | None = None
+) -> tuple[list[Finding], set[str]]:
+    """O6: a Python 3.1x or bare 3.1x mention outside the setup surfaces must sit inside an
+    allowlisted phrase for that file. Returns the findings and the phrases that were used."""
+    phrases = (VERSION_ALLOW if allow is None else allow).get(rel, ())
+    out: list[Finding] = []
+    used: set[str] = set()
+    for n, line in enumerate(text.split("\n"), start=1):
+        for m in VERSION_MENTION_RE.finditer(line):
+            if PYTEST_MOCK_RE.search(line[: m.start()]):
+                continue  # a pytest-mock package version
+            covered = False
+            for phrase in phrases:
+                start = line.find(phrase)
+                while start != -1:
+                    if start <= m.start() and m.end() <= start + len(phrase):
+                        covered = True
+                        used.add(phrase)
+                    start = line.find(phrase, start + 1)
+            if not covered:
+                out.append(
+                    Finding(rel, n, f"version mention {m.group(0)!r} outside the setup surfaces")
+                )
+    return out, used
 
 
 def link_form_files(root: Path) -> list[Path]:
@@ -968,6 +1380,7 @@ def validate(root: Path) -> Report:
     for slug in sorted(doc_slugs - set(manifest)):
         rep.errors.append(Finding(f"_docs/{slug}.md", 1, "doc is not listed in chapters.toml"))
 
+    defined_tests = test_names(root)
     for doc in docs:
         rel = f"_docs/{doc.name}"
         text = doc.read_text(encoding="utf-8")
@@ -990,6 +1403,13 @@ def validate(root: Path) -> Report:
         errs, warns = check_prose(rel, text, kind, status)
         rep.errors.extend(errs)
         rep.warnings.extend(warns)
+        rep.errors.extend(check_tests_lines(rel, text, defined_tests))
+        if entry.get("number") in TERSE_DOCS:
+            rep.errors.extend(check_terse_tests(rel, text))
+            rep.errors.extend(check_described_figures(rel, text))
+            rep.errors.extend(check_undescribed_figures(rel, text))
+            if kind == "pattern" and entry.get("number") not in IDIOM_DOCS:
+                rep.errors.extend(check_pattern_layout(rel, text))
         rep.errors.extend(check_figure_captions(rel, text))
         rep.errors.extend(check_figure_files(root, rel, text))
         if status == "in-progress":
@@ -1035,12 +1455,33 @@ def validate(root: Path) -> Report:
         rel = path.relative_to(root).as_posix()
         rep.errors.extend(check_link_forms(rel, path.read_text(encoding="utf-8")))
 
+    seen: dict[str, set[str]] = {}
+    for path in reader_facing(root):
+        if path.suffix != ".svg":
+            rel = path.relative_to(root).as_posix()
+            rep.errors.extend(check_repo_path_phrase(rel, path.read_text(encoding="utf-8")))
+
+    for path in reader_facing(root):
+        rel = path.relative_to(root).as_posix()
+        if path.suffix == ".svg" or rel in SETUP_SURFACES:
+            continue
+        body = path.read_text(encoding="utf-8")
+        rep.errors.extend(check_pytest_header(rel, body))
+        found, used = check_version_mentions(rel, body)
+        rep.errors.extend(found)
+        seen[rel] = used
+    for rel, phrases in sorted(VERSION_ALLOW.items()):
+        for phrase in phrases:
+            if phrase not in seen.get(rel, set()):
+                rep.errors.append(Finding(rel, 0, f"stale version allowlist phrase {phrase!r}"))
+
     minor = pinned_minor((root / ".python-version").read_text(encoding="utf-8"))
     for path in reader_facing(root):
         rel = path.relative_to(root).as_posix()
         rep.errors.extend(check_stale_versions(rel, path.read_text(encoding="utf-8"), minor))
 
     rep.errors.extend(claim_findings(load_claims(root)))
+    rep.errors.extend(check_appendix_e(root))
 
     rep.errors.extend(check_pins(root))
     rep.errors.extend(check_decks(root))
@@ -1202,6 +1643,172 @@ def check_decks(
 # -------------------------------------------------------------- self-test
 
 
+def full_arg_spine() -> str:
+    return "".join(f"## {h}\n\n" for h in SPINE["argument"])
+
+
+GOOD_PATTERN = """---
+title: T
+---
+## Why this matters
+
+Story.
+
+## Pattern: Mediator
+
+### The problem
+
+A failure.
+
+### The solution
+
+A **Mediator** is a hub.
+
+**Bucket: survives.** Reason.
+
+### How Python models it
+
+```python
+x = 1
+```
+
+Prose.
+
+*Tests:* `test_a`, `test_b[x]`.
+
+### Another point
+
+More.
+
+## When not to use it
+
+Bullets.
+"""
+
+GOOD_DESCRIBED = """{% include excalidraw.html name="fig" caption="c" described="true" %}
+
+<details class="figure-description" markdown="1">
+<summary>Describe the figure</summary>
+<div id="desc-fig" markdown="1">
+Walk.
+</div>
+</details>
+"""
+
+GOOD_ROW = (
+    "| Mediator | The bucket is survives. | The force is a hub. | Skip it. "
+    "| [M]({{ '/docs/23-m/' | relative_url }}) |"
+)
+
+
+def terse_self_test(expect: Callable[[str, bool], None]) -> None:
+    defined = {"test_a", "test_b", "test_c"}
+    good = "Para.\n\n*Tests:* `test_a`, `test_b[x]`.\n\nNext.\n"
+    expect("tests line ok", not check_tests_lines("a.md", good, defined))
+    expect(
+        "tests line unknown name",
+        bool(check_tests_lines("a.md", good.replace("test_a", "test_zzz"), defined)),
+    )
+    expect(
+        "tests line needs blank before",
+        bool(check_tests_lines("a.md", good.replace("Para.\n\n", "Para.\n"), defined)),
+    )
+    expect(
+        "tests line needs blank after",
+        bool(check_tests_lines("a.md", good.replace("\n\nNext.", "\nNext."), defined)),
+    )
+    expect(
+        "tests line not after heading",
+        bool(check_tests_lines("a.md", "## H\n\n*Tests:* `test_a`.\n", defined)),
+    )
+    expect(
+        "tests line not after fence",
+        bool(check_tests_lines("a.md", "```\nx\n```\n\n*Tests:* `test_a`.\n", defined)),
+    )
+    expect(
+        "tests line only names",
+        bool(check_tests_lines("a.md", "Para.\n\n*Tests:* `test_a` proves it.\n", defined)),
+    )
+    expect(
+        "tests line after a table",
+        not check_tests_lines("a.md", "| a |\n| - |\n\n*Tests:* `test_a`.\n", defined),
+    )
+
+    prose_name = "Para with `test_a` inside.\n\n*Tests:* `test_a`.\n"
+    expect("terse prose name flagged", len(check_terse_tests("a.md", prose_name)) == 1)
+    exempt = "*Tests:* `test_a`.\n| `test_a` |\n> `test_b`\n```\ndef test_c(): ...\n```\n"
+    expect("terse exempt lines", not check_terse_tests("a.md", exempt))
+
+    expect("layout good", not check_pattern_layout("a.md", GOOD_PATTERN))
+    expect(
+        "layout needs a pattern H2",
+        bool(check_pattern_layout("a.md", GOOD_PATTERN.replace("Pattern: ", ""))),
+    )
+    expect(
+        "layout h3 order",
+        bool(check_pattern_layout("a.md", GOOD_PATTERN.replace("The problem", "The solution"))),
+    )
+    expect(
+        "layout missing bucket",
+        bool(check_pattern_layout("a.md", GOOD_PATTERN.replace("**Bucket: survives.**", ""))),
+    )
+    expect(
+        "layout bad bucket word",
+        bool(check_pattern_layout("a.md", GOOD_PATTERN.replace("survives.", "persists."))),
+    )
+    two_buckets = GOOD_PATTERN.replace("Reason.", "Reason. **Bucket: dissolves.**")
+    expect("layout two buckets", bool(check_pattern_layout("a.md", two_buckets)))
+    expect(
+        "layout needs a definition",
+        bool(
+            check_pattern_layout("a.md", GOOD_PATTERN.replace("A **Mediator** is", "A Mediator is"))
+        ),
+    )
+    expect(
+        "layout position",
+        bool(check_pattern_layout("a.md", GOOD_PATTERN.replace("## Why this matters", "## Why"))),
+    )
+    read_figure = GOOD_PATTERN.replace("Story.", "Read the figure from the top.")
+    expect("layout read the figure", bool(check_pattern_layout("a.md", read_figure)))
+    in_details = GOOD_PATTERN.replace(
+        "Story.", '<details class="figure-description">\nRead the figure from the top.\n</details>'
+    )
+    expect("layout read the figure in description ok", not check_pattern_layout("a.md", in_details))
+
+    expect("described ok", not check_described_figures("a.md", GOOD_DESCRIBED))
+    expect(
+        "described needs desc id",
+        bool(check_described_figures("a.md", GOOD_DESCRIBED.replace("desc-fig", "desc-other"))),
+    )
+    expect(
+        "described needs details",
+        bool(check_described_figures("a.md", GOOD_DESCRIBED.replace("<details", "<div"))),
+    )
+    plain = '{% include excalidraw.html name="fig" caption="c" %}\n'
+    expect("undescribed include ignored", not check_described_figures("a.md", plain))
+    expect("terse figure needs described", len(check_undescribed_figures("a.md", plain)) == 1)
+    expect("terse described figure ok", not check_undescribed_figures("a.md", GOOD_DESCRIBED))
+
+    force_text = (
+        "---\nt: x\n---\nA Force and forces, `force`, reinforce.\n> a force\n```\nforce\n```\n"
+    )
+    expect("force count rule", force_count(force_text) == 2)
+
+    chapter = {"23-m": "The force is a hub.   It   spans lines. Survives here. Skip it."}
+    row = GOOD_ROW.replace("The bucket is survives.", "Survives here.")
+    row = row.replace("The force is a hub.", "The force is a hub. It spans lines.")
+    found, checked = appendix_e_findings("e.md", row, chapter)
+    expect("appendix e verbatim ok", not found and checked == 3)
+    drifted = row.replace("Skip it.", "Skip it now.")
+    expect("appendix e drift flagged", len(appendix_e_findings("e.md", drifted, chapter)[0]) == 1)
+    no_link = row.replace("/docs/23-m/", "/docs/99-x/")
+    expect("appendix e missing chapter", bool(appendix_e_findings("e.md", no_link, chapter)[0]))
+    header = "| Pattern | Bucket | Force | When not to use it | Chapter |\n| - | - | - | - | - |\n"
+    expect("appendix e skips header", appendix_e_findings("e.md", header, chapter)[1] == 0)
+    dash = row.replace("Skip it.", "-")
+    expect("appendix e dash cell skipped", appendix_e_findings("e.md", dash, chapter)[1] == 2)
+
+
 def self_test() -> int:
     failures: list[str] = []
 
@@ -1256,8 +1863,13 @@ def self_test() -> int:
     expect("pattern with sidebar", not check_prose("a.md", ok, "pattern", "done")[0])
     long_errors = check_prose("a.md", "word " * 2600, "argument", "done")[0]
     expect("long errors", any("above" in f.message for f in long_errors))
-    short_warnings = check_prose("a.md", short, "argument", "done")[1]
-    expect("short warns", any("below the" in f.message for f in short_warnings))
+    floor_doc = full_arg_spine() + "word " * 1500 + "\n"
+    floor_figure = floor_doc + '{% include excalidraw.html name="x" caption="c" %}\n'
+    floor_result = check_prose("a.md", floor_figure, "argument", "done")
+    expect("no floor warning at 1,500 words", not floor_result[1] and not floor_result[0])
+    over_doc = full_arg_spine() + "word " * 2600 + "\n"
+    expect("2,600 words errors", bool(check_prose("a.md", over_doc, "appendix", "done")[0]))
+    terse_self_test(expect)
 
     bad = "```python\nx = '{{ a }}'\n```\n"
     good = "{% raw %}\n```python\nx = '{{ a }}'\n```\n{% endraw %}\n"
@@ -1460,15 +2072,69 @@ def self_test() -> int:
     expect("figure without viewBox fails", bool(check_figure_legibility("a.svg", "<svg></svg>")))
 
     good_links = (
-        "[a](https://docs.python.org/3.15/library/abc.html) "
+        "[a](https://docs.python.org/3/library/abc.html) "
         "[t](https://typing.python.org/en/latest/spec/) "
         "[b](https://www.oreilly.com/library/view/fluent-python/9781492056348/)"
     )
     expect("link forms pass", not check_link_forms("a.md", good_links))
     expect(
-        "docs.python.org/3/ fails",
-        bool(check_link_forms("a.md", "[a](https://docs.python.org/3/library/abc.html)")),
+        "docs.python.org/3/ passes",
+        not check_link_forms("a.md", "[a](https://docs.python.org/3/library/abc.html)"),
     )
+    expect(
+        "docs.python.org/3.N/ fails outside the setup surfaces",
+        bool(check_link_forms("a.md", "[a](https://docs.python.org/3.15/library/abc.html)")),
+    )
+    expect(
+        "docs.python.org/3.N/ passes on a setup surface",
+        not check_link_forms(
+            "_docs/00-prerequisites.md", "[a](https://docs.python.org/3.15/library/abc.html)"
+        ),
+    )
+    header = "platform linux -- Python 3.15.2, pytest-9.2.0, pluggy-1.7.0 -- x/python"
+    expect(
+        "pytest header in a fence fails",
+        bool(check_pytest_header("a.md", f"```text\n{header}\n```")),
+    )
+    expect("pytest header outside a fence passes", not check_pytest_header("a.md", header))
+    phrase = f"A fresh run, {REPO_PATH_PHRASE}:\n\n"
+    no_header = phrase + "```text\ncollecting ... collected 1 item\n```\n"
+    expect(
+        "repo phrase before a --no-header fence fails",
+        len(check_repo_path_phrase("a.md", no_header)) == 1,
+    )
+    with_repo = phrase + "```text\nrootdir: <repo>\n```\n"
+    expect(
+        "repo phrase before a fence with <repo> passes",
+        not check_repo_path_phrase("a.md", with_repo),
+    )
+    expect(
+        "repo phrase with no fence fails", bool(check_repo_path_phrase("a.md", phrase + "Text.\n"))
+    )
+    expect("no repo phrase passes", not check_repo_path_phrase("a.md", "A fresh run produces:\n"))
+    expect(
+        "pytest output without the header passes",
+        not check_pytest_header("a.md", "```text\ncollecting ... collected 1 item\n```"),
+    )
+    allow = {"a.md": ("new in 3.15", "889.35, 3.15 short")}
+
+    def mentions(text: str, rel: str = "a.md") -> int:
+        return len(check_version_mentions(rel, text, allow)[0])
+
+    expect("version: an allowlisted phrase passes", mentions("A frozendict, new in 3.15.") == 0)
+    expect("version: a money amount phrase passes", mentions("give 889.35, 3.15 short.") == 0)
+    expect("version: an incidental Python 3.15 fails", mentions("Python 3.15 differs.") == 1)
+    expect("version: a bare 3.14 fails", mentions("Since 3.14 it works.") == 1)
+    expect("version: the same phrase in another file fails", mentions("new in 3.15", "b.md") == 1)
+    expect("version: a patch version fails", mentions("On Python 3.15.2 it ran.") == 1)
+    expect("version: a free-threaded build fails", mentions("uv python install 3.15.2t") == 1)
+    expect("version: a duration passes", mentions("6 failed, 25 passed in 3.13s") == 0)
+    expect("version: a pytest-mock version passes", mentions("pytest-mock 3.17.0") == 0)
+    expect(
+        "version: a phrase must cover the whole token",
+        mentions("new in 3.15.2 of it") == 1,
+    )
+    expect("version: two mentions need two phrases", mentions("new in 3.15 and in 3.15") == 1)
     expect(
         "/latest/ outside typing fails",
         bool(check_link_forms("a.md", "https://docs.pytest.org/en/latest/")),
@@ -1656,6 +2322,10 @@ def deck_self_test(expect: Callable[[str, bool], None]) -> None:
 def main(argv: list[str]) -> int:
     if "--self-test" in argv:
         return self_test()
+    if "--force-count" in argv:
+        for path in sorted((ROOT / "_docs").glob("*.md")):
+            print(f"{force_count(path.read_text(encoding='utf-8')):4d}  _docs/{path.name}")
+        return 0
     if "--claims" in argv:
         results = load_claims(ROOT)
         print(claims_table(results))

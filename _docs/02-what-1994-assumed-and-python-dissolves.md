@@ -4,7 +4,7 @@ order: 2
 layout: tutorial
 sectionid: docs
 part: "why-not-gof"
-description: "The assumptions the 1994 pattern catalogue was written under, and the Python 3.15 features (callables, generators, protocols, modules, optional types) that remove the scaffolding while the underlying force often remains."
+description: "The assumptions the 1994 pattern catalogue was written under, and the Python features (callables, generators, protocols, modules, optional types) that remove the scaffolding while the underlying force often remains."
 ---
 
 ## Learning objectives
@@ -19,27 +19,38 @@ By the end of this chapter you can:
 
 ## Why this matters
 
-A pattern catalogue is a record of decisions made with the tools on hand. Its authors say as much: the language you design in shapes the patterns you can state, and a catalogue written for one set of language features would read differently if the features changed. Read that way, the 1994 book is a snapshot of one set of assumptions, and the useful question about each entry is which assumption it depended on.
+A pull request adds a `PricingStrategy` base class, three subclasses and a factory to price a consignment. It's faithful to the catalogue and wasteful in Python. "That isn't Pythonic" teaches nothing. Naming the assumption (behaviour has to arrive inside an object of a declared class) and the feature that removes it (a function is already an object) lets the author make the call next time, and spot the other case, where the force is real and the pattern still pays.
 
-The practical stake is code review. A pull request that adds a `PricingStrategy` base class, three subclasses and a factory to price a consignment is faithful to the catalogue and wasteful in Python. A review that only says "that isn't Pythonic" teaches nothing. A review that names the assumption (behaviour has to arrive inside an object of a declared class) and the feature that removes it (a function is already an object) teaches the reader to make the call themselves, and to notice the other case, where the force is real and the pattern still pays for itself.
+The catalogue's authors say the language you design in shapes the patterns you can state. Each entry depended on some feature of the languages of 1994, and the question to ask is which one.
 
-{% include excalidraw.html name="02-what-1994-assumed-and-python-dissolves" caption="Figure 2.1: Assumptions behind the classic patterns, each paired with the Python feature that removes it: functions as objects, structural typing, generators, modules imported once, and absence checked by the type checker." %}
+{% include excalidraw.html name="02-what-1994-assumed-and-python-dissolves" described="true" caption="Figure 2.1: Assumptions behind the classic patterns, each paired with the Python feature that removes it: functions as objects, structural typing, generators, modules imported once, and absence checked by the type checker." %}
 
-Each row of the figure is a section below. The examples are short excerpts from the runnable [three-way split example]({{ '/examples/03-three-way-split/' | relative_url }}), so every name you see exists in that code.
+<details class="figure-description" markdown="1">
+<summary>Describe the figure</summary>
+<div id="desc-02-what-1994-assumed-and-python-dissolves" markdown="1">
+Five rows, each an assumption on the left with an arrow labelled "becomes" to a Python feature on the right. Behaviour travels inside an object, one rule class per pricing variant, becomes `PricingRule` and `per_kg`: functions are objects. A shared interface declared by inheriting from a base class becomes `CarrierGateway`, structural typing through a Protocol. Traversal needing its own object to hold the position becomes `pages`, a generator pulling one page at a time. One instance needing a guarded class with a private constructor becomes `tariff_table`, a module imported once with `TARIFF` built then. Absence needing a do-nothing stand-in becomes `CarrierGateway | None` from `find_gateway`, checked by the type checker.
+</div>
+</details>
+
+Each row of the figure is a section below. The listings come from the runnable [three-way split example]({{ '/examples/03-three-way-split/' | relative_url }}).
 
 ## The object model the catalogue assumed
 
-The catalogue's central working assumption is that a unit of behaviour reaches a call site wrapped in an object whose class you declared in advance. If a rule for pricing a consignment has to be swapped at run time, you declare an abstract class with one method, subclass it once per rule, and pass an instance. If a caller must walk a collection without knowing its layout, you declare an iterator class with the traversal methods and a state field for the cursor. If two parts disagree on a method name, you declare a class that wraps one and renames the call. If exactly one instance of something must exist, you hide the constructor behind a class method and a static field.
+The catalogue assumes behaviour reaches a call site inside an object whose class you declared in advance:
 
-In that setting a class is the only way to name a behaviour, and an interface is the only way to promise one. Nothing in the assumption is wrong for a language whose functions can't be passed around, whose loops can't suspend, whose types are matched by declared name, and whose files have no identity at run time. It is a sound description of the tools. The patterns are the engineering that makes those tools do the job.
+| Need | 1994 mechanism | Python feature |
+| --- | --- | --- |
+| Swap a pricing rule at run time | Abstract class, one subclass per rule | Functions are objects |
+| Walk a collection without knowing its layout | Iterator class with a cursor field | A function with `yield` suspends and resumes |
+| Promise a method to code written separately | A named interface each class declares | A `Protocol` matches by shape |
+| Exactly one instance | Hidden constructor, static field, accessor | A module is created once, on first import |
+| A thing that may not exist | An object whose methods do nothing | An optional type the checker tracks through every branch |
 
-Python 3.15 differs on each count. Functions are objects with a type and can be stored, passed and returned. A function containing `yield` suspends and resumes. A `Protocol` lets the checker match types by shape instead of by declared name. A module is an object, created once, on first import. And `X | None` is a type the checker tracks through every branch.
+That's a sound description of a language whose functions can't be passed around, whose loops can't suspend, whose types match by declared name and whose files have no run-time identity. The patterns are the engineering that makes those tools do the job.
 
 ## Functions are objects
 
-Strategy, in the 1994 form, is a family of interchangeable algorithms behind one interface, so the caller chooses at run time. The force is real: pricing rules vary, and the code that quotes a price should not know which one it holds. The mechanism is a class hierarchy because the catalogue assumes behaviour travels inside objects of declared classes.
-
-In Python the algorithm is a callable, and the interface is a type alias:
+Strategy is a family of interchangeable algorithms behind one interface, so the caller chooses at run time. The force is real: pricing rules vary, and the code that quotes a price shouldn't know which one it holds. In Python the algorithm is a callable, and the interface is a type alias:
 
 ```python
 type PricingRule = Callable[[Consignment], Money]
@@ -63,23 +74,21 @@ def quote(consignment: Consignment, rule: PricingRule) -> RateQuote:
     return RateQuote(consignment.id, rule(consignment))
 ```
 
-`type PricingRule = ...` is the PEP 695 alias statement, new in 3.12 and the idiom for naming a type in 3.15. It says what a pricing rule is: anything that takes a `Consignment` and returns `Money`. `flat_rate` and `per_kg` satisfy it as plain functions, and the code that quotes a price, the 1994 Context class, shrinks to the one-line `quote`, which calls whatever rule it's given.
-
-A rule that needs configuration doesn't need a constructor and a field. It needs its argument fixed in advance, which is what `functools.partial` does:
+`type PricingRule = ...` is the PEP 695 alias statement, new in 3.12. `flat_rate` and `per_kg` satisfy it as plain functions, and the 1994 Context class shrinks to the one-line `quote`. A rule that needs configuration needs its argument fixed in advance, not a constructor and a field:
 
 ```python
 from_partial: PricingRule = partial(per_kg, rate=Decimal("2.00"))
 ```
 
-The test assigns that value to a variable annotated `PricingRule`, alongside a lambda and a `def`, and passes all three through `quote`. The checker accepts each because each is a callable with the right signature. The force (swap the algorithm) is unchanged, and the mechanism (a declared hierarchy) is replaced by a first-class value.
+A `partial`, a lambda and a `def` all type-check as `PricingRule` and all price through `quote`. The force is unchanged; a first-class value replaces the hierarchy.
 
-The deferred half of Command goes the same way. A request packaged as an object to run later is a call with its arguments bound, which is again a partial or a closure. The half of Command that records what to undo, or orders a queue, is a different matter: it survives.
+The deferred half of Command goes the same way: a request to run later is a call with its arguments bound, a partial or a closure. The half that records what to undo, or orders a queue, survives.
 
 ## Generators
 
-Iterator is the clearest case of a pattern the language absorbed. The force is that a consumer should pull elements one at a time without knowing how the producer stores them. The 1994 mechanism is an iterator class holding a cursor, plus a method to advance and a method to test for the end. Python builds the protocol into the data model: any object whose `__iter__` returns an iterator, an object with `__next__`, works in a `for` loop, a comprehension, `list()` and `sum()`.
+Iterator's force is that a consumer pulls elements one at a time without knowing how the producer stores them. The 1994 mechanism is a class holding a cursor, with a method to advance and one to test for the end. Python builds the protocol into the data model: any object whose `__iter__` returns an object with `__next__` works in `for`, a comprehension, `list()` and `sum()`.
 
-You rarely write that class. A function containing `yield` is a generator function, and calling it returns an object that already implements the protocol, with the cursor held in the suspended frame (PEP 255 introduced the mechanism). The example pages a tracking history:
+A function containing `yield` returns an object that already implements the protocol, with the cursor held in the suspended frame (PEP 255). Paging a tracking history:
 
 ```python
 def pages(history: TrackingHistory, size: int) -> Iterator[tuple[HandlingEvent, ...]]:
@@ -87,15 +96,13 @@ def pages(history: TrackingHistory, size: int) -> Iterator[tuple[HandlingEvent, 
     yield from batched(history, size, strict=False)
 ```
 
-The word "lazily" in the docstring is checked by a test: the test builds a source that counts how many events it has produced, asks for the first page of three, and asserts that three were pulled, not seven. Nothing is read until the caller asks. A consumer that stops after the first page never touches the rest.
+The first page of three from a seven-event source pulls three events. A consumer that stops after the first page never touches the rest.
 
-What the language did not remove is the decision to expose a sequence of items without exposing its storage. That decision is still the design, and a `TrackingHistory` that hides how events are fetched is still the right boundary. Only the classes are gone. When the sequence is asynchronous, the same idea has an `async` form with one extra rule about cleanup, which belongs with the asyncio material.
+The language didn't remove the decision to expose a sequence without exposing its storage. A `TrackingHistory` that hides how events are fetched is still the right boundary; only the classes are gone.
 
 ## Structural typing
 
-The 1994 mechanism for promising a method is an interface: a named type that classes must declare they implement. The promise is checked by name, so two classes with identical methods but no shared declaration are, to the compiler, strangers. The cost shows up whenever the code that needs the promise and the code that keeps it are written separately.
-
-A `Protocol`, defined in PEP 544, checks by shape. The booking code in the example needs one thing from a carrier:
+A 1994 interface is checked by name: two classes with identical methods but no shared declaration are strangers to the compiler. A `Protocol` (PEP 544) checks by shape. The booking code needs one thing from a carrier:
 
 ```python
 @runtime_checkable
@@ -119,17 +126,20 @@ class AircoGateway:
         return f"AIRCO:{consignment.id}"
 ```
 
-Each has a `book` with a compatible signature, so each is accepted wherever the protocol is expected. Neither gateway refers to `CarrierGateway`, so either could live in a module that never imports it, and a third-party client class can satisfy it without being edited.
+Neither gateway refers to `CarrierGateway`, so either could live in a module that never imports it, and a third-party client can satisfy it unedited.
 
-That removes the scaffolding Adapter used to supply in one common situation: two parts already agree on shape and only disagree on declaration. It doesn't remove the Adapter pattern. If a carrier's client exposed `submit_shipment(payload)` instead of `book(consignment)`, no checker can bridge that. The force of Adapter is a mismatch of shape, and a mismatch of shape needs code that translates. Duck typing removes the adapter only when the shapes already match; when they don't, you write the wrapper, and it's the same class it has always been.
+That removes Adapter's scaffolding only where two parts already agree on shape. If a carrier's client exposed `submit_shipment(payload)` instead of `book(consignment)`, no checker bridges that. Adapter's force is a mismatch of shape, and that still needs a class that translates.
 
-Two cautions apply. `@runtime_checkable` makes `isinstance` work against a protocol, but it checks that the names exist and nothing about signatures, so it's a weaker guarantee than the static check (`test_runtime_checkable_checks_names_only` in the protocol example). And a mock is assignable to every type, so it satisfies any protocol whether or not it matches (`test_mypy_accepts_every_mock_where_a_gateway_is_expected` in the testing example). Both are reasons to rely on `mypy --strict`, not runtime checks, for the shape.
+Two cautions:
+
+- **`@runtime_checkable` checks names only.** `isinstance` confirms the methods exist and nothing about their signatures.
+- **A mock is assignable to every type**, so it satisfies any protocol whether or not it matches.
+
+Rely on `mypy --strict`, not run-time checks, for the shape.
 
 ## Modules
 
-Singleton's force is that some things must exist once: a tariff table, a configuration, a registry. In 1994 that took a class that hides its constructor, holds its single instance in a static field and exposes an accessor. In Python the default answer is already there. A module is an object, the import system builds it once on first import, and every later `import` returns the same object from `sys.modules`.
-
-The example builds its tariff that way:
+Singleton's force is that some things must exist once: a tariff table, a configuration, a registry. In Python a module is an object, the import system builds it on first import, and every later `import` returns the same object from `sys.modules`:
 
 ```python
 def _load() -> Tariff:
@@ -147,15 +157,13 @@ def _load() -> Tariff:
 TARIFF = _load()
 ```
 
-`TARIFF` is built when `tariff_table` is first imported, and the test that imports the module twice sees one load. The mapping sits behind `MappingProxyType`, so callers read it but can't reassign entries. There's no accessor and no guard, because an import is the one way to get the object. (`importlib.reload` re-runs the module body and builds a second one; the seams example tests that.)
+Importing `tariff_table` twice loads it once. `MappingProxyType` lets callers read the mapping but not reassign entries. There's no accessor and no guard, because an import is the only way to get the object. `importlib.reload` re-runs the module body and builds a second one.
 
-A module-level object doesn't always suffice. If each test needs a clean instance, or you need one per tenant, pass the object in as a parameter; Borg and metaclass variants answer other needs, and [Singleton: module, Borg, and metaclass]({{ '/docs/18-singleton-module-borg-metaclass/' | relative_url }}) compares them.
+When each test needs a clean instance, or you need one per tenant, pass the object in as a parameter. [Singleton: module, Borg, and metaclass]({{ '/docs/18-singleton-module-borg-metaclass/' | relative_url }}) compares the alternatives.
 
 ## Absence in the type
 
-Absence raises a different force: a caller that asks for a thing which may not exist should not have to test for absence everywhere. The classic answer, the Null Object pattern from the later pattern literature (Bobby Woolf, "Null Object", in *Pattern Languages of Program Design 3*, Addison-Wesley, 1998), is to return a real object whose methods do nothing, so the caller proceeds without branching. The cost is that absence becomes invisible. A `NullGateway.book` that silently returns an empty string books nothing, and the caller never finds out.
-
-Python lets the type say so instead:
+A caller that asks for something that may not exist shouldn't have to test for absence everywhere. Null Object, from the later pattern literature (Bobby Woolf, "Null Object", in *Pattern Languages of Program Design 3*, Addison-Wesley, 1998), returns a real object whose methods do nothing. The cost is that absence becomes invisible: a `NullGateway.book` that returns an empty string books nothing, and the caller never finds out. Python lets the type say so instead:
 
 ```python
 def find_gateway(code: str) -> CarrierGateway | None:
@@ -166,25 +174,35 @@ def find_gateway(code: str) -> CarrierGateway | None:
     return factory()
 ```
 
-The return type is a union, and the checker won't let a caller treat it as the protocol. A test runs mypy on a snippet that calls `find_gateway("FASTLINE").book(consignment)` with no guard. Here is the line it observes:
+Calling `find_gateway("FASTLINE").book(consignment)` with no guard fails the type check at that expression:
 
 ```text
 <string>:7: error: Item "None" of "CarrierGateway | None" has no attribute "book"  [union-attr]
 ```
 
-The mistake is caught before the code runs, at the exact expression that forgot the case. The same test confirms that the guarded form (`if gateway is None: return "unknown carrier"`) passes with no output. Absence is neither hidden behind a do-nothing object nor left as a run-time `AttributeError`; it's a branch the checker makes you write.
+The guarded form (`if gateway is None: return "unknown carrier"`) passes clean. Absence is a branch the checker makes you write, not a do-nothing object or a run-time `AttributeError`.
 
-The force remains here: callers still need protecting from a missing object. Null Object protected them by making the missing case look present. The type checker protects them by making the missing case impossible to ignore. Where a do-nothing default is the correct behaviour (a logger that discards output, a discount of zero), a null object is still the right design, and now it's one option among several.
+The force remains: callers still need protecting from a missing object. Null Object made the missing case look present; the checker makes it impossible to ignore. Where a do-nothing default is the correct behaviour, such as a logger that discards output or a discount of zero, a null object is still the right design.
 
 ## Did the force move, or only the mechanism?
 
-The five sections share one test, and it sorts patterns you have not read about yet. State the force the pattern resolves in one sentence. Then ask whether a language feature resolves the force without the pattern's structure. A dissolved pattern keeps its force; the feature resolves it without the classes.
+State the force a pattern resolves in one sentence, then ask whether a language feature resolves it without the pattern's structure.
 
-For Strategy, the force (vary the algorithm at run time) is intact and the class hierarchy is gone. For Iterator, the force (traverse without exposing storage) is intact and the cursor class is gone. For Singleton, the force (one instance) is intact and the guard is gone. In each, the pattern's vocabulary stays useful for naming the decision, and its scaffolding becomes a function, a generator or a module.
+| Pattern | Force | What goes |
+| --- | --- | --- |
+| Strategy | Vary the algorithm at run time | The class hierarchy |
+| Iterator | Traverse without exposing storage | The cursor class |
+| Singleton | One instance | The guard |
 
-Some patterns fail the dissolve test because the force isn't about mechanism. Composite exists because clients must treat one item and a group of items through the same interface; a `Protocol` makes that cheaper to declare but doesn't decide the recursive structure, how a total is computed across children, or what a leaf does with `add`. State exists because behaviour depends on a history of transitions that must be explicit and checkable; a dictionary of functions can store the table, but the table is the design. Command with undo needs a record of what to reverse and an order in which to do it, and no callable holds that for you. These keep their shape, and later chapters develop each.
+In each, the force is intact, the name stays useful, and the scaffolding becomes a function, a generator or a module.
 
-When a review comment says "this should be a function", the justification is that the force remains and the mechanism doesn't need a class. When the comment says "this needs a real object", the justification is that the force itself has state, structure or ordering that a callable can't carry. Both comments are about forces, and the grouping of the whole catalogue into what dissolves, what survives and what needs a clearer name is the job of the three-way split chapter.
+Other patterns keep their shape because the force isn't about mechanism:
+
+- **Composite.** One item and a group go through the same interface. A `Protocol` makes that cheaper to declare but doesn't decide the recursive structure, how a total is computed across children, or what a leaf does with `add`.
+- **State.** Behaviour depends on a history of transitions that must be explicit and checkable. A dict of functions can store the table, but the table is the design.
+- **Command with undo.** It needs a record of what to reverse and an order to reverse it in, and no callable holds that.
+
+In review, "this should be a function" means the force remains and the mechanism doesn't need a class. "This needs a real object" means the force itself has state, structure or ordering a callable can't carry. [The three-way split]({{ '/docs/03-the-three-way-split/' | relative_url }}) sorts the whole catalogue this way.
 
 ## What you can do now
 
@@ -197,10 +215,10 @@ When a review comment says "this should be a function", the justification is tha
 ## For deeper coverage
 
 - *Design Patterns: Elements of Reusable Object-Oriented Software* (Gamma, Helm, Johnson, Vlissides; Addison-Wesley, 1994). The Introduction's account of what a design pattern is, and its remark that the language you assume determines which patterns you state, is the source for the argument above. Read it for the forces, not the class diagrams.
-- *Fluent Python*, second edition (Luciano Ramalho; O'Reilly). The data model, first-class functions, protocols, generators and the import system, which are the features this chapter relies on.
+- *Fluent Python*, second edition (Luciano Ramalho; O'Reilly). The data model, first-class functions, protocols, generators and the import system.
 - *Effective Python*, third edition (Brett Slatkin; Addison-Wesley). Short rules on generators, closures, `partial`, typing and module-level state; read by topic.
 - PEP 544, [Protocols: Structural subtyping](https://peps.python.org/pep-0544/); PEP 255, [Simple Generators](https://peps.python.org/pep-0255/); PEP 695, [Type Parameter Syntax](https://peps.python.org/pep-0695/), which also introduces the `type` statement.
-- The Python reference, [data model](https://docs.python.org/3.15/reference/datamodel.html), for `__iter__`, `__next__` and callables.
+- The Python reference, [data model](https://docs.python.org/3/reference/datamodel.html), for `__iter__`, `__next__` and callables.
 - Brandon Rhodes, [python-patterns.guide](https://python-patterns.guide/), for the catalogue read through Python.
 
 The full list of books, with editions and links, is on the [bibliography]({{ '/bibliography/' | relative_url }}) page.

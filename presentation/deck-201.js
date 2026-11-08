@@ -49,7 +49,7 @@ const EX = "examples";
     align: "left", valign: "top",
   });
   s.addImage({ path: `${ASSETS}/logo-candidate-2.png`, x: 11.10, y: 6.80, w: 1.55, h: 0.37 });
-  notes(s, `This is the second deck in a series on the Gang of Four patterns in Python 3.15. It covers what the language gives you so that you don't write the pattern: the data model, context managers, decorators, descriptors, dispatch, and the concurrency model. The listings are read from tested examples at build time, and the examples are set in one shipping domain of consignments, carriers, rate quotes and tracking. Where a test witnesses a claim, its name is given, so the claim can be re-run.`, 45, "cover");
+  notes(s, `This is the second deck in a series on the Gang of Four patterns in Python. It covers what the language gives you so that you don't write the pattern: the data model, context managers, decorators, descriptors, dispatch, and the concurrency model. The listings are read from tested examples at build time, and the examples are set in one shipping domain of consignments, carriers, rate quotes and tracking. Where a test witnesses a claim, its name is given, so the claim can be re-run.`, 45, "cover");
 }
 
 // ===========================================================================

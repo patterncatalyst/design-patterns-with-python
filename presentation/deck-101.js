@@ -47,7 +47,7 @@ const { S, divider, bullets, bulletSlide, tableSlide, codeSlide, figSlide, notes
     align: "left", valign: "top",
   });
   s.addImage({ path: `${ASSETS}/logo-candidate-2.png`, x: 11.10, y: 6.80, w: 1.55, h: 0.37 });
-  notes(s, `This is the opening deck of a series that sorts the Gang of Four patterns by what Python 3.15 does to them: some dissolve into a language feature, some survive as design, and some share a name with something else. It's written for engineers who already write Python and have met the catalogue by name. The code shown is read from tested examples, and the examples are set in one shipping domain, with consignments, carriers, rate quotes, tracking and billing. It starts from the decision a pattern represents and then takes the patterns by what they do.`, 45, "cover");
+  notes(s, `This is the opening deck of a series that sorts the Gang of Four patterns by what Python does to them: some dissolve into a language feature, some survive as design, and some share a name with something else. It's written for engineers who already write Python and have met the catalogue by name. The code shown is read from tested examples, and the examples are set in one shipping domain, with consignments, carriers, rate quotes, tracking and billing. It starts from the decision a pattern represents and then takes the patterns by what they do.`, 45, "cover");
 }
 
 // ===========================================================================
@@ -71,7 +71,7 @@ const { S, divider, bullets, bulletSlide, tableSlide, codeSlide, figSlide, notes
   ];
   bullets(s, left, { w: 5.95, fontSize: 16, gap: 10 });
   bullets(s, right, { x: 6.85, w: 5.86, fontSize: 16, gap: 10 });
-  notes(s, `Nine sections make up Patterns and SOLID in Python. Why patterns and What 1994 assumed set up the question: what a pattern is, and what changed between 1994 and Python 3.15. SOLID in Python treats the principles as the forces the catalogue's patterns answer. Four sections walk the catalogue by what a pattern does: selecting behaviour, creating objects, composing structure, coordinating and traversing. Choosing well turns the catalogue back into a judgement about when to leave a pattern out, and Reference gives the versions, sources and reading. What to show: nothing needs running here. Fallback: each bullet names a section and its subject.`, 90, "route");
+  notes(s, `Nine sections make up Patterns and SOLID in Python. Why patterns and What 1994 assumed set up the question: what a pattern is, and what changed between 1994 and now. SOLID in Python treats the principles as the forces the catalogue's patterns answer. Four sections walk the catalogue by what a pattern does: selecting behaviour, creating objects, composing structure, coordinating and traversing. Choosing well turns the catalogue back into a judgement about when to leave a pattern out, and Reference gives the versions, sources and reading. What to show: nothing needs running here. Fallback: each bullet names a section and its subject.`, 90, "route");
 }
 
 // ===========================================================================
@@ -97,7 +97,7 @@ codeSlide("WHY PATTERNS", "Proof that runs",
 // Section: What 1994 assumed
 // ===========================================================================
 divider("02", "What 1994 assumed", "The catalogue's tools, and what Python changed",
-  `The catalogue was written for languages in which a behaviour reached a call site inside an object of a class declared in advance. Python 3.15 differs on functions, loops, types and modules. Two questions sort the catalogue's patterns: does the name mean one thing, and does a language feature resolve the force without the structure. Three tables hold the result, and one short listing shows a dissolved pattern at its smallest.`);
+  `The catalogue was written for languages in which a behaviour reached a call site inside an object of a class declared in advance. Python differs on functions, loops, types and modules. Two questions sort the catalogue's patterns: does the name mean one thing, and does a language feature resolve the force without the structure. Three tables hold the result, and one short listing shows a dissolved pattern at its smallest.`);
 
 bulletSlide("WHAT 1994 ASSUMED", "The 1994 assumptions", [
   ["Behaviour", " reached a call site wrapped in an object whose class you declared in advance, so naming it meant declaring a class."],
@@ -105,7 +105,7 @@ bulletSlide("WHAT 1994 ASSUMED", "The 1994 assumptions", [
   ["Loops", " couldn't suspend; a Python function containing yield can."],
   ["Types", " were matched by declared name. A Protocol lets the checker match by shape."],
   ["Modules", " had no identity at run time. A Python module is an object, created once on first import."],
-], `The catalogue's working assumption is that a unit of behaviour travels in an object whose class was declared in advance, so naming a behaviour meant declaring a class and promising one meant declaring an interface. For a language whose functions can't be passed, whose loops can't suspend, whose types are matched by declared name and whose files have no identity at run time, that is a sound description of the tools. Python 3.15 differs on functions, loops, types and modules, and X | None adds a type the checker follows through its branches. Five tests from the sorting example witness these: the strategy slot taking a def, lambda or partial; the lazy generator; Protocol against ABC; a module being one instance across importers; and Null Object as an optional. What to show: run that example's test files. Fallback: the five bullets state the assumptions and the features that replaced them.`);
+], `The catalogue's working assumption is that a unit of behaviour travels in an object whose class was declared in advance, so naming a behaviour meant declaring a class and promising one meant declaring an interface. For a language whose functions can't be passed, whose loops can't suspend, whose types are matched by declared name and whose files have no identity at run time, that is a sound description of the tools. Python differs on functions, loops, types and modules, and X | None adds a type the checker follows through its branches. Five tests from the sorting example witness these: the strategy slot taking a def, lambda or partial; the lazy generator; Protocol against ABC; a module being one instance across importers; and Null Object as an optional. What to show: run that example's test files. Fallback: the five bullets state the assumptions and the features that replaced them.`);
 
 bulletSlide("WHAT 1994 ASSUMED", "Three ways out", [
   ["The first question", " is about the name: does the word mean one thing, or does Python attach a second meaning? A shared name sends the pattern to the third bucket."],

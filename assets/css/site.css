@@ -601,6 +601,26 @@ pre code { background: transparent; padding: 0; color: inherit; font-size: .92em
     .excalidraw-figure__caption { flex-wrap: wrap; }
 }
 
+/* Figure walk-through: a collapsed <details> after the include, linked to the
+   <object> by aria-describedby. Body text size, wraps inside the column. */
+.figure-description {
+    margin: -1rem 0 2rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-lg);
+    background: var(--bg-card);
+    font-size: 1rem;
+}
+.figure-description > summary {
+    cursor: pointer;
+    padding: .6rem 1.25rem;
+    font-weight: 600;
+    color: var(--fg-muted);
+}
+.figure-description[open] > summary { border-bottom: 1px solid var(--rule); }
+.figure-description > div { padding: .25rem 1.25rem 1rem; overflow-wrap: anywhere; }
+.figure-description > div > :first-child { margin-top: .75rem; }
+.figure-description > div > :last-child { margin-bottom: 0; }
+
 /* ── Diagram gallery (diagrams.html) ─────────────────────────────────── */
 
 .gallery {
@@ -792,6 +812,9 @@ pre code { background: transparent; padding: 0; color: inherit; font-size: .92em
 @media (max-width: 640px) {
     /* a wide table scrolls inside its own box instead of the page */
     :is(.tutorial__main, .section) table { display: block; max-width: 100%; overflow-x: auto; }
+    /* inside that scrolling box, code in a cell breaks only at its own spaces, never
+       mid-identifier to shrink the column: the box scrolls instead */
+    .tutorial__main :is(td, th) code { overflow-wrap: normal; }
     .site-header__inner { flex-wrap: wrap; gap: .5rem 1rem; }
     .site-nav { flex-wrap: wrap; gap: .25rem 1rem; }
 }

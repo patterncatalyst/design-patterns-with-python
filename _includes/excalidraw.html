@@ -7,6 +7,17 @@ Inline diagram embed. Use inside a doc section like:
 Conventions:
 - SVG renders inline at:           /diagrams/<name>.svg
 - Excalidraw source download at:   /diagrams/<name>.excalidraw
+- Optional described="true": adds aria-describedby="desc-<name>" to the
+  <object>. The chapter then supplies the walk-through right after the include:
+
+    <details class="figure-description" markdown="1">
+    <summary>Describe the figure</summary>
+    <div id="desc-<name>" markdown="1">
+    ...walk-through text...
+    </div>
+    </details>
+
+  Without described, the output is unchanged.
 - If neither file exists yet, the figure shows a placeholder note so
   the layout doesn't break before diagrams are drawn.
 
@@ -18,7 +29,7 @@ For a fullscreen-clickable gallery view, see /diagrams/.
 
 <figure class="excalidraw-figure" id="diagram-{{ include.name }}">
     <div class="excalidraw-figure__svg">
-        <object data="{{ svg_url }}" type="image/svg+xml" aria-label="{{ include.caption | escape }}">
+        <object data="{{ svg_url }}" type="image/svg+xml" aria-label="{{ include.caption | escape }}"{% if include.described == "true" or include.described == true %} aria-describedby="desc-{{ include.name }}"{% endif %}>
             <p>
                 <em>Diagram <code>{{ include.name }}</code> hasn't been drawn yet.</em>
                 See <code>diagrams/README.md</code> for the conventions.
