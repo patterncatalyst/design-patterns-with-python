@@ -68,13 +68,35 @@ _plans/                  plans and status; verification status lives only here
 
 ## Chapter spine and depth
 
-Every chapter follows the same shape: learning objectives; why this matters; the figure; the body;
-"Build, run, observe" on hands-on chapters; "When not to use it" on every pattern chapter, holding
-the one AI sidebar; "For deeper coverage" citing this book's `/bibliography/`, kept in step with the hub's
-`books.yml` (the chapter text never says "the hub"). The figure walk-through paragraph stays: it is
-the figure's text alternative.
+Every chapter: learning objectives; why this matters; the figure, with one sentence in the body and
+its walk-through in the figure description. A pattern chapter then has one `## Pattern: <Name>` per
+pattern, each with `### The problem`, `### The solution` (a bold one-sentence definition and the
+`**Bucket: ...**` line) and `### How Python models it` (code first), then topic H3s. Then 'When not
+to use it' on every pattern chapter, bold-led bullets holding the one AI sidebar; 'Build, run,
+observe' on hands-on chapters; 'What you can do now'; 'For deeper coverage' citing this book's
+`/bibliography/`, kept in step with the hub's `books.yml` (the chapter text never says 'the hub').
+The figure description is the figure's text alternative. Until a doc is in `TERSE_DOCS` (see
+below), its older shape (the walk-through paragraph in the body, no `## Pattern:` H2) still
+validates.
 
-- Body prose targets **1,900-2,500 words**, excluding code and diagrams. The ceiling is an error in validate.py; the floor is a warning (owner decision 2026-11-05): length serves the reader, so never pad to reach it and never cut a fact to sit under the ceiling.
+- Body prose has a **2,500-word ceiling**, excluding code and diagrams, and no floor (owner
+  decision, r25 O2). The ceiling is an error in validate.py. Length serves the reader: never pad,
+  and never cut a fact to sit under the ceiling.
+- **Tests go on a `*Tests:*` line** after the paragraph they support, not inside a sentence:
+  `*Tests:* `test_a`, `test_b[id]`.` after a blank line, following a paragraph, list or table
+  (never straight after a heading or fence), with every name a defined test. validate.py checks
+  the line in every doc and, in `TERSE_DOCS`, errors on a test name anywhere else in prose.
+- **`TERSE_DOCS`** in `scripts/validate.py` lists the docs the terse rewording has finished. It
+  is empty until the pilot lands; r26 adds 1, 3, 23 and 24, r27 and r28 extend it, and r28 replaces
+  it with "all docs". For those docs validate.py enforces the test-name rule, the O1 layout above
+  for pattern chapters (including the Bucket line and no "Read the figure" paragraph in the body)
+  and, for a `described="true"` figure include, the matching `desc-<name>` description.
+- **Appendix E** quotes each developing chapter's Bucket, Force and When-not clauses verbatim;
+  validate.py checks all 98 cells against the chapter each row links. Rewording a chapter means
+  updating its rows.
+- **"Force" budgets** (r26 decision 2) count case-insensitive whole-word "force" or "forces" in
+  body prose, excluding front matter, fences, inline code and blockquotes (the sidebar). Headings
+  and tables count. `uv run python scripts/validate.py --force-count` reports it; it is not a gate.
 - **One paired SVG + `.excalidraw` figure per chapter**, generated with `lgtm-diagram-generator`
   from a spec in `diagrams/specs/`. Never hand-edit an SVG: change the spec and regenerate.
 - **Figures are generated after the green example**, using the real type and function names from
@@ -92,7 +114,8 @@ the figure's text alternative.
   claim about what an assistant does or may write ("an assistant may ..."), because no test in the
   book witnesses it. The bold lead-in names what is being specified ("Specifying X"), not
   "Reviewing assistant-written X".
-- **Structure** (lgtm-professional-voice, 2026-11-05): intent before mechanism; explain a subtle
+- **Structure** (lgtm-professional-voice, 2026-11-05): intent before mechanism (problem before
+  mechanism for pattern chapters, which open each pattern with `### The problem`); explain a subtle
   mechanism by a minimal example first; prose doesn't re-narrate a code block (the code shows how;
   prose adds the force, the trade-off, the domain fact); close by mapping each learning objective
   to what the reader can now do and the artifact that delivered it.
@@ -183,6 +206,8 @@ the figure's text alternative.
 4. `lgtm-idiomatic-review` scan over the example: 0 ban-tier.
 5. `python3 scripts/host_ids.py check` exits 0.
 6. Quoted output matches a fresh run modulo scrubbing.
+7. For a reworded doc: `uv run python scripts/prose_invariants.py --base <rev> <doc>` passes
+   (only signed waivers), and `scripts/validate.py --self-test` is green.
 
 The voice ban scan excludes `LICENSE-docs.md`, which is the verbatim CC BY 4.0 legal text.
 
@@ -239,5 +264,9 @@ re-measure; defer only content that belongs to a future part.
   and not exempted in `validate.py`; the floor stays a warning.
 - 2026-11-08 (r25, O2): the owner approved a terse rewording of the whole book (r26 to r28). From
   r26 on, tests are named on a `*Tests:*` line after the paragraph, not inside the sentence, and
-  the 1,900-word floor is dropped. The terse register lives in `lgtm-professional-voice`. Until
-  r26 changes `validate.py`, the current floor and the test-naming rule still apply.
+  the 1,900-word floor is dropped. The terse register lives in `lgtm-professional-voice`.
+- 2026-11-08 (r26): `validate.py` now enforces it. The floor warning and `MIN_WORDS` are gone (the
+  six appendix warnings with them), the 2,500 ceiling stays, `*Tests:*` lines are checked in every
+  doc, and `TERSE_DOCS` turns on the test-name, O1 layout and described-figure checks per doc.
+  Appendix E's 98 cells are checked verbatim. `scripts/prose_invariants.py` compares a reworded
+  doc with its base revision and is a per-chapter gate for reworded docs.

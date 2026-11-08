@@ -32,7 +32,9 @@ ROOT = Path(__file__).resolve().parent.parent
 EXPECTED_DOCS = 47
 EM_DASH = "\u2014"
 PROSE_STATUSES = frozenset({"done", "drafted", "verified"})
-MIN_WORDS = 1900
+# Docs the terse rewording has finished (r26 plan, decision 6). r26 adds each pilot doc as it
+# lands; r27 and r28 extend the set. Empty on an unreworded tree, so the checks cost nothing.
+TERSE_DOCS: frozenset[int] = frozenset()
 MAX_WORDS = 2500
 CAPTION_MIN = 20
 CAPTION_MAX = 45
@@ -378,11 +380,8 @@ def check_prose(rel: str, text: str, kind: str, status: str) -> tuple[list[Findi
         if kind != "appendix" and figures != 1:
             errors.append(Finding(rel, 1, f"{figures} figure includes, need exactly 1"))
         words = word_count(text)
-        # The floor is a target, not a gate (owner decision 2026-11-05): never pad to reach it.
-        if words < MIN_WORDS:
-            message = f"prose has {words} words, below the {MIN_WORDS} target"
-            warnings.append(Finding(rel, 1, message))
-        elif words > MAX_WORDS:
+        # No floor (owner decision, r25 O2): length serves the reader. The ceiling stays.
+        if words > MAX_WORDS:
             errors.append(Finding(rel, 1, f"prose has {words} words, above {MAX_WORDS}"))
         if kind == "pattern":
             count = text.count(SIDEBAR)
@@ -391,6 +390,194 @@ def check_prose(rel: str, text: str, kind: str, status: str) -> tuple[list[Findi
                     Finding(rel, 1, f"pattern chapter has {count} ai-sidebar blocks, need 1")
                 )
     return errors, warnings
+
+
+# ------------------------------------------------- terse rewording checks (r26)
+
+TESTS_LINE_RE = re.compile(r"^\s*[-*]?\s*\*Tests?:\*")
+TEST_REF_RE = re.compile(r"`(test_\w+)(?:\[[^`]*\])?`")
+TEST_TICK_RE = re.compile(r"`test_\w+")
+FENCE_LINE_RE = re.compile(r"^\s*(```+|~~~+)")
+H3_RE = re.compile(r"^###\s+(.+?)\s*$")
+BUCKET_RE = re.compile(r"\*\*Bucket: (?:dissolves|survives|needs disambiguating)\.\*\*")
+BUCKET_ANY_RE = re.compile(r"\*\*Bucket:")
+BOLD_RE = re.compile(r"\*\*[^*]+\*\*")
+RELATIVE_URL_RE = re.compile(r"\{\{\s*'([^']*)'\s*\|\s*relative_url\s*\}\}")
+FORCE_RE = re.compile(r"\bforces?\b", re.IGNORECASE)
+LAYOUT_H3 = ("The problem", "The solution", "How Python models it")
+DETAILS_OPEN = '<details class="figure-description"'
+
+
+def tests_line_findings(
+    rel: str, lines: list[tuple[int, str, str | None]], defined: set[str]
+) -> list[Finding]:
+    """`*Tests:*` lines: position rules, and every name a defined test."""
+    out: list[Finding] = []
+    for i, (n, line, fence) in enumerate(lines):
+        if fence is not None or not TESTS_LINE_RE.match(line):
+            continue
+        names = TEST_REF_RE.findall(line)
+        rest = TEST_REF_RE.sub("", TESTS_LINE_RE.sub("", line, count=1))
+        if not names or re.sub(r"[\s,.]|\band\b", "", rest):
+            out.append(Finding(rel, n, "*Tests:* line must hold only backticked test names"))
+        for name in names:
+            if name not in defined:
+                out.append(Finding(rel, n, f"*Tests:* names {name}, which is not a defined test"))
+        if i == 0 or lines[i - 1][1].strip():
+            out.append(Finding(rel, n, "*Tests:* line needs a blank line before it"))
+        prior = next(((ln, fn) for _, ln, fn in reversed(lines[:i]) if ln.strip()), ("", None))
+        if prior[0].lstrip().startswith("#") or prior[1] is not None:
+            out.append(Finding(rel, n, "*Tests:* line must follow a paragraph, list or table"))
+        if i + 1 < len(lines) and lines[i + 1][1].strip():
+            out.append(Finding(rel, n, "*Tests:* line needs a blank line after it"))
+    return out
+
+
+def check_tests_lines(rel: str, text: str, defined: set[str]) -> list[Finding]:
+    return tests_line_findings(rel, body_lines(text), defined)
+
+
+def check_terse_tests(rel: str, text: str) -> list[Finding]:
+    """A backticked test name on a prose line that is not a `*Tests:*` line.
+
+    Counted on the lines `scan.sh --terse-stats` counts: tables, headings, HTML, Liquid and
+    blockquote lines are skipped, as are fences and front matter.
+    """
+    out: list[Finding] = []
+    for n, line in prose_lines(text):
+        s = line.strip()
+        if not s or s.startswith(("|", "#", "<", "{%", "{{", ">")):
+            continue
+        if TEST_TICK_RE.search(s) and not TESTS_LINE_RE.match(line):
+            out.append(Finding(rel, n, "test name inside prose; move it to a *Tests:* line"))
+    return out
+
+
+def check_described_figures(rel: str, text: str) -> list[Finding]:
+    """A `described="true"` include needs its `desc-<name>` description right after it."""
+    out: list[Finding] = []
+    for m in INCLUDE_RE.finditer(text):
+        params = dict(PARAM_RE.findall(m.group(1)))
+        if params.get("described") != "true":
+            continue
+        line = text.count("\n", 0, m.start()) + 1
+        tail = text[m.end() :]
+        nxt = re.search(r"\{%-?\s*include\s+excalidraw\.html|^##\s", tail, re.MULTILINE)
+        window = tail[: nxt.start()] if nxt else tail
+        want = f'id="desc-{params.get("name", "")}"'
+        pos = window.find(want)
+        head = window[:pos] if pos >= 0 else ""
+        if pos < 0 or DETAILS_OPEN not in head or "</details>" in head or head.count("\n\n") > 2:
+            out.append(Finding(rel, line, f"described figure needs {DETAILS_OPEN}> with {want}"))
+    return out
+
+
+def check_pattern_layout(rel: str, text: str) -> list[Finding]:
+    """The O1 layout for a pattern chapter: one `## Pattern: <Name>` H2 per pattern."""
+    out: list[Finding] = []
+    lines = prose_lines(text)
+    h2s = [(n, m.group(1)) for n, ln in lines if (m := H2_RE.match(ln))]
+    starts = [i for i, (_, title) in enumerate(h2s) if title.startswith("Pattern: ")]
+    if not starts:
+        return [Finding(rel, 1, "pattern chapter has no '## Pattern: <Name>' H2")]
+    titles = [t for _, t in h2s]
+    why = titles.index("Why this matters") if "Why this matters" in titles else -1
+    when = titles.index("When not to use it") if "When not to use it" in titles else -1
+    for i in starts:
+        n, title = h2s[i]
+        if why < 0 or when < 0 or not why < i < when:
+            msg = f"'## {title}' must sit between Why this matters and When not to use it"
+            out.append(Finding(rel, n, msg))
+        end = h2s[i + 1][0] if i + 1 < len(h2s) else 10**9
+        block = [(ln_no, ln) for ln_no, ln in lines if n < ln_no < end]
+        h3s = [(ln_no, m.group(1)) for ln_no, ln in block if (m := H3_RE.match(ln))]
+        if tuple(t for _, t in h3s[:3]) != LAYOUT_H3:
+            wanted = ", ".join(LAYOUT_H3)
+            out.append(Finding(rel, n, f"'## {title}' must open with the H3s {wanted}, in order"))
+            continue
+        sol = [ln for ln_no, ln in block if h3s[1][0] < ln_no < h3s[2][0]]
+        buckets = sum(len(BUCKET_RE.findall(ln)) for ln in sol)
+        any_buckets = sum(len(BUCKET_ANY_RE.findall(ln)) for ln in sol)
+        if buckets != 1 or any_buckets != 1:
+            out.append(Finding(rel, h3s[1][0], "The solution needs exactly one Bucket line"))
+        definitions = [ln for ln in sol if BOLD_RE.search(BUCKET_RE.sub("", ln))]
+        if len(definitions) != 1:
+            out.append(Finding(rel, h3s[1][0], "The solution needs one bold definition"))
+    in_details = False
+    for n, ln in lines:
+        if "<details" in ln:
+            in_details = True
+        if "</details>" in ln:
+            in_details = False
+        if not in_details and ln.startswith("Read the figure"):
+            out.append(Finding(rel, n, "the walk-through belongs in the figure description"))
+    return out
+
+
+def force_count(text: str) -> int:
+    """Count "force" or "forces" (case-insensitive, whole word) in body prose.
+
+    Excluded: front matter, fenced blocks, inline code and blockquote lines (the AI sidebar and
+    quotations). Headings, tables and Liquid text count. This is the rule the r26 "force"
+    budgets use. It is reported by `--force-count` and not enforced.
+    """
+    total = 0
+    for _, line in prose_lines(text):
+        if line.lstrip().startswith(">"):
+            continue
+        total += len(FORCE_RE.findall(INLINE_CODE_RE.sub(" ", line)))
+    return total
+
+
+def appendix_e_rows(text: str) -> list[tuple[int, list[str]]]:
+    """Five-cell table rows (Pattern, Bucket, Force, When not, Chapter) with line numbers."""
+    rows: list[tuple[int, list[str]]] = []
+    for n, line in prose_lines(text):
+        if not line.startswith("|"):
+            continue
+        line = RELATIVE_URL_RE.sub(r"\1", line)
+        cells = [
+            c.strip().replace("\\|", "|") for c in CELL_SPLIT_RE.split(line.strip().strip("|"))
+        ]
+        if len(cells) != 5 or cells[0] == "Pattern" or set(cells[0]) <= {"-", " "}:
+            continue
+        rows.append((n, cells))
+    return rows
+
+
+def squash(text: str) -> str:
+    return " ".join(text.split())
+
+
+def appendix_e_findings(
+    rel: str, text: str, docs_by_slug: dict[str, str]
+) -> tuple[list[Finding], int]:
+    """Each Bucket, Force and When-not cell must appear verbatim in the chapter it links."""
+    out: list[Finding] = []
+    checked = 0
+    for n, cells in appendix_e_rows(text):
+        m = re.search(r"/docs/([\w-]+)/", cells[4])
+        if not m or m.group(1) not in docs_by_slug:
+            out.append(Finding(rel, n, f"row {cells[0]!r}: Chapter cell links no chapter"))
+            continue
+        chapter = squash(docs_by_slug[m.group(1)])
+        for label, cell in zip(("Bucket", "Force", "When not"), cells[1:4], strict=True):
+            if cell in ("", "-"):
+                continue
+            checked += 1
+            if squash(cell) not in chapter:
+                msg = f"row {cells[0]!r}: {label} cell is not verbatim in {m.group(1)}"
+                out.append(Finding(rel, n, msg))
+    return out, checked
+
+
+def check_appendix_e(root: Path) -> list[Finding]:
+    paths = sorted((root / "_docs").glob("45-*.md"))
+    if not paths:
+        return []
+    docs = {p.stem: p.read_text(encoding="utf-8") for p in (root / "_docs").glob("*.md")}
+    rel = f"_docs/{paths[0].name}"
+    return appendix_e_findings(rel, paths[0].read_text(encoding="utf-8"), docs)[0]
 
 
 def check_xrefs(rel: str, text: str) -> list[Finding]:
@@ -968,6 +1155,7 @@ def validate(root: Path) -> Report:
     for slug in sorted(doc_slugs - set(manifest)):
         rep.errors.append(Finding(f"_docs/{slug}.md", 1, "doc is not listed in chapters.toml"))
 
+    defined_tests = test_names(root)
     for doc in docs:
         rel = f"_docs/{doc.name}"
         text = doc.read_text(encoding="utf-8")
@@ -990,6 +1178,12 @@ def validate(root: Path) -> Report:
         errs, warns = check_prose(rel, text, kind, status)
         rep.errors.extend(errs)
         rep.warnings.extend(warns)
+        rep.errors.extend(check_tests_lines(rel, text, defined_tests))
+        if entry.get("number") in TERSE_DOCS:
+            rep.errors.extend(check_terse_tests(rel, text))
+            rep.errors.extend(check_described_figures(rel, text))
+            if kind == "pattern":
+                rep.errors.extend(check_pattern_layout(rel, text))
         rep.errors.extend(check_figure_captions(rel, text))
         rep.errors.extend(check_figure_files(root, rel, text))
         if status == "in-progress":
@@ -1041,6 +1235,7 @@ def validate(root: Path) -> Report:
         rep.errors.extend(check_stale_versions(rel, path.read_text(encoding="utf-8"), minor))
 
     rep.errors.extend(claim_findings(load_claims(root)))
+    rep.errors.extend(check_appendix_e(root))
 
     rep.errors.extend(check_pins(root))
     rep.errors.extend(check_decks(root))
@@ -1202,6 +1397,170 @@ def check_decks(
 # -------------------------------------------------------------- self-test
 
 
+def full_arg_spine() -> str:
+    return "".join(f"## {h}\n\n" for h in SPINE["argument"])
+
+
+GOOD_PATTERN = """---
+title: T
+---
+## Why this matters
+
+Story.
+
+## Pattern: Mediator
+
+### The problem
+
+A failure.
+
+### The solution
+
+A **Mediator** is a hub.
+
+**Bucket: survives.** Reason.
+
+### How Python models it
+
+```python
+x = 1
+```
+
+Prose.
+
+*Tests:* `test_a`, `test_b[x]`.
+
+### Another point
+
+More.
+
+## When not to use it
+
+Bullets.
+"""
+
+GOOD_DESCRIBED = """{% include excalidraw.html name="fig" caption="c" described="true" %}
+
+<details class="figure-description" markdown="1">
+<summary>Describe the figure</summary>
+<div id="desc-fig" markdown="1">
+Walk.
+</div>
+</details>
+"""
+
+GOOD_ROW = (
+    "| Mediator | The bucket is survives. | The force is a hub. | Skip it. "
+    "| [M]({{ '/docs/23-m/' | relative_url }}) |"
+)
+
+
+def terse_self_test(expect: Callable[[str, bool], None]) -> None:
+    defined = {"test_a", "test_b", "test_c"}
+    good = "Para.\n\n*Tests:* `test_a`, `test_b[x]`.\n\nNext.\n"
+    expect("tests line ok", not check_tests_lines("a.md", good, defined))
+    expect(
+        "tests line unknown name",
+        bool(check_tests_lines("a.md", good.replace("test_a", "test_zzz"), defined)),
+    )
+    expect(
+        "tests line needs blank before",
+        bool(check_tests_lines("a.md", good.replace("Para.\n\n", "Para.\n"), defined)),
+    )
+    expect(
+        "tests line needs blank after",
+        bool(check_tests_lines("a.md", good.replace("\n\nNext.", "\nNext."), defined)),
+    )
+    expect(
+        "tests line not after heading",
+        bool(check_tests_lines("a.md", "## H\n\n*Tests:* `test_a`.\n", defined)),
+    )
+    expect(
+        "tests line not after fence",
+        bool(check_tests_lines("a.md", "```\nx\n```\n\n*Tests:* `test_a`.\n", defined)),
+    )
+    expect(
+        "tests line only names",
+        bool(check_tests_lines("a.md", "Para.\n\n*Tests:* `test_a` proves it.\n", defined)),
+    )
+    expect(
+        "tests line after a table",
+        not check_tests_lines("a.md", "| a |\n| - |\n\n*Tests:* `test_a`.\n", defined),
+    )
+
+    prose_name = "Para with `test_a` inside.\n\n*Tests:* `test_a`.\n"
+    expect("terse prose name flagged", len(check_terse_tests("a.md", prose_name)) == 1)
+    exempt = "*Tests:* `test_a`.\n| `test_a` |\n> `test_b`\n```\ndef test_c(): ...\n```\n"
+    expect("terse exempt lines", not check_terse_tests("a.md", exempt))
+
+    expect("layout good", not check_pattern_layout("a.md", GOOD_PATTERN))
+    expect(
+        "layout needs a pattern H2",
+        bool(check_pattern_layout("a.md", GOOD_PATTERN.replace("Pattern: ", ""))),
+    )
+    expect(
+        "layout h3 order",
+        bool(check_pattern_layout("a.md", GOOD_PATTERN.replace("The problem", "The solution"))),
+    )
+    expect(
+        "layout missing bucket",
+        bool(check_pattern_layout("a.md", GOOD_PATTERN.replace("**Bucket: survives.**", ""))),
+    )
+    expect(
+        "layout bad bucket word",
+        bool(check_pattern_layout("a.md", GOOD_PATTERN.replace("survives.", "persists."))),
+    )
+    two_buckets = GOOD_PATTERN.replace("Reason.", "Reason. **Bucket: dissolves.**")
+    expect("layout two buckets", bool(check_pattern_layout("a.md", two_buckets)))
+    expect(
+        "layout needs a definition",
+        bool(
+            check_pattern_layout("a.md", GOOD_PATTERN.replace("A **Mediator** is", "A Mediator is"))
+        ),
+    )
+    expect(
+        "layout position",
+        bool(check_pattern_layout("a.md", GOOD_PATTERN.replace("## Why this matters", "## Why"))),
+    )
+    read_figure = GOOD_PATTERN.replace("Story.", "Read the figure from the top.")
+    expect("layout read the figure", bool(check_pattern_layout("a.md", read_figure)))
+    in_details = GOOD_PATTERN.replace(
+        "Story.", '<details class="figure-description">\nRead the figure from the top.\n</details>'
+    )
+    expect("layout read the figure in description ok", not check_pattern_layout("a.md", in_details))
+
+    expect("described ok", not check_described_figures("a.md", GOOD_DESCRIBED))
+    expect(
+        "described needs desc id",
+        bool(check_described_figures("a.md", GOOD_DESCRIBED.replace("desc-fig", "desc-other"))),
+    )
+    expect(
+        "described needs details",
+        bool(check_described_figures("a.md", GOOD_DESCRIBED.replace("<details", "<div"))),
+    )
+    plain = '{% include excalidraw.html name="fig" caption="c" %}\n'
+    expect("undescribed include ignored", not check_described_figures("a.md", plain))
+
+    force_text = (
+        "---\nt: x\n---\nA Force and forces, `force`, reinforce.\n> a force\n```\nforce\n```\n"
+    )
+    expect("force count rule", force_count(force_text) == 2)
+
+    chapter = {"23-m": "The force is a hub.   It   spans lines. Survives here. Skip it."}
+    row = GOOD_ROW.replace("The bucket is survives.", "Survives here.")
+    row = row.replace("The force is a hub.", "The force is a hub. It spans lines.")
+    found, checked = appendix_e_findings("e.md", row, chapter)
+    expect("appendix e verbatim ok", not found and checked == 3)
+    drifted = row.replace("Skip it.", "Skip it now.")
+    expect("appendix e drift flagged", len(appendix_e_findings("e.md", drifted, chapter)[0]) == 1)
+    no_link = row.replace("/docs/23-m/", "/docs/99-x/")
+    expect("appendix e missing chapter", bool(appendix_e_findings("e.md", no_link, chapter)[0]))
+    header = "| Pattern | Bucket | Force | When not to use it | Chapter |\n| - | - | - | - | - |\n"
+    expect("appendix e skips header", appendix_e_findings("e.md", header, chapter)[1] == 0)
+    dash = row.replace("Skip it.", "-")
+    expect("appendix e dash cell skipped", appendix_e_findings("e.md", dash, chapter)[1] == 2)
+
+
 def self_test() -> int:
     failures: list[str] = []
 
@@ -1256,8 +1615,13 @@ def self_test() -> int:
     expect("pattern with sidebar", not check_prose("a.md", ok, "pattern", "done")[0])
     long_errors = check_prose("a.md", "word " * 2600, "argument", "done")[0]
     expect("long errors", any("above" in f.message for f in long_errors))
-    short_warnings = check_prose("a.md", short, "argument", "done")[1]
-    expect("short warns", any("below the" in f.message for f in short_warnings))
+    floor_doc = full_arg_spine() + "word " * 1500 + "\n"
+    floor_figure = floor_doc + '{% include excalidraw.html name="x" caption="c" %}\n'
+    floor_result = check_prose("a.md", floor_figure, "argument", "done")
+    expect("no floor warning at 1,500 words", not floor_result[1] and not floor_result[0])
+    over_doc = full_arg_spine() + "word " * 2600 + "\n"
+    expect("2,600 words errors", bool(check_prose("a.md", over_doc, "appendix", "done")[0]))
+    terse_self_test(expect)
 
     bad = "```python\nx = '{{ a }}'\n```\n"
     good = "{% raw %}\n```python\nx = '{{ a }}'\n```\n{% endraw %}\n"
@@ -1656,6 +2020,10 @@ def deck_self_test(expect: Callable[[str, bool], None]) -> None:
 def main(argv: list[str]) -> int:
     if "--self-test" in argv:
         return self_test()
+    if "--force-count" in argv:
+        for path in sorted((ROOT / "_docs").glob("*.md")):
+            print(f"{force_count(path.read_text(encoding='utf-8')):4d}  _docs/{path.name}")
+        return 0
     if "--claims" in argv:
         results = load_claims(ROOT)
         print(claims_table(results))
