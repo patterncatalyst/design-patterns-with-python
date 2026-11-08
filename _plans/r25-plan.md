@@ -404,7 +404,7 @@ C1a and C1b run first, alone, because they touch many files mechanically. Then C
 | C3a | Whole-book quoted-output re-run in a fresh copy after C2a to C2e; mismatches returned to the doc owner and fixed | C2a to C2e | done |
 | C3b | Integration: every gate (QA step 2), the link sweep, the legibility check, `site-build.sh`; evidence file brought up to date | C3a, C2f, C2g | done |
 | C4a | Reconciliation: the 32 legacy rows re-witnessed (decision 6), VA5, rows 437 onward added with resolving tokens | C3b | done |
-| C5a | Opus validation with the three independent readers (QA steps 7 and 8); rows that start `open` closed | C4a | todo |
+| C5a | Opus validation with the three independent readers (QA steps 7 and 8); rows that start `open` closed | C4a | done |
 | C5b | Repair rounds (at most two), each followed by a confirmation, the last one included (QA step 9) | C5a | todo |
 | C6 | PR, `ci-ok` green, the hub PR (decision 12) opened; ask the owner before merging either | C5b | todo |
 | C7 | After the owner's word: squash-merge, delete the branch, tag `r25.x` on main, notes-only release; PRD status and series line set to complete; `iteration-plan.md` closes r25 | C6 | todo |
@@ -472,6 +472,18 @@ Row 30's deepcopy claim (VO6) gets a row at C4a only if TS2 adds its test. A def
   - **CLAUDE.md:** the sidebar rule, the spine (decision 8), and dated notes for decision 7 and O2.
   - The new checks flag Deck 101 notes 2 and 3 ("the deck"), which are DK2 and fixed at C2g. Until then `validate.py` shows those 2 errors.
   - **Incident:** C1a ran `git stash` in the shared tree and briefly took C1b's uncommitted edits. The pop restored them, and C1b re-applied one lost token move. Parallel briefs now forbid `git stash` and `git checkout` of files an agent doesn't own.
+- O1 (owner, plan gate): VO1, VO2 and the wording-only parts of VO5, VO6, VO8 and VO9 were dropped. So criterion 3's first two clauses (the "Build, run, observe" leads and the appendix closing maps) are withdrawn, and rows 438 and 439 are closed as dropped.
+- Step C5a: done.
+  - Three independent Opus readers (chapters 5 to 22; a sample of 01, 04, 24, 27, 34, 39, 43 and 45; the site and decks), then Opus validation round 1: 12 blocking items and 16 nits, each with a replacement tested in a fresh copy.
+  - The round caught two r25 slips:
+    - C3a's `21:311` change from 9 to 8 was wrong (the command includes `bench`).
+    - C2g's CD14 rewrap flattened the front matter of cards 36 and 42.
+  - It also caught DK4 left half done: the orchestrator's C2g brief wrongly called "Seven themes" correct, and the plan's DK4 counts the reference section.
+- Step C5b round 1: done in 1d50ae1.
+  - All 12 blocking items and the nits classed "fix this round" are applied verbatim, with 22 exact-match asserts.
+  - `check_collection_front_matter` is added with a self-test. Deck 301 slide 2 is "Eight sections" with a Reference bullet.
+  - The Feathers title (R2-N8) is left to the owner.
+  - Gates green. Row 451 stays open until the confirmation (QA step 9).
 - Step C4a: done in 6661496.
   - The 32 legacy rows are re-witnessed with resolving tokens; 190 named cases passed three times forward and once in reverse.
   - Rows 5 and 26 are `verified (r25)`. Row 27 is `adjusted (r25)`: the row's own wording overclaimed, the chapter didn't. Row 4 gains the chapter 18 class-form tests.
