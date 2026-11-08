@@ -185,7 +185,7 @@ A single rule called from one place is a function, with no registry. A registry 
 
 <blockquote class="ai-sidebar" markdown="1">
 
-**Reviewing assistant-written strategies.** Asked for "the Strategy pattern", an assistant may write an abstract `PricingStrategy`, a subclass per rule and a factory, or record `rule.__name__` on the quote. Paste a prompt that states the form:
+**Specifying strategies.** "Add the pricing rules" leaves open how a rule is typed, where it is registered and what the quote records. Paste a prompt that states the form:
 
 > Type the slot as `type PricingRule = Callable[[Consignment], Money]`. Register rules in a read-only `frozendict` typed `Mapping[str, PricingRule]`: a function, a `partial` that binds every parameter its rule needs, or a frozen dataclass with `__call__` when the configuration must compare by value. Raise an unknown name as `RatingError`. Record the registry key on `RateQuote`, not `__name__`. A rule's result depends only on its argument. No base class.
 

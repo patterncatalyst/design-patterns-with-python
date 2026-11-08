@@ -225,7 +225,7 @@ Four habits make a green run mean less than it appears to.
 
 <blockquote class="ai-sidebar" markdown="1">
 
-**Reviewing assistant-written tests.** An assistant may use a plain `Mock` for a typed collaborator, assert only that a method was called, patch a module global, or read the clock inside the code under test. Paste a prompt that states the form:
+**Specifying tests.** "Test the booking" leaves open what a double is built from, what is asserted and where the clock comes from. Paste a prompt that states the form:
 
 > Name each test after the claim it witnesses. Build doubles for `CarrierGateway` with `mocker.create_autospec(CarrierGateway, instance=True)` or a hand-written fake, never a plain `Mock`. Assert the returned reference before the calls. Inject the clock and the environment mapping instead of patching, and use `monkeypatch.context()` for the one real-environment test. Keep `--strict-markers`, `xfail_strict` and `filterwarnings = ["error"]`.
 

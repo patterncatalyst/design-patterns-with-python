@@ -219,7 +219,7 @@ A class is the wrong tool when the steps share nothing. Binding unrelated functi
 
 <blockquote class="ai-sidebar" markdown="1">
 
-**Reviewing assistant-written templates.** Asked for "a template method", an assistant may write an abstract base class whose subclasses must remember to call the parent, put an invariant inside an overridable step, or give a `Protocol` default bodies and expect matching classes to inherit them. Paste a prompt that states the form:
+**Specifying a template.** "Write a template for the customs declaration" leaves open which steps are fixed, where the invariant lives and what a variant may override. Paste a prompt that states the form:
 
 > Write `declare_customs` as a function that fixes the order and the invariant steps (refuse an empty consignment, total in one currency, invoice first) and takes `CustomsHooks`, a frozen keyword-only dataclass with `classify` and `duty` undefaulted and `extra_documents` defaulted. Use an ABC only when destinations share a table and a schedule, and mark its `declare` with `typing.final`. No default bodies in a `Protocol`.
 
@@ -326,4 +326,4 @@ Both cases of `test_a_declaration_needs_at_least_one_commodity` fail, and so doe
 
 *Design Patterns* (Gamma, Helm, Johnson and Vlissides) is the source for Template Method. [PEP 544](https://peps.python.org/pep-0544/) covers protocols and explicit subclassing, [PEP 591](https://peps.python.org/pep-0591/) and the [`typing.final` documentation](https://docs.python.org/3.15/library/typing.html) cover final methods, and the [`abc`](https://docs.python.org/3.15/library/abc.html) and [`dataclasses`](https://docs.python.org/3.15/library/dataclasses.html) documentation cover abstract methods, `kw_only` and field defaults.
 
-Luciano Ramalho's *Fluent Python*, second edition, has a chapter titled "Inheritance: For Better or For Worse" on when subclassing pays for itself. Brett Slatkin's *Effective Python*, third edition, has short rules on classes and typing in the same spirit. Both are in the hub's list and on the [bibliography page]({{ '/bibliography/' | relative_url }}).
+Luciano Ramalho's *Fluent Python*, second edition, has a chapter titled "Inheritance: For Better or For Worse" on when subclassing pays for itself. Brett Slatkin's *Effective Python*, third edition, has short rules on classes and typing in the same spirit. Both are on the [bibliography page]({{ '/bibliography/' | relative_url }}).

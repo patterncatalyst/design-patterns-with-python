@@ -205,7 +205,7 @@ On 3.15 there is a deprecation. The [What's New in Python 3.15](https://docs.pyt
 A Protocol with one implementation and no substitute is ceremony: the class is the contract. An ABC hierarchy for classes that share no code adds a base nobody uses. A `| None` threaded through ten signatures costs ten branches where one guard at the boundary would do, as `book_with` does for the lookup. A sentinel where `None` already means "absent" adds a name and a third branch for no distinction.
 
 <blockquote class="ai-sidebar" markdown="1">
-**Reviewing assistant-written interfaces.** An assistant may add a `NullGateway` that returns empty values, inherit from a Protocol to implement it, or treat `isinstance` on a runtime-checkable Protocol as a signature check. Paste a prompt that states the form:
+**Specifying an interface.** "Write the carrier interface" leaves open what a missing gateway returns, how a class satisfies the Protocol and what an `isinstance` check can tell. Paste a prompt that states the form:
 
 > Return `CarrierGateway | None` from `find_gateway` and narrow it once, at the boundary, with an explicit branch, because `assert` vanishes under `-O`. Satisfy `CarrierGateway` by shape, with no Protocol in the bases. Keep a do-nothing object only where doing nothing is correct, as `no_discount` is. Use a `sentinel` when `None` is a valid argument. Mark callback Protocol parameters positional-only with `/`. Leave signature checks to `mypy --strict`, not `@runtime_checkable`.
 

@@ -159,7 +159,7 @@ Don't inject the standard library. A function that needs the current directory c
 Hand wiring stops being short at some size. When dozens of services have lifetimes, scopes and ordered start-up, writing the root as a function becomes the problem, and a container library is a reasonable tool for that problem. The signal is the size of the wiring, not the presence of injection.
 
 <blockquote class="ai-sidebar" markdown="1">
-**Reviewing assistant-proposed seams.** Asked to make booking testable, an assistant may reach for a container library, a base class per adapter, or one wide gateway Protocol every consumer shares. Paste a prompt that states the form:
+**Specifying seams.** "Make booking testable" leaves open what the seam is, who owns it and where the adapter is chosen. Paste a prompt that states the form:
 
 > Have each policy module declare a Protocol with only the methods it calls: `BookingGateway` with `book` and `cancel`, `TrackingGateway` with `track`, parameters positional-only. Adapters inherit nothing and import no policy module. Inject through a frozen dataclass field or `functools.partial`. Choose the adapter in one `build_app` function, in the only module that imports `carriers`. No container library for wiring this small. Add an `ast` test that policy modules don't import adapters.
 
@@ -235,7 +235,7 @@ A passing pytest run doesn't prove a fake still satisfies the Protocol it stands
 
 ## For deeper coverage
 
-Robert C. Martin's *Agile Software Development, Principles, Patterns, and Practices* is where the interface segregation and dependency inversion principles are stated and worked through; it is in the hub's list and on the [bibliography page]({{ '/bibliography/' | relative_url }}). Harry Percival and Bob Gregory's *Architecture Patterns with Python* applies dependency inversion in Python services and shows the same fake-versus-real split at application scale.
+Robert C. Martin's *Agile Software Development, Principles, Patterns, and Practices* is where the interface segregation and dependency inversion principles are stated and worked through; it is on the [bibliography page]({{ '/bibliography/' | relative_url }}). Harry Percival and Bob Gregory's *Architecture Patterns with Python* applies dependency inversion in Python services and shows the same fake-versus-real split at application scale.
 
 Martin Fowler's article [Inversion of Control Containers and the Dependency Injection pattern](https://martinfowler.com/articles/injection.html), first published in January 2004, names constructor, setter and interface injection and compares them with a service locator. Mark Seemann's post [Composition Root](https://blog.ploeh.dk/2011/07/28/CompositionRoot/) describes where to compose the object graph.
 
