@@ -31,7 +31,14 @@ Lessons carried from r16 to r24: grep everywhere, including front matter, cards,
 
 ## Owner decisions
 
-(none yet; recorded here at the plan gate)
+2026-11-08, at the plan gate:
+
+- O1: every numbered decision is taken as recommended (0 to 13), with one exception. **Purely stylistic prose edits are dropped from r25**, because the terse rewording in r26 to r28 will rewrite that prose. Dropped: VO1 (the 33 "Build, run, observe" lead sentences), VO2 (the appendix closes), and any VO3 to VO9 item that changes only wording, not a fact. Correctness fixes stay: wrong claims, counts, links and names, the 18 sidebar openings (SB1 to SB18, decision 1), and every CD, LK, QO, TS, FG, DK, SC, VA and BK item.
+- O2: the owner approved a terse rewording of the whole book, to run after r25 as r26 (gates, tooling and a pilot on docs 01, 03, 23 and 24, which the owner reads before r27 starts), r27 and r28. The rules go into `lgtm-professional-voice` as a "terse pattern register" through a lgtm-skills PR. Two settled rules change from r26 on:
+  - tests are named on a `*Tests:*` line after the paragraph, not inside the sentence;
+  - the 1,900-word floor is dropped.
+
+  Because r26 to r28 follow, decision 10 changes. The r25.x release is titled "r25.x: Retro and QA sweep" and does **not** declare the book complete. The README "Status" section and the PRD say the terse rewording is in progress. C0 adds r26 to r28 to the iteration plan's roadmap.
 
 ## Decisions with recommendations
 
