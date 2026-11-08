@@ -42,7 +42,7 @@ class _PropertyDimensions:
     @length_cm.setter
     def length_cm(self, value: Decimal) -> None:
         if not value.is_finite() or value <= 0:
-            raise ValueError(f"length_cm must be positive, got {value}")
+            raise ValueError(f"length_cm must be positive and finite, got {value}")
         self._length_cm = value
 
     @property
@@ -52,7 +52,7 @@ class _PropertyDimensions:
     @width_cm.setter
     def width_cm(self, value: Decimal) -> None:
         if not value.is_finite() or value <= 0:
-            raise ValueError(f"width_cm must be positive, got {value}")
+            raise ValueError(f"width_cm must be positive and finite, got {value}")
         self._width_cm = value
 
     @property
@@ -62,7 +62,7 @@ class _PropertyDimensions:
     @height_cm.setter
     def height_cm(self, value: Decimal) -> None:
         if not value.is_finite() or value <= 0:
-            raise ValueError(f"height_cm must be positive, got {value}")
+            raise ValueError(f"height_cm must be positive and finite, got {value}")
         self._height_cm = value
 
 

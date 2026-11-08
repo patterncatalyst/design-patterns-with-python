@@ -73,7 +73,7 @@ def _container_max(max_payload_kg: Decimal) -> object:
 def test_a_positive_field_refuses_a_bad_value_on_every_class(
     build: Callable[[Decimal], object], name: str
 ) -> None:
-    with pytest.raises(ValueError, match=f"{name} must be positive, got -1"):
+    with pytest.raises(ValueError, match=f"{name} must be positive and finite, got -1"):
         build(Decimal(-1))
 
 
@@ -119,7 +119,7 @@ class _DriftedDimensions:
     @height_cm.setter
     def height_cm(self, value: Decimal) -> None:
         if value <= 0:
-            raise ValueError(f"height_cm must be positive, got {value}")
+            raise ValueError(f"height_cm must be positive and finite, got {value}")
         self._height_cm = value
 
 

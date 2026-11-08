@@ -54,7 +54,7 @@ def test_a_frozen_dataclass_refuses_assignment_to_a_descriptor_field(
 
 
 def test_replace_validates_the_new_value(dimensions: Dimensions) -> None:
-    with pytest.raises(ValueError, match="width_cm must be positive, got -2"):
+    with pytest.raises(ValueError, match="width_cm must be positive and finite, got -2"):
         replace(dimensions, width_cm=Decimal(-2))
 
 
