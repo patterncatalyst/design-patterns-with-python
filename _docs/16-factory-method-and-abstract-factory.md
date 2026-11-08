@@ -202,7 +202,7 @@ From the repository root, once, `uv sync --locked --all-packages`. Then:
 
 ```bash
 cd examples/16-factory-method-and-abstract-factory
-uv run pytest -v
+uv run pytest -v --no-header
 uv run mypy --strict src tests
 ```
 
@@ -210,11 +210,6 @@ A fresh run produces:
 
 ```text
 ============================= test session starts ==============================
-platform linux -- Python 3.15.2, pytest-9.2.0, pluggy-1.7.0 -- <repo>/.venv/bin/python
-cachedir: .pytest_cache
-rootdir: <repo>
-configfile: pyproject.toml
-plugins: mock-3.17.0
 collecting ... collected 28 items
 
 tests/test_factory_method.py::test_a_registered_constructor_builds_each_carrier_gateway[FASTLINE-registry] PASSED [  3%]
@@ -246,7 +241,7 @@ tests/test_static.py::test_mypy_accepts_kits_that_mix_untied_products[mixed-rate
 tests/test_static.py::test_mypy_accepts_kits_that_mix_untied_products[plain-printer] PASSED [ 96%]
 tests/test_static.py::test_mypy_rejects_a_kit_registry_typed_by_one_family PASSED [100%]
 
-============================== 28 passed in 4.80s ==============================
+============================== 28 passed in 4.98s ==============================
 Success: no issues found in 10 source files
 ```
 
@@ -291,4 +286,4 @@ The tie is gone. `AIRCO_KIT` still builds without a complaint, and the mixed kit
 
 ## For deeper coverage
 
-*Design Patterns: Elements of Reusable Object-Oriented Software* (Gamma, Helm, Johnson and Vlissides) is the source for Factory Method and Abstract Factory. Brandon Rhodes's [Factory Method](https://python-patterns.guide/gang-of-four/factory-method/) and [Abstract Factory](https://python-patterns.guide/gang-of-four/abstract-factory/) pages read both through Python. The [`typing` documentation](https://docs.python.org/3.15/library/typing.html#typing.Self) covers `Self`, and [PEP 544](https://peps.python.org/pep-0544/) specifies Protocols. [PEP 814](https://peps.python.org/pep-0814/) covers `frozendict`, which backs both registries. [Builder, dataclasses, and Prototype]({{ '/docs/17-builder-dataclasses-and-prototype/' | relative_url }}) takes the other creational patterns. The [bibliography page]({{ '/bibliography/' | relative_url }}) lists the books.
+*Design Patterns: Elements of Reusable Object-Oriented Software* (Gamma, Helm, Johnson and Vlissides) is the source for Factory Method and Abstract Factory. Brandon Rhodes's [Factory Method](https://python-patterns.guide/gang-of-four/factory-method/) and [Abstract Factory](https://python-patterns.guide/gang-of-four/abstract-factory/) pages read both through Python. The [`typing` documentation](https://docs.python.org/3/library/typing.html#typing.Self) covers `Self`, and [PEP 544](https://peps.python.org/pep-0544/) specifies Protocols. [PEP 814](https://peps.python.org/pep-0814/) covers `frozendict`, which backs both registries. [Builder, dataclasses, and Prototype]({{ '/docs/17-builder-dataclasses-and-prototype/' | relative_url }}) takes the other creational patterns. The [bibliography page]({{ '/bibliography/' | relative_url }}) lists the books.

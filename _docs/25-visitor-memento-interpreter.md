@@ -98,7 +98,7 @@ What survives of Visitor is a question the language doesn't answer for you: is t
 
 `test_a_singledispatch_visitor_gives_an_unregistered_event_its_fallback` registers `Booked`, `Loaded`, `Departed` and `Cleared` on a fallback that takes any `object`. `Delivered` has no registration, so the call falls to the fallback and returns "unrecognised event", and nothing raises. mypy says nothing either: `test_mypy_accepts_a_singledispatch_visitor_that_misses_an_event` checks the same four registrations and exits 0 with empty output. An open set trades that check for extensibility.
 
-The functools documentation also says the dispatch is by one argument: "note that the dispatch happens on the type of the first argument". [PEP 443](https://peps.python.org/pep-0443/), by Łukasz Langa, defines the term: "When the implementation is chosen based on the type of a single argument, this is known as single dispatch." `test_singledispatch_dispatches_on_the_first_argument_only` registers `Booked` as the first parameter of a two-parameter function and shows that the second argument doesn't take part: `two(booked, 1)` and `two(booked, "x")` pick the same implementation, and `two(1, booked)` falls back. When an operation depends on two values, a `match` on a tuple reads both. [PEP 634](https://peps.python.org/pep-0634/), by Brandt Bucher and Guido van Rossum, specifies it: "A fixed-length sequence pattern matches the subpatterns to corresponding items of the subject sequence, from left to right." The [functools documentation](https://docs.python.org/3.15/library/functools.html) is the reference for the decorator.
+The functools documentation also says the dispatch is by one argument: "note that the dispatch happens on the type of the first argument". [PEP 443](https://peps.python.org/pep-0443/), by Łukasz Langa, defines the term: "When the implementation is chosen based on the type of a single argument, this is known as single dispatch." `test_singledispatch_dispatches_on_the_first_argument_only` registers `Booked` as the first parameter of a two-parameter function and shows that the second argument doesn't take part: `two(booked, 1)` and `two(booked, "x")` pick the same implementation, and `two(1, booked)` falls back. When an operation depends on two values, a `match` on a tuple reads both. [PEP 634](https://peps.python.org/pep-0634/), by Brandt Bucher and Guido van Rossum, specifies it: "A fixed-length sequence pattern matches the subpatterns to corresponding items of the subject sequence, from left to right." The [functools documentation](https://docs.python.org/3/library/functools.html) is the reference for the decorator.
 
 ## Memento: a frozen snapshot and a rollback
 
@@ -139,7 +139,7 @@ def rollback(booking: Booking) -> Iterator[None]:
 
 The test batch attaches a dangerous goods declaration, reweighs to 1,200 kg and redirects to "Hamburg", which isn't a five-letter UN/LOCODE and is refused. After the rollback the request is back to 100 kg and `SGSIN`, in all three forms of the restore table (`test_rollback_restores_the_request_after_a_failed_amendment`), and with the snapshot the documents are the commercial invoice alone (`test_rollback_restores_the_attached_documents`). The `AmendmentError` leaves the block, so the caller still learns the batch failed (`test_rollback_re_raises_the_amendment_error`). A batch that succeeds keeps its changes (`test_a_block_that_succeeds_keeps_its_changes`). The audit holds four entries: the attachment, the reweigh, the refusal and `"rolled back"` (`test_rollback_keeps_the_audit_trail`).
 
-Two other ways to take the memento fail differently. Saving `copy.copy(booking)` is shallow, so the copy's `documents` is the live set. A document attached inside the failed block stays attached after the restore (`test_a_shallow_memento_keeps_a_document_attached_after_rollback`). Saving `copy.deepcopy(booking)` copies the audit list as well, and restoring it throws away the refused attempt: the audit ends as `["rolled back"]` (`test_a_deepcopy_memento_erases_the_audit_trail_on_rollback`). The copy documentation puts the risk in general terms: "Because deep copy copies everything it may copy too much, such as data which is intended to be shared between copies." Here the request is such data. A snapshot shares the frozen request with the booking, since a value that can't change is safe to share, and a deep copy makes a new equal one (`test_a_snapshot_shares_the_frozen_request_and_a_deepcopy_copies_it`). The [copy module documentation](https://docs.python.org/3.15/library/copy.html) describes both functions.
+Two other ways to take the memento fail differently. Saving `copy.copy(booking)` is shallow, so the copy's `documents` is the live set. A document attached inside the failed block stays attached after the restore (`test_a_shallow_memento_keeps_a_document_attached_after_rollback`). Saving `copy.deepcopy(booking)` copies the audit list as well, and restoring it throws away the refused attempt: the audit ends as `["rolled back"]` (`test_a_deepcopy_memento_erases_the_audit_trail_on_rollback`). The copy documentation puts the risk in general terms: "Because deep copy copies everything it may copy too much, such as data which is intended to be shared between copies." Here the request is such data. A snapshot shares the frozen request with the booking, since a value that can't change is safe to share, and a deep copy makes a new equal one (`test_a_snapshot_shares_the_frozen_request_and_a_deepcopy_copies_it`). The [copy module documentation](https://docs.python.org/3/library/copy.html) describes both functions.
 
 The snapshot can't be changed afterwards. At run time, assigning to a field raises `FrozenInstanceError` (`test_a_snapshot_cannot_be_changed_at_run_time`). mypy refuses the same edit, and a `frozenset` has no `add`. `test_mypy_refuses_to_change_a_snapshot` prints:
 
@@ -231,7 +231,7 @@ From the repository root, once, `uv sync --locked --all-packages`. Then:
 
 ```bash
 cd examples/25-visitor-memento-interpreter
-uv run pytest -v
+uv run pytest -v --no-header
 uv run mypy --strict src tests
 ```
 
@@ -239,11 +239,6 @@ A fresh run produces:
 
 ```text
 ============================= test session starts ==============================
-platform linux -- Python 3.15.2, pytest-9.2.0, pluggy-1.7.0 -- <repo>/.venv/bin/python
-cachedir: .pytest_cache
-rootdir: <repo>
-configfile: pyproject.toml
-plugins: mock-3.17.0
 collecting ... collected 48 items
 
 tests/test_memento.py::test_rollback_restores_the_request_after_a_failed_amendment[snapshot] PASSED [  2%]
@@ -295,7 +290,7 @@ tests/test_visitor.py::test_describe_refuses_an_object_outside_the_union PASSED 
 tests/test_visitor.py::test_singledispatch_dispatches_on_the_first_argument_only PASSED [ 97%]
 tests/test_visitor.py::test_the_accept_form_puts_an_accept_method_on_every_event_class PASSED [100%]
 
-============================== 48 passed in 3.00s ==============================
+============================== 48 passed in 2.74s ==============================
 Success: no issues found in 10 source files
 ```
 
@@ -335,4 +330,4 @@ The `match` form fails with the `AssertionError` for a `Delivered` event. The ac
 
 ## For deeper coverage
 
-*Design Patterns* (Gamma, Helm, Johnson and Vlissides) is the source for Visitor, Memento and Interpreter. [PEP 634](https://peps.python.org/pep-0634/) specifies structural pattern matching, and [PEP 636](https://peps.python.org/pep-0636/), by Daniel F Moisset, is its tutorial. The typing documentation covers [`assert_never`](https://docs.python.org/3.15/library/typing.html). The site python-patterns.guide, by Brandon Rhodes, has no page on any of the three patterns in its index. The [bibliography page]({{ '/bibliography/' | relative_url }}) lists the books.
+*Design Patterns* (Gamma, Helm, Johnson and Vlissides) is the source for Visitor, Memento and Interpreter. [PEP 634](https://peps.python.org/pep-0634/) specifies structural pattern matching, and [PEP 636](https://peps.python.org/pep-0636/), by Daniel F Moisset, is its tutorial. The typing documentation covers [`assert_never`](https://docs.python.org/3/library/typing.html). The site python-patterns.guide, by Brandon Rhodes, has no page on any of the three patterns in its index. The [bibliography page]({{ '/bibliography/' | relative_url }}) lists the books.

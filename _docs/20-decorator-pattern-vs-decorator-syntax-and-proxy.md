@@ -118,7 +118,7 @@ def quote_carrier(gateway: CarrierGateway, consignment: Consignment) -> CarrierQ
 
 Stacking order is fixed when the module loads. `test_syntax_stacking_order_decides_whether_each_attempt_is_audited` defines two functions over a gateway that times out twice. With `@audited` above `@retry`, the sink has one record. With `@retry` above `@audited`, it has three. Rebound functions don't compare by value: two calls of `retry(...)` on the same function give two unequal wrappers (`test_rebound_functions_do_not_compare_by_value`), where two layer stacks built the same way are equal.
 
-A rebound function has no `price`, and a layer has no `__wrapped__`. The overlap case is a factory that returns an object that isn't a function. `functools.cache` does, and the returned value has `cache_info` and fails `inspect.isfunction` (`test_a_decorator_may_return_an_object_that_is_not_a_function`). That use is still `@decorator` syntax, rebound at definition. Both factories use [`functools.wraps`](https://docs.python.org/3.15/library/functools.html#functools.wraps), without which, its documentation says, "the name of the example function would have been 'wrapper'", and a PEP 695 `ParamSpec`. The witness here is that mypy keeps `quote_carrier`'s signature through `retry`: a `5` for the consignment is `[arg-type]` and `retries=2` is `[call-arg]` (`test_mypy_keeps_the_call_signature_through_retry`). How both work is the subject of [Decorators done right]({{ '/docs/26-decorators-done-right/' | relative_url }}).
+A rebound function has no `price`, and a layer has no `__wrapped__`. The overlap case is a factory that returns an object that isn't a function. `functools.cache` does, and the returned value has `cache_info` and fails `inspect.isfunction` (`test_a_decorator_may_return_an_object_that_is_not_a_function`). That use is still `@decorator` syntax, rebound at definition. Both factories use [`functools.wraps`](https://docs.python.org/3/library/functools.html#functools.wraps), without which, its documentation says, "the name of the example function would have been 'wrapper'", and a PEP 695 `ParamSpec`. The witness here is that mypy keeps `quote_carrier`'s signature through `retry`: a `5` for the consignment is `[arg-type]` and `retries=2` is `[call-arg]` (`test_mypy_keeps_the_call_signature_through_retry`). How both work is the subject of [Decorators done right]({{ '/docs/26-decorators-done-right/' | relative_url }}).
 
 ## Proxy: the same interface, controlling access
 
@@ -213,7 +213,7 @@ From the repository root, once, `uv sync --locked --all-packages`. Then:
 
 ```bash
 cd examples/20-decorator-pattern-vs-decorator-syntax-and-proxy
-uv run pytest -v
+uv run pytest -v --no-header
 uv run mypy --strict src tests
 ```
 
@@ -221,11 +221,6 @@ A fresh run produces:
 
 ```text
 ============================= test session starts ==============================
-platform linux -- Python 3.15.2, pytest-9.2.0, pluggy-1.7.0 -- <repo>/.venv/bin/python
-cachedir: .pytest_cache
-rootdir: <repo>
-configfile: pyproject.toml
-plugins: mock-3.17.0
 collecting ... collected 50 items
 
 tests/test_layers.py::test_a_layer_wraps_a_calculator_and_leaves_it_unchanged PASSED [  2%]
@@ -279,7 +274,7 @@ tests/test_syntax.py::test_rebound_functions_do_not_compare_by_value PASSED [ 96
 tests/test_syntax.py::test_a_decorated_function_has_no_price_and_a_layer_has_no_wrapped PASSED [ 98%]
 tests/test_syntax.py::test_a_decorator_may_return_an_object_that_is_not_a_function PASSED [100%]
 
-============================== 50 passed in 5.04s ==============================
+============================== 50 passed in 4.96s ==============================
 Success: no issues found in 10 source files
 ```
 
@@ -334,4 +329,4 @@ The explicit proxy fails at run time with `AttributeError`, and `test_the_proxy_
 
 ## For deeper coverage
 
-*Design Patterns* (Gamma, Helm, Johnson and Vlissides) is the source for Decorator and Proxy. Brandon Rhodes's [The Decorator Pattern](https://python-patterns.guide/gang-of-four/decorator-pattern/) separates the pattern from the syntax. [PEP 318](https://peps.python.org/pep-0318/) introduced the `@` form and [PEP 3129](https://peps.python.org/pep-3129/) extended it to classes. [PEP 612](https://peps.python.org/pep-0612/) specifies `ParamSpec` and [PEP 695](https://peps.python.org/pep-0695/) the generic syntax the factories use. The [`typing` documentation](https://docs.python.org/3.15/library/typing.html) covers `runtime_checkable`, the [`inspect` documentation](https://docs.python.org/3.15/library/inspect.html) covers `getattr_static`, and the [data model reference](https://docs.python.org/3.15/reference/datamodel.html) covers `__getattr__` and special method lookup. Luciano Ramalho's *Fluent Python* and Brett Slatkin's *Effective Python* treat the `@decorator` syntax and closures in depth. The [bibliography page]({{ '/bibliography/' | relative_url }}) lists the books.
+*Design Patterns* (Gamma, Helm, Johnson and Vlissides) is the source for Decorator and Proxy. Brandon Rhodes's [The Decorator Pattern](https://python-patterns.guide/gang-of-four/decorator-pattern/) separates the pattern from the syntax. [PEP 318](https://peps.python.org/pep-0318/) introduced the `@` form and [PEP 3129](https://peps.python.org/pep-3129/) extended it to classes. [PEP 612](https://peps.python.org/pep-0612/) specifies `ParamSpec` and [PEP 695](https://peps.python.org/pep-0695/) the generic syntax the factories use. The [`typing` documentation](https://docs.python.org/3/library/typing.html) covers `runtime_checkable`, the [`inspect` documentation](https://docs.python.org/3/library/inspect.html) covers `getattr_static`, and the [data model reference](https://docs.python.org/3/reference/datamodel.html) covers `__getattr__` and special method lookup. Luciano Ramalho's *Fluent Python* and Brett Slatkin's *Effective Python* treat the `@decorator` syntax and closures in depth. The [bibliography page]({{ '/bibliography/' | relative_url }}) lists the books.

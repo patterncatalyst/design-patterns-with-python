@@ -110,7 +110,7 @@ Both fill the slot, and they differ in what an audit can recover afterwards. A r
 | `partial` | absent | no | no |
 | frozen dataclass with `__call__` | absent | yes, and the hashes match | yes |
 
-The `functools` documentation on [partial objects](https://docs.python.org/3.15/library/functools.html) says why the `partial` row has no name: "the `__name__` and `__doc__` attributes are not created automatically." A rule object is an instance, so it has none either. `test_partials_and_rule_objects_have_no_name` asks for `__name__` on the `per-kg` and `zone` entries and gets `AttributeError` for each, while `flat_rate.__name__` is `"flat_rate"` and a lambda's is `"<lambda>"`.
+The `functools` documentation on [partial objects](https://docs.python.org/3/library/functools.html) says why the `partial` row has no name: "the `__name__` and `__doc__` attributes are not created automatically." A rule object is an instance, so it has none either. `test_partials_and_rule_objects_have_no_name` asks for `__name__` on the `per-kg` and `zone` entries and gets `AttributeError` for each, while `flat_rate.__name__` is `"flat_rate"` and a lambda's is `"<lambda>"`.
 
 Equality splits the same way. `test_a_partial_has_no_value_equality` builds two partials of `per_kg` with the same rate and finds them unequal, while their `func` and `keywords` attributes are equal. `test_a_rule_object_compares_and_hashes_by_value` builds a second `ZoneRate` from an equal tariff and finds the two equal, with equal hashes and a repr that starts `ZoneRate(tariff=Tariff(`. The repr of a partial carries the address of the function it wraps, so no test asserts it, and the table's last column rests on the run, not on an assertion.
 
@@ -198,7 +198,7 @@ If a `partial` entry binds nothing, ask for the call that fails.
 From the repository root, once, `uv sync --locked --all-packages`. Then from the example directory:
 
 ```bash
-uv run pytest -v
+uv run pytest -v --no-header
 uv run mypy --strict src tests
 ```
 
@@ -206,11 +206,6 @@ A fresh run produces:
 
 ```text
 ============================= test session starts ==============================
-platform linux -- Python 3.15.2, pytest-9.2.0, pluggy-1.7.0 -- <repo>/.venv/bin/python
-cachedir: .pytest_cache
-rootdir: <repo>
-configfile: pyproject.toml
-plugins: mock-3.17.0
 collecting ... collected 31 items
 
 tests/test_behaviour_table.py::test_each_registered_rule_prices_the_behaviour_table[flat] PASSED [  3%]
@@ -245,7 +240,7 @@ tests/test_static.py::test_mypy_checks_each_registry_entry[class-not-instance] P
 tests/test_static.py::test_mypy_checks_partial_keywords_but_not_a_missing_binding[missing] PASSED [ 96%]
 tests/test_static.py::test_mypy_checks_partial_keywords_but_not_a_missing_binding[misspelt] PASSED [100%]
 
-============================== 31 passed in 3.09s ==============================
+============================== 31 passed in 3.26s ==============================
 ```
 
 ```text
@@ -298,4 +293,4 @@ The checker passed the registry, and the failure shows up at call time, in the p
 
 Erich Gamma, Richard Helm, Ralph Johnson and John Vlissides, *Design Patterns: Elements of Reusable Object-Oriented Software*, is the source for Strategy, and Luciano Ramalho's *Fluent Python*, second edition, the chapter "Design Patterns with First-Class Functions", is the treatment this chapter builds on. Both are on the [bibliography page]({{ '/bibliography/' | relative_url }}), where Brett Slatkin's *Effective Python*, third edition, is also listed for closures and `functools.partial`.
 
-The language sources are the `functools` documentation on [partial objects](https://docs.python.org/3.15/library/functools.html), [PEP 695](https://peps.python.org/pep-0695/) for the `type` statement behind `PricingRule`, [PEP 814](https://peps.python.org/pep-0814/) for `frozendict`, and the [dataclasses documentation](https://docs.python.org/3.15/library/dataclasses.html) for `frozen` and the generated `__eq__` and `__hash__`.
+The language sources are the `functools` documentation on [partial objects](https://docs.python.org/3/library/functools.html), [PEP 695](https://peps.python.org/pep-0695/) for the `type` statement behind `PricingRule`, [PEP 814](https://peps.python.org/pep-0814/) for `frozendict`, and the [dataclasses documentation](https://docs.python.org/3/library/dataclasses.html) for `frozen` and the generated `__eq__` and `__hash__`.

@@ -21,7 +21,7 @@ By the end of this chapter you can:
 
 Three failures share a cause. A consignment is shared by two booking requests, and a clerk reweighs it for one of them. The other request now shows the new weight, because both hold the same object. A stowage slot is a bay, a row and a tier, and a mutable `SlotId` can't key the reservation table at all: building the dict raises `TypeError`. Two stowage plans need a reservation table each: if they shared one default table, a slot reserved in one would show as taken in the other.
 
-Each is the same question answered wrongly: is this thing a value, defined by its content, or an entity, defined by its identity? A value should compare by content, be safe to share and work as a dictionary key. An entity should not. The old way to get a value was a class written out by hand. In Python 3.15 one decorator writes most of it, and the parts it doesn't write are the parts that need judgement.
+Each is the same question answered wrongly: is this thing a value, defined by its content, or an entity, defined by its identity? A value should compare by content, be safe to share and work as a dictionary key. An entity should not. The old way to get a value was a class written out by hand. In Python one decorator writes most of it, and the parts it doesn't write are the parts that need judgement.
 
 {% include excalidraw.html name="08-dataclasses-and-value-semantics" caption="Figure 8.1: One declaration, the Value Object's structure. A frozen, slotted, ordered dataclass writes the constructor, repr, equality, hash, ordering and the assignment guard for SlotId; the invariant, immutable field types and the value-or-entity choice stay with you." %}
 
@@ -35,7 +35,7 @@ The force is four needs at once. Two values with the same content should be equa
 
 The structure that pattern calls for, written by hand, is private fields with read accessors, a constructor that checks the invariant, an `__eq__` and `__hash__` pair that must be kept in step, and methods that return a modified copy. The pair that has to stay in step is the one that drifts.
 
-This pattern dissolves. A feature resolves the force without the pattern's structure: one `@dataclass(frozen=True, slots=True)` declaration produces the constructor, `repr`, equality, hash and an assignment guard, and `dataclasses.replace` is the copy-with-change method. Dataclasses arrived with [PEP 557](https://peps.python.org/pep-0557/), new in Python 3.7; the [`dataclasses` documentation](https://docs.python.org/3.15/library/dataclasses.html) covers the current behaviour, including `slots`, `kw_only` and `weakref_slot`, added later, and is the source for the generated behaviour below. What remains is the part no decorator can supply.
+This pattern dissolves. A feature resolves the force without the pattern's structure: one `@dataclass(frozen=True, slots=True)` declaration produces the constructor, `repr`, equality, hash and an assignment guard, and `dataclasses.replace` is the copy-with-change method. Dataclasses arrived with [PEP 557](https://peps.python.org/pep-0557/), new in Python 3.7; the [`dataclasses` documentation](https://docs.python.org/3/library/dataclasses.html) covers the current behaviour, including `slots`, `kw_only` and `weakref_slot`, added later, and is the source for the generated behaviour below. What remains is the part no decorator can supply.
 
 ## One declaration: frozen and slotted
 
@@ -179,7 +179,7 @@ If `__post_init__` assigns through `object.__setattr__`, ask for the normalising
 From the repository root, once, `uv sync --locked --all-packages`. Then from the example directory:
 
 ```bash
-uv run pytest -v
+uv run pytest -v --no-header
 uv run mypy --strict src tests
 ```
 
@@ -187,11 +187,6 @@ A fresh run produces:
 
 ```text
 ============================= test session starts ==============================
-platform linux -- Python 3.15.2, pytest-9.2.0, pluggy-1.7.0 -- <repo>/.venv/bin/python
-cachedir: .pytest_cache
-rootdir: <repo>
-configfile: pyproject.toml
-plugins: mock-3.17.0
 collecting ... collected 32 items
 
 tests/test_aliasing.py::test_a_mutable_consignment_aliased_between_bookings_changes_both PASSED [  3%]
@@ -227,7 +222,7 @@ tests/test_values.py::test_frozen_is_a_setattr_guard_not_a_seal PASSED   [ 93%]
 tests/test_values.py::test_frozen_is_shallow PASSED                      [ 96%]
 tests/test_values.py::test_slots_remove_dict_and_weakref_until_asked PASSED [100%]
 
-============================== 32 passed in 3.80s ==============================
+============================== 32 passed in 3.62s ==============================
 ```
 
 ```text
@@ -280,4 +275,4 @@ Martin Fowler's *Patterns of Enterprise Application Architecture* (2002) include
 
 On the Python side, Luciano Ramalho's *Fluent Python*, second edition, has a chapter on data class builders, and Brett Slatkin's *Effective Python*, third edition, has practical rules on dataclasses. Both are in the bibliography.
 
-The language references are [PEP 557](https://peps.python.org/pep-0557/) for the design and the [`dataclasses` documentation](https://docs.python.org/3.15/library/dataclasses.html) for frozen instances, `__post_init__`, `replace`, mutable default values, `slots` and `weakref_slot`, and `kw_only`.
+The language references are [PEP 557](https://peps.python.org/pep-0557/) for the design and the [`dataclasses` documentation](https://docs.python.org/3/library/dataclasses.html) for frozen instances, `__post_init__`, `replace`, mutable default values, `slots` and `weakref_slot`, and `kw_only`.

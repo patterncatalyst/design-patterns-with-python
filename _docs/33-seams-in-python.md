@@ -66,7 +66,7 @@ An object seam, a parameter a caller fills, is the subject of [ISP, DIP, and dep
 
 ## Patch where the name is looked up
 
-The `unittest.mock` documentation states the rule: ["patch() works by (temporarily) changing the object that a name points to with another one."](https://docs.python.org/3.15/library/unittest.mock.html) A few sentences later it gives the principle: "The basic principle is that you patch where an object is looked up, which is not necessarily the same place as where it is defined."
+The `unittest.mock` documentation states the rule: ["patch() works by (temporarily) changing the object that a name points to with another one."](https://docs.python.org/3/library/unittest.mock.html) A few sentences later it gives the principle: "The basic principle is that you patch where an object is looked up, which is not necessarily the same place as where it is defined."
 
 A test that follows it replaces both carriers:
 
@@ -312,4 +312,4 @@ The patch on `seams.legacy.request_quote` now has no name to rebind, so `monkeyp
 
 ## For deeper coverage
 
-The `unittest.mock` documentation has the [Where to patch](https://docs.python.org/3.15/library/unittest.mock.html#where-to-patch) and [Autospeccing](https://docs.python.org/3.15/library/unittest.mock.html#autospeccing) sections, and pytest's [monkeypatch how-to](https://docs.pytest.org/en/stable/how-to/monkeypatch.html) describes the fixture's methods. The [`importlib.reload`](https://docs.python.org/3.15/library/importlib.html#importlib.reload) entry lists the caveats the reload test witnesses, and the [pytest-mock documentation](https://pytest-mock.readthedocs.io/en/stable/) covers `mocker`. Michael Feathers's *Working Effectively with Legacy Code* (Prentice Hall, 2004), in the chapter "The Seam Model", defines the seam and the enabling point. It's listed in the [bibliography]({{ '/bibliography/' | relative_url }}).
+The `unittest.mock` documentation has the [Where to patch](https://docs.python.org/3/library/unittest.mock.html#where-to-patch) and [Autospeccing](https://docs.python.org/3/library/unittest.mock.html#autospeccing) sections, and pytest's [monkeypatch how-to](https://docs.pytest.org/en/stable/how-to/monkeypatch.html) describes the fixture's methods. The [`importlib.reload`](https://docs.python.org/3/library/importlib.html#importlib.reload) entry lists the caveats the reload test witnesses, and the [pytest-mock documentation](https://pytest-mock.readthedocs.io/en/stable/) covers `mocker`. Michael Feathers's *Working Effectively with Legacy Code* (Prentice Hall, 2004), in the chapter "The Seam Model", defines the seam and the enabling point. It's listed in the [bibliography]({{ '/bibliography/' | relative_url }}).

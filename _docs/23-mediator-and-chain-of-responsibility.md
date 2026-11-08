@@ -298,7 +298,7 @@ From the repository root, once, `uv sync --locked --all-packages`. Then:
 
 ```bash
 cd examples/23-mediator-and-chain-of-responsibility
-uv run pytest -v
+uv run pytest -v --no-header
 uv run mypy --strict src tests
 ```
 
@@ -306,11 +306,6 @@ A fresh run produces:
 
 ```text
 ============================= test session starts ==============================
-platform linux -- Python 3.15.2, pytest-9.2.0, pluggy-1.7.0 -- <repo>/.venv/bin/python
-cachedir: .pytest_cache
-rootdir: <repo>
-configfile: pyproject.toml
-plugins: mock-3.17.0
 collecting ... collected 44 items
 
 tests/test_chain.py::test_a_restricted_commodity_is_held_for_inspection[stages] PASSED [  2%]
@@ -358,7 +353,7 @@ tests/test_static.py::test_mypy_refuses_a_linked_chain_result_where_a_decision_i
 tests/test_static.py::test_mypy_refuses_a_message_the_mediator_does_not_know PASSED [ 97%]
 tests/test_static.py::test_mypy_cannot_exhaust_a_match_on_true_and_false_patterns PASSED [100%]
 
-============================== 44 passed in 3.43s ==============================
+============================== 44 passed in 3.50s ==============================
 Success: no issues found in 8 source files
 ```
 
@@ -400,4 +395,4 @@ Only the duplicate settlement fails: after release, a second message calls `_try
 
 ## For deeper coverage
 
-*Design Patterns* (Gamma, Helm, Johnson and Vlissides, 1994) is the source for both Chain of Responsibility and Mediator. The Python tutorial's [`match` statements](https://docs.python.org/3.15/tutorial/controlflow.html) cover the pattern syntax `describe` and `receive` use. [PEP 695](https://peps.python.org/pep-0695/), by Eric Traut, specifies the `type` statement. The site python-patterns.guide, by Brandon Rhodes, has no page on either pattern in its index. The [bibliography page]({{ '/bibliography/' | relative_url }}) lists the books.
+*Design Patterns* (Gamma, Helm, Johnson and Vlissides, 1994) is the source for both Chain of Responsibility and Mediator. The Python tutorial's [`match` statements](https://docs.python.org/3/tutorial/controlflow.html) cover the pattern syntax `describe` and `receive` use. [PEP 695](https://peps.python.org/pep-0695/), by Eric Traut, specifies the `type` statement. The site python-patterns.guide, by Brandon Rhodes, has no page on either pattern in its index. The [bibliography page]({{ '/bibliography/' | relative_url }}) lists the books.

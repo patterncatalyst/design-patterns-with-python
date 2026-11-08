@@ -230,7 +230,7 @@ From the repository root, once, `uv sync --locked --all-packages`. Then:
 
 ```bash
 cd examples/22-observer
-uv run pytest -v
+uv run pytest -v --no-header
 uv run mypy --strict src tests
 ```
 
@@ -238,11 +238,6 @@ A fresh run produces:
 
 ```text
 ============================= test session starts ==============================
-platform linux -- Python 3.15.2, pytest-9.2.0, pluggy-1.7.0 -- <repo>/.venv/bin/python
-cachedir: .pytest_cache
-rootdir: <repo>
-configfile: pyproject.toml
-plugins: mock-3.17.0
 collecting ... collected 31 items
 
 tests/test_delivery.py::test_subscribers_are_called_in_subscription_order[signal] PASSED [  3%]
@@ -277,7 +272,7 @@ tests/test_static.py::test_mypy_accepts_a_typo_in_a_string_topic_bus[typo-topic]
 tests/test_static.py::test_mypy_accepts_a_typo_in_a_string_topic_bus[wrong-payload] PASSED [ 96%]
 tests/test_static.py::test_mypy_cannot_see_a_subscriber_that_refuses_weak_references PASSED [100%]
 
-============================== 31 passed in 2.27s ==============================
+============================== 31 passed in 2.30s ==============================
 Success: no issues found in 9 source files
 ```
 
@@ -324,4 +319,4 @@ Nothing is dropped, so the history survives its last name, the entry count stays
 
 ## For deeper coverage
 
-*Design Patterns* (Gamma, Helm, Johnson and Vlissides) is the source for Observer. The [`weakref` documentation](https://docs.python.org/3.15/library/weakref.html) covers `ref`, `WeakMethod` and the `__slots__` note, the [`gc` documentation](https://docs.python.org/3.15/library/gc.html) covers `collect` and `disable`, and the [data model](https://docs.python.org/3.15/reference/datamodel.html) covers object lifetime. [PEP 654](https://peps.python.org/pep-0654/) specifies exception groups, and the [built-in exceptions documentation](https://docs.python.org/3.15/builtins/exceptions.html) covers `ExceptionGroup` and its `exceptions` attribute. The [bibliography page]({{ '/bibliography/' | relative_url }}) lists the books.
+*Design Patterns* (Gamma, Helm, Johnson and Vlissides) is the source for Observer. The [`weakref` documentation](https://docs.python.org/3/library/weakref.html) covers `ref`, `WeakMethod` and the `__slots__` note, the [`gc` documentation](https://docs.python.org/3/library/gc.html) covers `collect` and `disable`, and the [data model](https://docs.python.org/3/reference/datamodel.html) covers object lifetime. [PEP 654](https://peps.python.org/pep-0654/) specifies exception groups, and the [built-in exceptions documentation](https://docs.python.org/3/builtins/exceptions.html) covers `ExceptionGroup` and its `exceptions` attribute. The [bibliography page]({{ '/bibliography/' | relative_url }}) lists the books.

@@ -169,7 +169,7 @@ def from_template(name: str, *, consignment_id: ConsignmentId, weight: Weight) -
 
 `test_a_template_and_replace_give_a_new_request` runs both templates: the new request has the new id and weight, is a different object, and replacing the two fields back gives a value equal to the template, which still carries its placeholder id. `test_an_unknown_template_is_a_booking_error` asks for `'air-freight'` and gets `BookingError` with the message "no template 'air-freight'", the original `KeyError` suppressed. `test_the_template_registry_is_read_only` assigns into `TEMPLATES` and gets a `TypeError` about item assignment, so a caller can't add a template by accident. A read-only module-level table is a small case of the shared state that [Singleton: module, Borg, and metaclass]({{ '/docs/18-singleton-module-borg-metaclass/' | relative_url }}) takes up. Which class to construct, by name, is the question of [Factory Method and Abstract Factory]({{ '/docs/16-factory-method-and-abstract-factory/' | relative_url }}). Here every template is the same class.
 
-`replace` is Prototype's `clone`, a point [The three-way split: dissolve, survive, disambiguate]({{ '/docs/03-the-three-way-split/' | relative_url }}) makes. `dataclasses.replace` builds the copy by calling `__init__`, and the [dataclasses documentation](https://docs.python.org/3.15/library/dataclasses.html) says that this "ensures that `__post_init__()`, if present, is also called." The `copy` module gained a generic form. The [copy documentation](https://docs.python.org/3.15/library/copy.html) describes `copy.replace(obj, /, **changes)` as: "Creates a new object of the same type as obj, replacing fields with values from changes." It's marked "Added in version 3.13." A class opts in with `__replace__`, described there as: "This method should create a new object of the same type, replacing fields with values from changes." The dataclasses page adds: "Dataclass instances are also supported by generic function `copy.replace()`."
+`replace` is Prototype's `clone`, a point [The three-way split: dissolve, survive, disambiguate]({{ '/docs/03-the-three-way-split/' | relative_url }}) makes. `dataclasses.replace` builds the copy by calling `__init__`, and the [dataclasses documentation](https://docs.python.org/3/library/dataclasses.html) says that this "ensures that `__post_init__()`, if present, is also called." The `copy` module gained a generic form. The [copy documentation](https://docs.python.org/3/library/copy.html) describes `copy.replace(obj, /, **changes)` as: "Creates a new object of the same type as obj, replacing fields with values from changes." It's marked "Added in version 3.13." A class opts in with `__replace__`, described there as: "This method should create a new object of the same type, replacing fields with values from changes." The dataclasses page adds: "Dataclass instances are also supported by generic function `copy.replace()`."
 
 `test_replace_reruns_the_cross_field_checks` runs both functions on a template with `insured=True` and gets `BookingError` from each, matching "declared value", with the template unchanged. A replace can't build an invalid request. `test_copy_replace_works_on_dataclasses_and_refuses_a_plain_class` calls `copy.replace(template, service="standard")` on the express template and gets a standard request, with the template unchanged. A plain class without `__replace__` gets `TypeError: replace() does not support Plain objects` from a run of `copy.replace`.
 
@@ -188,7 +188,7 @@ The same misspelling through `dataclasses.replace` prints `Unexpected keyword ar
 
 The fixture for it is `_LooseRequest`, a mutable slotted dataclass whose `documents` field is `list[str] = field(default_factory=list)`. The model's request can't be used here, because its documents are a tuple.
 
-`test_a_shallow_copy_shares_the_documents_list` makes a template with one document, copies it with `copy.copy` and again with `replace`, and appends a dangerous goods note through the copy. In both cases the template reads `["commercial invoice", "dangerous goods note"]`, and `clone.documents is template.documents` holds. `default_factory` runs only "when a default value is needed for this field", in the words of the [dataclasses documentation](https://docs.python.org/3.15/library/dataclasses.html). A copy isn't built that way, and takes whatever list the original holds. `test_mypy_cannot_see_a_shallow_copy_sharing_a_list` checks a reduced copy of the same code: exit 0 and no output.
+`test_a_shallow_copy_shares_the_documents_list` makes a template with one document, copies it with `copy.copy` and again with `replace`, and appends a dangerous goods note through the copy. In both cases the template reads `["commercial invoice", "dangerous goods note"]`, and `clone.documents is template.documents` holds. `default_factory` runs only "when a default value is needed for this field", in the words of the [dataclasses documentation](https://docs.python.org/3/library/dataclasses.html). A copy isn't built that way, and takes whatever list the original holds. `test_mypy_cannot_see_a_shallow_copy_sharing_a_list` checks a reduced copy of the same code: exit 0 and no output.
 
 `copy.deepcopy` separates the lists. `test_a_deep_copy_separates_the_documents_list` appends through a deep copy and finds the template unchanged and the two lists distinct objects. That works, and the documentation states its price: "Because deep copy copies everything it may copy too much, such as data which is intended to be shared between copies." A lock is a poor fit for it: on Python 3.15.2, `copy.deepcopy(threading.Lock())` raises `TypeError: cannot pickle '_thread.lock' object`. Build such an object again.
 
@@ -212,7 +212,7 @@ From the repository root, once, `uv sync --locked --all-packages`. Then:
 
 ```bash
 cd examples/17-builder-dataclasses-and-prototype
-uv run pytest -v
+uv run pytest -v --no-header
 uv run mypy --strict src tests
 ```
 
@@ -220,11 +220,6 @@ A fresh run produces:
 
 ```text
 ============================= test session starts ==============================
-platform linux -- Python 3.15.2, pytest-9.2.0, pluggy-1.7.0 -- <repo>/.venv/bin/python
-cachedir: .pytest_cache
-rootdir: <repo>
-configfile: pyproject.toml
-plugins: mock-3.17.0
 collecting ... collected 42 items
 
 tests/test_builder.py::test_a_positional_constructor_accepts_a_swapped_origin_and_destination PASSED [  2%]
@@ -270,7 +265,7 @@ tests/test_static.py::test_mypy_checks_copy_replace_like_dataclasses_replace[cop
 tests/test_static.py::test_mypy_checks_copy_replace_like_dataclasses_replace[plain-class] PASSED [ 97%]
 tests/test_static.py::test_mypy_cannot_see_a_shallow_copy_sharing_a_list PASSED [100%]
 
-============================== 42 passed in 4.77s ==============================
+============================== 42 passed in 4.92s ==============================
 Success: no issues found in 8 source files
 ```
 
@@ -318,4 +313,4 @@ One test fails, `test_the_request_has_twelve_fields_and_four_are_required`, whic
 
 ## For deeper coverage
 
-*Design Patterns* (Gamma, Helm, Johnson and Vlissides) is the source for Builder and Prototype. Brandon Rhodes's [The Builder Pattern](https://python-patterns.guide/gang-of-four/builder/) and [The Prototype Pattern](https://python-patterns.guide/gang-of-four/prototype/) give the Python view. The [`dataclasses` documentation](https://docs.python.org/3.15/library/dataclasses.html) covers `kw_only`, `replace` and `__post_init__`, and the [`copy` documentation](https://docs.python.org/3.15/library/copy.html) covers `copy.replace`, `__replace__` and deep copies. [PEP 557](https://peps.python.org/pep-0557/) specifies dataclasses. Luciano Ramalho's *Fluent Python* and Brett Slatkin's *Effective Python* are in the [bibliography page]({{ '/bibliography/' | relative_url }}).
+*Design Patterns* (Gamma, Helm, Johnson and Vlissides) is the source for Builder and Prototype. Brandon Rhodes's [The Builder Pattern](https://python-patterns.guide/gang-of-four/builder/) and [The Prototype Pattern](https://python-patterns.guide/gang-of-four/prototype/) give the Python view. The [`dataclasses` documentation](https://docs.python.org/3/library/dataclasses.html) covers `kw_only`, `replace` and `__post_init__`, and the [`copy` documentation](https://docs.python.org/3/library/copy.html) covers `copy.replace`, `__replace__` and deep copies. [PEP 557](https://peps.python.org/pep-0557/) specifies dataclasses. Luciano Ramalho's *Fluent Python* and Brett Slatkin's *Effective Python* are in the [bibliography page]({{ '/bibliography/' | relative_url }}).

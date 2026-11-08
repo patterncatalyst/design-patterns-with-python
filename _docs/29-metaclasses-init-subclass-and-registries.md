@@ -187,7 +187,7 @@ The run shows both registry forms passing one table of bookings and refusals, th
 
 ```bash
 cd examples/29-metaclasses-init-subclass-and-registries
-uv run pytest -v
+uv run pytest -v --no-header
 uv run mypy --strict src tests
 ```
 
@@ -195,11 +195,6 @@ A fresh run produces:
 
 ```text
 ============================= test session starts ==============================
-platform linux -- Python 3.15.2, pytest-9.2.0, pluggy-1.7.0 -- <repo>/.venv/bin/python
-cachedir: .pytest_cache
-rootdir: <repo>
-configfile: pyproject.toml
-plugins: mock-3.17.0
 collecting ... collected 35 items
 
 tests/test_metaclass.py::test_a_second_metaclass_conflicts_with_the_bases_metaclass[abc] PASSED [  2%]
@@ -238,7 +233,7 @@ tests/test_static.py::test_mypy_refuses_self_in_a_metaclass_new PASSED   [ 94%]
 tests/test_static.py::test_mypy_types_a_class_called_from_a_metaclass_registry_as_any PASSED [ 97%]
 tests/test_static.py::test_mypy_ignores_a_metaclass_call_return_type PASSED [100%]
 
-============================== 35 passed in 3.24s ==============================
+============================== 35 passed in 3.13s ==============================
 Success: no issues found in 8 source files
 ```
 
@@ -310,4 +305,4 @@ Seven tests fail. Inside the hook the attribute is missing, so every abstract cl
 
 ## For deeper coverage
 
-The [data model](https://docs.python.org/3.15/reference/datamodel.html) sections on customising class creation and metaclasses are the primary source. Martin Teichmann's [PEP 487](https://peps.python.org/pep-0487/) added `__init_subclass__`, Talin's [PEP 3115](https://peps.python.org/pep-3115/) introduced the `__prepare__` namespace hook, and Eric Snow's [PEP 520](https://peps.python.org/pep-0520/) preserved the order of class attribute definitions. The [abc](https://docs.python.org/3.15/library/abc.html) and [enum](https://docs.python.org/3.15/library/enum.html) pages cover `ABCMeta` and `EnumType`, the [mypy metaclasses page](https://mypy.readthedocs.io/en/stable/metaclasses.html) lists what the checker can't follow, and the `isabstract` branch is in CPython's [inspect module](https://github.com/python/cpython/blob/3.15/Lib/inspect.py). Brandon Rhodes's [The Global Object Pattern](https://python-patterns.guide/python/module-globals/) covers the mutable global. *Fluent Python*, second edition, by Luciano Ramalho, is the broader reference for the data model these hooks sit in. The [bibliography page]({{ '/bibliography/' | relative_url }}) lists the books.
+The [data model](https://docs.python.org/3/reference/datamodel.html) sections on customising class creation and metaclasses are the primary source. Martin Teichmann's [PEP 487](https://peps.python.org/pep-0487/) added `__init_subclass__`, Talin's [PEP 3115](https://peps.python.org/pep-3115/) introduced the `__prepare__` namespace hook, and Eric Snow's [PEP 520](https://peps.python.org/pep-0520/) preserved the order of class attribute definitions. The [abc](https://docs.python.org/3/library/abc.html) and [enum](https://docs.python.org/3/library/enum.html) pages cover `ABCMeta` and `EnumType`, the [mypy metaclasses page](https://mypy.readthedocs.io/en/stable/metaclasses.html) lists what the checker can't follow, and the `isabstract` branch is in CPython's [inspect module](https://github.com/python/cpython/blob/3.15/Lib/inspect.py). Brandon Rhodes's [The Global Object Pattern](https://python-patterns.guide/python/module-globals/) covers the mutable global. *Fluent Python*, second edition, by Luciano Ramalho, is the broader reference for the data model these hooks sit in. The [bibliography page]({{ '/bibliography/' | relative_url }}) lists the books.

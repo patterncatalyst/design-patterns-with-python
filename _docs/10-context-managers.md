@@ -31,7 +31,7 @@ Read the figure from the top. The accent box is the `with ManifestWriter(path) a
 
 "Resource acquisition" is the label this book uses for a recurring design problem, and it is descriptive, not a catalogue name. The force: a resource obtained in one place must be released on every path out of the code that uses it, and what release means is a decision. Closing a handle is one answer. Committing a staged file is another. Discarding a half-finished result is a third.
 
-[PEP 343](https://peps.python.org/pep-0343/), by Guido van Rossum and Alyssa Coghlan, added the `with` statement in Python 2.5 to take the acquire-and-release boilerplate out of call sites. The Python Language Reference describes the protocol in its section on [with statement context managers](https://docs.python.org/3.15/reference/datamodel.html#with-statement-context-managers): `__enter__` runs on the way in, and `__exit__` receives the exception details, or three `None` values when the block finished normally. The standard library's [`contextlib` documentation](https://docs.python.org/3.15/library/contextlib.html) covers the helpers used below. For the design side, Michael Kircher and Prashant Jain's *Pattern-Oriented Software Architecture, Volume 3: Patterns for Resource Management* (2004) treats acquiring and releasing resources as a design topic in its own right.
+[PEP 343](https://peps.python.org/pep-0343/), by Guido van Rossum and Alyssa Coghlan, added the `with` statement in Python 2.5 to take the acquire-and-release boilerplate out of call sites. The Python Language Reference describes the protocol in its section on [with statement context managers](https://docs.python.org/3/reference/datamodel.html#with-statement-context-managers): `__enter__` runs on the way in, and `__exit__` receives the exception details, or three `None` values when the block finished normally. The standard library's [`contextlib` documentation](https://docs.python.org/3/library/contextlib.html) covers the helpers used below. For the design side, Michael Kircher and Prashant Jain's *Pattern-Oriented Software Architecture, Volume 3: Patterns for Resource Management* (2004) treats acquiring and releasing resources as a design topic in its own right.
 
 This pattern survives. The language removes the call-site boilerplate: nobody writes `try`/`finally` around every use any more. A feature resolves part of the force and not the rest, because three decisions remain with whoever writes the context manager:
 
@@ -73,7 +73,7 @@ A manifest should appear whole or not at all, so `ManifestWriter` writes to `<na
 
 `__exit__` returns `None`, so the exception continues past the block. The Language Reference says that if the method "wishes to suppress the exception (i.e., prevent it from being propagated), it should return a true value. Otherwise, the exception will be processed normally upon exit from this method." Returning nothing is the decision to let the failure be seen.
 
-Two guards cover misuse. `test_writer_is_single_use` enters the same writer twice and gets `RuntimeError` on the second entry, with one open in total. `test_exiting_a_writer_that_was_never_entered_is_refused` calls `__exit__` directly and gets `was not entered`. The writer takes an `opener` callable, so the tests substitute one that records opens and closes. `open_utf8` passes `encoding="utf-8"` explicitly. Python 3.15 makes UTF-8 the default text encoding ([PEP 686](https://peps.python.org/pep-0686/), listed in [What's New in Python 3.15](https://docs.python.org/3.15/whatsnew/3.15.html)), and writing it out states the intent at the call site.
+Two guards cover misuse. `test_writer_is_single_use` enters the same writer twice and gets `RuntimeError` on the second entry, with one open in total. `test_exiting_a_writer_that_was_never_entered_is_refused` calls `__exit__` directly and gets `was not entered`. The writer takes an `opener` callable, so the tests substitute one that records opens and closes. `open_utf8` passes `encoding="utf-8"` explicitly. Python 3.15 makes UTF-8 the default text encoding ([PEP 686](https://peps.python.org/pep-0686/), listed in [What's New in Python 3.15](https://docs.python.org/3/whatsnew/3.15.html)), and writing it out states the intent at the call site.
 
 mypy reads the return type of `__exit__`, because that type tells it whether the block can swallow an exception. `test_mypy_reads_exit_return_type_for_reachability` checks a snippet in which the body of the `with` always raises and the next statement is a `return`:
 
@@ -142,7 +142,7 @@ def write_manifests(
 ```
 <!-- fmt:on -->
 
-The [`ExitStack` documentation](https://docs.python.org/3.15/library/contextlib.html) says each instance "maintains a stack of registered callbacks that are called in reverse order when the instance is closed", which is the order a nest of `with` statements would unwind in: the last resource acquired is the first released. `test_exit_stack_unwinds_entered_writers_in_reverse_order` makes the opener fail on the third call. The recorded opens are the first and second partials, and the recorded closes are the second and then the first. The directory ends up empty, because each writer's `__exit__` saw the exception and discarded its partial. The writers decide what release means, and the stack decides the order.
+The [`ExitStack` documentation](https://docs.python.org/3/library/contextlib.html) says each instance "maintains a stack of registered callbacks that are called in reverse order when the instance is closed", which is the order a nest of `with` statements would unwind in: the last resource acquired is the first released. `test_exit_stack_unwinds_entered_writers_in_reverse_order` makes the opener fail on the third call. The recorded opens are the first and second partials, and the recorded closes are the second and then the first. The directory ends up empty, because each writer's `__exit__` saw the exception and discarded its partial. The writers decide what release means, and the stack decides the order.
 
 The function docstring states the contract, and it's a narrow one: a failed open discards the partials of every writer entered. `test_exit_stack_commits_every_manifest_on_success` checks the success path: three files committed, no partials. On success each writer commits on its own as the stack unwinds, so the contract says nothing about a failure at commit time.
 
@@ -150,13 +150,13 @@ The function docstring states the contract, and it's a narrow one: a failed open
 
 A truthy `__exit__` return swallows the exception, and execution continues after the `with`. `test_a_truthy_exit_swallows_the_exception` uses a fixture manager that returns `True`, raises `ValueError` inside the block and then reaches the statement after it. Nothing in the output says an error occurred.
 
-Sometimes that is the intent: a cache file that may not exist yet, a cleanup of something already cleaned. `contextlib.suppress` states it narrowly. `test_suppress_swallows_only_the_named_exception` suppresses `KeyError`, which is swallowed, and then raises `ValueError` inside the same kind of block, which propagates. The documentation for [`suppress`](https://docs.python.org/3.15/library/contextlib.html) says it "should be used only to cover very specific errors where silently continuing with program execution is known to be the right thing to do." Use it where the suppressed case is expected and the code after the block is valid either way. A hand-written `__exit__` that returns `True` to "keep the job going" turns every failure in the block into a success, including the ones nobody anticipated.
+Sometimes that is the intent: a cache file that may not exist yet, a cleanup of something already cleaned. `contextlib.suppress` states it narrowly. `test_suppress_swallows_only_the_named_exception` suppresses `KeyError`, which is swallowed, and then raises `ValueError` inside the same kind of block, which propagates. The documentation for [`suppress`](https://docs.python.org/3/library/contextlib.html) says it "should be used only to cover very specific errors where silently continuing with program execution is known to be the right thing to do." Use it where the suppressed case is expected and the code after the block is valid either way. A hand-written `__exit__` that returns `True` to "keep the job going" turns every failure in the block into a success, including the ones nobody anticipated.
 
 ## A context manager as a decorator
 
 A context manager built with `@contextmanager` can also be applied as a decorator, because it derives from `ContextDecorator`. That's the `@decorator` syntax, a function rebinding at definition time, applied here to cleanup. The Decorator pattern, objects that wrap objects and compose behaviour at runtime, is a different thing, and the chapter titled [Decorator the pattern vs @decorator the syntax, and Proxy]({{ '/docs/20-decorator-pattern-vs-decorator-syntax-and-proxy/' | relative_url }}) keeps the two apart.
 
-Python 3.15 changed what this does for generator functions. The [What's New in Python 3.15](https://docs.python.org/3.15/whatsnew/3.15.html) entry for `contextlib` reads: "`ContextDecorator` and `AsyncContextDecorator` (and therefore `contextmanager()` and `asynccontextmanager()` used as decorators) now detect generator functions, coroutine functions, and asynchronous generator functions and keep the context manager open across iteration or await. Previously the context manager exited as soon as the generator or coroutine object was created." `test_a_context_manager_decorating_a_generator_spans_iteration` witnesses the 3.15 behaviour:
+Python 3.15 changed what this does for generator functions. The [What's New in Python 3.15](https://docs.python.org/3/whatsnew/3.15.html) entry for `contextlib` reads: "`ContextDecorator` and `AsyncContextDecorator` (and therefore `contextmanager()` and `asynccontextmanager()` used as decorators) now detect generator functions, coroutine functions, and asynchronous generator functions and keep the context manager open across iteration or await. Previously the context manager exited as soon as the generator or coroutine object was created." `test_a_context_manager_decorating_a_generator_spans_iteration` witnesses the 3.15 behaviour:
 
 <!-- fmt:off -->
 ```python
@@ -196,7 +196,7 @@ From the repository root, once, `uv sync --locked --all-packages`. Then change i
 
 ```bash
 cd examples/10-context-managers
-uv run pytest -v
+uv run pytest -v --no-header
 uv run mypy --strict src tests
 ```
 
@@ -204,11 +204,6 @@ A fresh run produces:
 
 ```text
 ============================= test session starts ==============================
-platform linux -- Python 3.15.2, pytest-9.2.0, pluggy-1.7.0 -- <repo>/.venv/bin/python
-cachedir: .pytest_cache
-rootdir: <repo>
-configfile: pyproject.toml
-plugins: mock-3.17.0
 collecting ... collected 25 items
 
 tests/test_semantics.py::test_a_truthy_exit_swallows_the_exception PASSED [  4%]
@@ -237,7 +232,7 @@ tests/test_writer.py::test_writer_is_single_use PASSED                   [ 92%]
 tests/test_writer.py::test_exiting_a_writer_that_was_never_entered_is_refused PASSED [ 96%]
 tests/test_writer.py::test_the_generator_form_needs_try PASSED           [100%]
 
-============================== 25 passed in 2.53s ==============================
+============================== 25 passed in 2.61s ==============================
 ```
 
 ```text
@@ -275,6 +270,6 @@ The assertion is the same `assert opener.files[0].closed`, now against the gener
 
 ## For deeper coverage
 
-The specification is [PEP 343](https://peps.python.org/pep-0343/), by Guido van Rossum and Alyssa Coghlan, and the protocol is in the Language Reference section on [with statement context managers](https://docs.python.org/3.15/reference/datamodel.html#with-statement-context-managers). The [`contextlib` documentation](https://docs.python.org/3.15/library/contextlib.html) covers `contextmanager`, `ExitStack`, `suppress` and `ContextDecorator`. [PEP 686](https://peps.python.org/pep-0686/) is the UTF-8 default, and the `contextlib` entry in [What's New in Python 3.15](https://docs.python.org/3.15/whatsnew/3.15.html) is the source for the decorator change.
+The specification is [PEP 343](https://peps.python.org/pep-0343/), by Guido van Rossum and Alyssa Coghlan, and the protocol is in the Language Reference section on [with statement context managers](https://docs.python.org/3/reference/datamodel.html#with-statement-context-managers). The [`contextlib` documentation](https://docs.python.org/3/library/contextlib.html) covers `contextmanager`, `ExitStack`, `suppress` and `ContextDecorator`. [PEP 686](https://peps.python.org/pep-0686/) is the UTF-8 default, and the `contextlib` entry in [What's New in Python 3.15](https://docs.python.org/3/whatsnew/3.15.html) is the source for the decorator change.
 
 Kircher and Jain's *Pattern-Oriented Software Architecture, Volume 3: Patterns for Resource Management* (2004) is the book-length treatment of resource lifetime as design. Luciano Ramalho's *Fluent Python*, second edition, covers context managers in its material on `with` blocks, and Brett Slatkin's *Effective Python*, third edition, has short rules on `with` and `contextlib`. All three are on the [bibliography page]({{ '/bibliography/' | relative_url }}).

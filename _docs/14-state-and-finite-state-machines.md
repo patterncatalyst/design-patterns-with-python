@@ -215,7 +215,7 @@ From the repository root, once, `uv sync --locked --all-packages`. Then:
 
 ```bash
 cd examples/14-state-and-finite-state-machines
-uv run pytest -v
+uv run pytest -v --no-header
 uv run mypy --strict src tests
 ```
 
@@ -223,11 +223,6 @@ A fresh run produces:
 
 ```text
 ============================= test session starts ==============================
-platform linux -- Python 3.15.2, pytest-9.2.0, pluggy-1.7.0 -- <repo>/.venv/bin/python
-cachedir: .pytest_cache
-rootdir: <repo>
-configfile: pyproject.toml
-plugins: mock-3.17.0
 collecting ... collected 40 items
 
 tests/test_lifecycle.py::test_the_lifecycle_runs_booked_to_delivered[table] PASSED [  2%]
@@ -271,7 +266,7 @@ tests/test_transit.py::test_a_voyage_stops_drawing_once_the_schedule_is_sailed P
 tests/test_transit.py::test_sailing_a_day_leaves_the_earlier_state_unchanged PASSED [ 97%]
 tests/test_transit.py::test_the_model_leaves_the_module_generator_alone PASSED [100%]
 
-============================== 40 passed in 4.32s ==============================
+============================== 40 passed in 4.41s ==============================
 Success: no issues found in 10 source files
 ```
 
@@ -319,6 +314,6 @@ mypy reports success, because the entry is well typed. Four tests fail. `test_de
 
 ## For deeper coverage
 
-*Design Patterns* (Gamma, Helm, Johnson and Vlissides) is the source for State. The language references are the [`typing` documentation](https://docs.python.org/3.15/library/typing.html) for `assert_never`, the typing guide on [unreachable code and exhaustiveness checking](https://typing.python.org/en/latest/guides/unreachable.html), [PEP 634](https://peps.python.org/pep-0634/) and [PEP 636](https://peps.python.org/pep-0636/) for structural pattern matching, [PEP 814](https://peps.python.org/pep-0814/) for `frozendict`, and the [`random`](https://docs.python.org/3.15/library/random.html) documentation on reproducibility.
+*Design Patterns* (Gamma, Helm, Johnson and Vlissides) is the source for State. The language references are the [`typing` documentation](https://docs.python.org/3/library/typing.html) for `assert_never`, the typing guide on [unreachable code and exhaustiveness checking](https://typing.python.org/en/latest/guides/unreachable.html), [PEP 634](https://peps.python.org/pep-0634/) and [PEP 636](https://peps.python.org/pep-0636/) for structural pattern matching, [PEP 814](https://peps.python.org/pep-0814/) for `frozendict`, and the [`random`](https://docs.python.org/3/library/random.html) documentation on reproducibility.
 
 Luciano Ramalho's *Fluent Python*, second edition, has the chapter "with, match, and else Blocks" on `match`. Both books are on the [bibliography page]({{ '/bibliography/' | relative_url }}).

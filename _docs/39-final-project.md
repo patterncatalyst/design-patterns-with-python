@@ -123,7 +123,7 @@ A step that succeeded has to be taken back when a later step refuses, and the de
 ```
 <!-- fmt:on -->
 
-The [`contextlib` documentation](https://docs.python.org/3.15/library/contextlib.html) gives the three facts the method relies on. For the stack: "Each instance maintains a stack of registered callbacks that are called in reverse order when the instance is closed (either explicitly or implicitly at the end of a with statement)." For `callback`: "Accepts an arbitrary callback function and arguments and adds it to the callback stack." For `pop_all`: "Transfers the callback stack to a fresh ExitStack instance and returns it." and "No callbacks are invoked by this operation". In `ship`, `pop_all()` is the commit. It moves the callbacks to a fresh stack that nothing closes, so leaving the `with` block runs none of them. The page adds that callbacks aren't run on collection either: "Note that callbacks are not invoked implicitly when the context stack instance is garbage collected." It also says "Unlike the other methods, callbacks added this way cannot suppress exceptions (as they are never passed the exception details)." The refusal therefore reaches the caller as the `ClearanceHeldError` it was.
+The [`contextlib` documentation](https://docs.python.org/3/library/contextlib.html) gives the three facts the method relies on. For the stack: "Each instance maintains a stack of registered callbacks that are called in reverse order when the instance is closed (either explicitly or implicitly at the end of a with statement)." For `callback`: "Accepts an arbitrary callback function and arguments and adds it to the callback stack." For `pop_all`: "Transfers the callback stack to a fresh ExitStack instance and returns it." and "No callbacks are invoked by this operation". In `ship`, `pop_all()` is the commit. It moves the callbacks to a fresh stack that nothing closes, so leaving the `with` block runs none of them. The page adds that callbacks aren't run on collection either: "Note that callbacks are not invoked implicitly when the context stack instance is garbage collected." It also says "Unlike the other methods, callbacks added this way cannot suppress exceptions (as they are never passed the exception details)." The refusal therefore reaches the caller as the `ClearanceHeldError` it was.
 
 Four tests pin the rule. A held declaration, CN-2 with the unknown HS code `9999.99`, raises `ClearanceHeldError`, and afterwards the plan holds no reservation and the client no open receipt (`test_a_held_declaration_releases_the_slot_and_cancels_the_carrier_booking`). Recording wrappers around the real plan and gateway append to one log before they delegate, and after the same refusal the log reads `["cancel", "release"]`:
 
@@ -209,15 +209,10 @@ If the diff imports a concrete class outside `app.py`, ask why the composition r
 
 ## Build, run, observe
 
-From the repository root, run `uv sync --locked --all-packages` once. Then, in `examples/39-final-project`, `uv run pytest -v` runs 19 test functions as 23 cases, and `uv run mypy --strict src tests` checks the example:
+From the repository root, run `uv sync --locked --all-packages` once. Then, in `examples/39-final-project`, `uv run pytest -v --no-header` runs 19 test functions as 23 cases, and `uv run mypy --strict src tests` checks the example:
 
 ```text
 ============================= test session starts ==============================
-platform linux -- Python 3.15.2, pytest-9.2.0, pluggy-1.7.0 -- <repo>/.venv/bin/python
-cachedir: .pytest_cache
-rootdir: <repo>
-configfile: pyproject.toml
-plugins: mock-3.17.0
 collecting ... collected 23 items
 
 tests/test_acceptance.py::test_a_booking_request_ships_end_to_end PASSED [  4%]
@@ -244,7 +239,7 @@ tests/test_structure.py::test_only_the_composition_root_names_a_concrete_carrier
 tests/test_tracking.py::test_a_held_booking_publishes_no_tracking_event[after-commit] PASSED [ 95%]
 tests/test_tracking.py::test_an_eager_publisher_reports_a_booking_that_was_rolled_back[eager] PASSED [100%]
 
-============================== 23 passed in 0.90s ==============================
+============================== 23 passed in 0.93s ==============================
 ```
 
 ```text
@@ -318,4 +313,4 @@ One test fails: a held booking now leaves a `BOOKED` event for CN-2 in the histo
 
 ## For deeper coverage
 
-The [`contextlib` documentation](https://docs.python.org/3.15/library/contextlib.html) describes `ExitStack`, `callback` and `pop_all`. Harry Percival and Bob Gregory's *Architecture Patterns with Python* (2020) has three chapters that bear on this one: "TDD in High Gear and Low Gear" for the levels of test, "Dependency Injection (and Bootstrapping)" for the composition root and "Unit of Work Pattern" for the persistent form of commit and rollback. [Working with AI and LLM tools]({{ '/docs/40-working-with-ai-and-llm-tools/' | relative_url }}) is the related title. The book is listed in the [bibliography]({{ '/bibliography/' | relative_url }}).
+The [`contextlib` documentation](https://docs.python.org/3/library/contextlib.html) describes `ExitStack`, `callback` and `pop_all`. Harry Percival and Bob Gregory's *Architecture Patterns with Python* (2020) has three chapters that bear on this one: "TDD in High Gear and Low Gear" for the levels of test, "Dependency Injection (and Bootstrapping)" for the composition root and "Unit of Work Pattern" for the persistent form of commit and rollback. [Working with AI and LLM tools]({{ '/docs/40-working-with-ai-and-llm-tools/' | relative_url }}) is the related title. The book is listed in the [bibliography]({{ '/bibliography/' | relative_url }}).

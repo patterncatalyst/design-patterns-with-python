@@ -184,7 +184,7 @@ From the repository root, run the one-time sync, then work from the example dire
 ```bash
 uv sync --locked --all-packages
 cd examples/05-srp-ocp-lsp
-uv run pytest -v
+uv run pytest -v --no-header
 uv run mypy --strict src tests
 ```
 
@@ -192,11 +192,6 @@ A fresh run, with the repository path shown as `<repo>`:
 
 ```text
 ============================= test session starts ==============================
-platform linux -- Python 3.15.2, pytest-9.2.0, pluggy-1.7.0 -- <repo>/.venv/bin/python
-cachedir: .pytest_cache
-rootdir: <repo>
-configfile: pyproject.toml
-plugins: mock-3.17.0
 collecting ... collected 19 items
 
 tests/test_lsp.py::test_calculator_honours_the_rate_contract[BaseRate] PASSED [  5%]
@@ -219,7 +214,7 @@ tests/test_srp.py::test_each_change_moves_only_the_fields_it_feeds[audit-sink] P
 tests/test_srp.py::test_audit_receives_exactly_the_quote_returned PASSED [ 94%]
 tests/test_srp.py::test_pricing_and_tax_run_alone PASSED                 [100%]
 
-============================== 19 passed in 2.85s ==============================
+============================== 19 passed in 2.73s ==============================
 ```
 
 ```text

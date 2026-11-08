@@ -53,7 +53,7 @@ def _instant_coffee(commodity: InstantCoffee) -> str:
     return "2101.11"
 ```
 
-The registrations carry no class argument because the annotation supplies it. The [functools documentation](https://docs.python.org/3.15/library/functools.html) says "For functions annotated with types, the decorator will infer the type of the first argument automatically". A class and its parameter can't disagree when there is one place that names the class. The seven commodities in `COMMODITY_CODES` get their codes (`test_every_fallback_form_gives_registered_commodities_their_codes`).
+The registrations carry no class argument because the annotation supplies it. The [functools documentation](https://docs.python.org/3/library/functools.html) says "For functions annotated with types, the decorator will infer the type of the first argument automatically". A class and its parameter can't disagree when there is one place that names the class. The seven commodities in `COMMODITY_CODES` get their codes (`test_every_fallback_form_gives_registered_commodities_their_codes`).
 
 The choice among registrations follows the class hierarchy. The same page says "Where there is no registered implementation for a specific type, its method resolution order is used to find a more generic implementation." `InstantCoffee` extends `Coffee`, and with both registered the more specific one wins: `dispatch(InstantCoffee)` returns the `InstantCoffee` implementation and not the `Coffee` one (`test_the_most_specific_registration_wins`). Take the registration away and the subclass is answered by its base class. On a fresh dispatcher with `Coffee` registered and `InstantCoffee` not, an instant coffee gets `0901.21` (`test_an_unregistered_subclass_gets_its_base_class_code`). Nothing complains, because a base class answering for its subclasses is the rule working.
 
@@ -162,7 +162,7 @@ The run shows the registrations answering the seven commodities and the two fall
 
 ```bash
 cd examples/28-singledispatch
-uv run pytest -v
+uv run pytest -v --no-header
 uv run mypy --strict src tests
 ```
 
@@ -170,11 +170,6 @@ A fresh run produces:
 
 ```text
 ============================= test session starts ==============================
-platform linux -- Python 3.15.2, pytest-9.2.0, pluggy-1.7.0 -- <repo>/.venv/bin/python
-cachedir: .pytest_cache
-rootdir: <repo>
-configfile: pyproject.toml
-plugins: mock-3.17.0
 collecting ... collected 33 items
 
 tests/test_registration.py::test_a_union_annotation_registers_each_member PASSED [  3%]
@@ -211,7 +206,7 @@ tests/test_tariff.py::test_an_unregistered_subclass_gets_its_base_class_code PAS
 tests/test_tariff.py::test_dispatch_and_registry_show_the_chosen_implementation PASSED [ 96%]
 tests/test_tariff.py::test_the_registry_is_read_only PASSED              [100%]
 
-============================== 33 passed in 2.26s ==============================
+============================== 33 passed in 2.27s ==============================
 Success: no issues found in 11 source files
 ```
 
@@ -264,4 +259,4 @@ One test fails, and it's the fresh-interpreter run: importing the module raises 
 
 ## For deeper coverage
 
-[PEP 443](https://peps.python.org/pep-0443/), by Łukasz Langa, introduced single-dispatch generic functions, and the [functools](https://docs.python.org/3.15/library/functools.html) documentation is the reference for `singledispatch`, `register`, `dispatch`, `registry` and `singledispatchmethod`. *Design Patterns* (Gamma, Helm, Johnson and Vlissides) is the source for Visitor. *Fluent Python*, second edition, by Luciano Ramalho, is the broader reference for the data model and decorators that singledispatch builds on. The [bibliography page]({{ '/bibliography/' | relative_url }}) lists the books.
+[PEP 443](https://peps.python.org/pep-0443/), by Łukasz Langa, introduced single-dispatch generic functions, and the [functools](https://docs.python.org/3/library/functools.html) documentation is the reference for `singledispatch`, `register`, `dispatch`, `registry` and `singledispatchmethod`. *Design Patterns* (Gamma, Helm, Johnson and Vlissides) is the source for Visitor. *Fluent Python*, second edition, by Luciano Ramalho, is the broader reference for the data model and decorators that singledispatch builds on. The [bibliography page]({{ '/bibliography/' | relative_url }}) lists the books.

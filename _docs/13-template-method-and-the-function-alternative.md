@@ -163,7 +163,7 @@ class CustomsDeclarer(ABC):
 ```
 <!-- fmt:on -->
 
-The class holds two pieces of state that the function form has to thread through hooks: the classification table and the duty schedule. `extra_documents` is abstract, so a subclass without it can't be built: `test_a_declarer_without_its_documents_cannot_be_built` expects a `TypeError` naming the abstract method, and the `abc` module's [documentation](https://docs.python.org/3.15/library/abc.html) describes the mechanism. `declare` is final and hands the declarer's own bound methods to `declare_customs`, so the skeleton exists once and the class adds no second copy of the order.
+The class holds two pieces of state that the function form has to thread through hooks: the classification table and the duty schedule. `extra_documents` is abstract, so a subclass without it can't be built: `test_a_declarer_without_its_documents_cannot_be_built` expects a `TypeError` naming the abstract method, and the `abc` module's [documentation](https://docs.python.org/3/library/abc.html) describes the mechanism. `declare` is final and hands the declarer's own bound methods to `declare_customs`, so the skeleton exists once and the class adds no second copy of the order.
 
 `test_two_destinations_share_the_schedule_and_differ_in_documents` gives equal lines and equal duty and different documents, with the two instances sharing one classification object. `test_the_template_and_the_hooks_give_the_same_declaration` shows the class form and the function form produce an equal declaration for the Netherlands. The shared invariant tests run on both forms through a fixture with two parameters, `hooks` and `template`, so each of those checks runs against both.
 
@@ -201,7 +201,7 @@ class _ForgetfulDeclarer(_OpenDeclarer):
 
 `test_a_subclass_that_skips_the_base_check_declares_nothing` runs an empty consignment through both. `_OpenDeclarer` raises `no commodities to declare`. `_ForgetfulDeclarer` returns a declaration whose `lines` is `()`. The override didn't call the base version, so the guard is gone, and nothing in the signature said it had to be called. `test_mypy_accepts_an_override_that_skips_the_base_step` runs the same shape through mypy, and the run exits 0 with empty output.
 
-`typing.final` on `declare` is the way to close that gap: the invariant lives in a method the checker refuses to let a subclass override. The [`typing` documentation](https://docs.python.org/3.15/library/typing.html) says that decorating a method with `@final` "indicates to a type checker that the method cannot be overridden in a subclass", and adds: "There is no runtime checking of these properties." [PEP 591](https://peps.python.org/pep-0591/) specifies the feature. Both halves are in the example. mypy rejects an override:
+`typing.final` on `declare` is the way to close that gap: the invariant lives in a method the checker refuses to let a subclass override. The [`typing` documentation](https://docs.python.org/3/library/typing.html) says that decorating a method with `@final` "indicates to a type checker that the method cannot be overridden in a subclass", and adds: "There is no runtime checking of these properties." [PEP 591](https://peps.python.org/pep-0591/) specifies the feature. Both halves are in the example. mypy rejects an override:
 
 ```text
 <string>:7: error: Cannot override final attribute "declare" (previously declared in base class "CustomsDeclarer")  [misc]
@@ -233,7 +233,7 @@ From the repository root, once, `uv sync --locked --all-packages`. Then:
 
 ```bash
 cd examples/13-template-method-and-the-function-alternative
-uv run pytest -v
+uv run pytest -v --no-header
 uv run mypy --strict src tests
 ```
 
@@ -241,11 +241,6 @@ A fresh run produces:
 
 ```text
 ============================= test session starts ==============================
-platform linux -- Python 3.15.2, pytest-9.2.0, pluggy-1.7.0 -- <repo>/.venv/bin/python
-cachedir: .pytest_cache
-rootdir: <repo>
-configfile: pyproject.toml
-plugins: mock-3.17.0
 collecting ... collected 28 items
 
 tests/test_hooks.py::test_declare_customs_runs_its_steps_in_order PASSED [  3%]
@@ -277,7 +272,7 @@ tests/test_template.py::test_final_marks_the_template_without_enforcing_it PASSE
 tests/test_template.py::test_a_subclass_that_skips_the_base_check_declares_nothing PASSED [ 96%]
 tests/test_template.py::test_two_destinations_share_the_schedule_and_differ_in_documents PASSED [100%]
 
-============================== 28 passed in 2.30s ==============================
+============================== 28 passed in 2.27s ==============================
 Success: no issues found in 9 source files
 ```
 
@@ -324,6 +319,6 @@ Both cases of `test_a_declaration_needs_at_least_one_commodity` fail, and so doe
 
 ## For deeper coverage
 
-*Design Patterns* (Gamma, Helm, Johnson and Vlissides) is the source for Template Method. [PEP 544](https://peps.python.org/pep-0544/) covers protocols and explicit subclassing, [PEP 591](https://peps.python.org/pep-0591/) and the [`typing.final` documentation](https://docs.python.org/3.15/library/typing.html) cover final methods, and the [`abc`](https://docs.python.org/3.15/library/abc.html) and [`dataclasses`](https://docs.python.org/3.15/library/dataclasses.html) documentation cover abstract methods, `kw_only` and field defaults.
+*Design Patterns* (Gamma, Helm, Johnson and Vlissides) is the source for Template Method. [PEP 544](https://peps.python.org/pep-0544/) covers protocols and explicit subclassing, [PEP 591](https://peps.python.org/pep-0591/) and the [`typing.final` documentation](https://docs.python.org/3/library/typing.html) cover final methods, and the [`abc`](https://docs.python.org/3/library/abc.html) and [`dataclasses`](https://docs.python.org/3/library/dataclasses.html) documentation cover abstract methods, `kw_only` and field defaults.
 
 Luciano Ramalho's *Fluent Python*, second edition, has a chapter titled "Inheritance: For Better or For Worse" on when subclassing pays for itself. Brett Slatkin's *Effective Python*, third edition, has short rules on classes and typing in the same spirit. Both are on the [bibliography page]({{ '/bibliography/' | relative_url }}).

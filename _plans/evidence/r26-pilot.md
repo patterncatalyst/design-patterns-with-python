@@ -264,6 +264,12 @@ The plan's doc 24 count of 39 test names included 4 module filenames; the measur
 | 24 | quote | Return a context manager that closes thing upon completion of the block. | Decision 3, T9: extra quotation in "Who closes the source". Paraphrased: "`contextlib.closing` returns a context manager that closes its argument when the block completes". Source: https://docs.python.org/3.15/library/contextlib.html `closing`, fetched 2026-11-08. | pending |
 | 24 | number | 255 | PL4, T9: the PEP 255 credit moved from the body to "For deeper coverage", where "PEP 255" appears once beside its link. | pending |
 | 24 | number | 1994 | The sentence linking to the 1994 chapter became the Bucket line (T11, O1); the second link to that chapter stays in "Read only what you need", and the GoF "(1994)" credit moved to "For deeper coverage". | pending |
+| 2 | number | 3.15 | O6: "Python 3.15 differs on each count" became "Python differs on each count" (incidental mention) | owner O6, 2026-11-08 |
+| 2 | number | 3.15 | O6: "the idiom for naming a type in 3.15" became "the idiom for naming a type" (incidental mention; "new in 3.12" stays) | owner O6, 2026-11-08 |
+| 6 | number | 3.15 | O6: "In Python 3.15 both forces remain" became "In Python both forces remain" (incidental mention) | owner O6, 2026-11-08 |
+| 8 | number | 3.15 | O6: "In Python 3.15 one decorator writes most of it" became "In Python one decorator writes most of it" (incidental mention; the 3.15 error-message fact in the same chapter stays) | owner O6, 2026-11-08 |
+| 42 | number | 3.15.2 | O6: "on pytest 9.2.0 and Python 3.15.2" became "on pytest 9.2.0" (incidental mention of the interpreter version; Appendix A states it) | owner O6, 2026-11-08 |
+| 43 | number | 3.15.2 | O6: "names a test on pytest-mock 3.17.0 and Python 3.15.2" became "names a test on pytest-mock 3.17.0" (incidental mention; the per-row 3.15.2 measurements stay) | owner O6, 2026-11-08 |
 
 The 12 rows for doc 24 are unsigned (`pending`) until the facts reader signs them at B5a. `prose_invariants.py` reads this table and ignores unsigned rows.
 

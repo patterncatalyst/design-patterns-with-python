@@ -270,7 +270,7 @@ Targets: TESTS 0 (gate); LEN median at most 15, p90 at most 30 (T4); PAR at most
 
 ## Steps and status
 
-Only suffixed ids are cited as `run:` tokens: B1a to B1d, B2a, B3a to B3e, B4a, B5a.
+Only suffixed ids are cited as `run:` tokens: B1a to B1d, B2a, B3a to B3e, B4a, B4b, B5a.
 
 | id | what | depends on | status |
 | --- | --- | --- | --- |
@@ -286,7 +286,8 @@ Only suffixed ids are cited as `run:` tokens: B1a to B1d, B2a, B3a to B3e, B4a, 
 | B3d | Doc 24, PL4 (worktree), committed as 077cc25 | B1d | done |
 | B3e | Orchestrator: merge B2a and B3a to B3d, remove the worktrees, then PL5 (Appendix E rows 68 to 70), committed as ba96856 | B2a, B3a to B3d | done |
 | B4a | Integration: QA steps 2 and 3, PL6 rows, PL7 census, the reading packet drafted | B3e | done |
-| B5a | Readers and validation (QA steps 4 and 5) | B4a | todo |
+| B4b | O6: the Python version on setup surfaces only (pytest `--no-header` re-record, `/3/` doc links, incidental mentions, the `validate.py` allowlist) | B4a | done |
+| B5a | Readers and validation (QA steps 4 and 5) | B4b | todo |
 | B5b | Repairs, at most two, each with its confirmation (QA step 6) | B5a | todo |
 | B6 | PR, `ci-ok` green, reading packet linked; ask the owner: go or adjust, then the merge. An adjust round follows QA step 6 | B5b | todo |
 | B7 | After the owner's word: squash-merge, delete the branch, tag `r26.x`, notes-only release; `iteration-plan.md` closes r26; the PRD status line updated | B6 | todo |
@@ -337,3 +338,9 @@ Then one row per bold definition and Bucket line the pilot adds, each with the t
   - PL6: rows 3, 4, 120 to 133, 313, 316, 317, 341 to 343 and 348 carry an r26 note (every claim unchanged). Rows 470 to 483 are added; 470, 471 and 475 to 479 are `open` for B5a. Row 471 omits the plan's `run: B5a` token, because `--claims` resolves a step only once it is `done`; B5a closes the row.
   - PL7: 23 census sentences (3, 8, 6, 6), each new string one `grep -cF` hit; 9 changed, 14 unchanged; the total equals the plan's 23.
   - Differences from the plan: the rows' count is 14 (470 to 483), not 5, because each bold definition and Bucket line, the doc 3 fact fix, the built-page checks and the census get a row. The step table's "(worktree)" wording is stale since O5 and is left as it was.
+- Step B4b: done (2026-11-08), committed with this note. Owner decision O6 applied; the setup surfaces (docs 0 and 41, `README.md`, `_config.yml`, CI, `index.html`, `examples.html`, `examples/README.md`, `examples/00-prerequisites/README.md`, and the matching card `_examples/00-prerequisites.md`) are unchanged apart from `CLAUDE.md`, which now states the rule.
+  - Recorded pytest output: 28 fences re-recorded (every chapter except doc 0), each by running `uv run pytest -v --no-header` in its example and passing the output through `host_ids.py filter`. Against the old fences the only differences are the five header lines that `--no-header` removes (`platform`, `cachedir`, `rootdir`, `configfile`, `plugins`, not the `platform` line alone) and the summary duration, which a fresh run changes. Where the fence also holds the `mypy --strict` result, that line was compared with a fresh run: equal in every fence but one. Doc 21's fence says "9 source files" where a fresh run says 8; that stale count predates r26, is left as it was (changing it would need a whole-fence waiver) and goes to the facts reader.
+  - The flag goes on the command, not in `addopts`: doc 0 keeps the header on purpose (it states the interpreter) and runs the same `uv run pytest -v`, so an `addopts = "--no-header"` would make its fence unreproducible. The 28 "Build, run, observe" commands (26 bash fences, docs 37 and 39 inline) read `uv run pytest -v --no-header`.
+  - Links: 164 `docs.python.org/3.15/` links in 39 docs and 81 `source:` tokens in `_plans/reconciliation-plan.md` became `/3/` (51 distinct URLs, 43 distinct pages). `/3/` serves 3.15.2 (glossary, `itertools` and `whatsnew/3.15.html` all show "Python 3.15.2 documentation"). Quotations: 701 quoted strings of 5 or more words in the non-setup docs; each page fetched once per URL form with `curl`, default user agent; 138 appear in a page their chapter links, on `/3.15/` and on `/3/`, with 0 misses (one differs from the page only in apostrophe style, in doc 7, on both).
+  - Incidental mentions reworded (docs 2 (three), 6, 8, 42, 43, `_parts/00-orientation.md`) and 6 signed waiver rows (`owner O6, 2026-11-08`); the decks lose the same kind of mention (101 four, 201 one, 301 one) and are rebuilt (only notes and the core timestamp differ). Every other mention is a feature or measurement and is on `VERSION_ALLOW` in `validate.py`. Deck pin tables and "The pinned versions are ..." slides stay (they are the decks' setup slide), as does `render-png.sh`'s `--python 3.15`.
+  - Gates: `validate.py` gained the `/3.N/` link check, the pytest-header check and the version allowlist (stale phrases are errors), each with self-test cases and a mutation proof (an incidental mention, a `/3.15/` link, a restored header and a removed phrase each fail). `prose_invariants.py` has `o6_normalise` (the link rewrite; the header block, the `--no-header` flag and the duration mask) with 9 self-test cases; `--all` fails only on doc 24's 12 pending waivers.

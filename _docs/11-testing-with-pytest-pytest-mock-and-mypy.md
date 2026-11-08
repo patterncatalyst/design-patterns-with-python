@@ -120,7 +120,7 @@ def test_autospec_rejects_names_and_signatures(mocker: MockerFixture) -> None:
         gateway.book()
 ```
 
-`side_effect` is how a double drives a branch the happy path never reaches. `test_side_effect_drives_the_timeout_branch` gives one autospec a `CarrierTimeoutError` to raise from `quote`, and asserts that the engine skips that carrier and reports it in `skipped`. The first demonstration of autospec, with an autospec of the wrong Protocol, is in the chapter titled [ISP, DIP, and dependency injection without a framework]({{ '/docs/06-isp-dip-and-di-without-a-framework/' | relative_url }}). The chapter titled [Mocking reference: unittest.mock and pytest-mock]({{ '/docs/43-appendix-c-mocking/' | relative_url }}) lists the rest of the mock API, and the standard library's [autospeccing](https://docs.python.org/3.15/library/unittest.mock.html#autospeccing) section is the source for what `create_autospec` copies.
+`side_effect` is how a double drives a branch the happy path never reaches. `test_side_effect_drives_the_timeout_branch` gives one autospec a `CarrierTimeoutError` to raise from `quote`, and asserts that the engine skips that carrier and reports it in `skipped`. The first demonstration of autospec, with an autospec of the wrong Protocol, is in the chapter titled [ISP, DIP, and dependency injection without a framework]({{ '/docs/06-isp-dip-and-di-without-a-framework/' | relative_url }}). The chapter titled [Mocking reference: unittest.mock and pytest-mock]({{ '/docs/43-appendix-c-mocking/' | relative_url }}) lists the rest of the mock API, and the standard library's [autospeccing](https://docs.python.org/3/library/unittest.mock.html#autospeccing) section is the source for what `create_autospec` copies.
 
 mypy accepts every one of the mocks where a `CarrierGateway` is expected. `test_mypy_accepts_every_mock_where_a_gateway_is_expected` passes `Mock()`, `Mock(spec=...)`, `MagicMock(spec=...)` and an autospec to a function that takes a `CarrierGateway`, and each run exits 0 with empty output. The reason is in typeshed's [`unittest/mock.pyi`](https://github.com/python/typeshed/blob/d03a581a8ebf525cba072b3e24e97f64825505b9/stdlib/unittest/mock.pyi), where `NonCallableMock`, the base of `Mock` and `MagicMock`, is declared as `class NonCallableMock(Base, Any)`, under this comment:
 
@@ -238,7 +238,7 @@ If a test has never been seen failing, delete its check in a scratch copy and co
 From the repository root, once, `uv sync --locked --all-packages`. Then from the example directory:
 
 ```bash
-uv run pytest -v
+uv run pytest -v --no-header
 uv run mypy --strict src tests
 ```
 
@@ -246,11 +246,6 @@ A fresh run produces:
 
 ```text
 ============================= test session starts ==============================
-platform linux -- Python 3.15.2, pytest-9.2.0, pluggy-1.7.0 -- <repo>/.venv/bin/python
-cachedir: .pytest_cache
-rootdir: <repo>
-configfile: pyproject.toml
-plugins: mock-3.17.0
 collecting ... collected 34 items
 
 tests/test_domain.py::test_weight_rejects_a_mass_that_is_not_positive_and_finite[zero] PASSED [  2%]
@@ -288,7 +283,7 @@ tests/test_static.py::test_mypy_checks_a_hand_written_fake[dict-entry] PASSED [ 
 tests/test_static.py::test_mypy_checks_a_hand_written_fake[assignment] PASSED [ 97%]
 tests/test_static.py::test_assert_type_is_static_only PASSED             [100%]
 
-============================== 34 passed in 4.13s ==============================
+============================== 34 passed in 4.18s ==============================
 ```
 
 ```text
@@ -388,6 +383,6 @@ With `-o filterwarnings=default`, the same test prints `1 passed, 1 warning in 0
 
 ## For deeper coverage
 
-The pytest documentation covers the tools in this chapter: [fixtures](https://docs.pytest.org/en/stable/how-to/fixtures.html), [parametrization](https://docs.pytest.org/en/stable/how-to/parametrize.html), [monkeypatch](https://docs.pytest.org/en/stable/how-to/monkeypatch.html), [capturing warnings](https://docs.pytest.org/en/stable/how-to/capture-warnings.html) and the [reference](https://docs.pytest.org/en/stable/reference/reference.html) for configuration options. The [pytest-mock documentation](https://pytest-mock.readthedocs.io/en/stable/) describes the `mocker` fixture, and the standard library's [autospeccing](https://docs.python.org/3.15/library/unittest.mock.html#autospeccing) section explains what `create_autospec` copies. Typeshed's [`unittest/mock.pyi`](https://github.com/python/typeshed/blob/d03a581a8ebf525cba072b3e24e97f64825505b9/stdlib/unittest/mock.pyi) holds the comment quoted above.
+The pytest documentation covers the tools in this chapter: [fixtures](https://docs.pytest.org/en/stable/how-to/fixtures.html), [parametrization](https://docs.pytest.org/en/stable/how-to/parametrize.html), [monkeypatch](https://docs.pytest.org/en/stable/how-to/monkeypatch.html), [capturing warnings](https://docs.pytest.org/en/stable/how-to/capture-warnings.html) and the [reference](https://docs.pytest.org/en/stable/reference/reference.html) for configuration options. The [pytest-mock documentation](https://pytest-mock.readthedocs.io/en/stable/) describes the `mocker` fixture, and the standard library's [autospeccing](https://docs.python.org/3/library/unittest.mock.html#autospeccing) section explains what `create_autospec` copies. Typeshed's [`unittest/mock.pyi`](https://github.com/python/typeshed/blob/d03a581a8ebf525cba072b3e24e97f64825505b9/stdlib/unittest/mock.pyi) holds the comment quoted above.
 
 Gerard Meszaros's *xUnit Test Patterns: Refactoring Test Code* (Addison-Wesley, 2007) is the source for the double names and the long catalogue behind them. Martin Fowler's article [Mocks Aren't Stubs](https://martinfowler.com/articles/mocksArentStubs.html) argues the difference between asserting on state and asserting on interactions, which is the second habit in the list of tests that prove less than they seem. Brian Okken's *Python Testing with pytest*, second edition (Pragmatic Bookshelf, 2022), covers fixtures, parametrization and configuration at book length, and Brett Slatkin's *Effective Python*, third edition, has short rules on testing and typing. Both books are on the [bibliography page]({{ '/bibliography/' | relative_url }}).

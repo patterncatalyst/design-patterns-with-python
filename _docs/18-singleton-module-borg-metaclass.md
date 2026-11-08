@@ -65,7 +65,7 @@ def quote_standard(zone: str, kilograms: Decimal) -> Decimal:
     return quote(zone, kilograms, table=tariff_table.TARIFF)
 ```
 
-[PEP 810](https://peps.python.org/pep-0810/) adds the `lazy` soft keyword, and the [What's New page for 3.15](https://docs.python.org/3.15/whatsnew/3.15.html) says what it does: "Python defers the actual module loading until the imported name is first used." Importing `quoting` loads nothing, and the first call to `quote_standard` loads the table. `test_a_lazy_import_loads_the_table_on_first_use` runs that in a fresh `python -I` interpreter, so test order can't decide the answer. After `import singleton.quoting` the load log is empty and `singleton.tariff_table` isn't in `sys.modules`. After the first quote the log holds one `"tariff"` and the module is present.
+[PEP 810](https://peps.python.org/pep-0810/) adds the `lazy` soft keyword, and the [What's New page for 3.15](https://docs.python.org/3/whatsnew/3.15.html) says what it does: "Python defers the actual module loading until the imported name is first used." Importing `quoting` loads nothing, and the first call to `quote_standard` loads the table. `test_a_lazy_import_loads_the_table_on_first_use` runs that in a fresh `python -I` interpreter, so test order can't decide the answer. After `import singleton.quoting` the load log is empty and `singleton.tariff_table` isn't in `sys.modules`. After the first quote the log holds one `"tariff"` and the module is present.
 
 Threads racing on that first use load it once. PEP 810 says so in its thread-safety section: "Exactly one thread performs the import and atomically rebinds the importing module’s global to the resolved object." `test_threads_racing_on_a_lazy_import_load_the_table_once` releases eight threads together from a barrier and finds one load and eight equal quotes. The race isn't forced. Nothing makes the threads overlap inside the import, so the test asserts the outcome and the claim rests on the PEP. The recorded evidence agrees: twenty fresh interpreters ran the same code, and all twenty loaded once.
 
@@ -88,7 +88,7 @@ A module-level table doesn't suit every caller. A test wants a table of its own,
 
 The failure this avoids is the cached loader. `test_isolation.py` holds `_cached_tariff`, decorated with `functools.cache`, which builds a `TariffTable` from the standard rates merged with a module-level `_OVERRIDES` dict. `test_a_cached_loader_carries_one_tests_table_into_the_next` sets an override for Asia and loads. The next phase clears the override and asks again, and the cache returns the table with the override still in it: Asia still reads 9, where the standard table says 2.40. The test's fixture calls `cache_clear()` after each test for that reason, and `test_cache_clear_resets_the_cached_loader` shows the reset working. `cache_clear` is the repair when a cache can't be avoided. It isn't a design: a test that touches the cache has to know to call it.
 
-The [functools documentation](https://docs.python.org/3.15/library/functools.html) describes `functools.cache` as a "Simple lightweight unbounded function cache". It memoises a function's results by argument. A single instance is a different requirement.
+The [functools documentation](https://docs.python.org/3/library/functools.html) describes `functools.cache` as a "Simple lightweight unbounded function cache". It memoises a function's results by argument. A single instance is a different requirement.
 
 ## Once, under threads
 
@@ -206,7 +206,7 @@ From the repository root, once, `uv sync --locked --all-packages`. Then:
 
 ```bash
 cd examples/18-singleton-module-borg-metaclass
-uv run pytest -v
+uv run pytest -v --no-header
 uv run mypy --strict src tests
 ```
 
@@ -214,11 +214,6 @@ A fresh run produces:
 
 ```text
 ============================= test session starts ==============================
-platform linux -- Python 3.15.2, pytest-9.2.0, pluggy-1.7.0 -- <repo>/.venv/bin/python
-cachedir: .pytest_cache
-rootdir: <repo>
-configfile: pyproject.toml
-plugins: mock-3.17.0
 collecting ... collected 29 items
 
 tests/test_isolation.py::test_a_naive_class_loads_the_table_once_per_caller PASSED [  3%]
@@ -251,7 +246,7 @@ tests/test_variants.py::test_borg_instances_share_state_but_are_distinct_and_une
 tests/test_variants.py::test_a_singleton_metaclass_ignores_the_second_calls_arguments PASSED [ 96%]
 tests/test_variants.py::test_a_new_based_singleton_reruns_init_on_every_call PASSED [100%]
 
-============================== 29 passed in 2.14s ==============================
+============================== 29 passed in 2.25s ==============================
 Success: no issues found in 12 source files
 ```
 
@@ -290,4 +285,4 @@ The test's fresh interpreter finds the load log already holding `"tariff"` after
 
 ## For deeper coverage
 
-*Design Patterns* (Gamma, Helm, Johnson and Vlissides) is the source for Singleton. Alex Martelli's [ActiveState recipe 66531](https://web.archive.org/web/20260325075452/https://code.activestate.com/recipes/66531-singleton-we-dont-need-no-stinkin-singleton-the-bo/), "Singleton? We don't need no stinkin' singleton: the Borg design pattern", is the source for Borg. Brandon Rhodes covers the two ends of the argument at [The Singleton Pattern](https://python-patterns.guide/gang-of-four/singleton/) and [The Global Object Pattern](https://python-patterns.guide/python/module-globals/). [PEP 810](https://peps.python.org/pep-0810/) specifies `lazy import`, [PEP 661](https://peps.python.org/pep-0661/) specifies `sentinel`, and the [functools](https://docs.python.org/3.15/library/functools.html) and [threading](https://docs.python.org/3.15/library/threading.html) documentation cover `cache`, `Lock` and `Barrier`. The [bibliography page]({{ '/bibliography/' | relative_url }}) lists the books.
+*Design Patterns* (Gamma, Helm, Johnson and Vlissides) is the source for Singleton. Alex Martelli's [ActiveState recipe 66531](https://web.archive.org/web/20260325075452/https://code.activestate.com/recipes/66531-singleton-we-dont-need-no-stinkin-singleton-the-bo/), "Singleton? We don't need no stinkin' singleton: the Borg design pattern", is the source for Borg. Brandon Rhodes covers the two ends of the argument at [The Singleton Pattern](https://python-patterns.guide/gang-of-four/singleton/) and [The Global Object Pattern](https://python-patterns.guide/python/module-globals/). [PEP 810](https://peps.python.org/pep-0810/) specifies `lazy import`, [PEP 661](https://peps.python.org/pep-0661/) specifies `sentinel`, and the [functools](https://docs.python.org/3/library/functools.html) and [threading](https://docs.python.org/3/library/threading.html) documentation cover `cache`, `Lock` and `Barrier`. The [bibliography page]({{ '/bibliography/' | relative_url }}) lists the books.

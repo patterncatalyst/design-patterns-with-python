@@ -57,11 +57,11 @@ def timed_render[**P, R](
     return decorate
 ```
 
-`wraps` applies `functools.update_wrapper`, which the [functools documentation](https://docs.python.org/3.15/library/functools.html) sums up as "Update a wrapper function to look like the wrapped function." The same page says the function "automatically adds a __wrapped__ attribute to the wrapper that refers to the function being wrapped".
+`wraps` applies `functools.update_wrapper`, which the [functools documentation](https://docs.python.org/3/library/functools.html) sums up as "Update a wrapper function to look like the wrapped function." The same page says the function "automatically adds a __wrapped__ attribute to the wrapper that refers to the function being wrapped".
 
 The comparison is a fixture, `wrapper_form`, with two parameters: `timed_render` and a copy of the same timer with `wraps` left out. Both render the same text for two bills (`test_both_wrapper_forms_render_the_same_text`), so the difference is only in what a tool reads off them. With `wraps` the wrapper keeps the name, qualified name, docstring and module (`test_wraps_keeps_the_name_qualname_doc_and_module`). Without it the name is `wrapper`, the qualified name ends in `<locals>.wrapper`, the docstring is `None` and there's no `__wrapped__` (`test_a_wrapper_without_wraps_reports_its_own_name_and_no_docstring`).
 
-Attributes set on the function travel too. `wraps` copies the function's `__dict__` into the wrapper's and adds `__wrapped__` beside them (`test_wraps_copies_the_function_dict_and_adds_wrapped`). `__wrapped__` points one level down: with a timer over a cache over `render_bill`, the timer's `__wrapped__` is the cache wrapper, and the cache wrapper's is `render_bill`. The [inspect documentation](https://docs.python.org/3.15/library/inspect.html) describes `inspect.unwrap` as one that "follows the chain of __wrapped__ attributes returning the last object in the chain", and `test_wrapped_points_one_level_down_and_unwrap_reaches_the_original` checks both steps.
+Attributes set on the function travel too. `wraps` copies the function's `__dict__` into the wrapper's and adds `__wrapped__` beside them (`test_wraps_copies_the_function_dict_and_adds_wrapped`). `__wrapped__` points one level down: with a timer over a cache over `render_bill`, the timer's `__wrapped__` is the cache wrapper, and the cache wrapper's is `render_bill`. The [inspect documentation](https://docs.python.org/3/library/inspect.html) describes `inspect.unwrap` as one that "follows the chain of __wrapped__ attributes returning the last object in the chain", and `test_wrapped_points_one_level_down_and_unwrap_reaches_the_original` checks both steps.
 
 `inspect.signature` follows `__wrapped__` as well, so the wrapped renderer reports `(bill: decorators_done_right.domain.BillOfLading, /, *, width: int = 72) -> str`, and the bare one reports `(*args: P.args, **kwargs: P.kwargs) -> R` (`test_inspect_signature_follows_wrapped_to_the_original_parameters`).
 
@@ -73,13 +73,13 @@ mypy doesn't read `__wrapped__`. It reads the wrapper's declared type, and `Para
 
 Two reduced models, snippets inside the tests that stand for code and aren't part of the example, show the split. A `ParamSpec` timer with no `wraps` still lets mypy see `render_bill(bill, /, *, width: int = 72)`: calling it with `width="30"` is `[arg-type]`, `Argument "width" to "render_bill" has incompatible type "str"; expected "int"` (`test_mypy_keeps_the_signature_through_a_wrapper_without_wraps`). The same timer with no annotations erases the signature instead, and mypy reports `[untyped-decorator]`, `Untyped decorator makes function "render_bill" untyped`, together with `[no-untyped-def]` on the decorator (`test_mypy_reports_an_untyped_decorator`).
 
-`Concatenate` is for a decorator that supplies an argument. The [typing documentation](https://docs.python.org/3.15/library/typing.html) says it "can be used in conjunction with Callable and ParamSpec to annotate a higher-order callable which adds, removes, or transforms parameters of another callable". A reduced model takes a function `render(width, bill, /)` and supplies `width`. mypy sees the decorated function as taking the bill alone, and a call that repeats the width is refused with `[call-arg]` and `[arg-type]` (`test_mypy_types_a_decorator_that_supplies_an_argument`).
+`Concatenate` is for a decorator that supplies an argument. The [typing documentation](https://docs.python.org/3/library/typing.html) says it "can be used in conjunction with Callable and ParamSpec to annotate a higher-order callable which adds, removes, or transforms parameters of another callable". A reduced model takes a function `render(width, bill, /)` and supplies `width`. mypy sees the decorated function as taking the bill alone, and a call that repeats the width is refused with `[call-arg]` and `[arg-type]` (`test_mypy_types_a_decorator_that_supplies_an_argument`).
 
 Runtime tools disagree, and here `wraps` is the cause. A test-local decorator, `supplying`, fixes the clock argument of `issued_at(clock, number)` and uses `wraps`. `stamp("BL-1")` returns `BL-1 issued at 1000`, yet `inspect.signature(stamp)` lists `clock` and `number`, and `signature.bind("BL-1")` raises `TypeError` with "missing a required argument" (`test_a_decorator_that_supplies_an_argument_reports_the_original_parameters`). `functools.partial(issued_at, clock)` reports `number` alone, and its `bind` accepts the call (`test_partial_reports_the_parameters_that_remain`). `wraps` assumes the wrapper takes the wrapped function's arguments; when it supplies one, use `partial`.
 
 ## Factories that refuse to be used bare
 
-A decorator with parameters is a function that returns a decorator, so `@cached_for(seconds=300)` has a call after the name. The [compound statements reference](https://docs.python.org/3.15/reference/compound_stmts.html) says "Decorator expressions are evaluated when the function is defined, in the scope that contains the function definition." The call runs at definition, and so does any mistake in it. The comparison is a fixture in `tests/conftest.py`, a factory that takes its window positionally:
+A decorator with parameters is a function that returns a decorator, so `@cached_for(seconds=300)` has a call after the name. The [compound statements reference](https://docs.python.org/3/reference/compound_stmts.html) says "Decorator expressions are evaluated when the function is defined, in the scope that contains the function definition." The call runs at definition, and so does any mistake in it. The comparison is a fixture in `tests/conftest.py`, a factory that takes its window positionally:
 
 ```python
 def _cached_for_positional[**P, R](
@@ -200,15 +200,15 @@ class BillOfLading:
 
 Importing the module fills `DOCUMENT_TYPES` with `BillOfLading` and `Manifest` (`test_document_kind_registers_the_class_at_definition`), and a second class for the same kind raises `DocumentKindError` (`test_document_kind_refuses_a_second_class_for_a_kind`). The signature says the class comes back unchanged. mypy doesn't apply a class decorator's return type, though: a decorated class keeps its own type whatever the decorator declares, so `BillOfLading.number` is a `str` either way (`test_mypy_keeps_the_class_type_through_document_kind`, beside a reduced model declared to return `int`). Class decorators themselves come from [PEP 3129](https://peps.python.org/pep-3129/), by Collin Winter, which extended the `@` form to classes.
 
-The order against `@dataclass(slots=True)` matters. The [dataclasses documentation](https://docs.python.org/3.15/library/dataclasses.html) says of `slots`: "If true (the default is False), __slots__ attribute will be generated and new class will be returned instead of the original one." `test_a_class_decorator_beneath_a_slotted_dataclass_registers_a_discarded_class` puts `document_kind` beneath it on a class `Beneath`: the registry holds a class without `__slots__`, and the name holds the slotted one. Put above, as on `BillOfLading` and `Manifest`, `document_kind` registers the class the name ends up holding, and the same test checks that order too.
+The order against `@dataclass(slots=True)` matters. The [dataclasses documentation](https://docs.python.org/3/library/dataclasses.html) says of `slots`: "If true (the default is False), __slots__ attribute will be generated and new class will be returned instead of the original one." `test_a_class_decorator_beneath_a_slotted_dataclass_registers_a_discarded_class` puts `document_kind` beneath it on a class `Beneath`: the registry holds a class without `__slots__`, and the name holds the slotted one. Put above, as on `BillOfLading` and `Manifest`, `document_kind` registers the class the name ends up holding, and the same test checks that order too.
 
 A class decorator that doesn't return the class binds the name to `None`. A test-local one that registers and falls off the end leaves `Forgotten` as `None` (`test_a_class_decorator_that_forgets_to_return_binds_the_name_to_none`), and a reduced model shows mypy reporting `[return]`, `Missing return statement` (`test_mypy_reports_a_class_decorator_that_forgets_to_return`). Registering classes by other means is the business of [Metaclasses, __init_subclass__, and registries]({{ '/docs/29-metaclasses-init-subclass-and-registries/' | relative_url }}).
 
 ## Decorating methods
 
-A function wrapper works on a method unchanged. The [descriptor guide](https://docs.python.org/3.15/howto/descriptor.html) says "To support automatic creation of methods, functions include the __get__() method for binding methods during attribute access." The wrapper `timed_render` returns is a function, so `Renderer().render("BL-1")` binds `self` and the timer records the call (`test_a_function_wrapper_binds_self_on_a_method`). A class-based wrapper with `__call__` and no `__get__` has nothing to bind with: the instance is never passed, `"BL-1"` fills `self`, and the call fails with "missing 1 required positional argument" (`test_a_class_based_wrapper_does_not_bind_self`). Writing `__get__` and `cached_property` belong to [Descriptors and properties]({{ '/docs/27-descriptors-and-properties/' | relative_url }}).
+A function wrapper works on a method unchanged. The [descriptor guide](https://docs.python.org/3/howto/descriptor.html) says "To support automatic creation of methods, functions include the __get__() method for binding methods during attribute access." The wrapper `timed_render` returns is a function, so `Renderer().render("BL-1")` binds `self` and the timer records the call (`test_a_function_wrapper_binds_self_on_a_method`). A class-based wrapper with `__call__` and no `__get__` has nothing to bind with: the instance is never passed, `"BL-1"` fills `self`, and the call fails with "missing 1 required positional argument" (`test_a_class_based_wrapper_does_not_bind_self`). Writing `__get__` and `cached_property` belong to [Descriptors and properties]({{ '/docs/27-descriptors-and-properties/' | relative_url }}).
 
-`functools.cache` on a method has a different cost. The functools page says "If a method is cached, the self instance argument is included in the cache." The [programming FAQ](https://docs.python.org/3.15/faq/programming.html) puts the consequence this way: "The disadvantage is that instances are kept alive until they age out of the cache or until the cache is cleared". In the test a `weakref` to the instance still resolves after `del` and `gc.collect()`, and stops resolving after `Renderer.render.cache_clear()` (`test_functools_cache_on_a_method_keeps_the_instance_alive`). Ruff's [B019 rule](https://docs.astral.sh/ruff/rules/cached-instance-method/) flags it: "Using the functools.lru_cache and functools.cache decorators on methods can lead to memory leaks, as the global cache will retain a reference to the instance, preventing it from being garbage collected." The repository's ruff configuration selects `B`, so the test carries `# noqa: B019`.
+`functools.cache` on a method has a different cost. The functools page says "If a method is cached, the self instance argument is included in the cache." The [programming FAQ](https://docs.python.org/3/faq/programming.html) puts the consequence this way: "The disadvantage is that instances are kept alive until they age out of the cache or until the cache is cleared". In the test a `weakref` to the instance still resolves after `del` and `gc.collect()`, and stops resolving after `Renderer.render.cache_clear()` (`test_functools_cache_on_a_method_keeps_the_instance_alive`). Ruff's [B019 rule](https://docs.astral.sh/ruff/rules/cached-instance-method/) flags it: "Using the functools.lru_cache and functools.cache decorators on methods can lead to memory leaks, as the global cache will retain a reference to the instance, preventing it from being garbage collected." The repository's ruff configuration selects `B`, so the test carries `# noqa: B019`.
 
 ## When not to use it
 
@@ -228,7 +228,7 @@ The run shows each rule failing in the form that breaks it and passing in the fo
 
 ```bash
 cd examples/26-decorators-done-right
-uv run pytest -v
+uv run pytest -v --no-header
 uv run mypy --strict src tests
 ```
 
@@ -236,11 +236,6 @@ A fresh run produces:
 
 ```text
 ============================= test session starts ==============================
-platform linux -- Python 3.15.2, pytest-9.2.0, pluggy-1.7.0 -- <repo>/.venv/bin/python
-cachedir: .pytest_cache
-rootdir: <repo>
-configfile: pyproject.toml
-plugins: mock-3.17.0
 collecting ... collected 40 items
 
 tests/test_classes.py::test_document_kind_registers_the_class_at_definition PASSED [  2%]
@@ -284,7 +279,7 @@ tests/test_wraps.py::test_wraps_copies_annotate_rather_than_annotations PASSED [
 tests/test_wraps.py::test_a_decorator_that_supplies_an_argument_reports_the_original_parameters PASSED [ 97%]
 tests/test_wraps.py::test_partial_reports_the_parameters_that_remain PASSED [100%]
 
-============================== 40 passed in 3.24s ==============================
+============================== 40 passed in 3.08s ==============================
 Success: no issues found in 9 source files
 ```
 
@@ -345,4 +340,4 @@ The bare `@cached_for` still fails at the `def`, but not with the refusal the te
 
 ## For deeper coverage
 
-[PEP 318](https://peps.python.org/pep-0318/), by Kevin D. Smith, Jim J. Jewett, Skip Montanaro and Anthony Baxter, introduced decorators for functions and methods, and [PEP 3129](https://peps.python.org/pep-3129/) extended them to classes. [PEP 612](https://peps.python.org/pep-0612/) specifies `ParamSpec` and `Concatenate`, [PEP 695](https://peps.python.org/pep-0695/) the type-parameter syntax the factories use, and [PEP 749](https://peps.python.org/pep-0749/) the `__annotate__` change. The [functools](https://docs.python.org/3.15/library/functools.html), [inspect](https://docs.python.org/3.15/library/inspect.html), [typing](https://docs.python.org/3.15/library/typing.html) and [dataclasses](https://docs.python.org/3.15/library/dataclasses.html) documentation cover the functions used here, the [compound statements reference](https://docs.python.org/3.15/reference/compound_stmts.html) covers decorator evaluation, and the [descriptor guide](https://docs.python.org/3.15/howto/descriptor.html) covers why functions bind. The [programming FAQ](https://docs.python.org/3.15/faq/programming.html) and ruff's [B019 page](https://docs.astral.sh/ruff/rules/cached-instance-method/) cover caching methods. The [bibliography page]({{ '/bibliography/' | relative_url }}) lists the books.
+[PEP 318](https://peps.python.org/pep-0318/), by Kevin D. Smith, Jim J. Jewett, Skip Montanaro and Anthony Baxter, introduced decorators for functions and methods, and [PEP 3129](https://peps.python.org/pep-3129/) extended them to classes. [PEP 612](https://peps.python.org/pep-0612/) specifies `ParamSpec` and `Concatenate`, [PEP 695](https://peps.python.org/pep-0695/) the type-parameter syntax the factories use, and [PEP 749](https://peps.python.org/pep-0749/) the `__annotate__` change. The [functools](https://docs.python.org/3/library/functools.html), [inspect](https://docs.python.org/3/library/inspect.html), [typing](https://docs.python.org/3/library/typing.html) and [dataclasses](https://docs.python.org/3/library/dataclasses.html) documentation cover the functions used here, the [compound statements reference](https://docs.python.org/3/reference/compound_stmts.html) covers decorator evaluation, and the [descriptor guide](https://docs.python.org/3/howto/descriptor.html) covers why functions bind. The [programming FAQ](https://docs.python.org/3/faq/programming.html) and ruff's [B019 page](https://docs.astral.sh/ruff/rules/cached-instance-method/) cover caching methods. The [bibliography page]({{ '/bibliography/' | relative_url }}) lists the books.

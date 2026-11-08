@@ -133,6 +133,14 @@ validates.
   padding, no confessional or defensive phrasing, no meta-narration.
 - Professional peer-to-peer register. `lgtm-professional-voice` is a gate, not a polish step.
 - Prose reviews apply the house-voice rubric plus `scan.sh --stats`, not only the tic scan.
+- **The Python version is stated only on setup surfaces** (owner decision O6, 2026-11-08):
+  `_docs/00-prerequisites.md`, `_docs/41-appendix-a-build-and-toolchain.md`, `README.md`,
+  `_config.yml`, CI, `index.html`, `examples.html`, `examples/README.md`,
+  `examples/00-prerequisites/README.md` and the matching card. Elsewhere: no incidental "Python
+  3.15" (write "Python"); docs links use `docs.python.org/3/`, never `/3.15/`; recorded pytest output
+  is recorded with `--no-header` (the command shown carries the flag); a feature or measurement
+  keeps its version ("new in 3.15", "recorded on Python 3.15.2") and sits in `VERSION_ALLOW` in
+  `validate.py`, which fails any other mention. Doc links resolve on `/3/` (re-check quotations).
 - Reader-facing content has no cross-references to sibling sites inside chapters or decks. The
   series line lives in the README and the site chrome only.
 
@@ -270,3 +278,7 @@ re-measure; defer only content that belongs to a future part.
   doc, and `TERSE_DOCS` turns on the test-name, O1 layout and described-figure checks per doc.
   Appendix E's 98 cells are checked verbatim. `scripts/prose_invariants.py` compares a reworded
   doc with its base revision and is a per-chapter gate for reworded docs.
+- 2026-11-08 (r26, O6): see the Voice rule above. `prose_invariants.py` normalises the base text for
+  two transforms only (the `/3.15/` to `/3/` link rewrite; the pytest header block and the
+  `--no-header` flag, with the summary duration masked), and incidental removals carry signed
+  waivers.

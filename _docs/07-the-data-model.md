@@ -185,7 +185,7 @@ If equal values can hash differently, ask for that set test.
 From the repository root, once, `uv sync --locked --all-packages`. Then from the example directory:
 
 ```bash
-uv run pytest -v
+uv run pytest -v --no-header
 uv run mypy --strict src tests
 ```
 
@@ -193,11 +193,6 @@ A fresh run produces:
 
 ```text
 ============================= test session starts ==============================
-platform linux -- Python 3.15.2, pytest-9.2.0, pluggy-1.7.0 -- <repo>/.venv/bin/python
-cachedir: .pytest_cache
-rootdir: <repo>
-configfile: pyproject.toml
-plugins: mock-3.17.0
 collecting ... collected 25 items
 
 tests/test_arithmetic.py::test_money_adds_within_one_currency_only PASSED [  4%]
@@ -226,7 +221,7 @@ tests/test_static.py::test_mypy_accepts_the_protocols_the_types_define PASSED [ 
 tests/test_static.py::test_mypy_cannot_see_a_broken_hash_contract PASSED [ 96%]
 tests/test_text.py::test_repr_str_and_format_serve_different_readers PASSED [100%]
 
-============================== 25 passed in 2.31s ==============================
+============================== 25 passed in 2.25s ==============================
 ```
 
 ```text
@@ -279,6 +274,6 @@ A missing hash is invisible to the checker and a missing reflected method isn't,
 
 ## For deeper coverage
 
-The primary source is the Python Language Reference chapter [Data model](https://docs.python.org/3.15/reference/datamodel.html): the section on basic customization states the rule for `__eq__` and `__hash__`, the section on emulating numeric types covers reflected operands, and the section on special method lookup covers why the type is consulted. The [`NotImplemented` constant](https://docs.python.org/3.15/builtins/constants.html#NotImplemented) and the [`functools.total_ordering` documentation](https://docs.python.org/3.15/library/functools.html#functools.total_ordering) describe the other two ideas used here. [PEP 207](https://peps.python.org/pep-0207/), by Guido van Rossum and David Ascher, introduced rich comparisons and the separate comparison methods.
+The primary source is the Python Language Reference chapter [Data model](https://docs.python.org/3/reference/datamodel.html): the section on basic customization states the rule for `__eq__` and `__hash__`, the section on emulating numeric types covers reflected operands, and the section on special method lookup covers why the type is consulted. The [`NotImplemented` constant](https://docs.python.org/3/builtins/constants.html#NotImplemented) and the [`functools.total_ordering` documentation](https://docs.python.org/3/library/functools.html#functools.total_ordering) describe the other two ideas used here. [PEP 207](https://peps.python.org/pep-0207/), by Guido van Rossum and David Ascher, introduced rich comparisons and the separate comparison methods.
 
 Luciano Ramalho's *Fluent Python*, second edition, is the book this chapter leans on most. Its treatment of the data model, Pythonic objects and operator overloading covers the topics here, equality and hashing, the reflected scalar `__rmul__`, truth through `__len__` and `__format__`, in greater depth. It is on the [bibliography page]({{ '/bibliography/' | relative_url }}). Brett Slatkin's *Effective Python*, third edition, is a shorter companion for the idioms on the same topics.

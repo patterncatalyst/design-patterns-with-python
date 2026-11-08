@@ -22,7 +22,7 @@ import sys
 import tempfile
 import tomllib
 import zipfile
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -684,19 +684,205 @@ LINK_FILES = (
 
 
 def check_link_forms(rel: str, text: str) -> list[Finding]:
-    """Python docs pin /3.15/, /latest/ only on typing.python.org, canonical O'Reilly URLs."""
+    """Python docs use /3/ (O6: only setup surfaces may name a minor), /latest/ only on
+    typing.python.org, and canonical O'Reilly URLs."""
     out: list[Finding] = []
     for n, line in enumerate(text.split("\n"), start=1):
         for m in LINK_URL_RE.finditer(line):
             url = m.group(0)
             host = url.split("/")[2]
-            if "docs.python.org/3/" in url:
-                out.append(Finding(rel, n, "docs.python.org/3/ must be docs.python.org/3.15/"))
+            if PY_DOCS_MINOR_RE.search(url) and rel not in SETUP_SURFACES:
+                out.append(
+                    Finding(rel, n, "docs.python.org/3.N/ link: use docs.python.org/3/ (O6)")
+                )
             if "/latest/" in url and host != "typing.python.org":
                 out.append(Finding(rel, n, "/latest/ outside typing.python.org"))
             if "oreilly.com/library/view/-/" in url:
                 out.append(Finding(rel, n, "oreilly.com/library/view/-/ is not canonical"))
     return out
+
+
+# O6 (owner, 2026-11-08): the Python version is stated only on setup surfaces. Everywhere else a
+# docs link uses /3/, recorded pytest output is recorded with --no-header, and a bare version
+# mention must be a fact about a feature or a measurement named in VERSION_ALLOW.
+SETUP_SURFACES = frozenset(
+    {
+        "_docs/00-prerequisites.md",
+        "_docs/41-appendix-a-build-and-toolchain.md",
+        "README.md",
+        "index.html",
+        "examples.html",
+        "examples/README.md",
+        "examples/00-prerequisites/README.md",
+        "_examples/00-prerequisites.md",
+    }
+)
+PY_DOCS_MINOR_RE = re.compile(r"docs\.python\.org/3\.\d+/")
+PYTEST_HEADER_RE = re.compile(r"^platform linux -- Python 3\.\d+")
+VERSION_MENTION_RE = re.compile(r"(?<![\w./-])3\.1\d(?:\.\d+)?t?(?!\w|\.\d)")
+VERSION_ALLOW: dict[str, tuple[str, ...]] = {
+    "_docs/02-what-1994-assumed-and-python-dissolves.md": ("new in 3.12",),
+    "_docs/08-dataclasses-and-value-semantics.md": ("On Python 3.15 the message names",),
+    "_docs/09-protocol-and-structural-typing.md": (
+        "new in 3.15",
+        "Python 3.15 adds a `sentinel`",
+        "On 3.15 there is a deprecation",
+        "What's New in Python 3.15",
+    ),
+    "_docs/10-context-managers.md": (
+        "changed in Python 3.15",
+        "Python 3.15 makes UTF-8",
+        "Python 3.15 changed what",
+        "What's New in Python 3.15",
+        "witnesses the 3.15 behaviour",
+        "the latest 3.14 release",
+        "On 3.15.2 it printed",
+        "only the 3.15 behaviour",
+    ),
+    "_docs/11-testing-with-pytest-pytest-mock-and-mypy.md": ("a Python 3.15 deprecation",),
+    "_docs/12-strategy-the-callable.md": ("new in 3.15",),
+    "_docs/14-state-and-finite-state-machines.md": (
+        "new in 3.15",
+        "under Python 3.15.2 printed",
+        "on Python 3.15.2 that",
+    ),
+    "_docs/15-command-undo-and-command-queues.md": (
+        "Python 3.15 adds the type",
+        "What's New page for 3.15",
+        "[3.15 What's New]",
+    ),
+    "_docs/16-factory-method-and-abstract-factory.md": ("that Python 3.15 adds",),
+    "_docs/17-builder-dataclasses-and-prototype.md": (
+        "in version 3.13",
+        "on Python 3.15.2, `copy.deepcopy",
+    ),
+    "_docs/18-singleton-module-borg-metaclass.md": (
+        "Python 3.15 adds a second rung",
+        "What's New page for 3.15",
+        "that Python 3.15 adds",
+    ),
+    "_docs/20-decorator-pattern-vs-decorator-syntax-and-proxy.md": (
+        "889.35, 3.15 short",
+        "consignment is 3.15 short",
+    ),
+    "_docs/21-composite-and-flyweight.md": (
+        "on Python 3.15.2 on 5 November",
+        "on CPython 3.15.2 that",
+    ),
+    "_docs/22-observer.md": ("A run on Python 3.15.2 of",),
+    "_docs/24-iterator-generators-and-the-iterator-protocol.md": (
+        "A run on Python 3.15.2 of",
+        "added in 3.12",
+        "`strict` in 3.13",
+    ),
+    "_docs/25-visitor-memento-interpreter.md": ("lazily since 3.14",),
+    "_docs/26-decorators-done-right.md": (
+        "since Python 3.14",
+        "On 3.15.2 `functools",
+        "page for 3.15.2 still",
+        "on 3.15.2 (`test_cached_for_refuses",
+    ),
+    "_docs/27-descriptors-and-properties.md": ("and on 3.15.2 the message", "New in 3.12"),
+    "_docs/28-singledispatch.md": ("accepted since 3.11",),
+    "_docs/29-metaclasses-init-subclass-and-registries.md": ("on the 3.15 branch",),
+    "_docs/30-dynamic-attributes-and-proxy.md": (
+        "On 3.15.2, `history.stauts",
+        "On 3.15 the importing side",
+    ),
+    "_docs/31-shortcut-patterns-dict-dispatch-and-eafp.md": (
+        "new in 3.15",
+        "on Python 3.15.2 (best",
+    ),
+    "_docs/33-seams-in-python.md": ("Python 3.15.2's `unittest.mock`",),
+    "_docs/37-the-gil-and-performance.md": (
+        "the 3.14 release",
+        "recorded probe runs on 3.15.2",
+        "run on Python 3.15.2",
+        "Python 3.15.2, default build",
+        "Python 3.15.2, free-threading build",
+        "python install 3.15.2t",
+        "sync --python 3.15.2t",
+    ),
+    "_docs/38-asyncio-and-the-patterns.md": (
+        "on Python 3.15.2 that called",
+        "What's New in Python 3.15",
+    ),
+    "_docs/43-appendix-c-mocking.md": (
+        "On Python 3.15.2 `unsafe=True`",
+        "source for 3.17.0",
+        "On 3.17.0 only",
+    ),
+    "_docs/46-appendix-f-programming-principles.md": ("on Python 3.15.2, with",),
+    "_examples/09-protocol-and-structural-typing.md": (
+        "A 3.15 `sentinel`",
+        "on 3.15 an undecorated",
+    ),
+    "_examples/10-context-managers.md": ("## Python 3.15",),
+    "_examples/12-strategy-the-callable.md": ("over a 3.15 `frozendict`",),
+    "_examples/27-descriptors-and-properties.md": ("since 3.12 its getter",),
+    "examples/09-protocol-and-structural-typing/README.md": (
+        "is a 3.15 `sentinel`",
+        "On 3.15 a sub-protocol",
+    ),
+    "examples/10-context-managers/README.md": (
+        "Python 3.15.",
+        "Before 3.15 it exited",
+        "asserts the 3.15",
+    ),
+    "examples/12-strategy-the-callable/README.md": ("over a 3.15 `frozendict`",),
+    "examples/14-state-and-finite-state-machines/README.md": ("What Python 3.15 changes",),
+    "examples/21-composite-and-flyweight/README.md": ("CPython 3.15.2 behaviour",),
+    "examples/27-descriptors-and-properties/README.md": ("Since 3.12 the getter",),
+    "examples/37-the-gil-and-performance/README.md": (
+        "python install 3.15.2t",
+        "sync --python 3.15.2t",
+    ),
+    "examples/38-asyncio-and-the-patterns/README.md": (
+        "python install 3.15.2t",
+        "sync --python 3.15.2t",
+    ),
+}
+
+
+def check_pytest_header(rel: str, text: str) -> list[Finding]:
+    """O6: a recorded pytest run in a fence is recorded with --no-header."""
+    out: list[Finding] = []
+    in_fence = False
+    for n, line in enumerate(text.split("\n"), start=1):
+        if line.startswith("```"):
+            in_fence = not in_fence
+        elif in_fence and PYTEST_HEADER_RE.match(line):
+            out.append(
+                Finding(rel, n, "pytest platform header in a fence: record with --no-header")
+            )
+    return out
+
+
+def check_version_mentions(
+    rel: str, text: str, allow: Mapping[str, tuple[str, ...]] | None = None
+) -> tuple[list[Finding], set[str]]:
+    """O6: a Python 3.1x or bare 3.1x mention outside the setup surfaces must sit inside an
+    allowlisted phrase for that file. Returns the findings and the phrases that were used."""
+    phrases = (VERSION_ALLOW if allow is None else allow).get(rel, ())
+    out: list[Finding] = []
+    used: set[str] = set()
+    for n, line in enumerate(text.split("\n"), start=1):
+        for m in VERSION_MENTION_RE.finditer(line):
+            if PYTEST_MOCK_RE.search(line[: m.start()]):
+                continue  # a pytest-mock package version
+            covered = False
+            for phrase in phrases:
+                start = line.find(phrase)
+                while start != -1:
+                    if start <= m.start() and m.end() <= start + len(phrase):
+                        covered = True
+                        used.add(phrase)
+                    start = line.find(phrase, start + 1)
+            if not covered:
+                out.append(
+                    Finding(rel, n, f"version mention {m.group(0)!r} outside the setup surfaces")
+                )
+    return out, used
 
 
 def link_form_files(root: Path) -> list[Path]:
@@ -1288,6 +1474,21 @@ def validate(root: Path) -> Report:
     for path in link_form_files(root):
         rel = path.relative_to(root).as_posix()
         rep.errors.extend(check_link_forms(rel, path.read_text(encoding="utf-8")))
+
+    seen: dict[str, set[str]] = {}
+    for path in reader_facing(root):
+        rel = path.relative_to(root).as_posix()
+        if path.suffix == ".svg" or rel in SETUP_SURFACES:
+            continue
+        body = path.read_text(encoding="utf-8")
+        rep.errors.extend(check_pytest_header(rel, body))
+        found, used = check_version_mentions(rel, body)
+        rep.errors.extend(found)
+        seen[rel] = used
+    for rel, phrases in sorted(VERSION_ALLOW.items()):
+        for phrase in phrases:
+            if phrase not in seen.get(rel, set()):
+                rep.errors.append(Finding(rel, 0, f"stale version allowlist phrase {phrase!r}"))
 
     minor = pinned_minor((root / ".python-version").read_text(encoding="utf-8"))
     for path in reader_facing(root):
@@ -1908,15 +2109,54 @@ def self_test() -> int:
     expect("figure without viewBox fails", bool(check_figure_legibility("a.svg", "<svg></svg>")))
 
     good_links = (
-        "[a](https://docs.python.org/3.15/library/abc.html) "
+        "[a](https://docs.python.org/3/library/abc.html) "
         "[t](https://typing.python.org/en/latest/spec/) "
         "[b](https://www.oreilly.com/library/view/fluent-python/9781492056348/)"
     )
     expect("link forms pass", not check_link_forms("a.md", good_links))
     expect(
-        "docs.python.org/3/ fails",
-        bool(check_link_forms("a.md", "[a](https://docs.python.org/3/library/abc.html)")),
+        "docs.python.org/3/ passes",
+        not check_link_forms("a.md", "[a](https://docs.python.org/3/library/abc.html)"),
     )
+    expect(
+        "docs.python.org/3.N/ fails outside the setup surfaces",
+        bool(check_link_forms("a.md", "[a](https://docs.python.org/3.15/library/abc.html)")),
+    )
+    expect(
+        "docs.python.org/3.N/ passes on a setup surface",
+        not check_link_forms(
+            "_docs/00-prerequisites.md", "[a](https://docs.python.org/3.15/library/abc.html)"
+        ),
+    )
+    header = "platform linux -- Python 3.15.2, pytest-9.2.0, pluggy-1.7.0 -- x/python"
+    expect(
+        "pytest header in a fence fails",
+        bool(check_pytest_header("a.md", f"```text\n{header}\n```")),
+    )
+    expect("pytest header outside a fence passes", not check_pytest_header("a.md", header))
+    expect(
+        "pytest output without the header passes",
+        not check_pytest_header("a.md", "```text\ncollecting ... collected 1 item\n```"),
+    )
+    allow = {"a.md": ("new in 3.15", "889.35, 3.15 short")}
+
+    def mentions(text: str, rel: str = "a.md") -> int:
+        return len(check_version_mentions(rel, text, allow)[0])
+
+    expect("version: an allowlisted phrase passes", mentions("A frozendict, new in 3.15.") == 0)
+    expect("version: a money amount phrase passes", mentions("give 889.35, 3.15 short.") == 0)
+    expect("version: an incidental Python 3.15 fails", mentions("Python 3.15 differs.") == 1)
+    expect("version: a bare 3.14 fails", mentions("Since 3.14 it works.") == 1)
+    expect("version: the same phrase in another file fails", mentions("new in 3.15", "b.md") == 1)
+    expect("version: a patch version fails", mentions("On Python 3.15.2 it ran.") == 1)
+    expect("version: a free-threaded build fails", mentions("uv python install 3.15.2t") == 1)
+    expect("version: a duration passes", mentions("6 failed, 25 passed in 3.13s") == 0)
+    expect("version: a pytest-mock version passes", mentions("pytest-mock 3.17.0") == 0)
+    expect(
+        "version: a phrase must cover the whole token",
+        mentions("new in 3.15.2 of it") == 1,
+    )
+    expect("version: two mentions need two phrases", mentions("new in 3.15 and in 3.15") == 1)
     expect(
         "/latest/ outside typing fails",
         bool(check_link_forms("a.md", "https://docs.pytest.org/en/latest/")),

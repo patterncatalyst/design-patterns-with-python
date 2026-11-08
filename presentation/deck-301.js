@@ -58,7 +58,7 @@ const E43 = `${EX}/43-appendix-c-mocking`;
     align: "left", valign: "top",
   });
   s.addImage({ path: `${ASSETS}/logo-candidate-2.png`, x: 11.10, y: 6.80, w: 1.55, h: 0.37 });
-  notes(s, `This is the third deck in a series on the Gang of Four patterns in Python 3.15. It covers proving that code works, changing code somebody else wrote, and holding an assistant's reply to a set of gates. The listings are read from tested examples at build time, and the examples are set in one shipping domain of consignments, carriers, rate quotes and tracking. Where a test witnesses a claim, its name is given, so the claim can be re-run. What to show: the title and the subtitle. Fallback: the subtitle names the three subjects.`, 45, "cover");
+  notes(s, `This is the third deck in a series on the Gang of Four patterns in Python. It covers proving that code works, changing code somebody else wrote, and holding an assistant's reply to a set of gates. The listings are read from tested examples at build time, and the examples are set in one shipping domain of consignments, carriers, rate quotes and tracking. Where a test witnesses a claim, its name is given, so the claim can be re-run. What to show: the title and the subtitle. Fallback: the subtitle names the three subjects.`, 45, "cover");
 }
 
 // ===========================================================================

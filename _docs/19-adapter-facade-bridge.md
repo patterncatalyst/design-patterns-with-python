@@ -234,7 +234,7 @@ From the repository root, once, `uv sync --locked --all-packages`. Then:
 
 ```bash
 cd examples/19-adapter-facade-bridge
-uv run pytest -v
+uv run pytest -v --no-header
 uv run mypy --strict src tests
 ```
 
@@ -242,11 +242,6 @@ A fresh run produces:
 
 ```text
 ============================= test session starts ==============================
-platform linux -- Python 3.15.2, pytest-9.2.0, pluggy-1.7.0 -- <repo>/.venv/bin/python
-cachedir: .pytest_cache
-rootdir: <repo>
-configfile: pyproject.toml
-plugins: mock-3.17.0
 collecting ... collected 35 items
 
 tests/test_adapter.py::test_a_client_whose_shape_matches_needs_no_adapter PASSED [  2%]
@@ -285,7 +280,7 @@ tests/test_static.py::test_mypy_cannot_see_pounds_passed_as_kilograms_through_a_
 tests/test_static.py::test_mypy_rejects_a_float_where_a_weight_belongs PASSED [ 97%]
 tests/test_static.py::test_mypy_reports_an_implementor_missing_a_primitive PASSED [100%]
 
-============================== 35 passed in 2.28s ==============================
+============================== 35 passed in 2.24s ==============================
 Success: no issues found in 11 source files
 ```
 
@@ -344,4 +339,4 @@ pytest has two failures. The test that assigns an `AircoClient` to a `CarrierGat
 
 ## For deeper coverage
 
-*Design Patterns* (Gamma, Helm, Johnson and Vlissides) is the source for Adapter, Facade and Bridge. Brandon Rhodes's [The Composition Over Inheritance Principle](https://python-patterns.guide/gang-of-four/composition-over-inheritance/) gives the Python view of Adapter and Bridge where they meet. [PEP 544](https://peps.python.org/pep-0544/) specifies Protocols, and the [typing documentation](https://docs.python.org/3.15/library/typing.html) covers them. The [bibliography page]({{ '/bibliography/' | relative_url }}) lists the books.
+*Design Patterns* (Gamma, Helm, Johnson and Vlissides) is the source for Adapter, Facade and Bridge. Brandon Rhodes's [The Composition Over Inheritance Principle](https://python-patterns.guide/gang-of-four/composition-over-inheritance/) gives the Python view of Adapter and Bridge where they meet. [PEP 544](https://peps.python.org/pep-0544/) specifies Protocols, and the [typing documentation](https://docs.python.org/3/library/typing.html) covers them. The [bibliography page]({{ '/bibliography/' | relative_url }}) lists the books.

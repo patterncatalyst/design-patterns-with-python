@@ -169,7 +169,7 @@ PEP 380 says "the subgenerator is allowed to return with a value, and the value 
 
 *Tests:* `test_yield_from_hands_the_line_count_to_the_caller`.
 
-`Generator[HandlingEvent, None, int]` follows the [`typing`](https://docs.python.org/3.15/library/typing.html) docs' `Generator[YieldType, SendType, ReturnType]`: what it yields, what `send()` accepts and what it returns. Assigning `yield from events_from([])` to a `str` gets `assignment`, with the message `expression has type "int", variable has type "str"`.
+`Generator[HandlingEvent, None, int]` follows the [`typing`](https://docs.python.org/3/library/typing.html) docs' `Generator[YieldType, SendType, ReturnType]`: what it yields, what `send()` accepts and what it returns. Assigning `yield from events_from([])` to a `str` gets `assignment`, with the message `expression has type "int", variable has type "str"`.
 
 *Tests:* `test_mypy_types_the_value_of_yield_from`.
 
@@ -237,7 +237,7 @@ From the repository root, once, `uv sync --locked --all-packages`. Then:
 
 ```bash
 cd examples/24-iterator-generators-and-the-iterator-protocol
-uv run pytest -v
+uv run pytest -v --no-header
 uv run mypy --strict src tests
 ```
 
@@ -245,11 +245,6 @@ A fresh run produces:
 
 ```text
 ============================= test session starts ==============================
-platform linux -- Python 3.15.2, pytest-9.2.0, pluggy-1.7.0 -- <repo>/.venv/bin/python
-cachedir: .pytest_cache
-rootdir: <repo>
-configfile: pyproject.toml
-plugins: mock-3.17.0
 collecting ... collected 42 items
 
 tests/test_laziness.py::test_the_first_page_reads_only_one_page PASSED   [  2%]
@@ -295,7 +290,7 @@ tests/test_static.py::test_mypy_types_the_value_of_yield_from PASSED     [ 95%]
 tests/test_static.py::test_mypy_refuses_a_class_with_only_next_in_a_for_loop PASSED [ 97%]
 tests/test_static.py::test_mypy_accepts_a_self_iterating_history_as_an_iterable PASSED [100%]
 
-============================== 42 passed in 3.54s ==============================
+============================== 42 passed in 3.55s ==============================
 Success: no issues found in 9 source files
 ```
 
@@ -357,4 +352,4 @@ Four tests fail on `closed`: `close()`, `closing` and collection no longer close
 
 ## For deeper coverage
 
-*Design Patterns* (Gamma, Helm, Johnson and Vlissides, 1994) is the source for Iterator. Rhodes's [The Iterator Pattern](https://python-patterns.guide/gang-of-four/iterator/) covers the iterable, the iterator and objects that are their own iterator. The [glossary](https://docs.python.org/3.15/glossary.html) defines iterable, iterator and generator iterator. The [built-in functions](https://docs.python.org/3.15/builtins/functions.html) page covers `iter` and `next`, the [built-in types](https://docs.python.org/3.15/builtins/stdtypes.html) page covers the generator methods, and the [expressions reference](https://docs.python.org/3.15/reference/expressions.html) covers yield expressions. The [`itertools`](https://docs.python.org/3.15/library/itertools.html) and [`contextlib`](https://docs.python.org/3.15/library/contextlib.html) pages cover `batched`, `islice`, `pairwise`, `chain.from_iterable` and `closing`. [PEP 255](https://peps.python.org/pep-0255/), "Simple Generators" by Schemenauer, Peters and Hetland, introduced generators. [PEP 380](https://peps.python.org/pep-0380/), "Syntax for Delegating to a Subgenerator" by Gregory Ewing, added `yield from`. [PEP 479](https://peps.python.org/pep-0479/), by Chris Angelico and Guido van Rossum, changed `StopIteration` inside a generator. The [bibliography page]({{ '/bibliography/' | relative_url }}) lists the books.
+*Design Patterns* (Gamma, Helm, Johnson and Vlissides, 1994) is the source for Iterator. Rhodes's [The Iterator Pattern](https://python-patterns.guide/gang-of-four/iterator/) covers the iterable, the iterator and objects that are their own iterator. The [glossary](https://docs.python.org/3/glossary.html) defines iterable, iterator and generator iterator. The [built-in functions](https://docs.python.org/3/builtins/functions.html) page covers `iter` and `next`, the [built-in types](https://docs.python.org/3/builtins/stdtypes.html) page covers the generator methods, and the [expressions reference](https://docs.python.org/3/reference/expressions.html) covers yield expressions. The [`itertools`](https://docs.python.org/3/library/itertools.html) and [`contextlib`](https://docs.python.org/3/library/contextlib.html) pages cover `batched`, `islice`, `pairwise`, `chain.from_iterable` and `closing`. [PEP 255](https://peps.python.org/pep-0255/), "Simple Generators" by Schemenauer, Peters and Hetland, introduced generators. [PEP 380](https://peps.python.org/pep-0380/), "Syntax for Delegating to a Subgenerator" by Gregory Ewing, added `yield from`. [PEP 479](https://peps.python.org/pep-0479/), by Chris Angelico and Guido van Rossum, changed `StopIteration` inside a generator. The [bibliography page]({{ '/bibliography/' | relative_url }}) lists the books.

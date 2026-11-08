@@ -54,7 +54,7 @@ A `property` is the right tool for one attribute: a value computed from other st
 ```
 <!-- fmt:on -->
 
-The [builtins documentation](https://docs.python.org/3.15/builtins/functions.html) says "This makes it possible to create read-only properties easily using @property as a decorator". Assigning to `payload_kg` raises `AttributeError`, and on 3.15.2 the message is "property 'payload_kg' of 'Container' object has no setter" (`test_a_property_without_a_setter_refuses_assignment`). Nothing is stored, so the total is recomputed on each read: 100 after one load and 350 after a second (`test_payload_is_recomputed_after_each_load`). `load` accepts a consignment that brings the payload to exactly 28,000 kg and refuses one that takes it to 28,050, leaving the container's cargo unchanged (`test_load_refuses_a_consignment_over_the_max_payload`).
+The [builtins documentation](https://docs.python.org/3/builtins/functions.html) says "This makes it possible to create read-only properties easily using @property as a decorator". Assigning to `payload_kg` raises `AttributeError`, and on 3.15.2 the message is "property 'payload_kg' of 'Container' object has no setter" (`test_a_property_without_a_setter_refuses_assignment`). Nothing is stored, so the total is recomputed on each read: 100 after one load and 350 after a second (`test_payload_is_recomputed_after_each_load`). `load` accepts a consignment that brings the payload to exactly 28,000 kg and refuses one that takes it to 28,050, leaving the container's cargo unchanged (`test_load_refuses_a_consignment_over_the_max_payload`).
 
 A setter that guards one field is a pair of `property` definitions. The comparison form is a plain class with one validating pair per extent, kept as a fixture in the tests. This is its `height_cm`:
 
@@ -76,7 +76,7 @@ The pair is correct, and it passes the same table as the descriptor version. `te
 
 ## A rule for many fields: a descriptor
 
-A descriptor puts the rule in one place and lets any number of fields use it. The [Python documentation's Descriptor Guide](https://docs.python.org/3.15/howto/descriptor.html) builds its worked example around the same idea: "A validator is a descriptor for managed attribute access." `Positive` is that validator.
+A descriptor puts the rule in one place and lets any number of fields use it. The [Python documentation's Descriptor Guide](https://docs.python.org/3/howto/descriptor.html) builds its worked example around the same idea: "A validator is a descriptor for managed attribute access." `Positive` is that validator.
 
 <!-- fmt:off -->
 ```python
@@ -106,7 +106,7 @@ A descriptor puts the rule in one place and lets any number of fields use it. Th
 ```
 <!-- fmt:on -->
 
-A descriptor sits in the class body, and Martin Teichmann's [PEP 487](https://peps.python.org/pep-0487/) states what that leaves it unable to do: "Descriptors are defined in the body of a class, but they do not know anything about that class, they do not even know the name they are accessed with." The PEP's remedy is `__set_name__`, which the [data model](https://docs.python.org/3.15/reference/datamodel.html) describes as "Automatically called at the time the owning class owner is created." The guide adds the limit that matters in practice: "notifications only take place at the time of class creation." It continues: "If descriptors are added to the class afterwards, __set_name__() will need to be called manually."
+A descriptor sits in the class body, and Martin Teichmann's [PEP 487](https://peps.python.org/pep-0487/) states what that leaves it unable to do: "Descriptors are defined in the body of a class, but they do not know anything about that class, they do not even know the name they are accessed with." The PEP's remedy is `__set_name__`, which the [data model](https://docs.python.org/3/reference/datamodel.html) describes as "Automatically called at the time the owning class owner is created." The guide adds the limit that matters in practice: "notifications only take place at the time of class creation." It continues: "If descriptors are added to the class afterwards, __set_name__() will need to be called manually."
 
 With the name in hand, each field gets its own message and its own storage. A valid `Dimensions` holds `_length_cm`, `_width_cm` and `_height_cm` in its instance dictionary (`test_set_name_gives_each_field_its_own_storage`). Six fields in three classes, `Consignment.kilograms`, the three extents and `Container.tare_kg` and `max_payload_kg`, are six separate instances of one class, read through `vars()` on each class (`test_one_descriptor_class_validates_every_field`). A field from each class refuses -1 on construction with its own name in the message, for example "kilograms must be positive and finite, got -1" (`test_a_positive_field_refuses_a_bad_value_on_every_class`, over `kilograms`, `height_cm`, `tare_kg` and `max_payload_kg`). Assigning zero to `tare_kg` on a built container raises and leaves the old value in place (`test_assignment_to_a_container_field_is_validated`).
 
@@ -155,7 +155,7 @@ class Dimensions:
         return self.length_cm * self.width_cm * self.height_cm / 1_000_000
 ```
 
-The [dataclasses documentation](https://docs.python.org/3.15/library/dataclasses.html) says how a default is found: "To determine whether a field contains a default value, @dataclass will call the descriptor’s __get__() method using its class access form". It continues: "If the descriptor returns a value in this case, it will be used as the field’s default. On the other hand, if the descriptor raises AttributeError in this situation, no default value will be provided for the field." That's why `Positive` raises. `fields(Dimensions)` reports no default for any of the three, and `Dimensions()` fails with "missing 3 required positional arguments" (`test_a_descriptor_field_has_no_default_when_class_access_raises`). The conventional `return self` has a cost. A test-local subclass that returns itself makes the descriptor the default, so `_Box()` builds a box by handing the descriptor to `__set__`, which fails on "has no attribute 'is_finite'" (`test_a_descriptor_that_returns_itself_on_class_access_becomes_the_default`).
+The [dataclasses documentation](https://docs.python.org/3/library/dataclasses.html) says how a default is found: "To determine whether a field contains a default value, @dataclass will call the descriptor’s __get__() method using its class access form". It continues: "If the descriptor returns a value in this case, it will be used as the field’s default. On the other hand, if the descriptor raises AttributeError in this situation, no default value will be provided for the field." That's why `Positive` raises. `fields(Dimensions)` reports no default for any of the three, and `Dimensions()` fails with "missing 3 required positional arguments" (`test_a_descriptor_field_has_no_default_when_class_access_raises`). The conventional `return self` has a cost. A test-local subclass that returns itself makes the descriptor the default, so `_Box()` builds a box by handing the descriptor to `__set__`, which fails on "has no attribute 'is_finite'" (`test_a_descriptor_that_returns_itself_on_class_access_becomes_the_default`).
 
 Frozen is why `Positive` writes through `vars()`. A test-local subclass that stores with `setattr` makes constructing a frozen box fail with `FrozenInstanceError` and "cannot assign to field '_length_cm'" (`test_a_frozen_dataclass_refuses_a_descriptor_that_writes_with_setattr`). Assignment after construction is refused for the same reason, with "cannot assign to field 'length_cm'" (`test_a_frozen_dataclass_refuses_assignment_to_a_descriptor_field`). `dataclasses.replace` builds a new instance through `__init__`, so it validates: a width of -2 raises "width_cm must be positive and finite, got -2" (`test_replace_validates_the_new_value`). Two `Dimensions` with equal extents compare and hash equal, and one with a different height doesn't (`test_equal_dimensions_compare_and_hash_equal`).
 
@@ -185,7 +185,7 @@ The lazy-initialisation use of Proxy is a stand-in object that builds the real o
 ```
 <!-- fmt:on -->
 
-The [functools documentation](https://docs.python.org/3.15/library/functools.html) describes a property "whose value is computed once and then cached as a normal attribute for the life of the instance", and adds that the decorator "only runs on lookups and only when an attribute of the same name doesn’t exist." Before the first read, `chargeable_kg` isn't in `vars(shipment)`. After it, the computed value is (`test_chargeable_weight_is_computed_on_first_access_and_stored`). The value is the larger of actual and volumetric weight at 167 kg per cubic metre, an illustrative factor: 160.32 for a 100 kg consignment of 120 by 80 by 100 cm, and 250 for one that weighs 250 kg (`test_chargeable_weight_is_the_larger_of_actual_and_volumetric_weight`). `replace` makes a new instance whose dictionary holds no cached value, so the value is computed again: 300 for a consignment replaced at 300 kg, after 160.32 for the original (`test_replace_recomputes_the_chargeable_weight`).
+The [functools documentation](https://docs.python.org/3/library/functools.html) describes a property "whose value is computed once and then cached as a normal attribute for the life of the instance", and adds that the decorator "only runs on lookups and only when an attribute of the same name doesn’t exist." Before the first read, `chargeable_kg` isn't in `vars(shipment)`. After it, the computed value is (`test_chargeable_weight_is_computed_on_first_access_and_stored`). The value is the larger of actual and volumetric weight at 167 kg per cubic metre, an illustrative factor: 160.32 for a 100 kg consignment of 120 by 80 by 100 cm, and 250 for one that weighs 250 kg (`test_chargeable_weight_is_the_larger_of_actual_and_volumetric_weight`). `replace` makes a new instance whose dictionary holds no cached value, so the value is computed again: 300 for a consignment replaced at 300 kg, after 160.32 for the original (`test_replace_recomputes_the_chargeable_weight`).
 
 The cache lives in the instance dictionary, and it has four costs.
 
@@ -214,7 +214,7 @@ The run shows the descriptor and the property twin on one table, and each rule f
 
 ```bash
 cd examples/27-descriptors-and-properties
-uv run pytest -v
+uv run pytest -v --no-header
 uv run mypy --strict src tests
 ```
 
@@ -222,11 +222,6 @@ A fresh run produces:
 
 ```text
 ============================= test session starts ==============================
-platform linux -- Python 3.15.2, pytest-9.2.0, pluggy-1.7.0 -- <repo>/.venv/bin/python
-cachedir: .pytest_cache
-rootdir: <repo>
-configfile: pyproject.toml
-plugins: mock-3.17.0
 collecting ... collected 43 items
 
 tests/test_cached.py::test_chargeable_weight_is_computed_on_first_access_and_stored PASSED [  2%]
@@ -273,7 +268,7 @@ tests/test_static.py::test_mypy_reads_a_descriptor_field_as_a_default PASSED [ 9
 tests/test_static.py::test_mypy_accepts_cached_property_on_a_slotted_dataclass PASSED [ 97%]
 tests/test_static.py::test_mypy_accepts_a_descriptor_field_on_a_slotted_dataclass PASSED [100%]
 
-============================== 43 passed in 1.77s ==============================
+============================== 43 passed in 1.82s ==============================
 Success: no issues found in 9 source files
 ```
 
@@ -334,4 +329,4 @@ Nine tests fail. Seven report `DID NOT RAISE ValueError`, because the slot repla
 
 ## For deeper coverage
 
-The [Descriptor Guide](https://docs.python.org/3.15/howto/descriptor.html) is the primary source, and the data model's sections on implementing descriptors and `__slots__` complete it. Guido van Rossum's [PEP 252](https://peps.python.org/pep-0252/) introduced descriptors, and Martin Teichmann's [PEP 487](https://peps.python.org/pep-0487/) added `__set_name__`. The [functools](https://docs.python.org/3.15/library/functools.html), [dataclasses](https://docs.python.org/3.15/library/dataclasses.html) and [builtins](https://docs.python.org/3.15/builtins/functions.html) pages cover `cached_property`, descriptor-typed fields and `property`, and [What's New in 3.12](https://docs.python.org/3.15/whatsnew/3.12.html) records the lock removal. Brandon Rhodes's [The Factory Method Pattern](https://python-patterns.guide/gang-of-four/factory-method/) covers the instance-over-class rule. Luciano Ramalho's *Fluent Python*, second edition, treats descriptors in its metaprogramming material. The [bibliography page]({{ '/bibliography/' | relative_url }}) lists the books.
+The [Descriptor Guide](https://docs.python.org/3/howto/descriptor.html) is the primary source, and the data model's sections on implementing descriptors and `__slots__` complete it. Guido van Rossum's [PEP 252](https://peps.python.org/pep-0252/) introduced descriptors, and Martin Teichmann's [PEP 487](https://peps.python.org/pep-0487/) added `__set_name__`. The [functools](https://docs.python.org/3/library/functools.html), [dataclasses](https://docs.python.org/3/library/dataclasses.html) and [builtins](https://docs.python.org/3/builtins/functions.html) pages cover `cached_property`, descriptor-typed fields and `property`, and [What's New in 3.12](https://docs.python.org/3/whatsnew/3.12.html) records the lock removal. Brandon Rhodes's [The Factory Method Pattern](https://python-patterns.guide/gang-of-four/factory-method/) covers the instance-over-class rule. Luciano Ramalho's *Fluent Python*, second edition, treats descriptors in its metaprogramming material. The [bibliography page]({{ '/bibliography/' | relative_url }}) lists the books.

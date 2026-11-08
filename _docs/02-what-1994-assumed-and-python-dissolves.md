@@ -4,7 +4,7 @@ order: 2
 layout: tutorial
 sectionid: docs
 part: "why-not-gof"
-description: "The assumptions the 1994 pattern catalogue was written under, and the Python 3.15 features (callables, generators, protocols, modules, optional types) that remove the scaffolding while the underlying force often remains."
+description: "The assumptions the 1994 pattern catalogue was written under, and the Python features (callables, generators, protocols, modules, optional types) that remove the scaffolding while the underlying force often remains."
 ---
 
 ## Learning objectives
@@ -33,7 +33,7 @@ The catalogue's central working assumption is that a unit of behaviour reaches a
 
 In that setting a class is the only way to name a behaviour, and an interface is the only way to promise one. Nothing in the assumption is wrong for a language whose functions can't be passed around, whose loops can't suspend, whose types are matched by declared name, and whose files have no identity at run time. It is a sound description of the tools. The patterns are the engineering that makes those tools do the job.
 
-Python 3.15 differs on each count. Functions are objects with a type and can be stored, passed and returned. A function containing `yield` suspends and resumes. A `Protocol` lets the checker match types by shape instead of by declared name. A module is an object, created once, on first import. And `X | None` is a type the checker tracks through every branch.
+Python differs on each count. Functions are objects with a type and can be stored, passed and returned. A function containing `yield` suspends and resumes. A `Protocol` lets the checker match types by shape instead of by declared name. A module is an object, created once, on first import. And `X | None` is a type the checker tracks through every branch.
 
 ## Functions are objects
 
@@ -63,7 +63,7 @@ def quote(consignment: Consignment, rule: PricingRule) -> RateQuote:
     return RateQuote(consignment.id, rule(consignment))
 ```
 
-`type PricingRule = ...` is the PEP 695 alias statement, new in 3.12 and the idiom for naming a type in 3.15. It says what a pricing rule is: anything that takes a `Consignment` and returns `Money`. `flat_rate` and `per_kg` satisfy it as plain functions, and the code that quotes a price, the 1994 Context class, shrinks to the one-line `quote`, which calls whatever rule it's given.
+`type PricingRule = ...` is the PEP 695 alias statement, new in 3.12 and the idiom for naming a type. It says what a pricing rule is: anything that takes a `Consignment` and returns `Money`. `flat_rate` and `per_kg` satisfy it as plain functions, and the code that quotes a price, the 1994 Context class, shrinks to the one-line `quote`, which calls whatever rule it's given.
 
 A rule that needs configuration doesn't need a constructor and a field. It needs its argument fixed in advance, which is what `functools.partial` does:
 
@@ -200,7 +200,7 @@ When a review comment says "this should be a function", the justification is tha
 - *Fluent Python*, second edition (Luciano Ramalho; O'Reilly). The data model, first-class functions, protocols, generators and the import system, which are the features this chapter relies on.
 - *Effective Python*, third edition (Brett Slatkin; Addison-Wesley). Short rules on generators, closures, `partial`, typing and module-level state; read by topic.
 - PEP 544, [Protocols: Structural subtyping](https://peps.python.org/pep-0544/); PEP 255, [Simple Generators](https://peps.python.org/pep-0255/); PEP 695, [Type Parameter Syntax](https://peps.python.org/pep-0695/), which also introduces the `type` statement.
-- The Python reference, [data model](https://docs.python.org/3.15/reference/datamodel.html), for `__iter__`, `__next__` and callables.
+- The Python reference, [data model](https://docs.python.org/3/reference/datamodel.html), for `__iter__`, `__next__` and callables.
 - Brandon Rhodes, [python-patterns.guide](https://python-patterns.guide/), for the catalogue read through Python.
 
 The full list of books, with editions and links, is on the [bibliography]({{ '/bibliography/' | relative_url }}) page.

@@ -21,7 +21,7 @@ By the end of this chapter you can:
 
 A booking service that constructs its own carrier client can't run in a test suite that has no carrier. The usual repair is a fake, and the repair goes wrong in a predictable way: the carrier interface has grown to offer booking, cancellation and tracking, so every fake must implement all three even when the test exercises one. Each unused method is code to maintain that no assertion reads, and each new method on the interface breaks the fakes that predate it.
 
-Two principles name the pressure. Robert C. Martin's interface segregation principle says a client should not be forced to depend on methods it does not use. His dependency inversion principle says high-level policy should not depend on low-level detail, and that both should depend on abstractions. In a language where an interface is a base class, honouring them costs a hierarchy. In Python 3.15 both forces remain and the mechanism is smaller: a `Protocol` the consumer declares, an adapter that satisfies it without importing it, and a function that hands the adapter over. The example for this chapter is one booking service and one tracking function, with tests that witness each claim.
+Two principles name the pressure. Robert C. Martin's interface segregation principle says a client should not be forced to depend on methods it does not use. His dependency inversion principle says high-level policy should not depend on low-level detail, and that both should depend on abstractions. In a language where an interface is a base class, honouring them costs a hierarchy. In Python both forces remain and the mechanism is smaller: a `Protocol` the consumer declares, an adapter that satisfies it without importing it, and a function that hands the adapter over. The example for this chapter is one booking service and one tracking function, with tests that witness each claim.
 
 {% include excalidraw.html name="06-isp-dip-and-di-without-a-framework" caption="Figure 6.1: Dependency injection without a framework. The composition root builds one carrier adapter and passes it to each consumer, which names only the small Protocol it needs; the adapter satisfies both Protocols structurally and imports neither." %}
 
@@ -171,7 +171,7 @@ If a fake has to stub a method its consumer never calls, ask for the narrower Pr
 From the repository root, once, `uv sync --locked --all-packages`. Then from the example directory:
 
 ```bash
-uv run pytest -v
+uv run pytest -v --no-header
 uv run mypy --strict src tests
 ```
 
@@ -179,11 +179,6 @@ A fresh run produces:
 
 ```text
 ============================= test session starts ==============================
-platform linux -- Python 3.15.2, pytest-9.2.0, pluggy-1.7.0 -- <repo>/.venv/bin/python
-cachedir: .pytest_cache
-rootdir: <repo>
-configfile: pyproject.toml
-plugins: mock-3.17.0
 collecting ... collected 17 items
 
 tests/test_composition_root.py::test_build_app_shares_one_gateway_between_booking_and_tracking PASSED [  5%]
@@ -204,7 +199,7 @@ tests/test_isp.py::test_adapters_satisfy_every_role_without_naming_one[FASTLINE]
 tests/test_isp.py::test_adapters_satisfy_every_role_without_naming_one[AIRCO] PASSED [ 94%]
 tests/test_isp.py::test_a_fat_protocol_forces_fakes_to_stub_unused_methods PASSED [100%]
 
-============================== 17 passed in 3.42s ==============================
+============================== 17 passed in 3.32s ==============================
 ```
 
 ```text
@@ -239,4 +234,4 @@ Robert C. Martin's *Agile Software Development, Principles, Patterns, and Practi
 
 Martin Fowler's article [Inversion of Control Containers and the Dependency Injection pattern](https://martinfowler.com/articles/injection.html), first published in January 2004, names constructor, setter and interface injection and compares them with a service locator. Mark Seemann's post [Composition Root](https://blog.ploeh.dk/2011/07/28/CompositionRoot/) describes where to compose the object graph.
 
-The language references are [PEP 544](https://peps.python.org/pep-0544/) on Protocols, the [functools documentation](https://docs.python.org/3.15/library/functools.html) for `partial`, and the [unittest.mock documentation on autospeccing](https://docs.python.org/3.15/library/unittest.mock.html#autospeccing) for `create_autospec`.
+The language references are [PEP 544](https://peps.python.org/pep-0544/) on Protocols, the [functools documentation](https://docs.python.org/3/library/functools.html) for `partial`, and the [unittest.mock documentation on autospeccing](https://docs.python.org/3/library/unittest.mock.html#autospeccing) for `create_autospec`.

@@ -221,7 +221,7 @@ From the repository root, run the one-time sync, then work from the example dire
 ```bash
 uv sync --locked --all-packages
 cd examples/03-three-way-split
-uv run pytest -v
+uv run pytest -v --no-header
 uv run mypy --strict src tests
 ```
 
@@ -229,11 +229,6 @@ A fresh run, with the repository path shown as `<repo>`:
 
 ```text
 ============================= test session starts ==============================
-platform linux -- Python 3.15.2, pytest-9.2.0, pluggy-1.7.0 -- <repo>/.venv/bin/python
-cachedir: .pytest_cache
-rootdir: <repo>
-configfile: pyproject.toml
-plugins: mock-3.17.0
 collecting ... collected 19 items
 
 tests/test_disambiguate.py::test_gof_decorator_wraps_an_instance_at_runtime PASSED [  5%]
@@ -256,7 +251,7 @@ tests/test_dissolve.py::test_registry_is_init_subclass PASSED            [ 89%]
 tests/test_survive.py::test_deferred_command_is_a_partial_in_a_deque PASSED [ 94%]
 tests/test_survive.py::test_undo_needs_a_command_object PASSED           [100%]
 
-============================== 19 passed in 0.97s ==============================
+============================== 19 passed in 0.94s ==============================
 ```
 
 ```text
@@ -290,4 +285,4 @@ The canonical catalogue is *Design Patterns: Elements of Reusable Object-Oriente
 
 *Fluent Python* by Luciano Ramalho (second edition) covers first-class functions, the data model, decorators and dataclasses, which are the features behind the dissolved rows. *Effective Python: 125 Specific Ways to Write Better Python* by Brett Slatkin (third edition) gives short rules on closures, generators and decorators. *Python Object-Oriented Programming* by Steven F. Lott and Dusty Phillips (fifth edition) maps the catalogue onto Python classes. The book list is on the [bibliography page]({{ '/bibliography/' | relative_url }}).
 
-Online, [python-patterns.guide](https://python-patterns.guide/) by Brandon Rhodes treats the catalogue pattern by pattern in Python. The language references are [PEP 544](https://peps.python.org/pep-0544/) on Protocols, [PEP 557](https://peps.python.org/pep-0557/) on data classes, [PEP 695](https://peps.python.org/pep-0695/) on type parameter syntax and the `type` statement, and the [functools documentation](https://docs.python.org/3.15/library/functools.html) for `partial`, `singledispatch`, `cached_property` and `wraps`.
+Online, [python-patterns.guide](https://python-patterns.guide/) by Brandon Rhodes treats the catalogue pattern by pattern in Python. The language references are [PEP 544](https://peps.python.org/pep-0544/) on Protocols, [PEP 557](https://peps.python.org/pep-0557/) on data classes, [PEP 695](https://peps.python.org/pep-0695/) on type parameter syntax and the `type` statement, and the [functools documentation](https://docs.python.org/3/library/functools.html) for `partial`, `singledispatch`, `cached_property` and `wraps`.

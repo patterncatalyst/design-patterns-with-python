@@ -76,7 +76,7 @@ def book_with(code: str, consignment: Consignment) -> str:
     return gateway.book(consignment)
 ```
 
-The unguarded call, `find_gateway(code).book(c)`, is rejected, as the chapter titled [What 1994 assumed, and what Python dissolves]({{ '/docs/02-what-1994-assumed-and-python-dissolves/' | relative_url }}) shows. `test_mypy_requires_a_branch_for_absence` runs five snippets through `mypy --strict`: the unguarded one gets `[union-attr]`, and a walrus, a `match` with `case None`, an early return and an `assert` are all clean. The `assert` has a catch the others don't. The [reference for the `assert` statement](https://docs.python.org/3.15/reference/simple_stmts.html#the-assert-statement) says: "The current code generator emits no code for an assert statement when optimization is requested at compile time." Under `python -O` the check disappears and the `None` reaches the attribute access. Use an explicit branch where the check must survive.
+The unguarded call, `find_gateway(code).book(c)`, is rejected, as the chapter titled [What 1994 assumed, and what Python dissolves]({{ '/docs/02-what-1994-assumed-and-python-dissolves/' | relative_url }}) shows. `test_mypy_requires_a_branch_for_absence` runs five snippets through `mypy --strict`: the unguarded one gets `[union-attr]`, and a walrus, a `match` with `case None`, an early return and an `assert` are all clean. The `assert` has a catch the others don't. The [reference for the `assert` statement](https://docs.python.org/3/reference/simple_stmts.html#the-assert-statement) says: "The current code generator emits no code for an assert statement when optimization is requested at compile time." Under `python -O` the check disappears and the `None` reaches the attribute access. Use an explicit branch where the check must survive.
 
 `test_book_with_turns_absence_into_a_booking_error` shows the guard doing its job: an unknown code raises `BookingError` with `unknown carrier 'UNKNOWN'`, at the lookup, with the code in the message.
 
@@ -159,7 +159,7 @@ Choose a callback Protocol over a `Callable[[Consignment], Money]` alias when th
 
 ## Protocol or ABC: two mechanisms, one word
 
-"Interface" needs disambiguating: the word covers two mechanisms, and they check at different times. A Protocol is structural and is checked where the value is passed. An ABC, from the [`abc` module](https://docs.python.org/3.15/library/abc.html), is nominal: a class declares that it inherits, the abstract methods must be filled in, and the check happens when an instance is built. An ABC can also carry shared code.
+"Interface" needs disambiguating: the word covers two mechanisms, and they check at different times. A Protocol is structural and is checked where the value is passed. An ABC, from the [`abc` module](https://docs.python.org/3/library/abc.html), is nominal: a class declares that it inherits, the abstract methods must be filled in, and the check happens when an instance is built. An ABC can also carry shared code.
 
 ```python
 class CarrierBase(ABC):
@@ -198,7 +198,7 @@ Choose by who owns the need and whether code is shared. A consumer that needs a 
 
 A Protocol marked `@runtime_checkable` can be used with `isinstance`. The check is for names. `test_runtime_checkable_checks_names_only` passes a class whose `book` takes no consignment and returns an `int`, and a class where `book = 3`, and both satisfy `isinstance`. A data Protocol, one with a non-method member such as `code: str`, refuses `issubclass`: `test_a_data_protocol_refuses_issubclass` gets `TypeError` with `Protocols with non-method members don't support issubclass`, though `isinstance` on an instance works.
 
-On 3.15 there is a deprecation. The [What's New in Python 3.15](https://docs.python.org/3.15/whatsnew/3.15.html) page says: "It is deprecated to call isinstance() and issubclass() checks on protocol classes that were not explicitly decorated with runtime_checkable() but that inherit from a runtime-checkable protocol class." The page adds that the call will raise `TypeError` in 3.20. `test_an_undecorated_subprotocol_warns_on_isinstance` defines a sub-protocol without the decorator and catches a `DeprecationWarning` whose message says it isn't explicitly decorated. Put the decorator on each Protocol that is meant for `isinstance`. The example's own Protocols aren't runtime-checkable, because `mypy --strict` already compares them at every call.
+On 3.15 there is a deprecation. The [What's New in Python 3.15](https://docs.python.org/3/whatsnew/3.15.html) page says: "It is deprecated to call isinstance() and issubclass() checks on protocol classes that were not explicitly decorated with runtime_checkable() but that inherit from a runtime-checkable protocol class." The page adds that the call will raise `TypeError` in 3.20. `test_an_undecorated_subprotocol_warns_on_isinstance` defines a sub-protocol without the decorator and catches a `DeprecationWarning` whose message says it isn't explicitly decorated. Put the decorator on each Protocol that is meant for `isinstance`. The example's own Protocols aren't runtime-checkable, because `mypy --strict` already compares them at every call.
 
 ## When not to use it
 
@@ -217,7 +217,7 @@ If a stand-in returns an empty reference, ask what the caller learns when a book
 From the repository root, once, `uv sync --locked --all-packages`. Then from the example directory:
 
 ```bash
-uv run pytest -v
+uv run pytest -v --no-header
 uv run mypy --strict src tests
 ```
 
@@ -225,11 +225,6 @@ A fresh run produces:
 
 ```text
 ============================= test session starts ==============================
-platform linux -- Python 3.15.2, pytest-9.2.0, pluggy-1.7.0 -- <repo>/.venv/bin/python
-cachedir: .pytest_cache
-rootdir: <repo>
-configfile: pyproject.toml
-plugins: mock-3.17.0
 collecting ... collected 40 items
 
 tests/test_absence.py::test_find_gateway_returns_none_for_an_unknown_code PASSED [  2%]
@@ -273,7 +268,7 @@ tests/test_static.py::test_mypy_checks_protocols_at_use_and_abcs_at_construction
 tests/test_static.py::test_mypy_explains_a_conflicting_member_but_not_a_wholly_absent_one PASSED [ 97%]
 tests/test_static.py::test_mypy_accepts_a_null_gateway PASSED            [100%]
 
-============================== 40 passed in 8.06s ==============================
+============================== 40 passed in 8.25s ==============================
 ```
 
 ```text
@@ -330,6 +325,6 @@ The failing assertion is the clean-run check on the `PricingRule` snippet, which
 
 Bobby Woolf's "Null Object", in *Pattern Languages of Program Design 3* (Addison-Wesley, 1998), is the source for the pattern, and it's on the [bibliography page]({{ '/bibliography/' | relative_url }}).
 
-The sources for the language features are [PEP 544](https://peps.python.org/pep-0544/) for Protocols, the [typing specification](https://typing.python.org/en/latest/spec/protocol.html) and the [mypy protocols documentation](https://mypy.readthedocs.io/en/stable/protocols.html) for the rules, [PEP 695](https://peps.python.org/pep-0695/) for variance inference, [PEP 698](https://peps.python.org/pep-0698/) for `override`, [PEP 661](https://peps.python.org/pep-0661/) for `sentinel`, [PEP 814](https://peps.python.org/pep-0814/) for `frozendict`, and [What's New in Python 3.15](https://docs.python.org/3.15/whatsnew/3.15.html) for the `runtime_checkable` deprecation.
+The sources for the language features are [PEP 544](https://peps.python.org/pep-0544/) for Protocols, the [typing specification](https://typing.python.org/en/latest/spec/protocol.html) and the [mypy protocols documentation](https://mypy.readthedocs.io/en/stable/protocols.html) for the rules, [PEP 695](https://peps.python.org/pep-0695/) for variance inference, [PEP 698](https://peps.python.org/pep-0698/) for `override`, [PEP 661](https://peps.python.org/pep-0661/) for `sentinel`, [PEP 814](https://peps.python.org/pep-0814/) for `frozendict`, and [What's New in Python 3.15](https://docs.python.org/3/whatsnew/3.15.html) for the `runtime_checkable` deprecation.
 
 Luciano Ramalho's *Fluent Python*, second edition, and Brett Slatkin's *Effective Python*, third edition, both treat typing and protocols, and both are in the bibliography.

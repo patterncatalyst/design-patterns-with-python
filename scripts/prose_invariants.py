@@ -78,6 +78,20 @@ KINDS = (
 )
 MIN_QUOTE_WORDS = 6
 
+# O6 (owner, 2026-11-08): the Python version is stated only on setup surfaces. These patterns
+# normalise the base text before the comparison, and nothing else.
+O6_LINK_RE = re.compile(r"docs\.python\.org/3\.15/")
+O6_HEADER_RE = re.compile(
+    r"(?m)^(=+ test session starts =+\n)"
+    r"platform linux[ ]--[ ]Python 3\.\d+[^\n]*\n"
+    r"(?:cachedir: [^\n]*\n)?(?:rootdir: [^\n]*\n)?(?:configfile: [^\n]*\n)?(?:plugins: [^\n]*\n)?"
+)
+O6_HAS_HEADER_RE = re.compile(r"(?m)^platform linux[ ]--[ ]Python 3\.\d+")
+O6_TIMING_RE = re.compile(r"(?m)^(=+ .*\b(?:passed|failed|skipped)\b.* in )[0-9.]+(s =+)$")
+O6_CMD_RE = re.compile(r"(?m)^uv run pytest -v$")
+O6_CMD_INLINE = "`uv run pytest -v` runs"
+O6_FLAG = "--no-header"
+
 TEST_RE = re.compile(r"\btest_\w+")
 MD_LINK_RE = re.compile(r"\]\(([^)]*)\)")
 REL_URL_RE = re.compile(r"""['"]([^'"]+)['"]\s*\|\s*relative_url""")
@@ -342,6 +356,36 @@ class Result:
     unused_waivers: list[Waiver]
 
 
+def o6_mask_timing(text: str) -> str:
+    """The pytest summary duration is re-recorded with each run, so it never differs."""
+    return O6_TIMING_RE.sub(r"\g<1>0.00\g<2>", text)
+
+
+def o6_normalise(base_text: str, after_text: str) -> tuple[str, bool]:
+    """Owner decision O6 as two transforms of the base text, each applied only where the doc
+    has taken it, so a setup surface that keeps its version still compares byte for byte:
+
+    1. `docs.python.org/3.15/` becomes `docs.python.org/3/` (when the doc has no /3.15/ link left).
+    2. The pytest header block (platform, cachedir, rootdir, configfile, plugins) is dropped from
+       a recorded fence, and `uv run pytest -v` gains `--no-header` where it introduces the fence
+       (when the doc has no header line left). The summary duration is masked on both sides.
+
+    Returns the normalised base and whether the doc has taken O6.
+    """
+    out = base_text
+    taken = False
+    if "docs.python.org/3.15/" not in after_text and O6_LINK_RE.search(out):
+        out = O6_LINK_RE.sub("docs.python.org/3/", out)
+        taken = True
+    if not O6_HAS_HEADER_RE.search(after_text) and O6_HEADER_RE.search(out):
+        out = O6_HEADER_RE.sub(r"\g<1>", out)
+        if O6_FLAG in after_text:
+            out = O6_CMD_RE.sub("uv run pytest -v " + O6_FLAG, out)
+            out = out.replace(O6_CMD_INLINE, "`uv run pytest -v " + O6_FLAG + "` runs")
+        taken = True
+    return out, taken
+
+
 def compare(
     base_text: str,
     after_text: str,
@@ -349,7 +393,11 @@ def compare(
     sources: list[str] | None = None,
 ) -> Result:
     """Pure comparison of two doc texts. No git, no files."""
-    a, b = extract(base_text), extract(after_text)
+    base_text, taken = o6_normalise(base_text, after_text)
+    if taken:
+        sources = [s.replace("docs.python.org/3.15/", "docs.python.org/3/") for s in sources or []]
+    a = extract(o6_mask_timing(base_text))
+    b = extract(o6_mask_timing(after_text))
     found: list[Finding] = []
     for check in CHECKS.values():
         found += check(a, b)
@@ -693,6 +741,105 @@ def _cases() -> list[Case]:
     ]
 
 
+O6_BASE = """---
+title: "T"
+order: 98
+layout: tutorial
+description: "d"
+---
+
+## Build, run, observe
+
+Read [the module](https://docs.python.org/3.15/library/abc.html) first.
+
+```bash
+uv run pytest -v
+```
+
+```text
+============================= test session starts ==============================
+platform linux @@ Python 3.15.2, pytest-9.2.0, pluggy-1.7.0 @@ <repo>/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: <repo>
+configfile: pyproject.toml
+plugins: mock-3.17.0
+collecting ... collected 1 item
+
+tests/test_a.py::test_a PASSED                                           [100%]
+
+============================== 1 passed in 3.09s ===============================
+```
+""".replace("@@", "-" * 2)
+
+
+def o6_self_test() -> int:
+    """Each case: label, after text, expected failing kind or None, the base text."""
+    link_done = O6_BASE.replace("docs.python.org/3.15/", "docs.python.org/3/")
+    header = (
+        "platform linux @@ Python 3.15.2, pytest-9.2.0, pluggy-1.7.0 @@ <repo>/.venv/bin/python\n"
+        "cachedir: .pytest_cache\nrootdir: <repo>\nconfigfile: pyproject.toml\n"
+        "plugins: mock-3.17.0\n"
+    ).replace("@@", "-" * 2)
+    rerecorded = (
+        link_done.replace(header, "")
+        .replace("uv run pytest -v\n", "uv run pytest -v --no-header\n")
+        .replace("in 3.09s", "in 3.41s")
+    )
+    cases: list[tuple[str, str, str | None]] = [
+        ("O6: the rewritten link and the re-recorded fence pass", rerecorded, None),
+        ("O6: a setup surface that keeps both passes", O6_BASE, None),
+        (
+            "O6: a link moved to another minor fails",
+            rerecorded.replace("docs.python.org/3/", "docs.python.org/3.14/"),
+            "link",
+        ),
+        (
+            "O6: a changed test line in the fence fails",
+            rerecorded.replace("test_a PASSED", "test_b PASSED"),
+            "fence",
+        ),
+        (
+            "O6: a changed result count in the fence fails",
+            rerecorded.replace("1 passed", "2 passed"),
+            "fence",
+        ),
+        (
+            "O6: a flag added while the header stays fails",
+            link_done.replace("uv run pytest -v\n", "uv run pytest -v --no-header\n"),
+            "fence",
+        ),
+        (
+            "O6: a header line changed while the rest is dropped fails",
+            rerecorded.replace("collecting ...", "plugins: x\ncollecting ..."),
+            "fence",
+        ),
+        (
+            "O6: a dropped number still fails",
+            rerecorded.replace("## Build, run, observe\n", "## Build, run, observe\n\nSee 12.\n"),
+            "number",
+        ),
+    ]
+    base_with_number = O6_BASE.replace(
+        "## Build, run, observe\n", "## Build, run, observe\n\nSee 12.\n"
+    )
+    bad = 0
+    for label, after, expect in cases:
+        base = base_with_number if "number" in label else O6_BASE
+        if "number" in label:
+            after = rerecorded
+        res = compare(base, after, [], [])
+        kinds = {f.kind for f in res.failures}
+        ok = (not res.failures) if expect is None else (expect in kinds)
+        print(f"  {'ok  ' if ok else 'FAIL'} {label}")
+        bad += not ok
+    src = ["https://docs.python.org/3.15/library/abc.html"]
+    res = compare(O6_BASE, rerecorded, [], src)
+    ok = not res.failures
+    print(f"  {'ok  ' if ok else 'FAIL'} O6: a reconciliation source URL follows the link rewrite")
+    bad += not ok
+    return bad
+
+
 def self_test() -> int:
     failed = 0
     base_sources = ["https://peps.python.org/pep-0255/"]
@@ -747,6 +894,8 @@ def self_test() -> int:
         f"  {'ok  ' if ok else 'FAIL'} the section report flags a long problem and a long lead-in"
     )
     failed += not ok
+    # O6: the link rewrite and the dropped pytest header are the only losses it normalises
+    failed += o6_self_test()
     if failed:
         print(f"prose_invariants self-test FAILED ({failed})")
         return 1

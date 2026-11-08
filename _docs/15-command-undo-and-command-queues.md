@@ -96,7 +96,7 @@ def apply(request: BookingRequest, amendment: Amendment) -> tuple[BookingRequest
 ```
 <!-- fmt:on -->
 
-`apply` returns two things, the amended request and the amendment that reverses it. The inverse of `Reweigh(kg(130))` on a 120 kg request is `Reweigh(kg(120))`, read from the request that was amended. `test_apply_returns_the_amendment_that_reverses_it` runs this for each kind: applying the inverse restores the original request, and the inverse's inverse is the amendment you started with. `dataclasses.replace`, documented in the [`dataclasses` module](https://docs.python.org/3.15/library/dataclasses.html), builds the new request, so the old one is untouched. `test_a_redirect_needs_a_port_code` shows `Redirect` refusing `"sgsin"` and `"SGSIN "` with an `AmendmentError` that quotes the code it was given.
+`apply` returns two things, the amended request and the amendment that reverses it. The inverse of `Reweigh(kg(130))` on a 120 kg request is `Reweigh(kg(120))`, read from the request that was amended. `test_apply_returns_the_amendment_that_reverses_it` runs this for each kind: applying the inverse restores the original request, and the inverse's inverse is the amendment you started with. `dataclasses.replace`, documented in the [`dataclasses` module](https://docs.python.org/3/library/dataclasses.html), builds the new request, so the old one is untouched. `test_a_redirect_needs_a_port_code` shows `Redirect` refusing `"sgsin"` and `"SGSIN "` with an `AmendmentError` that quotes the code it was given.
 
 The last arm is `case _: assert_never(amendment)`. A fourth kind added to the union without an arm is a type error, and the technique is the one in [State and finite state machines]({{ '/docs/14-state-and-finite-state-machines/' | relative_url }}). `test_mypy_reports_an_amendment_kind_missing_from_apply` runs a reduced copy of this module with an `Insure` kind added. `test_the_amendment_snippet_mirrors_the_source` holds the copy to the real classes and arms, and the run through the test's own helper prints:
 
@@ -152,7 +152,7 @@ A new amendment clears the redo stack, which is the dashed box in the figure. On
 
 The rule that keeps this correct is to read the inverse when the command runs. The test `test_an_inverse_captured_when_queued_restores_a_stale_weight` builds the opposite shape as a fixture, `_PrecomputedReweigh(before, after)`, where `before` is recorded at construction. Both commands are built while the weight is 120. After both run, the weight is 140, and undoing the second sets it to 120 where 130 was expected. The same test then amends through `Booking`, where `apply` reads the weight at the moment of change, and one undo gives 130. A command that knows its inverse in advance is right only while nothing else runs in between, and a queue is a place where other things run.
 
-The history is bounded. `Booking` builds `undo_stack` with `maxlen=history_limit`, and the [`collections` documentation](https://docs.python.org/3.15/library/collections.html) says what that does: "Once a bounded length deque is full, when new items are added, a corresponding number of items are discarded from the opposite end." Inverses are appended on the right, so the oldest goes from the left, without a message. `test_a_bounded_history_forgets_the_oldest_amendment` sets a limit of two, makes three amendments and undoes twice. The third undo is an `AmendmentError`, and the weight is the one after the first amendment. The limit is a choice to state. Twenty is the default here, and an audit trail that needs the whole history wants a log, not this stack.
+The history is bounded. `Booking` builds `undo_stack` with `maxlen=history_limit`, and the [`collections` documentation](https://docs.python.org/3/library/collections.html) says what that does: "Once a bounded length deque is full, when new items are added, a corresponding number of items are discarded from the opposite end." Inverses are appended on the right, so the oldest goes from the left, without a message. `test_a_bounded_history_forgets_the_oldest_amendment` sets a limit of two, makes three amendments and undoes twice. The third undo is an `AmendmentError`, and the weight is the one after the first amendment. The limit is a choice to state. Twenty is the default here, and an audit trail that needs the whole history wants a log, not this stack.
 
 ## Commands that share mutable data
 
@@ -175,7 +175,7 @@ def _loose_apply(
 
 `test_commands_sharing_a_mutable_mapping_undo_to_the_wrong_state` builds a first command from a `notes` dictionary holding "keep dry", then edits `notes` to "fragile", builds a second command from the same dictionary and applies the inverse of the second. The instructions are `{"handling": "fragile"}` where "keep dry" was expected. Both commands, and the request that stored the first one's mapping, point at one dict. The frozen decorator stopped nobody, and `test_mypy_accepts_commands_that_share_a_dict` shows that mypy accepts the shape with exit status 0 and no output. Frozen is shallow, which [Dataclasses and value semantics]({{ '/docs/08-dataclasses-and-value-semantics/' | relative_url }}) covers.
 
-The fix is the field type. `SetInstructions.instructions` and `BookingRequest.instructions` are `frozendict[str, str]`. Python 3.15 adds the type as a builtin, and [PEP 814](https://peps.python.org/pep-0814/), by Victor Stinner and Donghee Na, says what it is for: "A new public immutable type `frozendict` is added to the `builtins` module." The [What's New page for 3.15](https://docs.python.org/3.15/whatsnew/3.15.html) adds: "It does not allow modification after creation." Three tests measure what that buys:
+The fix is the field type. `SetInstructions.instructions` and `BookingRequest.instructions` are `frozendict[str, str]`. Python 3.15 adds the type as a builtin, and [PEP 814](https://peps.python.org/pep-0814/), by Victor Stinner and Donghee Na, says what it is for: "A new public immutable type `frozendict` is added to the `builtins` module." The [What's New page for 3.15](https://docs.python.org/3/whatsnew/3.15.html) adds: "It does not allow modification after creation." Three tests measure what that buys:
 
 - `test_mypy_rejects_a_dict_where_frozen_instructions_belong` passes a `dict` to `SetInstructions`. The test's own run prints `<string>:5: error: Argument 1 to "SetInstructions" has incompatible type "dict[str, str]"; expected "frozendict[str, str]"  [arg-type]`, so the caller's dictionary is refused at the call.
 - `test_mypy_rejects_assigning_into_frozen_instructions` assigns into `request.instructions["handling"]` and gets `<string>:5: error: Unsupported target for indexed assignment ("frozendict[str, str]")  [index]`.
@@ -237,7 +237,7 @@ From the repository root, once, `uv sync --locked --all-packages`. Then:
 
 ```bash
 cd examples/15-command-undo-and-command-queues
-uv run pytest -v
+uv run pytest -v --no-header
 uv run mypy --strict src tests
 ```
 
@@ -245,11 +245,6 @@ A fresh run produces:
 
 ```text
 ============================= test session starts ==============================
-platform linux -- Python 3.15.2, pytest-9.2.0, pluggy-1.7.0 -- <repo>/.venv/bin/python
-cachedir: .pytest_cache
-rootdir: <repo>
-configfile: pyproject.toml
-plugins: mock-3.17.0
 collecting ... collected 29 items
 
 tests/test_commands.py::test_amendments_compare_by_value_and_partials_do_not PASSED [  3%]
@@ -282,7 +277,7 @@ tests/test_undo.py::test_an_inverse_captured_when_queued_restores_a_stale_weight
 tests/test_undo.py::test_a_bounded_history_forgets_the_oldest_amendment PASSED [ 96%]
 tests/test_undo.py::test_a_frozen_request_is_a_safe_snapshot PASSED      [100%]
 
-============================== 29 passed in 1.75s ==============================
+============================== 29 passed in 1.82s ==============================
 Success: no issues found in 10 source files
 ```
 
@@ -322,4 +317,4 @@ The batch's first amendment is applied to the booking before the second one rais
 
 ## For deeper coverage
 
-*Design Patterns* (Gamma, Helm, Johnson and Vlissides) is the source for Command. Harry Percival and Bob Gregory's *Architecture Patterns with Python* has the chapter "Commands and Command Handler", published free at [cosmicpython.com](https://www.cosmicpython.com/book/preface). The [`collections` documentation](https://docs.python.org/3.15/library/collections.html) covers `deque` and `maxlen`, [PEP 814](https://peps.python.org/pep-0814/) and the [3.15 What's New](https://docs.python.org/3.15/whatsnew/3.15.html) cover `frozendict`, and the [`dataclasses` documentation](https://docs.python.org/3.15/library/dataclasses.html) covers `frozen` and `replace`. [PEP 634](https://peps.python.org/pep-0634/) specifies the `match` statement. The [bibliography page]({{ '/bibliography/' | relative_url }}) lists the books.
+*Design Patterns* (Gamma, Helm, Johnson and Vlissides) is the source for Command. Harry Percival and Bob Gregory's *Architecture Patterns with Python* has the chapter "Commands and Command Handler", published free at [cosmicpython.com](https://www.cosmicpython.com/book/preface). The [`collections` documentation](https://docs.python.org/3/library/collections.html) covers `deque` and `maxlen`, [PEP 814](https://peps.python.org/pep-0814/) and the [3.15 What's New](https://docs.python.org/3/whatsnew/3.15.html) cover `frozendict`, and the [`dataclasses` documentation](https://docs.python.org/3/library/dataclasses.html) covers `frozen` and `replace`. [PEP 634](https://peps.python.org/pep-0634/) specifies the `match` statement. The [bibliography page]({{ '/bibliography/' | relative_url }}) lists the books.
