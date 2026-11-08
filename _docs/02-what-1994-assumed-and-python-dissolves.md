@@ -25,7 +25,7 @@ The practical stake is code review. A pull request that adds a `PricingStrategy`
 
 {% include excalidraw.html name="02-what-1994-assumed-and-python-dissolves" caption="Figure 2.1: Assumptions behind the classic patterns, each paired with the Python feature that removes it: functions as objects, structural typing, generators, modules imported once, and absence checked by the type checker." %}
 
-Each row of the figure is a section below. The examples are short excerpts from the runnable [three-way split example]({{ '/examples/03-three-way-split/' | relative_url }}), so every name you see exists, passes its tests and satisfies `mypy --strict`.
+Each row of the figure is a section below. The examples are short excerpts from the runnable [three-way split example]({{ '/examples/03-three-way-split/' | relative_url }}), so every name you see exists in that code.
 
 ## The object model the catalogue assumed
 
@@ -123,7 +123,7 @@ Each has a `book` with a compatible signature, so each is accepted wherever the 
 
 That removes the scaffolding Adapter used to supply in one common situation: two parts already agree on shape and only disagree on declaration. It doesn't remove the Adapter pattern. If a carrier's client exposed `submit_shipment(payload)` instead of `book(consignment)`, no checker can bridge that. The force of Adapter is a mismatch of shape, and a mismatch of shape needs code that translates. Duck typing removes the adapter only when the shapes already match; when they don't, you write the wrapper, and it's the same class it has always been.
 
-Two cautions apply. `@runtime_checkable` makes `isinstance` work against a protocol, but it checks that the names exist and nothing about signatures, so it's a weaker guarantee than the static check. And a mock is assignable to every type, so it satisfies any protocol whether or not it matches. Both are reasons to rely on `mypy --strict`, not runtime checks, for the shape.
+Two cautions apply. `@runtime_checkable` makes `isinstance` work against a protocol, but it checks that the names exist and nothing about signatures, so it's a weaker guarantee than the static check (`test_runtime_checkable_checks_names_only` in the protocol example). And a mock is assignable to every type, so it satisfies any protocol whether or not it matches (`test_mypy_accepts_every_mock_where_a_gateway_is_expected` in the testing example). Both are reasons to rely on `mypy --strict`, not runtime checks, for the shape.
 
 ## Modules
 
@@ -147,7 +147,7 @@ def _load() -> Tariff:
 TARIFF = _load()
 ```
 
-`TARIFF` is built when `tariff_table` is first imported, and the test that imports the module twice sees one load. The mapping sits behind `MappingProxyType`, so callers read it but can't reassign entries. There's no accessor and no guard, because there is no second way to get an instance.
+`TARIFF` is built when `tariff_table` is first imported, and the test that imports the module twice sees one load. The mapping sits behind `MappingProxyType`, so callers read it but can't reassign entries. There's no accessor and no guard, because an import is the one way to get the object. (`importlib.reload` re-runs the module body and builds a second one; the seams example tests that.)
 
 A module-level object doesn't always suffice. If each test needs a clean instance, or you need one per tenant, pass the object in as a parameter; Borg and metaclass variants answer other needs, and [Singleton: module, Borg, and metaclass]({{ '/docs/18-singleton-module-borg-metaclass/' | relative_url }}) compares them.
 
@@ -200,7 +200,7 @@ When a review comment says "this should be a function", the justification is tha
 - *Fluent Python*, second edition (Luciano Ramalho; O'Reilly). The data model, first-class functions, protocols, generators and the import system, which are the features this chapter relies on.
 - *Effective Python*, third edition (Brett Slatkin; Addison-Wesley). Short rules on generators, closures, `partial`, typing and module-level state; read by topic.
 - PEP 544, [Protocols: Structural subtyping](https://peps.python.org/pep-0544/); PEP 255, [Simple Generators](https://peps.python.org/pep-0255/); PEP 695, [Type Parameter Syntax](https://peps.python.org/pep-0695/), which also introduces the `type` statement.
-- The Python reference, [data model](https://docs.python.org/3/reference/datamodel.html), for `__iter__`, `__next__` and callables.
+- The Python reference, [data model](https://docs.python.org/3.15/reference/datamodel.html), for `__iter__`, `__next__` and callables.
 - Brandon Rhodes, [python-patterns.guide](https://python-patterns.guide/), for the catalogue read through Python.
 
 The full list of books, with editions and links, is on the [bibliography]({{ '/bibliography/' | relative_url }}) page.

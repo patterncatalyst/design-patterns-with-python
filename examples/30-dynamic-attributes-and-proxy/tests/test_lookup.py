@@ -139,6 +139,12 @@ def test_copy_recurses_through_a_getattr_that_reads_a_missing_attribute(
         duplicate(original)
 
 
+def test_deepcopy_fails_with_a_type_error_when_the_loader_answers_every_name() -> None:
+    original = _SelfHealing(lambda name: "loaded " + name)
+    with pytest.raises(TypeError, match="not callable"):
+        copy.deepcopy(original)
+
+
 def test_copy_keeps_a_history_before_and_after_loading(recording_load: RecordingLoad) -> None:
     unloaded = TrackingHistory(ConsignmentId("CN-1"), recording_load)
     for duplicate in (copy.copy, copy.deepcopy):

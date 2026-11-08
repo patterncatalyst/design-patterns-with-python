@@ -11,14 +11,16 @@ Port codes, consignment ids and numbers are illustrative.
 
 Identity and signature.
 
-- `render_bill(bill, /, *, width=72)` renders a `BillOfLading` as one line. `timed_render(sink,
-  clock=...)` reports the function's name and the elapsed clock time to a `TimingSink`, also when the
-  function raises.
-- `wrapper_form` is `wraps` or `bare`, a `ParamSpec` timer with and without `functools.wraps`, and
-  both render the same text for two bills. The bare form reports its own name, has no docstring and no
-  `__wrapped__`, and `inspect.signature` gives `(*args: P.args, **kwargs: P.kwargs) -> R`.
-- `wraps` copies the name, qualified name, docstring, module and `__dict__`, adds `__wrapped__` one
-  level down (`inspect.unwrap` reaches the original) and copies `__annotate__`, not `__annotations__`.
+- `render_bill(bill, /, *, width=72)` renders a `BillOfLading` as one line.
+  `timed_render(sink, clock=...)` reports the function's name and the elapsed clock time to a
+  `TimingSink`, also when the function raises.
+- `wrapper_form` is `wraps` or `bare`, a `ParamSpec` timer with and without `functools.wraps`,
+  and both render the same text for two bills. The bare form reports its own name, has no
+  docstring and no `__wrapped__`, and `inspect.signature` gives
+  `(*args: P.args, **kwargs: P.kwargs) -> R`.
+- `wraps` copies the name, qualified name, docstring, module and `__dict__`, adds `__wrapped__`
+  one level down (`inspect.unwrap` reaches the original) and copies `__annotate__`, not
+  `__annotations__`.
 - mypy keeps the signature through a wrapper without `wraps`, and reports an untyped decorator. A
   decorator that supplies an argument is typed with `Concatenate`, but `wraps` makes
   `inspect.signature` report the original parameters and `bind` refuse a working call.
@@ -27,24 +29,25 @@ Identity and signature.
 Factories and stacking.
 
 - `cached_for(*, seconds, clock=...)` serves a result for the window, one entry per distinct
-  arguments, with the clock injected, so no test sleeps. It refuses an unhashable argument and a window
-  that isn't positive.
+  arguments, with the clock injected, so no test sleeps. It refuses an unhashable argument and a
+  window that isn't positive.
 - The window is keyword-only, so `@cached_for` used bare is a `TypeError` at definition. The
-  comparison `_cached_for_positional(seconds)` in `tests/conftest.py` takes it positionally, and used
-  bare it binds the name to its inner decorator and returns a function where text was expected, with no
-  error. mypy refuses both.
+  comparison `_cached_for_positional(seconds)` in `tests/conftest.py` takes it positionally, and
+  used bare it binds the name to its inner decorator and returns a function where text was
+  expected, with no error. mypy refuses both.
 - With the timer outside the cache every call is timed, the hit as `0.0`. With the timer inside only
   the miss is timed.
 
 Class decorators and methods.
 
 - `document_kind(kind, *, registry=DOCUMENT_TYPES)` registers `BillOfLading` and `Manifest` at
-  definition, refuses a second class for a kind with `DocumentKindError`, and mypy keeps the class's
-  type, as it does through any class decorator. Beneath `@dataclass(slots=True)` it registers a class that is thrown away. Forgetting
-  `return cls` binds the name to `None`, and mypy reports `[return]`.
+  definition, refuses a second class for a kind with `DocumentKindError`, and mypy keeps the
+  class's type, as it does through any class decorator. Beneath `@dataclass(slots=True)` it
+  registers a class that is thrown away. Forgetting `return cls` binds the name to `None`, and
+  mypy reports `[return]`.
 - A function wrapper binds `self` on a method, because functions are descriptors. A class-based
-  wrapper without `__get__` doesn't. `functools.cache` on a method keeps the instance alive until the
-  cache is cleared (ruff B019).
+  wrapper without `__get__` doesn't. `functools.cache` on a method keeps the instance alive
+  until the cache is cleared (ruff B019).
 
 ## Layout
 
@@ -112,7 +115,8 @@ uv run mypy --strict src tests
 `tests/test_static.py`
 
 - `test_mypy_keeps_the_signature_through_a_wrapper_without_wraps`: `[arg-type]` (a reduced model).
-- `test_mypy_reports_an_untyped_decorator`: `[untyped-decorator]` (a reduced model).
+- `test_mypy_reports_an_untyped_decorator`: `[untyped-decorator]` and `[no-untyped-def]` (a
+  reduced model).
 - `test_mypy_refuses_a_positional_factory_used_bare`: `[arg-type]` (a reduced model).
 - `test_mypy_refuses_a_keyword_only_factory_used_bare`: `[call-arg]` and `[arg-type]`.
 - `test_mypy_types_a_decorator_that_supplies_an_argument`: a repeated argument is refused (a reduced

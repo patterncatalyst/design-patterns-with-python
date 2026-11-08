@@ -66,7 +66,7 @@ const E43 = `${EX}/43-appendix-c-mocking`;
 // ===========================================================================
 {
   const s = S();
-  addContentTitle(s, "THEMES", "Seven themes");
+  addContentTitle(s, "SECTIONS", "Eight sections");
   const left = [
     ["Proving it works:", " a test named as a claim, and a check seen failing."],
     ["Fixtures and test doubles:", " settings that refuse silence, and what each double records."],
@@ -77,10 +77,11 @@ const E43 = `${EX}/43-appendix-c-mocking`;
     ["Refactor or rewrite:", " intent rows, golden quotes and a rewrite held to parity."],
     ["The final project:", " one booking through its steps, undone on a refusal."],
     ["Working with AI tools:", " a reply trusted as far as the gates it has passed."],
+    ["Reference:", " sources, books and where the code lives."],
   ];
   bullets(s, left, { w: 5.95, fontSize: 18, gap: 14 });
   bullets(s, right, { x: 6.85, w: 5.86, fontSize: 18, gap: 14 });
-  notes(s, `Seven themes make up Testing, legacy code and AI. Proving it works covers a test named as a claim and a check that has been seen to fail. Fixtures and test doubles covers the pytest settings that refuse silence and what each kind of double records. Seams in Python shows that a global name is a seam. Breaking dependencies changes structure while the behaviour is recorded first. Refactor or rewrite separates intent rows from golden values. The final project undoes a booking on a refusal, and working with AI tools holds a reply to three gates. A reference section gives the versions, sources and reading. What to show: nothing runs here. Fallback: each bullet names a theme and its subject.`, 90, "themes");
+  notes(s, `Eight sections make up Testing, legacy code and AI. Proving it works covers a test named as a claim and a check that has been seen to fail. Fixtures and test doubles covers the pytest settings that refuse silence and what each kind of double records. Seams in Python shows that a global name is a seam. Breaking dependencies changes structure while the behaviour is recorded first. Refactor or rewrite separates intent rows from golden values. The final project undoes a booking on a refusal, and working with AI tools holds a reply to three gates. The reference section lists the sources, the books and where the code lives. What to show: nothing runs here. Fallback: each bullet names a section and its subject.`, 90, "themes");
 }
 
 // ===========================================================================

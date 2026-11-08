@@ -20,11 +20,11 @@ a difference, or a `RatingError`, is passed to `report` as a `Mismatch`. The sha
 served. `quote_routed` is the router bound at the module root, migrating ASIA only. It routes calls
 and converts no interface, so it is not the Adapter pattern.
 
-`PARITY_ROWS` in `tests/test_parity.py` puts weights on every limit (5, 20 and 50 kg), just above 5
-and 50 kg, and above the last band, for EU and ASIA, plus one AFRICA row. `ACCEPTED_DIFFERENCES` lists the row where the
-rewrite is meant to differ. The first draft of the rewrite, `_exclusive_limits_quote` in
-`tests/conftest.py`, uses `bisect_right`, so a weight equal to a limit no longer
-lands in the band that limit closes.
+`PARITY_ROWS` in `tests/test_parity.py` puts eight weights in each of EU and ASIA, plus one AFRICA
+row: 0.5 kg, each limit (5, 20 and 50 kg), 5.001, 20.5 and 50.001 kg just above a limit, and 60 kg
+above the last band. `ACCEPTED_DIFFERENCES` lists the row where the rewrite is meant to differ. The
+first draft of the rewrite, `_exclusive_limits_quote` in `tests/conftest.py`, uses `bisect_right`,
+so a weight equal to a limit no longer lands in the band that limit closes.
 
 A parity failure is a list of row ids in table order.
 
@@ -83,5 +83,6 @@ uv run mypy --strict src tests
 - `test_mypy_requires_the_rewrite_to_take_a_consignment`: a rewrite that takes a zone and a
   weight is an `arg-type` error at `Router`, and `quote` is accepted.
 
-The tests use no mocks and no patching. Each engine's quote depends only on its arguments: the consignment, and for the rewrite the
-tariff, which defaults to `STANDARD_TARIFF`. The router's tests pass plain functions.
+The tests use no mocks and no patching. Each engine's quote depends only on its arguments: the
+consignment, and for the rewrite the tariff, which defaults to `STANDARD_TARIFF`. The router's
+tests pass plain callables.

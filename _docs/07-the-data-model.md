@@ -166,14 +166,14 @@ A value has three readers. `repr` is for a developer and a log, and the dataclas
 ```
 <!-- fmt:on -->
 
-Delegating to `str` lets `f"{price:>12}"` align a `Money` like text, giving `   EUR 12.50`. Without `__format__`, a spec raises: `_StrOnlyMoney` has `__str__`, prints fine, and `f"{plain:>12}"` raises `TypeError` matching `unsupported format string`. All three forms are in `test_repr_str_and_format_serve_different_readers`, which asserts that they differ.
+Delegating to `str` lets `f"{price:>12}"` align a `Money` like text, right-aligning `EUR 12.50` in twelve columns. Without `__format__`, a spec raises: `_StrOnlyMoney` has `__str__`, prints fine, and `f"{plain:>12}"` raises `TypeError` matching `unsupported format string`. All three forms are in `test_repr_str_and_format_serve_different_readers`, which asserts that they differ.
 
 ## When a dunder costs more than it buys
 
 An operator is a promise about meaning. `Money * Money` has no unit a reader can name, and `consignment + consignment` could mean merging or pooling. If a reader has to look up what the operator does, a named method such as `consolidate` costs one line and removes the question. A `__bool__` on an amount makes zero falsy, which surprises code that tests `if amount:` to mean "has an amount", so `Money` leaves it out. Equality across types, say `Money == Decimal`, would need a hash that agrees across both.
 
 <blockquote class="ai-sidebar" markdown="1">
-**Reviewing assistant-written dunders.** An assistant writing dunders may type `__eq__` with the class, define `__eq__` without `__hash__`, or add a `__radd__` that accepts `0` so that `sum()` works. Paste a prompt that states the contract:
+**Specifying dunders.** "Write the value type's dunders" leaves open the operand types, what equality and hash compare and how ordering is derived. Paste a prompt that states the contract:
 
 > `__eq__` takes `object` and returns `NotImplemented` for foreign types, and `__hash__` hashes the same key equality compares. Type each operator's operand, return `NotImplemented` for anything else, and raise `ValueError` for mixed currencies. Add `__rmul__` for a scalar factor. Derive ordering from `__lt__` with `functools.total_ordering`. No `__radd__` for `0`: callers pass `start=` to `sum`. Add a test that puts two equal values in a set.
 
@@ -279,6 +279,6 @@ A missing hash is invisible to the checker and a missing reflected method isn't,
 
 ## For deeper coverage
 
-The primary source is the Python Language Reference chapter [Data model](https://docs.python.org/3/reference/datamodel.html): the section on basic customization states the rule for `__eq__` and `__hash__`, the section on emulating numeric types covers reflected operands, and the section on special method lookup covers why the type is consulted. The [`NotImplemented` constant](https://docs.python.org/3/builtins/constants.html#NotImplemented) and the [`functools.total_ordering` documentation](https://docs.python.org/3/library/functools.html#functools.total_ordering) describe the other two ideas used here. [PEP 207](https://peps.python.org/pep-0207/), by Guido van Rossum and David Ascher, introduced rich comparisons and the separate comparison methods.
+The primary source is the Python Language Reference chapter [Data model](https://docs.python.org/3.15/reference/datamodel.html): the section on basic customization states the rule for `__eq__` and `__hash__`, the section on emulating numeric types covers reflected operands, and the section on special method lookup covers why the type is consulted. The [`NotImplemented` constant](https://docs.python.org/3.15/builtins/constants.html#NotImplemented) and the [`functools.total_ordering` documentation](https://docs.python.org/3.15/library/functools.html#functools.total_ordering) describe the other two ideas used here. [PEP 207](https://peps.python.org/pep-0207/), by Guido van Rossum and David Ascher, introduced rich comparisons and the separate comparison methods.
 
-Luciano Ramalho's *Fluent Python*, second edition, is the book this chapter leans on most. Its treatment of the data model, Pythonic objects and operator overloading covers the topics here, equality and hashing, the reflected scalar `__rmul__`, truth through `__len__` and `__format__`, in greater depth. It is in the hub's list and on the [bibliography page]({{ '/bibliography/' | relative_url }}). Brett Slatkin's *Effective Python*, third edition, is a shorter companion for the idioms on the same topics.
+Luciano Ramalho's *Fluent Python*, second edition, is the book this chapter leans on most. Its treatment of the data model, Pythonic objects and operator overloading covers the topics here, equality and hashing, the reflected scalar `__rmul__`, truth through `__len__` and `__format__`, in greater depth. It is on the [bibliography page]({{ '/bibliography/' | relative_url }}). Brett Slatkin's *Effective Python*, third edition, is a shorter companion for the idioms on the same topics.

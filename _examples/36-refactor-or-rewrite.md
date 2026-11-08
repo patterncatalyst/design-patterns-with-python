@@ -14,10 +14,11 @@ band in an `if`/`elif` chain. A rewrite holds the bands as data and finds one wi
 
 ## The parity table
 
-Seventeen rows put weights on each band limit (5, 20 and 50 kg), just above 5 and 50 kg, and
-above the last band, for two zones, plus one unknown zone. The rewrite differs from the legacy engine on one row, the unknown
-zone, which is recorded in `ACCEPTED_DIFFERENCES`. A first draft that uses `bisect_right` differs
-on seven rows: each limit weight in each zone, and the unknown zone.
+Seventeen rows put eight weights in each of two zones, plus one unknown zone: 0.5 kg, each band
+limit (5, 20 and 50 kg), 5.001, 20.5 and 50.001 kg just above a limit, and 60 kg above the last
+band. The rewrite differs from the legacy engine on one row, the unknown zone, which is recorded
+in `ACCEPTED_DIFFERENCES`. A first draft that uses `bisect_right` differs on seven rows: each limit
+weight in each zone, and the unknown zone.
 
 ## A strangler-style router
 

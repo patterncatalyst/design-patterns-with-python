@@ -88,7 +88,7 @@ A module-level table doesn't suit every caller. A test wants a table of its own,
 
 The failure this avoids is the cached loader. `test_isolation.py` holds `_cached_tariff`, decorated with `functools.cache`, which builds a `TariffTable` from the standard rates merged with a module-level `_OVERRIDES` dict. `test_a_cached_loader_carries_one_tests_table_into_the_next` sets an override for Asia and loads. The next phase clears the override and asks again, and the cache returns the table with the override still in it: Asia still reads 9, where the standard table says 2.40. The test's fixture calls `cache_clear()` after each test for that reason, and `test_cache_clear_resets_the_cached_loader` shows the reset working. `cache_clear` is the repair when a cache can't be avoided. It isn't a design: a test that touches the cache has to know to call it.
 
-The [functools documentation](https://docs.python.org/3/library/functools.html) describes `functools.cache` as a "Simple lightweight unbounded function cache". It memoises a function's results by argument. A single instance is a different requirement.
+The [functools documentation](https://docs.python.org/3.15/library/functools.html) describes `functools.cache` as a "Simple lightweight unbounded function cache". It memoises a function's results by argument. A single instance is a different requirement.
 
 ## Once, under threads
 
@@ -148,11 +148,11 @@ The inner check needs an interleaving, and the test forces it with a lock that m
 
 The lock is injected through `lock=`, which defaults to `threading.Lock()`. Both threads have passed the first check by the time they wait on the barrier in `__enter__`, so the only way forward is through the second check. `test_load_once_runs_the_loader_once_when_two_threads_pass_the_first_check` finds one load, the same table from both threads and two entries to the lock. Nothing sleeps. The Barrier timeout is a guard that a healthy run never reaches. Why threads interleave at all is the subject of [The GIL and performance]({{ '/docs/37-the-gil-and-performance/' | relative_url }}).
 
-The marker is `NOT_LOADED`, built with the `sentinel` type that Python 3.15 adds. The What's New page, for PEP 661 by Tal Einat, says the type is "for creating unique sentinel values with a concise representation". A loader may return `None`, so `None` can't mark "not loaded yet". `test_load_once_keeps_a_loader_that_returns_none` runs a loader that returns `None` three times and finds one call. A loader that raises leaves the marker in place, and `test_a_failed_load_is_tried_again` finds two attempts and then `"ok"`.
+The marker is `NOT_LOADED`, built with the `sentinel` type that Python 3.15 adds. The What's New page, for PEP 661 by Tal Einat and Jelle Zijlstra, says the type is "for creating unique sentinel values with a concise representation". A loader may return `None`, so `None` can't mark "not loaded yet". `test_load_once_keeps_a_loader_that_returns_none` runs a loader that returns `None` three times and finds one call. A loader that raises leaves the marker in place, and `test_a_failed_load_is_tried_again` finds two attempts and then `"ok"`.
 
 ## Borg, the metaclass, and `__new__`
 
-Three class forms sit beside the ladder. They are fixtures in `tests/conftest.py`, they stand for code a team inherits or an assistant writes, and each has one measured cost. They run the same behaviour table as the module. The `__new__` form:
+Three class forms sit beside the ladder. They are fixtures in `tests/conftest.py`, they stand for code a team inherits, and each has one measured cost. They run the same behaviour table as the module. The `__new__` form:
 
 <!-- fmt:off -->
 ```python
@@ -193,7 +193,7 @@ Borg suits code that must construct its own object and still share configuration
 Pass a parameter when state differs per test, per tenant or per request. If the "singleton" is a cache, write a cache and name it one, with an eviction rule and a reset. When several threads write to one mutable global, the lock is the smaller problem, and the design needs a different shape. A class whose only reason to exist is to be single is a module.
 
 <blockquote class="ai-sidebar" markdown="1">
-**Reviewing assistant-written singletons.** Asked for "a singleton", an assistant may override `__new__` with an `_instance` attribute, write a `SingletonMeta`, or describe `functools.cache` as loading something once. Paste a prompt that states the form:
+**Specifying a singleton.** "A singleton" leaves open when the instance is built, how a test or a tenant gets its own, and what happens when two threads ask first. Paste a prompt that states the form:
 
 > Build `TARIFF` at import time in `tariff_table`, or reach it with `lazy from singleton import tariff_table` to load it on first use. Take the table as a parameter of `quote`, so tests and tenants pass their own. If the load needs run-time input, use `LoadOnce`: a lock with a double check and a `sentinel` marker. Don't use `functools.cache` as call-once, and don't override `__new__` or write a metaclass.
 
@@ -290,4 +290,4 @@ The test's fresh interpreter finds the load log already holding `"tariff"` after
 
 ## For deeper coverage
 
-*Design Patterns* (Gamma, Helm, Johnson and Vlissides) is the source for Singleton. Alex Martelli's [ActiveState recipe 66531](https://web.archive.org/web/20260325075452/https://code.activestate.com/recipes/66531-singleton-we-dont-need-no-stinkin-singleton-the-bo/), "Singleton? We don't need no stinkin' singleton: the Borg design pattern", is the source for Borg. Brandon Rhodes covers the two ends of the argument at [The Singleton Pattern](https://python-patterns.guide/gang-of-four/singleton/) and [The Global Object Pattern](https://python-patterns.guide/python/module-globals/). [PEP 810](https://peps.python.org/pep-0810/) specifies `lazy import`, [PEP 661](https://peps.python.org/pep-0661/) specifies `sentinel`, and the [functools](https://docs.python.org/3/library/functools.html) and [threading](https://docs.python.org/3/library/threading.html) documentation cover `cache`, `Lock` and `Barrier`. The [bibliography page]({{ '/bibliography/' | relative_url }}) lists the books, and the hub carries the same list.
+*Design Patterns* (Gamma, Helm, Johnson and Vlissides) is the source for Singleton. Alex Martelli's [ActiveState recipe 66531](https://web.archive.org/web/20260325075452/https://code.activestate.com/recipes/66531-singleton-we-dont-need-no-stinkin-singleton-the-bo/), "Singleton? We don't need no stinkin' singleton: the Borg design pattern", is the source for Borg. Brandon Rhodes covers the two ends of the argument at [The Singleton Pattern](https://python-patterns.guide/gang-of-four/singleton/) and [The Global Object Pattern](https://python-patterns.guide/python/module-globals/). [PEP 810](https://peps.python.org/pep-0810/) specifies `lazy import`, [PEP 661](https://peps.python.org/pep-0661/) specifies `sentinel`, and the [functools](https://docs.python.org/3.15/library/functools.html) and [threading](https://docs.python.org/3.15/library/threading.html) documentation cover `cache`, `Lock` and `Barrier`. The [bibliography page]({{ '/bibliography/' | relative_url }}) lists the books.

@@ -95,8 +95,22 @@ STALE_RE = re.compile(r"(?<![\d.])(?:[Pp]ython ?3\.(\d+)|3\.(\d+)\.\d+)")
 STALE_EXEMPT = ("since ", "before ", "until ", "new in ")
 STALE_WINDOW = 16
 PYTEST_MOCK_RE = re.compile(r"pytest[- ]mock[\s|=`*-]*$|\bmock-$", re.IGNORECASE)
+COLLECTION_KEYS: dict[str, tuple[str, ...]] = {
+    "_docs": ("layout", "title", "order", "part", "description"),
+    "_parts": ("title", "order", "part_name"),
+    "_examples": (
+        "layout",
+        "title",
+        "order",
+        "description",
+        "github_path",
+        "card_eyebrow",
+        "card_blurb",
+        "card_title",
+    ),
+}
 CLAIMS_REL = "_plans/reconciliation-plan.md"
-CLAIMS_FIRST_ENFORCED = 47
+CLAIMS_FIRST_ENFORCED = 1
 CLAIM_ROW_RE = re.compile(r"^\|\s*(\d+)\s*\|")
 CELL_SPLIT_RE = re.compile(r"(?<!\\)\|")
 CLAIM_TEST_RE = re.compile(r"`(?:[^`\s]*::)?(test_\w+)(?:\[[^`]*\])?`")
@@ -142,6 +156,19 @@ DECK_BANNED = (
         "cross-language word",
     ),
 )
+DECK_NUMBER_RE = re.compile(r"-(101|201|301)-")
+# Deck 101 teaches the three-way split, so only 201 and 301 refuse its labels.
+DECK_SPLIT_DECKS = frozenset({"201", "301"})
+DECK_SPLIT_RE = re.compile(
+    r"\b(?:dissolv(?:e|es|ed|ing)|surviv(?:e|es|ed|ing)|disambiguat(?:e|es|ed|ing)|disambiguation)\b",
+    re.IGNORECASE,
+)
+DECK_SELF_RE = re.compile(r"\bthe\s+deck\b", re.IGNORECASE)
+SENTENCE_END_RE = re.compile(r"(?<=[.!?])\s")
+FIGURE_BREAKOUT_PX = 982
+FIGURE_FLOOR_PX = 8.0
+SVG_VIEWBOX_RE = re.compile(r'<svg\b[^>]*\bviewBox="([^"]+)"')
+SVG_FONT_RE = re.compile(r'<text\b[^>]*\bfont-size="([\d.]+)"')
 DECK_BOOK_RE = re.compile(r"\b(the|this) book('s)?\b", re.IGNORECASE)
 DECK_SLIDE_RE = re.compile(r"ppt/slides/slide(\d+)\.xml$")
 DECK_FIELD_RE = re.compile(r"<a:fld\b.*?</a:fld>", re.DOTALL)
@@ -292,6 +319,32 @@ def caption_findings(rel: str, line: int, caption: str) -> list[Finding]:
     return out
 
 
+def check_figure_legibility(rel: str, svg: str) -> list[Finding]:
+    """The smallest label, scaled to the breakout width, must be at least the floor."""
+    box = SVG_VIEWBOX_RE.search(svg)
+    if box is None:
+        return [Finding(rel, 1, "svg has no viewBox")]
+    parts = box.group(1).replace(",", " ").split()
+    try:
+        width = float(parts[2])
+    except IndexError, ValueError:
+        return [Finding(rel, 1, f"viewBox {box.group(1)!r} has no width")]
+    sizes = [float(m) for m in SVG_FONT_RE.findall(svg)]
+    if not sizes or width <= 0:
+        return []
+    smallest = min(sizes) * FIGURE_BREAKOUT_PX / width
+    if smallest < FIGURE_FLOOR_PX:
+        return [
+            Finding(
+                rel,
+                1,
+                f"smallest label renders at {smallest:.1f} px at {FIGURE_BREAKOUT_PX} px, "
+                f"floor {FIGURE_FLOOR_PX:g}",
+            )
+        ]
+    return []
+
+
 def check_figure_files(root: Path, rel: str, text: str) -> list[Finding]:
     out: list[Finding] = []
     for m in INCLUDE_RE.finditer(text):
@@ -365,6 +418,17 @@ def check_front_matter_xrefs(rel: str, text: str) -> list[Finding]:
     return out
 
 
+def check_collection_front_matter(rel: str, text: str, keys: tuple[str, ...]) -> list[Finding]:
+    """A collection file's front matter closes with a --- line and sets every key Jekyll needs."""
+    fm, size = split_front_matter(text)
+    if not size:
+        return [Finding(rel, 1, "front matter is missing or never closes with a --- line")]
+    missing = [key for key in keys if not fm.get(key)]
+    if missing:
+        return [Finding(rel, 1, f"front matter lacks {', '.join(missing)}")]
+    return []
+
+
 def check_codetabs(rel: str, text: str) -> list[Finding]:
     """Every codetabs include must pass an explicit, non-empty labels parameter."""
     out: list[Finding] = []
@@ -417,6 +481,42 @@ def check_em_dash(rel: str, text: str) -> list[Finding]:
         for n, line in enumerate(text.split("\n"), start=1)
         if EM_DASH in line
     ]
+
+
+LINK_URL_RE = re.compile(r"https?://[^\s)\"'<>\]]+")
+LINK_FILES = (
+    "_docs/*.md",
+    "_examples/*.md",
+    "_parts/*.md",
+    "bibliography.html",
+    "index.html",
+    "examples.html",
+    "README.md",
+    "examples/*/README.md",
+)
+
+
+def check_link_forms(rel: str, text: str) -> list[Finding]:
+    """Python docs pin /3.15/, /latest/ only on typing.python.org, canonical O'Reilly URLs."""
+    out: list[Finding] = []
+    for n, line in enumerate(text.split("\n"), start=1):
+        for m in LINK_URL_RE.finditer(line):
+            url = m.group(0)
+            host = url.split("/")[2]
+            if "docs.python.org/3/" in url:
+                out.append(Finding(rel, n, "docs.python.org/3/ must be docs.python.org/3.15/"))
+            if "/latest/" in url and host != "typing.python.org":
+                out.append(Finding(rel, n, "/latest/ outside typing.python.org"))
+            if "oreilly.com/library/view/-/" in url:
+                out.append(Finding(rel, n, "oreilly.com/library/view/-/ is not canonical"))
+    return out
+
+
+def link_form_files(root: Path) -> list[Path]:
+    files: list[Path] = []
+    for pattern in LINK_FILES:
+        files.extend(p for p in sorted(root.glob(pattern)) if p.is_file())
+    return sorted(set(files))
 
 
 def check_banned(rel: str, text: str, *, svg: bool) -> list[Finding]:
@@ -769,22 +869,18 @@ def claim_results(
     return results
 
 
-def claim_findings(results: list[ClaimResult]) -> tuple[list[Finding], list[Finding]]:
-    """(errors, info): rows 47 and later must resolve; earlier rows are legacy."""
+def claim_findings(results: list[ClaimResult]) -> list[Finding]:
+    """Errors: every row from CLAIMS_FIRST_ENFORCED on must resolve its evidence tokens."""
     errors: list[Finding] = []
-    info: list[Finding] = []
     for r in results:
-        if r.resolved:
+        if r.resolved or r.row < CLAIMS_FIRST_ENFORCED:
             continue
         if r.evidence:
             why = "unresolved evidence: " + ", ".join(r.unresolved)
         else:
             why = "no evidence token (test_ name, source: url or run: step)"
-        if r.row >= CLAIMS_FIRST_ENFORCED:
-            errors.append(Finding(CLAIMS_REL, r.line, f"claim {r.row}: {why}"))
-        else:
-            info.append(Finding(CLAIMS_REL, r.line, f"claim {r.row}: legacy, {why}"))
-    return errors, info
+        errors.append(Finding(CLAIMS_REL, r.line, f"claim {r.row}: {why}"))
+    return errors
 
 
 def load_claims(root: Path) -> list[ClaimResult]:
@@ -808,12 +904,7 @@ def claims_table(results: list[ClaimResult]) -> str:
         "| --- | --- | --- | --- | --- |",
     ]
     for r in results:
-        if r.resolved:
-            resolved = "yes"
-        elif r.row >= CLAIMS_FIRST_ENFORCED:
-            resolved = "no"
-        else:
-            resolved = "legacy"
+        resolved = "yes" if r.resolved else "no"
         evidence = ", ".join(f"`{e}`" for e in r.evidence) or "none"
         lines.append(f"| {r.row} | {r.chapter} | {r.status} | {evidence} | {resolved} |")
     return "\n".join(lines)
@@ -904,6 +995,12 @@ def validate(root: Path) -> Report:
         if status == "in-progress":
             rep.info.append(Finding(rel, 1, "status in-progress: prose rules not applied"))
 
+    for folder, keys in COLLECTION_KEYS.items():
+        for path in sorted((root / folder).glob("*.md")):
+            rel = path.relative_to(root).as_posix()
+            text = path.read_text(encoding="utf-8")
+            rep.errors.extend(check_collection_front_matter(rel, text, keys))
+
     diagrams_yml = root / "_data" / "diagrams.yml"
     if diagrams_yml.is_file():
         for line, item in parse_diagram_yaml(diagrams_yml.read_text(encoding="utf-8")):
@@ -926,18 +1023,24 @@ def validate(root: Path) -> Report:
         if liquid_processed(path, root):
             rep.errors.extend(check_templates(rel, text))
 
+    for path in sorted((root / "diagrams").glob("*.svg")):
+        rel = path.relative_to(root).as_posix()
+        rep.errors.extend(check_figure_legibility(rel, path.read_text(encoding="utf-8")))
+
     for path in em_dash_only(root):
         rel = path.relative_to(root).as_posix()
         rep.errors.extend(check_em_dash(rel, path.read_text(encoding="utf-8")))
+
+    for path in link_form_files(root):
+        rel = path.relative_to(root).as_posix()
+        rep.errors.extend(check_link_forms(rel, path.read_text(encoding="utf-8")))
 
     minor = pinned_minor((root / ".python-version").read_text(encoding="utf-8"))
     for path in reader_facing(root):
         rel = path.relative_to(root).as_posix()
         rep.errors.extend(check_stale_versions(rel, path.read_text(encoding="utf-8"), minor))
 
-    claim_errors, claim_info = claim_findings(load_claims(root))
-    rep.errors.extend(claim_errors)
-    rep.info.extend(claim_info)
+    rep.errors.extend(claim_findings(load_claims(root)))
 
     rep.errors.extend(check_pins(root))
     rep.errors.extend(check_decks(root))
@@ -1053,6 +1156,20 @@ def check_deck(
         if not where.endswith(closing) and DECK_BOOK_RE.search(text):
             err(f"{where}: book pointer")
 
+    deck_id = DECK_NUMBER_RE.search(path.name)
+    for where, text in texts:
+        if where == "notes 1":
+            # The cover notes may name the deck once, in their opening sentence.
+            text = (
+                SENTENCE_END_RE.split(text, maxsplit=1)[-1] if SENTENCE_END_RE.search(text) else ""
+            )
+        if DECK_SELF_RE.search(text):
+            err(f"{where}: self-reference 'the deck'")
+    if deck_id is not None and deck_id.group(1) in DECK_SPLIT_DECKS:
+        for where, text in texts:
+            if DECK_SPLIT_RE.search(text):
+                err(f"{where}: three-way-split label")
+
     cfg = host_ids.Config()
     for name, body in xml.items():
         if host_ids.scrub_text(body, rules, cfg, "-") != body:
@@ -1112,6 +1229,17 @@ def self_test() -> int:
     expect("xref in card blurb", len(check_front_matter_xrefs("e.md", card)) == 1)
     clean = '---\ntitle: "T"\norder: 5\nchapter: 7\nblurb: "No refs."\n---\n'
     expect("front matter clean", not check_front_matter_xrefs("p.md", clean))
+    keys = ("title", "order")
+    expect("collection front matter ok", not check_collection_front_matter("e.md", clean, keys))
+    flowed = '---\nlayout: example order: 5 title: "T" ---\nbody\n'
+    expect(
+        "collection front matter reflowed",
+        bool(check_collection_front_matter("e.md", flowed, keys)),
+    )
+    expect(
+        "collection front matter lacks a key",
+        bool(check_collection_front_matter("e.md", clean, ("title", "card_title"))),
+    )
     bare_tabs = '{% include codetabs.html %}\n{% include codetabs.html labels="A|B" %}\n'
     expect("codetabs without labels", len(check_codetabs("a.md", bare_tabs)) == 1)
     expect("ai-sidebar attr", bool(check_prose("a.md", "{: .ai-sidebar}\n", "argument", "stub")[0]))
@@ -1288,17 +1416,27 @@ def self_test() -> int:
         not res[58].resolved and not res[59].resolved and not res[60].resolved,
     )
     expect("claim source unresolved", not res[53].resolved)
-    errs, info = claim_findings(list(res.values()))
+    errs = claim_findings(list(res.values()))
+    expect("claims are enforced from row 1", CLAIMS_FIRST_ENFORCED == 1)
     expect(
-        "claim errors are 47+",
-        sorted(e.message.split(":")[0] for e in errs)
-        == [f"claim {n}" for n in (49, 50, 52, 53, 56, 57, 58, 59, 60)],
+        "claim errors include row 46 with no token and every unresolved row",
+        sorted(int(e.message.split(":")[0].split()[1]) for e in errs)
+        == [46, 49, 50, 52, 53, 56, 57, 58, 59, 60],
     )
-    expect("claim legacy is info", len(info) == 1 and "legacy" in info[0].message)
+    expect(
+        "claim row 1 without a token is an error",
+        [
+            e.message.split(":")[0]
+            for e in claim_findings(
+                claim_results("| 1 | 2 | bare | prose only | **open** |\n", set(), {}, "")
+            )
+        ]
+        == ["claim 1"],
+    )
     table = claims_table(list(res.values()))
     expect(
         "claims table",
-        "| 46 | 8 | verified | none | legacy |" in table
+        "| 46 | 8 | verified | none | no |" in table
         and "| 47 | 9 | verified | `test_alpha`, `test_beta` | yes |" in table,
     )
     expect("claims chapter range", chapter_numbers("9-11") == [9, 10, 11])
@@ -1308,6 +1446,37 @@ def self_test() -> int:
 
     fm, size = split_front_matter('---\ntitle: "Q"\norder: 3\n---\nbody')
     expect("front matter", fm == {"title": "Q", "order": "3"} and size == 4)
+
+    legible = (
+        '<svg viewBox="0 0 1000 500"><text font-size="9">a</text>'
+        '<text font-size="13">b</text></svg>'
+    )
+    tiny = '<svg viewBox="0 0 1300 500"><text font-size="7.5">a</text></svg>'
+    expect("figure legible passes", not check_figure_legibility("a.svg", legible))
+    expect("figure too small fails", bool(check_figure_legibility("a.svg", tiny)))
+    narrow = '<svg viewBox="0 0 700 300"><text font-size="7">a</text></svg>'
+    expect("figure scales up to the breakout width", not check_figure_legibility("a.svg", narrow))
+    expect("figure floor edge", not check_figure_legibility("a.svg", legible.replace("9", "8.2")))
+    expect("figure without viewBox fails", bool(check_figure_legibility("a.svg", "<svg></svg>")))
+
+    good_links = (
+        "[a](https://docs.python.org/3.15/library/abc.html) "
+        "[t](https://typing.python.org/en/latest/spec/) "
+        "[b](https://www.oreilly.com/library/view/fluent-python/9781492056348/)"
+    )
+    expect("link forms pass", not check_link_forms("a.md", good_links))
+    expect(
+        "docs.python.org/3/ fails",
+        bool(check_link_forms("a.md", "[a](https://docs.python.org/3/library/abc.html)")),
+    )
+    expect(
+        "/latest/ outside typing fails",
+        bool(check_link_forms("a.md", "https://docs.pytest.org/en/latest/")),
+    )
+    expect(
+        "oreilly view/-/ fails",
+        bool(check_link_forms("a.md", "https://www.oreilly.com/library/view/-/9781492056348/")),
+    )
 
     deck_self_test(expect)
 
@@ -1364,12 +1533,13 @@ def deck_self_test(expect: Callable[[str, bool], None]) -> None:
         panel: tuple[int, ...] = (2,),
         creator: str = DECK_OWNER,
         core_extra: str = "",
+        name: str = "d.pptx",
     ) -> list[Finding]:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             (root / "presentation").mkdir()
             write_synthetic_deck(
-                root / "presentation" / "d.pptx",
+                root / "presentation" / name,
                 slides,
                 creator=creator,
                 core_extra=core_extra,
@@ -1441,6 +1611,38 @@ def deck_self_test(expect: Callable[[str, bool], None]) -> None:
     )
     expect("deck appendix pointer", bool(run([*good[:2], ("Body", long + " in Appendix A")])))
     expect("deck cross-language", bool(run([*good[:2], ("Body", long + " in Java")])))
+    for label in ("dissolves", "survived", "disambiguating", "disambiguation", "dissolve"):
+        body = [*good[:2], ("Body", long + f" it {label} here"), good[2]]
+        expect(f"deck 201 refuses label {label}", bool(run(body, name="x-201-y.pptx")))
+        expect(f"deck 301 refuses label {label}", bool(run(body, name="x-301-y.pptx")))
+        expect(f"deck 101 allows label {label}", not run(body, name="x-101-y.pptx"))
+    expect(
+        "deck 201 refuses label in slide text",
+        bool(run([*good[:2], ("It dissolves", long), good[2]], name="x-201-y.pptx")),
+    )
+    expect("deck 201 label control", not run(good, name="x-201-y.pptx"))
+    expect(
+        "deck 201 near-miss words",
+        not run(
+            [*good[:2], ("Body", long + " a survey of dissolution"), good[2]], name="x-201-y.pptx"
+        ),
+    )
+    expect(
+        "deck refuses the deck",
+        bool(run([*good[:2], ("Body", long + " the deck shows"), good[2]])),
+    )
+    expect(
+        "deck refuses the deck in slide text",
+        bool(run([*good[:2], ("The deck", long), good[2]])),
+    )
+    expect(
+        "deck cover notes may open with the deck",
+        not run([("Cover", "The deck runs in nine sections. " + short), *good[1:]]),
+    )
+    expect(
+        "deck cover notes refuse the deck after the opening sentence",
+        bool(run([("Cover", "Opening. The deck runs on. " + short), *good[1:]])),
+    )
     expect(
         "deck owner name in core.xml",
         bool(run(good, core_extra="<dc:title>Zed Quux</dc:title>")),
@@ -1457,7 +1659,7 @@ def main(argv: list[str]) -> int:
     if "--claims" in argv:
         results = load_claims(ROOT)
         print(claims_table(results))
-        errors, _ = claim_findings(results)
+        errors = claim_findings(results)
         for f in errors:
             print(f"error: {f}", file=sys.stderr)
         return 1 if errors else 0

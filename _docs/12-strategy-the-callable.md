@@ -110,7 +110,7 @@ Both fill the slot, and they differ in what an audit can recover afterwards. A r
 | `partial` | absent | no | no |
 | frozen dataclass with `__call__` | absent | yes, and the hashes match | yes |
 
-The `functools` documentation on [partial objects](https://docs.python.org/3/library/functools.html) says why the `partial` row has no name: "the `__name__` and `__doc__` attributes are not created automatically." A rule object is an instance, so it has none either. `test_partials_and_rule_objects_have_no_name` asks for `__name__` on the `per-kg` and `zone` entries and gets `AttributeError` for each, while `flat_rate.__name__` is `"flat_rate"` and a lambda's is `"<lambda>"`.
+The `functools` documentation on [partial objects](https://docs.python.org/3.15/library/functools.html) says why the `partial` row has no name: "the `__name__` and `__doc__` attributes are not created automatically." A rule object is an instance, so it has none either. `test_partials_and_rule_objects_have_no_name` asks for `__name__` on the `per-kg` and `zone` entries and gets `AttributeError` for each, while `flat_rate.__name__` is `"flat_rate"` and a lambda's is `"<lambda>"`.
 
 Equality splits the same way. `test_a_partial_has_no_value_equality` builds two partials of `per_kg` with the same rate and finds them unequal, while their `func` and `keywords` attributes are equal. `test_a_rule_object_compares_and_hashes_by_value` builds a second `ZoneRate` from an equal tariff and finds the two equal, with equal hashes and a repr that starts `ZoneRate(tariff=Tariff(`. The repr of a partial carries the address of the function it wraps, so no test asserts it, and the table's last column rests on the run, not on an assertion.
 
@@ -154,7 +154,7 @@ A configured rule is checked less well. `partial(per_kg, rat=Decimal("1.20"))` i
 <string>:9: note: "per_kg" defined in "strategy_callable.rules"
 ```
 
-A `partial` that binds nothing is accepted where it's assigned to the typed `PricingRule` slot, as a registry entry is. The same test asserts exit 0 and empty output for `partial(per_kg)`, and `test_an_unbound_partial_fails_only_when_called` shows the runtime end of it: `TypeError`, "missing 1 required keyword-only argument: 'rate'". The check does apply when the partial is called directly. A snippet that returns `partial(per_kg)(c)` from a function reports `Missing named argument "rate" for "per_kg"  [call-arg]`. The gap is in the assignment, which is the one the chapter titled [ISP, DIP, and dependency injection without a framework]({{ '/docs/06-isp-dip-and-di-without-a-framework/' | relative_url }}) documents. Read a registry's `partial` entries by eye.
+A `partial` that binds nothing is accepted where it's assigned to the typed `PricingRule` slot, as a registry entry is. The same test asserts exit 0 and empty output for `partial(per_kg)`, and `test_an_unbound_partial_fails_only_when_called` shows the runtime end of it: `TypeError`, "missing 1 required keyword-only argument: 'rate'". The gap is in the assignment, which is the one the chapter titled [ISP, DIP, and dependency injection without a framework]({{ '/docs/06-isp-dip-and-di-without-a-framework/' | relative_url }}) documents. Read a registry's `partial` entries by eye.
 
 When a rule needs keyword parameters, overloads or attributes the callable type can't express, the callback Protocol with a positional-only `/` is the form to use. The chapter titled [Protocol, duck typing, and structural typing with mypy]({{ '/docs/09-protocol-and-structural-typing/' | relative_url }}) covers it.
 
@@ -185,7 +185,7 @@ A single rule called from one place is a function, with no registry. A registry 
 
 <blockquote class="ai-sidebar" markdown="1">
 
-**Reviewing assistant-written strategies.** Asked for "the Strategy pattern", an assistant may write an abstract `PricingStrategy`, a subclass per rule and a factory, or record `rule.__name__` on the quote. Paste a prompt that states the form:
+**Specifying strategies.** "Add the pricing rules" leaves open how a rule is typed, where it is registered and what the quote records. Paste a prompt that states the form:
 
 > Type the slot as `type PricingRule = Callable[[Consignment], Money]`. Register rules in a read-only `frozendict` typed `Mapping[str, PricingRule]`: a function, a `partial` that binds every parameter its rule needs, or a frozen dataclass with `__call__` when the configuration must compare by value. Raise an unknown name as `RatingError`. Record the registry key on `RateQuote`, not `__name__`. A rule's result depends only on its argument. No base class.
 
@@ -292,10 +292,10 @@ The checker passed the registry, and the failure shows up at call time, in the p
 - Select a rule by name: `RATE_RULES`, the `RatingError` for an unknown name, and the key recorded on the quote.
 - Choose the form of a configured rule: the five-form table, with `partial` for `per_kg` and a frozen `ZoneRate` where an audit must compare values.
 - Read the registry cases: the mypy errors for a registered class, and `test_an_unbound_partial_fails_only_when_called` for the one mistake mypy accepts.
-- Recognise when a strategy must be an object: `_make_loyalty_discount` returns different money on a second call, a rule with several operations needs the `RateCalculator` Protocol, and the prompt keeps assistants from adding structure.
+- Recognise when a strategy must be an object: `_make_loyalty_discount` returns different money on a second call, a rule with several operations needs the `RateCalculator` Protocol, and the sample prompt asks for no base class.
 
 ## For deeper coverage
 
 Erich Gamma, Richard Helm, Ralph Johnson and John Vlissides, *Design Patterns: Elements of Reusable Object-Oriented Software*, is the source for Strategy, and Luciano Ramalho's *Fluent Python*, second edition, the chapter "Design Patterns with First-Class Functions", is the treatment this chapter builds on. Both are on the [bibliography page]({{ '/bibliography/' | relative_url }}), where Brett Slatkin's *Effective Python*, third edition, is also listed for closures and `functools.partial`.
 
-The language sources are the `functools` documentation on [partial objects](https://docs.python.org/3/library/functools.html), [PEP 695](https://peps.python.org/pep-0695/) for the `type` statement behind `PricingRule`, [PEP 814](https://peps.python.org/pep-0814/) for `frozendict`, and the [dataclasses documentation](https://docs.python.org/3/library/dataclasses.html) for `frozen` and the generated `__eq__` and `__hash__`.
+The language sources are the `functools` documentation on [partial objects](https://docs.python.org/3.15/library/functools.html), [PEP 695](https://peps.python.org/pep-0695/) for the `type` statement behind `PricingRule`, [PEP 814](https://peps.python.org/pep-0814/) for `frozendict`, and the [dataclasses documentation](https://docs.python.org/3.15/library/dataclasses.html) for `frozen` and the generated `__eq__` and `__hash__`.

@@ -1,6 +1,6 @@
 """Memory cost of a commodity held by many consignments, and of repeated port codes.
 
-Run from this directory with ``uv run python bench/commodity_memory.py``. It prints a table of
+Run from this directory with ``uv run python -I bench/commodity_memory.py``. It prints a table of
 approximate figures for the running interpreter. The figures are not asserted anywhere: they
 change with the Python version and the allocator.
 """

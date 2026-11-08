@@ -1,12 +1,13 @@
 # Mediator and Chain of Responsibility
 
-Two patterns that coordinate who acts: a chain decides whether a declaration is held, and a mediator
-decides when a declaration is released, once the duty and inspection reports it is owed have arrived. The chapter's thesis is that both survive. Python
-removes the handler class with its next-handler link, and the Mediator and Colleague classes, because
-a stage is a callable and a colleague holds the mediator's `receive`. The decisions remain: what
-"pass it on" means, which stage runs first, who decides when nobody does, and the rule for release
-with its state. Port codes, consignment ids and harmonised-system codes are illustrative. The
-mediator is documented as single-threaded, and the example has no thread or async test.
+Two patterns that coordinate who acts: a chain decides whether a declaration is held, and a
+mediator decides when a declaration is released, once the duty and inspection reports it is owed
+have arrived. The chapter's thesis is that both survive. Python removes the handler class with
+its next-handler link, and the Mediator and Colleague classes, because a stage is a callable and
+a colleague holds the mediator's `receive`. The decisions remain: what "pass it on" means, which
+stage runs first, who decides when nobody does, and the rule for release with its state. Port
+codes, consignment ids and harmonised-system codes are illustrative. The mediator is documented
+as single-threaded, and the example has no thread or async test.
 
 ## What it witnesses
 
@@ -22,10 +23,10 @@ The chain.
 - Order is not typed. `(check_documents, assess_duty, release, inspect_goods)` is accepted by mypy
   and clears a restricted commodity. A stage appended to `CLEARANCE_STAGES` runs before the final
   stage, and an empty chain leaves the decision to it.
-- The comparison forms are fixtures in `tests/conftest.py`: `chain_form` is `stages`, `linked` (a
-  `_Handler` holding the next handler) or `match` (one `match` with a default). All three run the
-  same hold table. The linked chain returns `None` off the end for a clean declaration, which has its
-  own test.
+- The comparison forms are fixtures in `tests/conftest.py`: `chain_form` is `stages`, `linked`
+  (a `_Handler` holding the next handler) or `match` (one `match` with a default). All three run
+  the same hold table. The linked chain returns `None` off the end for a clean declaration,
+  which has its own test.
 
 The mediator.
 
@@ -46,12 +47,12 @@ Static checks.
 
 ## Layout
 
-- `src/mediator_chain/domain.py`: `ConsignmentId`, `DocumentKind`, `Commodity`, `CustomsDeclaration`,
-  `HandlingKind`, `HandlingEvent`, `TrackingHistory`.
+- `src/mediator_chain/domain.py`: `ConsignmentId`, `DocumentKind`, `Commodity`,
+  `CustomsDeclaration`, `HandlingKind`, `HandlingEvent`, `TrackingHistory`.
 - `src/mediator_chain/clearance.py`: `Released`, `Held`, `Decision`, `ClearanceStage`, `FinalStage`,
   the four stages, `CLEARANCE_STAGES`, `clear`, `describe`.
-- `src/mediator_chain/mediator.py`: `Settlement`, `Inspection`, `ClearanceMessage`, `ClearanceError`,
-  `ClearanceMediator`.
+- `src/mediator_chain/mediator.py`: `Settlement`, `Inspection`, `ClearanceMessage`,
+  `ClearanceError`, `ClearanceMediator`.
 
 ## Run it
 
@@ -88,14 +89,16 @@ uv run mypy --strict src tests
 `tests/test_mediator.py`
 
 - `test_release_follows_inspection_then_settlement`: both coordination forms release once.
-- `test_the_mediator_releases_in_either_order`: nothing after the first report, one event after the second.
+- `test_the_mediator_releases_in_either_order`: nothing after the first report, one event after
+  the second.
 - `test_a_choreography_loses_a_settlement_that_arrives_before_inspection`: an empty history.
 - `test_a_duplicate_settlement_releases_once`: one event.
 - `test_a_failed_inspection_holds_the_consignment`: no release after a settlement.
 - `test_a_declaration_with_nothing_outstanding_is_released_at_once`: one event at construction.
-- `test_a_declaration_that_owes_one_report_is_released_on_that_report`: duty only or inspection only;
-  nothing before the report, `CLEARED` after it.
-- `test_a_message_for_another_consignment_is_refused`: `ClearanceError` naming `CN-2`, nothing released.
+- `test_a_declaration_that_owes_one_report_is_released_on_that_report`: duty only or inspection
+  only; nothing before the report, `CLEARED` after it.
+- `test_a_message_for_another_consignment_is_refused`: `ClearanceError` naming `CN-2`, nothing
+  released.
 - `test_release_records_a_cleared_handling_event_at_the_port`: `CLEARED` at `NLRTM`.
 
 `tests/test_static.py`
@@ -105,7 +108,8 @@ uv run mypy --strict src tests
 - `test_mypy_refuses_a_stage_with_the_wrong_return_type`: `[arg-type]`.
 - `test_mypy_reports_a_stage_that_falls_off_the_end`: `[return]`.
 - `test_mypy_reports_a_decision_left_unhandled`: `[arg-type]`, expected `Never`.
-- `test_mypy_refuses_a_linked_chain_result_where_a_decision_is_needed`: `[arg-type]` (a reduced model).
+- `test_mypy_refuses_a_linked_chain_result_where_a_decision_is_needed`: `[arg-type]` (a reduced
+  model).
 - `test_mypy_refuses_a_message_the_mediator_does_not_know`: `[arg-type]`.
 - `test_mypy_cannot_exhaust_a_match_on_true_and_false_patterns`: `[arg-type]` (a reduced model).
 

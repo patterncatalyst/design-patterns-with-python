@@ -38,7 +38,7 @@ Then change into the example directory:
 
 ```bash
 cd examples/00-prerequisites
-uv run pytest
+uv run pytest -v
 uv run mypy --strict src tests
 ```
 

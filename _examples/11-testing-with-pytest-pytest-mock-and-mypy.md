@@ -42,7 +42,7 @@ From the repository root, once:
 uv sync --locked --all-packages
 ```
 
-Then change into the example directory and run:
+Then change into the example directory:
 
 ```bash
 cd examples/11-testing-with-pytest-pytest-mock-and-mypy

@@ -61,17 +61,23 @@ uv run mypy --strict src tests
 
 `tests/test_factory_method.py`
 
-- `test_a_registered_constructor_builds_each_carrier_gateway`: the registry and the creator hierarchy give the same reference for each carrier.
-- `test_a_classmethod_constructor_returns_the_subclass_it_is_called_on`: a subclass of `AircoGateway` builds itself.
+- `test_a_registered_constructor_builds_each_carrier_gateway`: the registry and the creator
+  hierarchy give the same reference for each carrier.
+- `test_a_classmethod_constructor_returns_the_subclass_it_is_called_on`: a subclass of
+  `AircoGateway` builds itself.
 - `test_a_sandbox_setting_selects_the_sandbox_endpoint`: the Fastline endpoint follows `sandbox`.
-- `test_an_unknown_carrier_code_is_an_unknown_carrier_error`: both registries, with the original `KeyError` suppressed.
-- `test_the_carrier_registries_are_read_only`: item assignment raises `TypeError` and neither is a `dict`.
+- `test_an_unknown_carrier_code_is_an_unknown_carrier_error`: both registries, with the original
+  `KeyError` suppressed.
+- `test_the_carrier_registries_are_read_only`: item assignment raises `TypeError` and neither is
+  a `dict`.
 - `test_the_creator_design_declares_three_classes_where_the_registry_declares_none`: an `ast` count.
-- `test_a_type_registry_accepts_a_class_that_cannot_be_called_without_arguments`: the Airco call fails at run time.
+- `test_a_type_registry_accepts_a_class_that_cannot_be_called_without_arguments`: the Airco call
+  fails at run time.
 
 `tests/test_if_chains.py`
 
-- `test_a_carrier_missing_from_one_if_chain_is_quoted_at_another_carriers_rate`: 12.00 where the kit gives 48.00.
+- `test_a_carrier_missing_from_one_if_chain_is_quoted_at_another_carriers_rate`: 12.00 where the
+  kit gives 48.00.
 
 `tests/test_kits.py`
 
@@ -83,9 +89,11 @@ uv run mypy --strict src tests
 
 - `test_mypy_checks_a_constructor_slot_but_not_a_type_slot`: four slots, four results.
 - `test_mypy_checks_a_classmethod_constructor_against_the_slot`: `[dict-item]`.
-- `test_mypy_cannot_see_a_carrier_missing_from_an_if_chain`: clean for a `str` code, `[arg-type]` for a `Literal` code.
+- `test_mypy_cannot_see_a_carrier_missing_from_an_if_chain`: clean for a `str` code,
+  `[arg-type]` for a `Literal` code.
 - `test_mypy_rejects_a_kit_that_mixes_reference_types`: `[misc]`.
-- `test_mypy_accepts_kits_that_mix_untied_products`: another carrier's rates, and a printer that takes any `str`.
+- `test_mypy_accepts_kits_that_mix_untied_products`: another carrier's rates, and a printer that
+  takes any `str`.
 - `test_mypy_rejects_a_kit_registry_typed_by_one_family`: `[dict-item]`.
 
 Classes named with a leading underscore in the test modules are test fixtures and aren't part of

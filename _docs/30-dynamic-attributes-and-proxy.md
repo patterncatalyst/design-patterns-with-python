@@ -117,7 +117,7 @@ class _SelfHealing:
 
 This is a reduced model. On one whose `__init__` never ran, reading `self._load` is a failed lookup, which calls `__getattr__("_load")`, which reads `self._load` again (`test_a_getattr_that_reads_a_missing_attribute_recurses`, a `RecursionError`).
 
-`copy` builds such an instance. The copy documentation says "Classes can use the same interfaces to control copying that they use to control pickling", and the pickle documentation says "When a class instance is unpickled, its __init__() method is usually not invoked." It also says "At unpickling time, some methods like __getattr__(), __getattribute__(), or __setattr__() may be called upon the instance." The test runs `copy.copy`, `copy.deepcopy` and a `pickle` round trip over `_SelfHealing`, and each raises `RecursionError` (`test_copy_recurses_through_a_getattr_that_reads_a_missing_attribute`). The loader in that test knows only the one field and raises `AttributeError` for other names. A loader that answered every name would make `deepcopy` fail first, with a `TypeError`, on the string it got back for `__deepcopy__`.
+`copy` builds such an instance. The copy documentation says "Classes can use the same interfaces to control copying that they use to control pickling", and the pickle documentation says "When a class instance is unpickled, its __init__() method is usually not invoked." It also says "At unpickling time, some methods like __getattr__(), __getattribute__(), or __setattr__() may be called upon the instance." The test runs `copy.copy`, `copy.deepcopy` and a `pickle` round trip over `_SelfHealing`, and each raises `RecursionError` (`test_copy_recurses_through_a_getattr_that_reads_a_missing_attribute`). The loader in that test knows only the one field and raises `AttributeError` for other names. A loader that answered every name would make `deepcopy` fail first, with a `TypeError`, on the string it got back for `__deepcopy__` (`test_deepcopy_fails_with_a_type_error_when_the_loader_answers_every_name`).
 
 Three fixes keep the hook out of the loop (`test_each_fix_keeps_getattr_out_of_recursion`). Refuse names outside a fixed set, which `TrackingHistory` does. Read the loader with `object.__getattribute__`. Or read it from `vars(self)`. Each is enough on its own, and each makes a bare instance raise `AttributeError` for `events`. `TrackingHistory` copies correctly both before loading, where the copy holds `_load` and `consignment_id` and loads nothing, and after, where the copy keeps the fields (`test_copy_keeps_a_history_before_and_after_loading`).
 
@@ -199,7 +199,7 @@ If `__getattr__` reads an attribute it doesn't own, ask what `copy.copy` does.
 
 ## Build, run, observe
 
-The example has 26 test functions and 40 cases. From the repository root, once, `uv sync --locked --all-packages`. Then:
+The example has 27 test functions and 41 cases. From the repository root, once, `uv sync --locked --all-packages`. Then:
 
 ```bash
 cd examples/30-dynamic-attributes-and-proxy
@@ -207,7 +207,7 @@ uv run pytest -v
 uv run mypy --strict src tests
 ```
 
-All 40 cases pass, and mypy reports no issues. Both experiments below run in a fresh scratch copy of the repository, so the real example doesn't change. Each prints the output of this filter, then mypy:
+All 41 cases pass, and mypy reports no issues. Both experiments below run in a fresh scratch copy of the repository, so the real example doesn't change. Each prints the output of this filter, then mypy:
 
 ```bash
 uv run pytest -q 2>&1 | grep -E '^(FAILED|E {3}[^ ]|E {7}[^ ]|E {9}[^ ]|tests/.*Error$|[0-9]+ (passed|failed))'
@@ -220,12 +220,12 @@ uv run mypy --strict src tests
 E       AssertionError: assert [] == ['events', 'l...rt', 'status']
 E         Right contains 3 more items, first extra item: 'events'
 E         Use -v to get more diff
-tests/test_lookup.py:195: AssertionError
+tests/test_lookup.py:201: AssertionError
 E       assert False
-tests/test_lookup.py:218: AssertionError
+tests/test_lookup.py:224: AssertionError
 FAILED tests/test_lookup.py::test_dir_lists_the_lazy_fields_before_loading - ...
 FAILED tests/test_lookup.py::test_a_misspelt_field_suggests_the_declared_name_through_dir
-2 failed, 38 passed in 2.19s
+2 failed, 39 passed in 2.51s
 Success: no issues found in 7 source files
 ```
 
@@ -242,7 +242,7 @@ FAILED tests/test_history.py::test_every_history_form_raises_attribute_error_for
 FAILED tests/test_lookup.py::test_copy_keeps_a_history_before_and_after_loading
 FAILED tests/test_lookup.py::test_each_fix_keeps_getattr_out_of_recursion[allow-list]
 FAILED tests/test_lookup.py::test_a_misspelt_field_suggests_the_declared_name_through_dir
-4 failed, 36 passed in 2.25s
+4 failed, 37 passed in 2.49s
 Success: no issues found in 7 source files
 ```
 
@@ -258,4 +258,4 @@ A typo now loads the feed, then fails in `vars(self)[name]` with a `KeyError` wh
 
 ## For deeper coverage
 
-The data model's [customising attribute access](https://docs.python.org/3/reference/datamodel.html) and special method lookup sections are the reference for the hooks, and the [built-in functions](https://docs.python.org/3/builtins/functions.html), [copy](https://docs.python.org/3/library/copy.html) and [pickle](https://docs.python.org/3/library/pickle.html) pages cover `dir`, `copy` and unpickling. [PEP 562](https://peps.python.org/pep-0562/), by Ivan Levkivskyi, specifies module `__getattr__` and `__dir__`, and [PEP 810](https://peps.python.org/pep-0810/) specifies `lazy import`. Brandon Rhodes's [The Decorator Pattern](https://python-patterns.guide/gang-of-four/decorator-pattern/) describes the dynamic wrapper. *Design Patterns* (Gamma, Helm, Johnson and Vlissides) is the source for Proxy, Martin Fowler's *Patterns of Enterprise Application Architecture* for Lazy Load, and *Fluent Python*, second edition, by Luciano Ramalho, is the broader reference for the data model and dynamic attributes. The [bibliography page]({{ '/bibliography/' | relative_url }}) lists the books, and the hub carries the same list.
+The data model's [customising attribute access](https://docs.python.org/3.15/reference/datamodel.html) and special method lookup sections are the reference for the hooks, and the [built-in functions](https://docs.python.org/3.15/builtins/functions.html), [copy](https://docs.python.org/3.15/library/copy.html) and [pickle](https://docs.python.org/3.15/library/pickle.html) pages cover `dir`, `copy` and unpickling. [PEP 562](https://peps.python.org/pep-0562/), by Ivan Levkivskyi, specifies module `__getattr__` and `__dir__`, and [PEP 810](https://peps.python.org/pep-0810/) specifies `lazy import`. Brandon Rhodes's [The Decorator Pattern](https://python-patterns.guide/gang-of-four/decorator-pattern/) describes the dynamic wrapper. *Design Patterns* (Gamma, Helm, Johnson and Vlissides) is the source for Proxy, Martin Fowler's *Patterns of Enterprise Application Architecture* for Lazy Load, and *Fluent Python*, second edition, by Luciano Ramalho, is the broader reference for the data model and dynamic attributes. The [bibliography page]({{ '/bibliography/' | relative_url }}) lists the books.

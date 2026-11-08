@@ -27,9 +27,22 @@ def _double_tariff() -> Tariff:
     )
 
 
-@pytest.mark.parametrize("replaced", ["tariff", "tax-rule", "audit-sink"])
+@pytest.mark.parametrize(
+    ("replaced", "expected_fields", "sink_counts"),
+    [
+        # The tax is a percentage of the net, so a new tariff moves the tax that follows from it.
+        ("tariff", {"net", "tax"}, (1, 0)),
+        ("tax-rule", {"tax"}, (1, 0)),
+        ("audit-sink", set(), (0, 1)),
+    ],
+    ids=["tariff", "tax-rule", "audit-sink"],
+)
 def test_each_change_moves_only_the_fields_it_feeds(
-    replaced: str, asia_consignment: Consignment, records: list[RateQuote]
+    replaced: str,
+    expected_fields: set[str],
+    sink_counts: tuple[int, int],
+    asia_consignment: Consignment,
+    records: list[RateQuote],
 ) -> None:
     baseline = quote(
         asia_consignment, calculator=BaseRate(TARIFF), tax_rules=TAX_RULES, audit=records.append
@@ -50,14 +63,9 @@ def test_each_change_moves_only_the_fields_it_feeds(
 
     changed = quote(asia_consignment, calculator=calculator, tax_rules=tax_rules, audit=sink)
 
-    # The tax is a percentage of the net, so a new tariff moves the tax that follows from it.
-    expected = {"tariff": {"net", "tax"}, "tax-rule": {"tax"}, "audit-sink": set()}[replaced]
-    assert _changed_fields(baseline, changed) == expected
-    if replaced == "audit-sink":
-        assert other_records == [changed]
-        assert records == []
-    else:
-        assert records == [changed]
+    assert _changed_fields(baseline, changed) == expected_fields
+    assert (len(records), len(other_records)) == sink_counts
+    assert records + other_records == [changed]
 
 
 def test_audit_receives_exactly_the_quote_returned(

@@ -63,29 +63,37 @@ Tests write only under pytest's `tmp_path`.
 `tests/test_writer.py`
 
 - `test_without_with_an_exception_leaves_the_handle_open`: the handle is still open after the error.
-- `test_writer_closes_and_discards_on_an_exception`: class and generator both close, remove the partial file and propagate.
-- `test_writer_commits_only_on_success`: the final file is absent inside the block and present after.
+- `test_writer_closes_and_discards_on_an_exception`: class and generator both close, remove the
+  partial file and propagate.
+- `test_writer_commits_only_on_success`: the final file is absent inside the block and present
+  after.
 - `test_writer_is_single_use`: a second `with` on the same writer raises `RuntimeError`.
 - `test_exiting_a_writer_that_was_never_entered_is_refused`: `__exit__` without `__enter__` raises.
-- `test_the_generator_form_needs_try`: without `try` the handle stays open and the partial file remains.
+- `test_the_generator_form_needs_try`: without `try` the handle stays open and the partial file
+  remains.
 
 `tests/test_stack.py`
 
-- `test_exit_stack_unwinds_entered_writers_in_reverse_order`: closes are second writer, then first writer.
-- `test_exit_stack_commits_every_manifest_on_success`: three manifests are committed and no partial remains.
+- `test_exit_stack_unwinds_entered_writers_in_reverse_order`: closes are second writer, then
+  first writer.
+- `test_exit_stack_commits_every_manifest_on_success`: three manifests are committed and no
+  partial remains.
 
 `tests/test_semantics.py`
 
 - `test_a_truthy_exit_swallows_the_exception`: the code after the block runs.
-- `test_suppress_swallows_only_the_named_exception`: `KeyError` is swallowed, `ValueError` propagates.
+- `test_suppress_swallows_only_the_named_exception`: `KeyError` is swallowed, `ValueError`
+  propagates.
 - `test_a_context_manager_decorating_a_generator_spans_iteration`: enter, rows, then exit.
 - `test_manifest_rejects_a_port_that_is_not_a_locode`: five malformed ports raise `ValueError`.
 - `test_manifest_accepts_a_locode`: a well-formed port is kept.
 
 `tests/test_static.py`
 
-- `test_mypy_reads_exit_return_type_for_reachability`: `[unreachable]` for `-> None`, clean for `-> bool`.
-- `test_mypy_types_the_with_target`: `assert_type(out, TextIO)` for class, generator and `ExitStack`.
+- `test_mypy_reads_exit_return_type_for_reachability`: `[unreachable]` for `-> None`, clean for
+  `-> bool`.
+- `test_mypy_types_the_with_target`: `assert_type(out, TextIO)` for class, generator and
+  `ExitStack`.
 - `test_mypy_cannot_see_a_missing_try`: the leaky generator type-checks cleanly.
 
 Classes and functions named with a leading underscore in the test modules are negative fixtures

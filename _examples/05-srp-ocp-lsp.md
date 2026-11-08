@@ -16,8 +16,8 @@ in its title. The tax rates are illustrative and aren't statutory rates.
 
 `quote` coordinates three collaborators that change for different reasons: a
 `RateCalculator` for pricing, a mapping of `TaxRule` callables for destination tax, and an
-`AuditSink` callable. Replacing one moves only the output it owns, and pricing and tax run
-without the others.
+`AuditSink` callable. Replacing the tariff moves the net and the tax that follows from it, a tax
+rule moves only the tax, and the sink moves neither. Pricing and tax run without the others.
 
 ## Open-closed
 

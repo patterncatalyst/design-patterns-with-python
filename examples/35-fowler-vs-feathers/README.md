@@ -16,7 +16,8 @@ requirement. `refactored.py` is the same engine after three catalogue refactorin
 - Replace Primitive with Object: carrier prices are `Money` at full precision, and only the total
   is rounded, once, half up.
 
-Two more refactors live in `tests/conftest.py` as altered engines. They change totals that the golden quotes record.
+Two more refactors live in `tests/conftest.py` as altered engines. They change totals that the
+golden quotes record.
 
 - `_CentFirstRateEngine` rounds each carrier price to the cent when it becomes `Money`.
 - `_RoundBuiltinRateEngine` replaces the half-up quantise with `round(amount, 2)`.
@@ -73,7 +74,8 @@ uv run mypy --strict src tests
 
 `tests/test_intent.py`
 
-- `test_the_intent_rows_pass_every_engine_and_both_rounding_refactors`: four forms, five rows (the fifth pins that grams are truncated).
+- `test_the_intent_rows_pass_every_engine_and_both_rounding_refactors`: four forms, five rows
+  (the fifth pins that grams are truncated).
 - `test_every_engine_lets_a_carrier_timeout_fail_the_quote`: the legacy and refactored engines.
 
 `tests/test_golden.py`

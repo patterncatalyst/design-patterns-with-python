@@ -104,7 +104,7 @@ hr { border: 0; border-top: 1px solid var(--rule); margin: 2.5rem 0; }
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    padding: .85rem 0;
+    padding-block: .85rem;
 }
 .site-header__brand {
     font-weight: 600;
@@ -404,6 +404,8 @@ hr { border: 0; border-top: 1px solid var(--rule); margin: 2.5rem 0; }
     margin: 0;
     letter-spacing: -.015em;
     flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
 }
 
 .tutorial__lead {
@@ -578,6 +580,26 @@ pre code { background: transparent; padding: 0; color: inherit; font-size: .92em
     align-items: center;
 }
 .excalidraw-figure__caption a { font-weight: 500; }
+.excalidraw-figure__links { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: flex-end; }
+.excalidraw-figure__links a { white-space: nowrap; }
+.excalidraw-figure__full { display: none; }
+
+/* Wide viewports: the figure leaves the 720 px prose column and takes the
+   1080 px container width, centred on the column. Narrow viewports keep the
+   column. Below 1100 px the figure is narrower than the 982 px that
+   validate.py's legibility floor assumes, so it links to the full-size SVG. */
+@media (min-width: 900px) {
+    .excalidraw-figure {
+        position: relative;
+        width: min(var(--maxw), calc(100vw - 4rem));
+        left: 50%;
+        transform: translateX(-50%);
+    }
+}
+@media (max-width: 1099px) {
+    .excalidraw-figure__full { display: inline; }
+    .excalidraw-figure__caption { flex-wrap: wrap; }
+}
 
 /* ── Diagram gallery (diagrams.html) ─────────────────────────────────── */
 
@@ -762,3 +784,14 @@ pre code { background: transparent; padding: 0; color: inherit; font-size: .92em
 .codetabs-panel .highlight{ margin: 0 !important; border-radius: 0 !important; }
 /* graceful no-JS fallback: show every block, labelled nothing-lost */
 .no-js .codetabs{ display: none; }
+
+/* ── Narrow screens: nothing scrolls the page sideways ───────────────── */
+
+.tutorial__main :not(pre) > code { overflow-wrap: anywhere; }
+.tutorial__main :is(h1, h2, h3, h4) { overflow-wrap: anywhere; }
+@media (max-width: 640px) {
+    /* a wide table scrolls inside its own box instead of the page */
+    :is(.tutorial__main, .section) table { display: block; max-width: 100%; overflow-x: auto; }
+    .site-header__inner { flex-wrap: wrap; gap: .5rem 1rem; }
+    .site-nav { flex-wrap: wrap; gap: .25rem 1rem; }
+}

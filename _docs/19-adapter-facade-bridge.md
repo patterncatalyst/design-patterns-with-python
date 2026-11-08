@@ -221,7 +221,7 @@ Keep the set small. The experiments below widen it by one method.
 Call the client when there's one carrier and the SDK already fits. An adapter that only renames parameters isn't needed, because the Protocol's parameters are positional-only. A facade over a subsystem with one caller can be inlined. A bridge where one axis doesn't vary is a parameter, and the second hierarchy is a cost with no return.
 
 <blockquote class="ai-sidebar" markdown="1">
-**Reviewing assistant-written adapters.** Asked to "integrate a carrier", an assistant may write an abstract adapter base class, adapt a client whose shape already matches, pass a `float` weight to an API that expects pounds, or return the SDK's receipt from the facade. Paste a prompt that states the form:
+**Specifying an adapter.** "Integrate a carrier" leaves open which clients need an adapter, what units cross the boundary and what the caller sees of the SDK. Paste a prompt that states the form:
 
 > Register a client that already satisfies `CarrierGateway` as it is. For one that doesn't, write an object adapter that holds the client, converts units through `Weight.pounds` and `Weight.from_pounds`, and raises `CarrierError` from the SDK's error. Write the facade as a module function, `ship`, whose signature names only domain types. Make booking kinds a bridge over the narrow Protocol, not a class per kind and carrier.
 
@@ -313,8 +313,11 @@ Three tests fail. The object adapter's payload test sees `0.46` for the 1.005 lb
 ```text
 E       assert 1 == 0
 tests/test_static.py:96: AssertionError
+E       assert 'note:     insure' in '<string>:11: error: Incompatible types in assignment (expression has type "BookOnly", variable has type "CarrierGatew...:11: note: "BookOnly" is missing following "CarrierGateway" protocol members:\n<string>:11: note:     cancel, insure\n'
+tests/test_static.py:129: AssertionError
 FAILED tests/test_static.py::test_mypy_accepts_a_client_whose_shape_matches_the_protocol
-1 failed, 34 passed in 2.42s
+FAILED tests/test_static.py::test_mypy_reports_an_implementor_missing_a_primitive
+2 failed, 33 passed in 2.48s
 src/adapter_facade_bridge/desk.py:14: error: Dict entry 0 has incompatible type "str": "AircoClient"; expected "str": "CarrierGateway"  [dict-item]
 src/adapter_facade_bridge/desk.py:14: error: Dict entry 1 has incompatible type "str": "FastlineGateway"; expected "str": "CarrierGateway"  [dict-item]
 tests/test_adapter.py:22: error: Non-overlapping identity check (left operand type: "type[CarrierGateway]", right operand type: "type[AircoClient]")  [comparison-overlap]
@@ -329,7 +332,7 @@ tests/conftest.py:125: error: Incompatible return value type (got "tuple[_Fastli
 Found 9 errors in 3 files (checked 11 source files)
 ```
 
-pytest has one failure: the test that assigns an `AircoClient` to a `CarrierGateway` now sees mypy exit 1, because Airco has no `cancel`. Booking behaviour is unchanged. mypy reports the registry in `desk.py`, three test fixtures and the test that reads the registry, and the class adapter fixture reports the member `cancel` as missing. Each implementor owes the new method, and the checker finds the ones in this example.
+pytest has two failures. The test that assigns an `AircoClient` to a `CarrierGateway` now sees mypy exit 1, because Airco has no `cancel`. In `test_mypy_reports_an_implementor_missing_a_primitive`, the snippet's implementor lacks `cancel` as well as `insure`, so mypy lists both members on one note line and the test's `note:     insure` assertion no longer matches. Booking behaviour is unchanged. mypy reports the registry in `desk.py`, three test fixtures and the test that reads the registry, and the class adapter fixture reports the member `cancel` as missing. Each implementor owes the new method, and the checker finds the ones in this example.
 
 ## What you can do now
 
@@ -341,4 +344,4 @@ pytest has one failure: the test that assigns an `AircoClient` to a `CarrierGate
 
 ## For deeper coverage
 
-*Design Patterns* (Gamma, Helm, Johnson and Vlissides) is the source for Adapter, Facade and Bridge. Brandon Rhodes's [The Composition Over Inheritance Principle](https://python-patterns.guide/gang-of-four/composition-over-inheritance/) gives the Python view of Adapter and Bridge where they meet. [PEP 544](https://peps.python.org/pep-0544/) specifies Protocols, and the [typing documentation](https://docs.python.org/3/library/typing.html) covers them. The [bibliography page]({{ '/bibliography/' | relative_url }}) lists the books, and the hub carries the same list.
+*Design Patterns* (Gamma, Helm, Johnson and Vlissides) is the source for Adapter, Facade and Bridge. Brandon Rhodes's [The Composition Over Inheritance Principle](https://python-patterns.guide/gang-of-four/composition-over-inheritance/) gives the Python view of Adapter and Bridge where they meet. [PEP 544](https://peps.python.org/pep-0544/) specifies Protocols, and the [typing documentation](https://docs.python.org/3.15/library/typing.html) covers them. The [bibliography page]({{ '/bibliography/' | relative_url }}) lists the books.

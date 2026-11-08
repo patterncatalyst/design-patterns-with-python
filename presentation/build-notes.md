@@ -30,7 +30,7 @@ node deck-201.js
 node deck-301.js
 ```
 
-Never `npm install -g`, never set `NODE_PATH`. The deck must load the copy in
+Never `npm install -g`, never set `NODE_PATH`. Each builder must load the copy in
 `node_modules/` that the lockfile pins.
 
 ## The helper
@@ -56,7 +56,7 @@ The deck builder overrides `pres.title`, `pres.author`, `pres.company` and
 
 ## The shared module
 
-`deck-lib.js` holds the slide helpers that both builders use. A builder creates
+`deck-lib.js` holds the slide helpers that each builder uses. A builder creates
 its presentation with `newDeck()`, sets the metadata, and calls
 `createDeck(pres)`, which returns the helpers bound to that presentation:
 
@@ -72,12 +72,11 @@ its presentation with `newDeck()`, sets the metadata, and calls
 | `bump()` | count a slide the builder adds itself, such as the cover |
 | `finish(out)` | assert the notes floors and the notes count, then write the file |
 
-The slide counter and the floors live inside the closure, so two decks never
-share state. `deck-helpers.js` is not touched by the module.
+The slide counter and the floors live inside the closure, so no two decks share state. `deck-helpers.js` is not touched by the module.
 
-### Identity proof for Deck 101 and Deck 201
+### Identity proof for each deck
 
-Moving the helpers out of `deck-101.js` must not change Deck 101, and the same proof covers Deck 201 (substitute `201` and its file name; Deck 301 has no committed predecessor to compare). The proof:
+Moving the helpers out of `deck-101.js` must not change Deck 101, and the same proof covers Deck 201 and Deck 301 (substitute `201` or `301` and its file name). The proof:
 
 ```bash
 node deck-101.js                       # rebuild in place
@@ -87,7 +86,7 @@ unzip -q -d old old.pptx
 diff -rq old new                       # only docProps/core.xml may differ
 ```
 
-Run the commands from `presentation/`; the unzip targets can sit in any scratch directory. Both Deck 101 trees hold 342 parts and both Deck 201 trees 255;
+Run the commands from `presentation/`; the unzip targets can sit in any scratch directory. Both Deck 101 trees hold 342 parts, both Deck 201 trees 255 and both Deck 301 trees 237;
 `docProps/core.xml` differs only in its `created` and `modified` timestamps.
 After the proof, `git checkout` restores the committed `.pptx`, so its bytes do
 not change and a refactor commit holds only code. Re-run the proof whenever
@@ -96,7 +95,7 @@ not change and a refactor commit holds only code. Re-run the proof whenever
 ## Figures
 
 `render-png.sh` renders `diagrams/<NN>-*.svg` to `png/` at width 1600. With no
-arguments it renders all three decks' lists (101: eleven figures; 201: five;
+arguments it renders all three decks' lists (101: six figures; 201: five;
 301: two, figures 33 and 40); `--deck 101`, `--deck 201` or `--deck 301` selects one list, and figure numbers on the
 command line override both. Run
 `./render-png.sh --check` to render into a temporary directory and compare each

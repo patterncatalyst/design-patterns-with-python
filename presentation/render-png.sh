@@ -7,8 +7,8 @@
 #   ./render-png.sh --deck 101|201|301  use that deck's figure list (add --check
 #                                       to compare instead of write)
 #
-# With no figure numbers it uses all three decks' lists together: the eleven
-# figures of Deck 101, the five of Deck 201 and the two of Deck 301 (eighteen in
+# With no figure numbers it uses all three decks' lists together: the six
+# figures of Deck 101, the five of Deck 201 and the two of Deck 301 (thirteen in
 # all).
 # cairosvg runs through `uv run --no-project`: it is never added to the
 # workspace, and nothing is installed globally.
@@ -20,7 +20,7 @@ CAIROSVG="2.9.1"
 WIDTH=1600
 
 # Per-deck figure lists. Keep each in step with the figures its builder uses.
-figs_101=(05 06 12 13 14 16 19 21 22 23 25)
+figs_101=(05 06 12 19 21 25)
 figs_201=(07 09 10 31 37)
 figs_301=(33 40)
 

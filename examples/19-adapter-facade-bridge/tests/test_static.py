@@ -126,3 +126,4 @@ def test_mypy_reports_an_implementor_missing_a_primitive(tmp_path: Path) -> None
     assert status == 1
     assert _codes(stdout) == {"assignment"}
     assert "protocol member" in stdout
+    assert "note:     insure" in stdout

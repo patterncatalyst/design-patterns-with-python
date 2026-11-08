@@ -12,7 +12,7 @@ const { COLOR, FONT, W, ASSETS, newDeck, addContentTitle } = H;
 const OUT = "design-patterns-with-python-101-patterns-and-solid.pptx";
 
 const pres = newDeck();
-pres.title = "Design Patterns with Python: 101, Patterns and SOLID";
+pres.title = "Design Patterns with Python: 101, Patterns and SOLID in Python";
 pres.subject = "Companion deck to Design Patterns with Python";
 pres.author = "PatternCatalyst";
 pres.company = "PatternCatalyst";
@@ -55,7 +55,7 @@ const { S, divider, bullets, bulletSlide, tableSlide, codeSlide, figSlide, notes
 // ===========================================================================
 {
   const s = S();
-  addContentTitle(s, "ROUTE", "The route");
+  addContentTitle(s, "SECTIONS", "Nine sections");
   const left = [
     ["Why patterns:", " a pattern as a decision made under forces."],
     ["What 1994 assumed:", " the sort into dissolves, survives and shares a name."],
@@ -71,14 +71,14 @@ const { S, divider, bullets, bulletSlide, tableSlide, codeSlide, figSlide, notes
   ];
   bullets(s, left, { w: 5.95, fontSize: 16, gap: 10 });
   bullets(s, right, { x: 6.85, w: 5.86, fontSize: 16, gap: 10 });
-  notes(s, `The deck runs in nine sections. Why patterns and What 1994 assumed set up the question: what a pattern is, and what changed between 1994 and Python 3.15. SOLID in Python treats the principles as the forces the catalogue's patterns answer. Four sections walk the catalogue by what a pattern does: selecting behaviour, creating objects, composing structure, coordinating and traversing. Choosing well turns the catalogue back into a judgement about when to leave a pattern out, and Reference gives the versions, sources and reading. What to show: nothing needs running here. Fallback: each bullet names a section and its subject.`, 90, "route");
+  notes(s, `Nine sections make up Patterns and SOLID in Python. Why patterns and What 1994 assumed set up the question: what a pattern is, and what changed between 1994 and Python 3.15. SOLID in Python treats the principles as the forces the catalogue's patterns answer. Four sections walk the catalogue by what a pattern does: selecting behaviour, creating objects, composing structure, coordinating and traversing. Choosing well turns the catalogue back into a judgement about when to leave a pattern out, and Reference gives the versions, sources and reading. What to show: nothing needs running here. Fallback: each bullet names a section and its subject.`, 90, "route");
 }
 
 // ===========================================================================
 // Section: Why patterns
 // ===========================================================================
 divider("01", "Why patterns", "A decision made under forces",
-  `A pattern is easier to judge once it is seen as a decision. A problem arrives with competing forces, a shape resolves them, and the shape has a cost that is paid whether or not the benefit turns up. The code in the deck was held to a standard before any of it reached a slide: it ran under a linter, a formatter, a strict type checker and a test suite.`);
+  `A pattern is easier to judge once it is seen as a decision. A problem arrives with competing forces, a shape resolves them, and the shape has a cost that is paid whether or not the benefit turns up. Every listing was held to a standard before it reached a slide: it ran under a linter, a formatter, a strict type checker and a test suite.`);
 
 bulletSlide("WHY PATTERNS", "Decisions under forces", [
   ["A pattern", " answers a problem in a context, and the problem is a set of forces pulling against each other."],

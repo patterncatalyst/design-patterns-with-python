@@ -27,9 +27,10 @@ Adapter.
 
 Facade.
 
-- `desk.ship` is one call that picks the gateway from a read-only `frozendict`, chooses
-  `StandardBooking` or `InsuredBooking`, and turns an unknown code into `UnknownCarrierError`.
-  `desk.__all__` and the type hints of its functions name no type from `sdks`.
+- `desk.ship` is one call that picks the gateway from the registry it is given
+  (`default_gateways()` returns a read-only `frozendict`), chooses `StandardBooking` or
+  `InsuredBooking`, and turns an unknown code into `UnknownCarrierError`. `desk.__all__` and the
+  type hints of its functions name no type from `sdks`.
 - `_book_by_branching`, a fixture, is the caller that branches on the carrier code. It sends the
   kilogram figure as pounds, so a 10 kg consignment books as 10 lb.
 
@@ -72,28 +73,39 @@ uv run mypy --strict src tests
 
 `tests/test_adapter.py`
 
-- `test_a_client_whose_shape_matches_needs_no_adapter`: the Airco client sits in the registry unwrapped and books.
-- `test_the_fastline_adapter_translates_the_booking_call`: both adapter forms send `{"ref": "CN-1", "weight_lb": "22.05"}`.
-- `test_a_class_adapter_still_exposes_the_clients_own_methods`: `submit_shipment` is on the class adapter and not on `FastlineGateway`.
-- `test_weight_converts_between_kilograms_and_pounds_exactly`: one pound is the exact factor, and 10 kg reads 22.05 lb.
-- `test_a_pounds_api_called_with_kilograms_books_the_wrong_weight`: the branching caller sends "10", which reads back as 4.54 kg.
-- `test_an_unknown_carrier_is_refused_at_the_desk`: `UnknownCarrierError` with the original `KeyError` suppressed.
-- `test_the_desk_registry_is_read_only`: item assignment raises `TypeError` and the registry isn't a `dict`.
+- `test_a_client_whose_shape_matches_needs_no_adapter`: the Airco client sits in the registry
+  unwrapped and books.
+- `test_the_fastline_adapter_translates_the_booking_call`: both adapter forms send
+  `{"ref": "CN-1", "weight_lb": "22.05"}`.
+- `test_a_class_adapter_still_exposes_the_clients_own_methods`: `submit_shipment` is on the
+  class adapter and not on `FastlineGateway`.
+- `test_weight_converts_between_kilograms_and_pounds_exactly`: one pound is the exact factor,
+  and 10 kg reads 22.05 lb.
+- `test_a_pounds_api_called_with_kilograms_books_the_wrong_weight`: the branching caller sends
+  "10", which reads back as 4.54 kg.
+- `test_an_unknown_carrier_is_refused_at_the_desk`: `UnknownCarrierError` with the original
+  `KeyError` suppressed.
+- `test_the_desk_registry_is_read_only`: item assignment raises `TypeError` and the registry
+  isn't a `dict`.
 - `test_a_consignment_weight_must_be_positive_and_finite`: zero, negative and NaN.
 
 `tests/test_facade.py`
 
-- `test_ship_books_each_carrier_through_one_call`: the booking and what each SDK recorded, for both carriers.
+- `test_ship_books_each_carrier_through_one_call`: the booking and what each SDK recorded, for
+  both carriers.
 - `test_the_desk_names_no_sdk_type_in_its_public_surface`: `__all__` and the resolved type hints.
 - `test_a_carrier_rejection_becomes_a_carrier_error`: the cause is the `FastlineRejectedError`.
 
 `tests/test_bridge.py`
 
-- `test_every_booking_kind_works_with_every_carrier`: bridge and class-per-pair, two kinds, two carriers.
+- `test_every_booking_kind_works_with_every_carrier`: bridge and class-per-pair, two kinds, two
+  carriers.
 - `test_the_class_per_pair_design_needs_a_class_for_every_kind_and_carrier`: an `ast` count.
-- `test_an_insured_booking_records_the_declared_value_with_the_carrier`: Airco's `insure` record and Fastline's cover in cents.
+- `test_an_insured_booking_records_the_declared_value_with_the_carrier`: Airco's `insure` record
+  and Fastline's cover in cents.
 - `test_an_insured_booking_without_a_declared_value_is_a_booking_error`: zero and negative.
-- `test_a_new_booking_kind_needs_no_gateway_change`: a booking kind defined in the test books and insures through both real gateways.
+- `test_a_new_booking_kind_needs_no_gateway_change`: a booking kind defined in the test books
+  and insures through both real gateways.
 
 `tests/test_static.py`
 
@@ -101,7 +113,8 @@ uv run mypy --strict src tests
 - `test_mypy_rejects_a_client_with_a_different_shape`: `[assignment]` for `FastlineClient`.
 - `test_mypy_cannot_see_pounds_passed_as_kilograms_through_a_float`: clean (a reduced model).
 - `test_mypy_rejects_a_float_where_a_weight_belongs`: `[assignment]`, with `Weight` in the output.
-- `test_mypy_reports_an_implementor_missing_a_primitive`: `[assignment]`, naming the protocol member.
+- `test_mypy_reports_an_implementor_missing_a_primitive`: `[assignment]`, naming the protocol
+  member.
 
 Classes and functions named with a leading underscore in `tests/conftest.py` are test fixtures
 and aren't part of the model code.

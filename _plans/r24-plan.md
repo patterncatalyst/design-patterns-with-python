@@ -430,7 +430,7 @@ Build, from `<repo>/presentation`: `npm ci`; `./render-png.sh --deck 301`; `node
 | D4a | QA pipeline steps 1 to 12 (executor view of every page); `_plans/evidence/r24-deck-qa.md`; README "Companion decks" entry | D3 | done |
 | D4b | Voice pass on `deck-301.js` and the extracted text: ban tier, `--stats`, the house-voice rubric, the step 8 greps; rebuild and re-run steps 3 to 10 | D4a | done |
 | D5 | Opus validation: two independent page viewers (step 12); every witness row checked and at least one in three re-run; the excerpt check against each source; `validate.py --claims`; the boundary check against both earlier decks; rows 430 to 436 added and closed; up to two repair rounds, each followed by the confirmation pass (step 14) | D4b | done |
-| D6 | PR, `ci-ok` green, ask the owner before merge; squash-merge; tag `r24.x` on main; notes-only release | D5 | todo |
+| D6 | PR, `ci-ok` green, ask the owner before merge; squash-merge; tag `r24.x` on main; notes-only release | D5 | done |
 
 ## Reconciliation rows
 
@@ -551,3 +551,6 @@ Rows 399 to 429 go in at D2, after the census exists (so its `run:` path resolve
 - **Figures out of every deck.** List figures excluded by legibility (26 to 30, 32, 35, 36, 39) and by the census, and decide whether any is worth a spec change for the book's own sake; no deck depends on it.
 - **Link drift.** A repo-wide pass for `/3/` and `/latest/` documentation links (r23 P10, r24 P21).
 - **Cards.** After P20, a repo-wide reading of the 47 cards against their READMEs.
+- 2026-11-08 (BK1, r25 C0): D6 is `done`. PR #25 was squash-merged as e32dea5, tagged `r24.x` and released as "r24.x: Deck 301", notes-only. The record of the validation rounds: the confirmation of repair round 1 is in `_plans/evidence/r24-deck-qa.md`; repair round 2 applied the confirmation's strings verbatim and "Every gate was re-run", with no confirmation after it.
+- 2026-11-08 (BK3, r25 C0): decision 8's sidebar count is wrong. The plan says "`11.md:228` and 19 pattern-chapter sidebars"; `grep` over the docs gives 18 chapters (5 to 22) that open by describing what an assistant writes, so the pattern-chapter count is 18 (record correction only; the text above is unchanged).
+- 2026-11-08 (BK4, r25 C0): evidence H's "floor 6.3 pt, Deck 101's smallest accepted figure" is wrong as a claim about Deck 101. Deck 101 shows figures 19 and 21 at 5.86 pt and figure 25 at 6.32 pt (measured from the SVGs and the committed slides' `a:ext`), so 6.3 pt was the floor r24 applied to Deck 301, not Deck 101's minimum. The decks don't change (r25 decision 5).

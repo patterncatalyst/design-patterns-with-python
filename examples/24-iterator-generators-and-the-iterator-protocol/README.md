@@ -44,7 +44,8 @@ Static checks.
 
 ## Layout
 
-- `src/iterator_protocol/domain.py`: `ConsignmentId`, `HandlingKind`, `HandlingEvent`, `TrackingHistory`.
+- `src/iterator_protocol/domain.py`: `ConsignmentId`, `HandlingKind`, `HandlingEvent`,
+  `TrackingHistory`.
 - `src/iterator_protocol/paging.py`: `pages`, `page`, `out_of_order`, `events_of`.
 - `src/iterator_protocol/reading.py`: `Opener`, `open_utf8`, `TrackingLogError`, `events_from`,
   `read_events`.
@@ -68,9 +69,14 @@ uv run mypy --strict src tests
 
 `tests/test_protocol.py`
 
-- `test_a_traversal_visits_every_event_in_order`, `test_an_empty_history_yields_nothing`: both history forms.
-- `test_a_tracking_history_can_be_walked_twice`, `test_nested_walks_of_a_tracking_history_are_independent`: nine pairs from three events.
-- `test_a_self_iterating_history_is_empty_on_the_second_pass`, `test_a_self_iterating_history_cuts_a_nested_walk_short`: two pairs, not nine.
+- `test_a_traversal_visits_every_event_in_order`: both history forms yield the three events in
+  order.
+- `test_an_empty_history_yields_nothing`: both history forms give `[]` for no events.
+- `test_a_tracking_history_can_be_walked_twice`: two walks give equal lists of three events.
+- `test_nested_walks_of_a_tracking_history_are_independent`: a nested walk gives nine pairs from
+  three events.
+- `test_a_self_iterating_history_is_empty_on_the_second_pass`: the second `list` is `[]`.
+- `test_a_self_iterating_history_cuts_a_nested_walk_short`: a nested walk gives two pairs, not nine.
 - `test_an_exhausted_generator_looks_empty`: `list` then `[]`, and `sum` 0.
 - `test_iter_of_an_iterator_is_the_iterator_itself`: and a history gives a new iterator each time.
 - `test_a_class_with_only_next_is_not_iterable`: `TypeError`.
@@ -81,17 +87,22 @@ uv run mypy --strict src tests
 - `test_the_first_page_reads_only_one_page`: 3 events pulled.
 - `test_an_eager_list_reads_every_event_to_get_the_first_page`: 1,000,000 pulled.
 - `test_pages_keep_a_short_last_page`, `test_a_page_size_below_one_is_refused`.
-- `test_page_reads_only_up_to_the_page_it_returns`, `test_page_numbers_start_at_one`, `test_a_page_past_the_end_is_empty`.
-- `test_out_of_order_finds_an_event_that_steps_back_in_the_lifecycle`, `test_out_of_order_is_empty_for_fewer_than_two_events`.
-- `test_events_of_starts_each_history_only_when_the_last_is_done`: the second source has produced nothing.
+- `test_page_reads_only_up_to_the_page_it_returns`, `test_page_numbers_start_at_one`,
+  `test_a_page_past_the_end_is_empty`.
+- `test_out_of_order_finds_an_event_that_steps_back_in_the_lifecycle`,
+  `test_out_of_order_is_empty_for_fewer_than_two_events`.
+- `test_events_of_starts_each_history_only_when_the_last_is_done`: the second source has
+  produced nothing.
 
 `tests/test_reading.py`
 
 - `test_read_events_parses_each_line`, `test_a_malformed_line_is_refused_with_its_number`.
 - `test_yield_from_hands_the_line_count_to_the_caller`, `test_list_drops_a_generators_return_value`.
 - `test_a_reader_never_started_opens_no_file`, `test_closing_a_reader_closes_its_file`.
-- `test_breaking_out_of_a_loop_leaves_a_named_reader_open`, `test_contextlib_closing_closes_the_reader_at_the_end_of_the_block`.
-- `test_an_abandoned_reader_closes_its_file_when_collected`: deletes the name and collects explicitly.
+- `test_breaking_out_of_a_loop_leaves_a_named_reader_open`,
+  `test_contextlib_closing_closes_the_reader_at_the_end_of_the_block`.
+- `test_an_abandoned_reader_closes_its_file_when_collected`: deletes the name and collects
+  explicitly.
 
 `tests/test_static.py`
 

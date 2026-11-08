@@ -93,7 +93,7 @@ uv run mypy --strict src tests
 
 - `test_mypy_types_a_metaclass_singleton_call_by_init`: clean for a second call, `[call-arg]` for a missing one.
 - `test_mypy_accepts_borg_state_unless_the_class_has_slots`: clean, then `[misc]`.
-- `test_mypy_still_checks_attributes_through_a_lazy_import`: `[attr-defined]` with a suggestion.
+- `test_mypy_still_checks_attributes_through_a_lazy_import`: `[attr-defined]` with a suggestion, and `[no-any-return]`.
 
 Classes named with a leading underscore in the test modules are test fixtures and aren't part of
 the model code. The metaclass and Borg snippets in `test_static.py` are reduced models of the

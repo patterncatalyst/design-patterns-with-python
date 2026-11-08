@@ -76,7 +76,7 @@ def book_with(code: str, consignment: Consignment) -> str:
     return gateway.book(consignment)
 ```
 
-The unguarded call, `find_gateway(code).book(c)`, is rejected, as the chapter titled [What 1994 assumed, and what Python dissolves]({{ '/docs/02-what-1994-assumed-and-python-dissolves/' | relative_url }}) shows. `test_mypy_requires_a_branch_for_absence` runs five snippets through `mypy --strict`: the unguarded one gets `[union-attr]`, and a walrus, a `match` with `case None`, an early return and an `assert` are all clean. The `assert` has a catch the others don't. The [reference for the `assert` statement](https://docs.python.org/3/reference/simple_stmts.html#the-assert-statement) says: "The current code generator emits no code for an assert statement when optimization is requested at compile time." Under `python -O` the check disappears and the `None` reaches the attribute access. Use an explicit branch where the check must survive.
+The unguarded call, `find_gateway(code).book(c)`, is rejected, as the chapter titled [What 1994 assumed, and what Python dissolves]({{ '/docs/02-what-1994-assumed-and-python-dissolves/' | relative_url }}) shows. `test_mypy_requires_a_branch_for_absence` runs five snippets through `mypy --strict`: the unguarded one gets `[union-attr]`, and a walrus, a `match` with `case None`, an early return and an `assert` are all clean. The `assert` has a catch the others don't. The [reference for the `assert` statement](https://docs.python.org/3.15/reference/simple_stmts.html#the-assert-statement) says: "The current code generator emits no code for an assert statement when optimization is requested at compile time." Under `python -O` the check disappears and the `None` reaches the attribute access. Use an explicit branch where the check must survive.
 
 `test_book_with_turns_absence_into_a_booking_error` shows the guard doing its job: an unknown code raises `BookingError` with `unknown carrier 'UNKNOWN'`, at the lookup, with the code in the message.
 
@@ -159,7 +159,7 @@ Choose a callback Protocol over a `Callable[[Consignment], Money]` alias when th
 
 ## Protocol or ABC: two mechanisms, one word
 
-"Interface" needs disambiguating: the word covers two mechanisms, and they check at different times. A Protocol is structural and is checked where the value is passed. An ABC, from the [`abc` module](https://docs.python.org/3/library/abc.html), is nominal: a class declares that it inherits, the abstract methods must be filled in, and the check happens when an instance is built. An ABC can also carry shared code.
+"Interface" needs disambiguating: the word covers two mechanisms, and they check at different times. A Protocol is structural and is checked where the value is passed. An ABC, from the [`abc` module](https://docs.python.org/3.15/library/abc.html), is nominal: a class declares that it inherits, the abstract methods must be filled in, and the check happens when an instance is built. An ABC can also carry shared code.
 
 ```python
 class CarrierBase(ABC):
@@ -205,7 +205,7 @@ On 3.15 there is a deprecation. The [What's New in Python 3.15](https://docs.pyt
 A Protocol with one implementation and no substitute is ceremony: the class is the contract. An ABC hierarchy for classes that share no code adds a base nobody uses. A `| None` threaded through ten signatures costs ten branches where one guard at the boundary would do, as `book_with` does for the lookup. A sentinel where `None` already means "absent" adds a name and a third branch for no distinction.
 
 <blockquote class="ai-sidebar" markdown="1">
-**Reviewing assistant-written interfaces.** An assistant may add a `NullGateway` that returns empty values, inherit from a Protocol to implement it, or treat `isinstance` on a runtime-checkable Protocol as a signature check. Paste a prompt that states the form:
+**Specifying an interface.** "Write the carrier interface" leaves open what a missing gateway returns, how a class satisfies the Protocol and what an `isinstance` check can tell. Paste a prompt that states the form:
 
 > Return `CarrierGateway | None` from `find_gateway` and narrow it once, at the boundary, with an explicit branch, because `assert` vanishes under `-O`. Satisfy `CarrierGateway` by shape, with no Protocol in the bases. Keep a do-nothing object only where doing nothing is correct, as `no_discount` is. Use a `sentinel` when `None` is a valid argument. Mark callback Protocol parameters positional-only with `/`. Leave signature checks to `mypy --strict`, not `@runtime_checkable`.
 

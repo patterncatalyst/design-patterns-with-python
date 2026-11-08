@@ -201,7 +201,7 @@ A two-state flag is a `bool`. A lifecycle that nothing ever checks, because noth
 
 <blockquote class="ai-sidebar" markdown="1">
 
-**Reviewing assistant-written state machines.** Asked for "the State pattern", an assistant may propose a class per status with a method per event, a mutable `status` field, or a `match` whose last arm raises for anything else. Paste a prompt that states the form:
+**Specifying a state machine.** "The State pattern" leaves open whether the lifecycle is classes, a mutable field or a table, and what happens to a status that has no arm. Paste a prompt that states the form:
 
 > Write the lifecycle as `TRANSITIONS`, a read-only `frozendict` from `(ConsignmentStatus, HandlingKind)` to the next status, and raise `TransitionError`, naming both halves, for an absent pair. Where states carry data, make them frozen dataclasses in a union and write `apply_event` as a `match` on the state with an arm per state and `assert_never` last, no wildcard. Pass a `random.Random` in for delays. Test that every status is reachable and `DELIVERED` is terminal.
 
@@ -319,6 +319,6 @@ mypy reports success, because the entry is well typed. Four tests fail. `test_de
 
 ## For deeper coverage
 
-*Design Patterns* (Gamma, Helm, Johnson and Vlissides) is the source for State. The language references are the [`typing` documentation](https://docs.python.org/3/library/typing.html) for `assert_never`, the typing guide on [unreachable code and exhaustiveness checking](https://typing.python.org/en/latest/guides/unreachable.html), [PEP 634](https://peps.python.org/pep-0634/) and [PEP 636](https://peps.python.org/pep-0636/) for structural pattern matching, [PEP 814](https://peps.python.org/pep-0814/) for `frozendict`, and the [`random`](https://docs.python.org/3/library/random.html) documentation on reproducibility.
+*Design Patterns* (Gamma, Helm, Johnson and Vlissides) is the source for State. The language references are the [`typing` documentation](https://docs.python.org/3.15/library/typing.html) for `assert_never`, the typing guide on [unreachable code and exhaustiveness checking](https://typing.python.org/en/latest/guides/unreachable.html), [PEP 634](https://peps.python.org/pep-0634/) and [PEP 636](https://peps.python.org/pep-0636/) for structural pattern matching, [PEP 814](https://peps.python.org/pep-0814/) for `frozendict`, and the [`random`](https://docs.python.org/3.15/library/random.html) documentation on reproducibility.
 
-Luciano Ramalho's *Fluent Python*, second edition, has the chapter "with, match, and else Blocks" on `match`. Both books are in the hub's list and on the [bibliography page]({{ '/bibliography/' | relative_url }}).
+Luciano Ramalho's *Fluent Python*, second edition, has the chapter "with, match, and else Blocks" on `match`. Both books are on the [bibliography page]({{ '/bibliography/' | relative_url }}).

@@ -39,7 +39,7 @@ filterwarnings = ["error"]
 
 The excerpt leaves out `testpaths`, the line that lists the directories holding the tests.
 
-Four of its settings refuse what pytest's defaults let through. Each has a test that runs an inner session with the setting and without it. Three assert the exact outcome counts of both runs; the `--strict-config` test asserts the usage-error exit status and the message that names the option.
+Four of its settings refuse what pytest's defaults let through. Each has a test that runs an inner session with the setting and without it. Three assert the outcome counts of both runs; the `--strict-config` test asserts the usage-error exit status and the message that names the option.
 
 | Setting | Without it | With it | Witness |
 | --- | --- | --- | --- |
@@ -159,7 +159,7 @@ In the stacked test the decorator nearest the function names the weight, and the
 | `capsys` | `pytest.CaptureFixture[str]` | what `write_quotes` writes to `sys.stdout` is captured | `test_capsys_captures_what_the_report_writes` |
 | `caplog` | `pytest.LogCaptureFixture` | the INFO record of `quote`, read from `caplog.messages` | `test_caplog_records_the_quote_message` |
 | `monkeypatch` | `pytest.MonkeyPatch` | `setenv`, `delenv` and `context()` restore the environment; `setattr` refuses a misspelt name; `raising=False` creates a name nothing reads | `test_validity_reads_the_environment_and_the_context_restores_it`, `test_monkeypatch_refuses_a_misspelt_name`, `test_monkeypatch_with_raising_false_creates_a_name_nothing_reads`, `test_monkeypatch_undoes_its_changes_when_the_context_ends` |
-| `pytester` | `pytest.Pytester` | an inner session with exact outcome counts | the tests in the sections above |
+| `pytester` | `pytest.Pytester` | an inner session whose outcome counts, node ids or exit status the test asserts | the tests in the sections above |
 
 `write_quotes` looks up `sys.stdout` when it's called, which is what lets `capsys` see it. Rewriting the signature as `out: TextIO = sys.stdout` fails the test, because the default is bound at import, before `capsys` replaces the stream. The test also passes an `io.StringIO` as `out` and finds the text there.
 
@@ -193,7 +193,7 @@ If `rate_batch` raised the first failure alone, this test would fail, because th
 
 ## Command-line options
 
-Six options have a test. Each runs an inner session and asserts exact outcome counts or node ids.
+Six options have a test. Each runs an inner session and asserts the outcome counts, the node ids or the exit status.
 
 | Option | What it does | Witness |
 | --- | --- | --- |

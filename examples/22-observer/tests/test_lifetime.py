@@ -1,6 +1,7 @@
-"""Every test builds its subscriber in a helper or deletes every name that refers to it, then
-collects explicitly before asserting. CPython usually frees an object at its last reference, but
-the language promises no immediate finalisation, and a reference cycle waits for the collector."""
+"""Every test that asserts a subscriber was dropped or kept alive builds it in a helper or deletes
+every name that refers to it, then calls ``gc.collect()`` before asserting. CPython usually frees
+an object at its last reference, but the language promises no immediate finalisation, and a
+reference cycle waits for the collector."""
 
 import gc
 import weakref
