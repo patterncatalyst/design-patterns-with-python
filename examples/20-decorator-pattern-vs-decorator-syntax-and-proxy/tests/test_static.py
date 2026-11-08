@@ -251,6 +251,7 @@ def test_mypy_reports_a_member_missing_from_an_explicit_proxy(tmp_path: Path) ->
     assert status == 1
     assert _codes(stdout) == {"assignment"}
     assert "protocol member" in stdout
+    assert "note:     book" in stdout
 
 
 @pytest.mark.parametrize("name", ["any-typo", "any-wrong-type"])
