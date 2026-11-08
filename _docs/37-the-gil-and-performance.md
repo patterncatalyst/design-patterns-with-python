@@ -139,7 +139,7 @@ A coroutine hands the event loop back at an `await`. This one has none:
 ```
 <!-- fmt:on -->
 
-A second coroutine waits for `started` and then logs "tracking polled". Once `started` is set, tracking could run, and it doesn't until rating returns: the log reads `["rating started", "rating finished", "tracking polled"]` (`test_a_coroutine_that_never_awaits_holds_the_loop_until_it_returns`). Adding an `await asyncio.sleep(0)` before the `quote` call makes the test fail. The [asyncio development guide](https://docs.python.org/3.15/library/asyncio-dev.html) states the rule: "Blocking (CPU-bound) code should not be called directly." It goes on: "For example, if a function performs a CPU-intensive calculation for 1 second, all concurrent asyncio Tasks and IO operations would be delayed by 1 second." The patterns that run on the loop are in [asyncio and the patterns]({{ '/docs/38-asyncio-and-the-patterns/' | relative_url }}).
+A second coroutine waits for `started` and then logs "tracking polled". Once `started` is set, tracking could run, and it doesn't until rating returns: the log reads `["rating started", "rating finished", "tracking polled"]` (`test_a_coroutine_that_never_awaits_holds_the_loop_until_it_returns`). Adding an `await asyncio.sleep(0)` before the `quote` call fails that test: `"tracking polled"` moves to second place in the log. The [asyncio development guide](https://docs.python.org/3.15/library/asyncio-dev.html) states the rule: "Blocking (CPU-bound) code should not be called directly." It goes on: "For example, if a function performs a CPU-intensive calculation for 1 second, all concurrent asyncio Tasks and IO operations would be delayed by 1 second." The patterns that run on the loop are in [asyncio and the patterns]({{ '/docs/38-asyncio-and-the-patterns/' | relative_url }}).
 
 ## What the benchmark measured
 
@@ -194,7 +194,7 @@ waits, asyncio             0.201 s (4.0x)
 The ratio is serial time over pool time, so 3.6x means 3.6 times as fast. A second run of each build agreed with these within about 0.4 on every ratio, and your figures will differ. In these runs:
 
 - On the default build the thread pool ran at 1.0 times serial on both CPU-bound loops, as the threading documentation predicts.
-- On the free-threaded build the integer loop ran at 3.9 times serial in the thread pool, and the `Decimal` loop at 0.5 times, nearly twice as long as serial (1.648 against 0.878 seconds). No cause is claimed for the second result. The how-to says "While not all software will benefit from this automatically, programs designed with threading in mind will run faster on multi-core hardware." Two loops on one build moved in opposite directions, so measure your loop.
+- On the free-threaded build the integer loop ran at 3.9 times serial in the thread pool, and the `Decimal` loop at 0.5 times, nearly twice as long as serial (1.648 against 0.878 seconds). The how-to says "While not all software will benefit from this automatically, programs designed with threading in mind will run faster on multi-core hardware." Two loops on one build moved in opposite directions, so measure your loop.
 - Process and interpreter pools ran at about 3.4 to 3.7 times serial, warm, on both builds. The cold interpreter pool on the short integer loop ran at 1.3 times on the default build and 0.8 times on the free-threaded one, where start-up and shut-down weigh against 0.132 or 0.159 seconds of work.
 - Four waits ran at 4.0 times serial in threads and in asyncio on both builds.
 
@@ -247,7 +247,7 @@ tests/test_stowage.py::test_the_reservations_view_refuses_assignment PASSED [100
 Success: no issues found in 12 source files
 ```
 
-`uv run python bench/gil_bench.py --cpu-class "16-thread x86-64 CPU"` prints the benchmark report; the flag takes a class, never a model. `bench/lost_update_probe.py` takes it too, and its recorded outputs are `bench/lost_update_probe.out.txt` and `bench/lost_update_probe.ft.out.txt`. To run the tests on the free-threaded build, install it and build a second environment from the same lockfile, from the repository root:
+`uv run python bench/gil_bench.py --cpu-class "16-thread x86-64 CPU"` prints the benchmark report. `bench/lost_update_probe.py` takes it too, and its recorded outputs are `bench/lost_update_probe.out.txt` and `bench/lost_update_probe.ft.out.txt`. To run the tests on the free-threaded build, install it and build a second environment from the same lockfile, from the repository root:
 
 ```bash
 uv python install 3.15.2t
