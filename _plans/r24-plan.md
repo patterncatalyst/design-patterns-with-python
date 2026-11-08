@@ -422,7 +422,7 @@ Build, from `<repo>/presentation`: `npm ci`; `./render-png.sh --deck 301`; `node
 | Step | What | Depends | Status |
 | --- | --- | --- | --- |
 | D0 | Bookkeeping with dated notes: `iteration-plan.md` closes r23 (PDP-151 `done`), marks PDP-152 and r24 `active` (K1); the r23 plan's Z6 `done` and its confirmation note (K2); re-check every pin; record the owner's decisions; `verify.sh` and `validate.py` green | - | done |
-| D1a | `render-png.sh` figs_301 and `--deck 301`, `build-notes.md` (K3); V1 in `check_decks()` with a self-test that fails without it; the identity proof for 101 and 201; the two PNGs after D1c's figure fixes | D0, D1c for the PNGs | todo |
+| D1a | `render-png.sh` figs_301 and `--deck 301`, `build-notes.md` (K3); V1 in `check_decks()` with a self-test that fails without it; the identity proof for 101 and 201; the two PNGs after D1c's figure fixes | D0, D1c for the PNGs | done |
 | D1b | `_plans/evidence/r24-deck-witness-census.md`, after D1c, so lines, anchors, counts and the figure census are taken from the fixed tree | D1c | todo |
 | D1c | Decision 5's book fixes P1 to P21, F1 and F2, each with its example's tests, `verify.sh` and `validate.py` green and every recurrence grepped; quoted runs re-captured where counts moved (P4, P5); figures regenerated through `diagrams/specs`; `site-build.sh` green | D0 | done |
 | D2 | Rows 399 to 429 into `_plans/reconciliation-plan.md` with a dated note; every quote, line or test that differs from this plan goes in Corrections; a failed witness cuts the slide | D1b | todo |
@@ -515,6 +515,7 @@ Rows 399 to 429 go in at D2, after the census exists (so its `run:` path resolve
 - **Orphaned processes.** `pgrep -f soffice` matches itself. Mitigation: `pgrep -x soffice.bin`.
 
 ## Corrections after the build
+- Step D1a (part 2): the orchestrator rendered `png/33-seams-in-python.png` (1600x957) and `png/40-working-with-ai-and-llm-tools.png` (1600x833) from the D1c SVGs and viewed both. Figure 33 now shows the two dashed boxes as unconnected notes, and each figure 40 gate box lists what that gate reports. `render-png.sh --check` prints `same` for all 18 figures.
 - Step D1a (part 1): `render-png.sh` gains `figs_301=(33 40)` and `--deck 301` (the default list is now 18 figures). `build-notes.md` covers Deck 301 and the identity proof for both earlier decks (101: 342 parts; 201: 255 parts; only the `core.xml` timestamps differ). V1: `DECK_BOOK_RE` is now `\b(the|this) book('s)?\b`, with an "as this book says" self-test; reverting the regex makes `--self-test` fail. Commit 9e5c08c. The two 301 PNGs follow D1c.
 - Step D1c: P1 to P21, F1 and F2 are applied (6a9b430).
   - P5 follows O2: six sentences, plus the conftest docstring, now cite only experiment three, and chapter 11's counts are unchanged.
