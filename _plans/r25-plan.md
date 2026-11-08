@@ -394,13 +394,13 @@ C1a and C1b run first, alone, because they touch many files mechanically. Then C
 | C0 | Bookkeeping with dated notes: BK1 to BK5; record the owner's decisions; re-check every pin; decision 11's `bundle lock --update` in the container and a site build; `verify.sh` and `validate.py` green | - | done |
 | C1a | Validator and CLAUDE.md: VA1, VA2, VA4 (and VA3 after C1b); CLAUDE.md's sidebar, spine (decision 8) and dated notes (decision 7); every new check has a self-test that fails without it; `--self-test` green | C0 | done |
 | C1b | The mechanical link pass LK1 to LK5, with the reconciliation `source:` tokens moved in the same commit by the orchestrator; the link sweep re-run; `validate.py --claims` green | C0 | done |
-| C2a | Docs 00 to 13 (group table) | C1a, C1b | todo |
-| C2b | Docs 14 to 30 | C1a, C1b | todo |
-| C2c | Docs 31 to 40 | C1a, C1b | todo |
-| C2d | Docs 41 to 46 | C1a, C1b | todo |
-| C2e | Example code and tests: TS1, TS2, docstring items; three runs and a reverse run per changed member | C1a | todo |
-| C2f | Site chrome, CSS figure breakout, README Status; screenshots | C1a | todo |
-| C2g | Cards and READMEs (CD), decks DK1 to DK6 and FG2 with QA pipeline step 6 | C1a | todo |
+| C2a | Docs 00 to 13 (group table) | C1a, C1b | done |
+| C2b | Docs 14 to 30 | C1a, C1b | done |
+| C2c | Docs 31 to 40 | C1a, C1b | done |
+| C2d | Docs 41 to 46 | C1a, C1b | done |
+| C2e | Example code and tests: TS1, TS2, docstring items; three runs and a reverse run per changed member | C1a | done |
+| C2f | Site chrome, CSS figure breakout, README Status; screenshots | C1a | done |
+| C2g | Cards and READMEs (CD), decks DK1 to DK6 and FG2 with QA pipeline step 6 | C1a | done |
 | C3a | Whole-book quoted-output re-run in a fresh copy after C2a to C2e; mismatches returned to the doc owner and fixed | C2a to C2e | todo |
 | C3b | Integration: every gate (QA step 2), the link sweep, the legibility check, `site-build.sh`; evidence file brought up to date | C3a, C2f, C2g | todo |
 | C4a | Reconciliation: the 32 legacy rows re-witnessed (decision 6), VA5, rows 437 onward added with resolving tokens | C3b | todo |
@@ -472,6 +472,43 @@ Row 30's deepcopy claim (VO6) gets a row at C4a only if TS2 adds its test. A def
   - **CLAUDE.md:** the sidebar rule, the spine (decision 8), and dated notes for decision 7 and O2.
   - The new checks flag Deck 101 notes 2 and 3 ("the deck"), which are DK2 and fixed at C2g. Until then `validate.py` shows those 2 errors.
   - **Incident:** C1a ran `git stash` in the shared tree and briefly took C1b's uncommitted edits. The pop restored them, and C1b re-applied one lost token move. Parallel briefs now forbid `git stash` and `git checkout` of files an agent doesn't own.
+- VA3: done in 2f47474. `check_link_forms()` runs over the reader files. It refuses `docs.python.org/3/`, `/latest/` outside `typing.python.org`, and `oreilly.com/library/view/-/`. Its self-test fails when the check is disabled, and the tree is clean after C1b.
+- Step C2a: done in 9722376.
+  - SB1 to SB9 (docs 05 to 13) have "Specifying X" lead-ins and openings that say what the request leaves open; the prompts and review lines are untouched.
+  - VO3: "the hub" is removed from 06, 07, 08, 10 and 13.
+  - VO4: `02.md` lines 28, 126 and 150 are narrowed to named tests, with `importlib.reload` as the second-instance witness in example 33.
+  - Skipped under O1: VO1, the VO5 wording, and the VO9 nits. VO5's factual claims were checked and hold.
+- Step C2b: done in a311eda.
+  - SB10 to SB18 (docs 14 to 22) were reworded the same way.
+  - "The hub" is removed from 14 to 28 and 30.
+  - `30.md:120` cites `test_deepcopy_fails_with_a_type_error_when_the_loader_answers_every_name`, which was added by C2e as TS2 (C2b read it in the shared tree before C2e committed).
+  - Skipped under O1: VO1, the VO6 lead sentences, and the VO9 reading.
+- Step C2c: done in 92396c3.
+  - VO3: "the hub" is removed from 31.
+  - VO7: 37's `sleep(0)` sentence was re-run in a fresh copy (the test fails with "tracking polled" at index 1) and now names the test and the result. The "No cause is claimed" and "never a model" clauses are cut.
+  - VO1 was skipped under O1.
+  - Incident: C2c used `git pull --rebase --autostash`, which briefly stashed the others' edits. Nothing was lost (checked by each owner).
+- Step C2d: done in fde2113.
+  - QO1: `41.md:43` now reads 55 distributions to 13, with 42 workspace members (41 examples plus `spikes/feature-spikes`), re-run in a fresh copy.
+  - CD1: `42.md` lines 42, 162 and 196 are narrowed to the counts, node ids or exit status that the tests assert.
+  - VO2 and VO8 were skipped under O1.
+- Step C2e: done in fe60751.
+  - TS1: a parameter table with explicit ids; chapter 5's quoted run is unchanged.
+  - TS2: a new `deepcopy` `TypeError` test, which moves the `30.md:223`/`:225` quoted `test_lookup.py` lines 195 and 218 to 201 and 224 (C3a re-captures them).
+  - TS3 and TS4: the missing member's name is asserted (`note:     insure`, `note:     book`), and each was seen failing on a draft that omits a different member.
+  - CD10 and CD13: the docstrings.
+  - Members 05, 19, 20, 21, 22 and 30 were run three times forward and once in reverse, with `mypy --strict`, in a fresh copy.
+  - The decision 9 kept branches (`test_patching.py`, `test_golden.py`) are recorded in the QA evidence.
+- Step C2f: done in e6ed0ed.
+  - FG1: the figure breakout to the 1080 px container at 900 px and wider, plus an "Open full size" link below 900 px.
+  - A 390 px overflow fix for the header nav and long inline code.
+  - SC1 and SC2 reworded; SC3 adds a README Status section (the terse rewording in progress, with no completion claim).
+  - Screenshots of 25, 31 and 34 at 1280 and 390 px from a fresh-copy build. Not every post-fix view was taken, so C5a re-checks with a measured `scrollWidth`.
+- Step C2g: done in 1b2b899.
+  - CD1 to CD14 fixed in the cards and READMEs (CD7 holds by TS3 and TS4 in fe60751).
+  - DK1 to DK6: Deck 101 slide 2 is "Nine sections", with the `dc:title` and notes 2 and 3 fixed. Deck 301's notes 2 drop "versions". Deck 201 rebuilt identically apart from timestamps, and `render-png.sh --check` reports the same for 13 figures.
+  - FG2: five unused PNGs removed.
+  - `validate.py` 0 errors.
 - Step C1b: done in a5473f7.
   - 155 `/3/` to `/3.15/` rewrites in 40 docs, and none elsewhere. 62 reconciliation `source:` lines moved (73 tokens).
   - 3 O'Reilly canonicals, the 2 chapter 0 roots, the cosmicpython link, and 3 typeshed links pinned to d03a581a (the quote is confirmed at that commit), with their tokens moved.
