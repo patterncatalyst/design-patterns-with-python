@@ -84,11 +84,16 @@ def test_the_static_gate_reports_the_untyped_draft(
     """Credits the rule selection in the gate: dropping ``UP`` leaves only the mypy codes."""
     findings = static_gate(drafts["untyped_factory"])
 
-    assert sorted({f.rule for f in findings}) == [
-        "UP037",
-        "UP045",
-        "no-untyped-call",
-        "no-untyped-def",
+    assert sorted((f.line, f.rule) for f in findings) == [
+        (11, "no-untyped-def"),
+        (16, "no-untyped-def"),
+        (24, "no-untyped-def"),
+        (27, "no-untyped-def"),
+        (30, "no-untyped-def"),
+        (36, "UP037"),
+        (36, "UP045"),
+        (38, "UP037"),
+        (52, "no-untyped-call"),
     ]
 
 

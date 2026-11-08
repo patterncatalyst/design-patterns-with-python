@@ -1,4 +1,4 @@
-"""The legacy engine after two catalogue refactorings, with the same constructor.
+"""The legacy engine after three catalogue refactorings, with the same constructor.
 
 - Replace Magic Literal: ``CENT`` names the quantum the total is rounded to.
 - Extract Function: ``_cheapest`` and ``_with_margin`` hold the choice and the margin that

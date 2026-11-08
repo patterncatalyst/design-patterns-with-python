@@ -30,7 +30,7 @@ Read the figure from the top. The accent box holds the claim, "the engine books 
 
 ## A claim, a witness, and a test you've seen fail
 
-The examples in this book follow one method. A test is named as a claim: `test_book_best_books_only_the_winner` says what the engine does, so a failure reads as a broken sentence. Each claim has a witness, the test that asserts it. A negative fixture is a wrong object, written to be wrong, kept in `tests/` with an underscore prefix and a docstring that starts "Negative fixture:", which shows the failure the claim rules out. A check that was never seen to fail is a guess, so each check is deleted in a scratch copy, and the table of deletions records which named test failed. Every experiment at the end of a chapter changes one thing and quotes the result.
+The examples in this book follow one method. A test is named as a claim: `test_book_best_books_only_the_winner` says what the engine does, so a failure reads as a broken sentence. Each claim has a witness, the test that asserts it. A negative fixture is a wrong object, written to be wrong, kept in `tests/` with an underscore prefix and a docstring that starts "Negative fixture:", which shows the failure the claim rules out. A check that was never seen to fail is a guess, so each check is deleted in a scratch copy, and the experiments record which named test failed. Every experiment at the end of a chapter changes one thing and quotes the result.
 
 ## Fixtures and parametrize
 
@@ -43,7 +43,7 @@ A fixture that needs cleanup uses `yield`. Everything before the `yield` is setu
 ```python
 @pytest.fixture
 def quote_log(tmp_path: Path) -> Iterator[Path]:
-    """A log file for the test; the teardown line is written whether the test passes or fails."""
+    """A log file for the test; after the yield, the teardown appends a line and prints its name."""
     log = tmp_path / "quotes.log"
     log.write_text("setup\n", encoding="utf-8")
     yield log
@@ -52,7 +52,7 @@ def quote_log(tmp_path: Path) -> Iterator[Path]:
     sys.stdout.write(f"quote_log teardown: {log.name}\n")
 ```
 
-The fixtures how-to describes teardown as running after the test finishes, in the reverse of setup order. The docstring makes a stronger claim, that it runs when the test fails, and the experiments at the end check it by making a test fail. `test_quote_validity_comes_from_the_injected_clock` requests `quote_log` and appends a line to it.
+The fixtures how-to describes teardown as running after the test finishes, in the reverse of setup order. Experiment three at the end makes a test fail and shows the line this teardown prints. `test_quote_validity_comes_from_the_injected_clock` requests `quote_log` and appends a line to it.
 
 `pytest.param` gives a parametrized case a name. `test_best_quote_picks_the_cheapest_carrier` takes three cases such as `pytest.param("10.00", "12.00", "fastline", id="fastline-cheaper")`, and the report prints `[fastline-cheaper]` after the test name, not a tuple of strings. A case named after the claim it carries is easier to find when it fails.
 
@@ -69,7 +69,7 @@ Python's `unittest.mock` blurs the lines, because one `Mock` object stands in fo
 | `Mock(spec=CarrierGateway)` | `AttributeError` | accepted | accepted |
 | `create_autospec(CarrierGateway, instance=True)` | `AttributeError` | `TypeError` | accepted |
 
-The `FakeGateway` row is witnessed by `test_a_fake_rejects_unknown_names_and_wrong_signatures`, whose two `# type: ignore` comments name the codes mypy reports. The plain `Mock` row, built inline, plays the negative fixture for the engine's claim. `test_a_plain_mock_passes_an_assertion_on_a_misspelled_method` builds it:
+The `FakeGateway` row is witnessed by `test_a_fake_rejects_unknown_names_and_wrong_signatures`, whose two `# type: ignore` comments name the codes mypy reports. In this example the plain `Mock` row, built inline, plays the part of the negative fixture for the engine's claim; it is not an underscore-prefixed object. `test_a_plain_mock_passes_an_assertion_on_a_misspelled_method` builds it:
 
 ```python
 def test_a_plain_mock_passes_an_assertion_on_a_misspelled_method(
@@ -202,7 +202,7 @@ tests/test_static.py:142: error: Unused "type: ignore" comment  [unused-ignore]
 
 So the ignore is a regression test: it holds for as long as mypy reports the thing the test is about.
 
-The `_run` helper in `test_static.py` is the same idea turned into a function. It writes a `mypy.ini`, calls `mypy.api.run` with `--strict` and no cache, and returns the output and exit status. Each test asserts the status and an exact set of error codes, then one or two substrings of the message. A snippet is checked against the interpreter that runs the test, so the checks are about the Python the suite uses.
+The `_run` helper in `test_static.py` is the same idea turned into a function. It writes a `mypy.ini`, calls `mypy.api.run` with `--strict` and no cache, and returns the output and exit status. Each test asserts the exit status and the exact set of error codes, then either an empty output or the message text it quotes: one substring for the dictionary entry and for `assert_type`, three for the assignment. A snippet is checked against the interpreter that runs the test, so the checks are about the Python the suite uses.
 
 ## Configuration that refuses silence
 
@@ -342,7 +342,7 @@ FAILED tests/test_engine.py::test_quote_validity_comes_from_the_injected_clock
 ======================= 1 failed, 33 deselected in 0.05s =======================
 ```
 
-The `F` is the failing test, and the teardown line follows it before pytest prints the failure report. The code after `yield` ran for a failed test. Remove the line.
+The `F` is the failing test, and the teardown line follows it before pytest prints the failure report. In this run the code after `yield` ran, and printed its line, for the failed test. Remove the line.
 
 **Experiment four: an unregistered marker.** Add `@pytest.mark.slow` above `test_money_orders_by_amount_within_one_currency`. With `--strict-markers` from the root configuration, `uv run pytest -q tests/test_domain.py` fails at collection and no test runs:
 
@@ -365,9 +365,11 @@ FAILED tests/test_domain.py::test_money_orders_by_amount_within_one_currency
 
 Running again with `-o xfail_strict=false` gives `5 passed, 1 xpassed in 0.01s`, and the exit status is 0. A known gap that has quietly been fixed no longer goes unnoticed.
 
-**Experiment six: a deprecation.** Add a test file with a runtime-checkable Protocol, a second Protocol that inherits from it without its own `@runtime_checkable`, and one `isinstance` call against the second. With `filterwarnings = ["error"]` in force:
+**Experiment six: a deprecation.** Add a test file with a runtime-checkable Protocol, a second Protocol, `Narrow`, that inherits from it without its own `@runtime_checkable`, and one assertion, `assert isinstance(object(), Narrow) is False`. With `filterwarnings = ["error"]` in force, `uv run pytest -q tests/test_scratch_warning.py` filtered through `grep -E '^(>|E  |FAILED|[0-9]+ (passed|failed))'` gives:
 
 ```text
+>       assert isinstance(object(), Narrow) is False
+>           warnings.warn(depr_message, category=DeprecationWarning, stacklevel=2)
 E           DeprecationWarning: <class 'examples.11-testing-with-pytest-pytest-mock-and-mypy.tests.test_scratch_warning.Narrow'> isn't explicitly decorated with @runtime_checkable but it is used in issubclass() or isinstance(). Instance and class checks can only be used with @runtime_checkable protocols. This will raise a TypeError in Python 3.20.
 FAILED tests/test_scratch_warning.py::test_isinstance_against_a_protocol_that_inherits_runtime_checkable
 1 failed in 0.04s
@@ -378,7 +380,7 @@ With `-o filterwarnings=default`, the same test prints `1 passed, 1 warning in 0
 ## What you can do now
 
 - Name a test after its claim and show it counts: `test_book_best_books_only_the_winner` fails when experiment one books every carrier.
-- Supply dependencies by name: the `quote_log` fixture cleans up after a failing test (experiment three), and `make_fake` builds each `FakeGateway`.
+- Supply dependencies by name: the `quote_log` fixture prints its teardown line after a failing test (experiment three), and `make_fake` builds each `FakeGateway`.
 - Say what each double checks: the table of four doubles, and `test_mypy_accepts_every_mock_where_a_gateway_is_expected` for the mypy column.
 - Make time and the environment deterministic: the injected clock, and the one test that restores `os.environ` inside `monkeypatch.context()`.
 - Use static tests: `assert_type(quote.total, Money)` and the unused-ignore regression in `test_assert_type_is_static_only`.
@@ -386,6 +388,6 @@ With `-o filterwarnings=default`, the same test prints `1 passed, 1 warning in 0
 
 ## For deeper coverage
 
-The pytest documentation covers the tools in this chapter: [fixtures](https://docs.pytest.org/en/stable/how-to/fixtures.html), [parametrization](https://docs.pytest.org/en/stable/how-to/parametrize.html), [monkeypatch](https://docs.pytest.org/en/stable/how-to/monkeypatch.html), [capturing warnings](https://docs.pytest.org/en/stable/how-to/capture-warnings.html) and the [reference](https://docs.pytest.org/en/stable/reference/reference.html) for configuration options. The [pytest-mock documentation](https://pytest-mock.readthedocs.io/en/latest/) describes the `mocker` fixture, and the standard library's [autospeccing](https://docs.python.org/3/library/unittest.mock.html#autospeccing) section explains what `create_autospec` copies. Typeshed's [`unittest/mock.pyi`](https://github.com/python/typeshed/blob/main/stdlib/unittest/mock.pyi) holds the comment quoted above.
+The pytest documentation covers the tools in this chapter: [fixtures](https://docs.pytest.org/en/stable/how-to/fixtures.html), [parametrization](https://docs.pytest.org/en/stable/how-to/parametrize.html), [monkeypatch](https://docs.pytest.org/en/stable/how-to/monkeypatch.html), [capturing warnings](https://docs.pytest.org/en/stable/how-to/capture-warnings.html) and the [reference](https://docs.pytest.org/en/stable/reference/reference.html) for configuration options. The [pytest-mock documentation](https://pytest-mock.readthedocs.io/en/stable/) describes the `mocker` fixture, and the standard library's [autospeccing](https://docs.python.org/3/library/unittest.mock.html#autospeccing) section explains what `create_autospec` copies. Typeshed's [`unittest/mock.pyi`](https://github.com/python/typeshed/blob/main/stdlib/unittest/mock.pyi) holds the comment quoted above.
 
 Gerard Meszaros's *xUnit Test Patterns: Refactoring Test Code* (Addison-Wesley, 2007) is the source for the double names and the long catalogue behind them. Martin Fowler's article [Mocks Aren't Stubs](https://martinfowler.com/articles/mocksArentStubs.html) argues the difference between asserting on state and asserting on interactions, which is the second habit in the list of tests that prove less than they seem. Brian Okken's *Python Testing with pytest*, second edition (Pragmatic Bookshelf, 2022), covers fixtures, parametrization and configuration at book length, and Brett Slatkin's *Effective Python*, third edition, has short rules on testing and typing. Both books are on the [bibliography page]({{ '/bibliography/' | relative_url }}).

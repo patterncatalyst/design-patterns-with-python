@@ -39,7 +39,7 @@ class Draft:
 
 
 class StaticGate:
-    """``mypy --strict`` and ruff with the repository's rule selection, over source text."""
+    """``mypy --strict`` and ruff with a copy of the repository's rules, over source text."""
 
     def __init__(self, scratch: Path) -> None:
         self._config = scratch / "mypy.ini"

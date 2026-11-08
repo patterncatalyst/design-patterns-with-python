@@ -42,7 +42,7 @@ From the repository root, once:
 uv sync --locked --all-packages
 ```
 
-Then from the example directory:
+Then change into the example directory:
 
 ```bash
 cd examples/06-isp-dip-and-di-without-a-framework

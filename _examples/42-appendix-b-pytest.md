@@ -5,13 +5,13 @@ title: "pytest reference"
 description: A pytest reference whose rows name their witnesses, most of them tests, and most of those run through an inner pytest session with pytester, which asserts the exact outcome counts.
 github_path: examples/42-appendix-b-pytest
 card_eyebrow: "Appendices · pytest reference"
-card_blurb: "Each row of the reference names its witness, and most are tests on the pinned pytest. Strictness options, import modes and command-line options run in an inner session, and the test asserts its exact outcome counts."
+card_blurb: "Each row of the reference names its witness, and most are tests on the pinned pytest. Strictness options, import modes and command-line options run in an inner session, and the test asserts the outcome counts or the exit status."
 card_title: "pytest run inside pytest"
 ---
 
 One small rating module carries the examples. `quote` prices a `Consignment` by weight and zone,
 `rate_batch` raises one exception group holding every failure, `legacy_quote` is deprecated, and
-`write_quotes` writes lines to the current `sys.stdout`.
+`write_quotes` writes lines to the stream it is given, or to the current `sys.stdout` when it is given none.
 
 ## Inner sessions
 
@@ -36,7 +36,7 @@ From the repository root, once:
 uv sync --locked --all-packages
 ```
 
-Then from the example directory:
+Then change into the example directory:
 
 ```bash
 cd examples/42-appendix-b-pytest

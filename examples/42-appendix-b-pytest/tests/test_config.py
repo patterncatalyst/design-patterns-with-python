@@ -166,3 +166,21 @@ def test_the_first_config_file_wins_and_is_not_merged(pytester: pytest.Pytester)
 
     from_root.assert_outcomes(errors=1)
     from_sub.assert_outcomes(passed=1, warnings=1)
+
+
+def test_a_member_table_replaces_the_root_filter_and_names_its_own_file(
+    pytester: pytest.Pytester,
+) -> None:
+    """The layout of a workspace member: the root table fails on warnings, the member's own
+    table with ``addopts = ""`` is the one that is read when the run starts in the member."""
+    pytester.makepyprojecttoml('[tool.pytest.ini_options]\nfilterwarnings = ["error"]\n')
+    member = pytester.mkdir("member")
+    (member / "pyproject.toml").write_text('[tool.pytest.ini_options]\naddopts = ""\n')
+    (member / "test_member.py").write_text(_WARNING)
+
+    from_root = pytester.runpytest("-c", "pyproject.toml", "member")
+    from_member = pytester.runpytest("member")
+
+    from_root.assert_outcomes(failed=1)
+    from_member.assert_outcomes(passed=1, warnings=1)
+    from_member.stdout.fnmatch_lines(["rootdir: *member", "configfile: pyproject.toml"])

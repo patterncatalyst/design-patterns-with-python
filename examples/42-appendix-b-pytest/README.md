@@ -91,6 +91,7 @@ uv run mypy --strict src tests
 - `test_strict_enables_the_four_strictness_options`: one case per option, with `strict = true`
   and no individual option.
 - `test_the_first_config_file_wins_and_is_not_merged`
+- `test_a_member_table_replaces_the_root_filter_and_names_its_own_file`
 
 `tests/test_import_modes.py`
 

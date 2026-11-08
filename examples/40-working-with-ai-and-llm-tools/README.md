@@ -2,8 +2,8 @@
 
 Three gates for reviewing a draft of pricing code, run over three drafts that were written for this
 book. The drafts are text files in `tests/drafts/`, kept as `.py.txt`, and each opens with a comment
-saying so. No test calls a model or the network.
-The model client appears only as a Protocol with a recorded fake behind it.
+saying so. The package imports no network module, and the tests run mypy in-process and ruff as a
+local process. The model client appears only as a Protocol with a recorded fake behind it.
 
 ## What it witnesses
 
@@ -92,4 +92,4 @@ uv run mypy --strict src tests
 
 The tests use no mocks and no patching, and none sleeps or reads a clock. The static gate runs
 `mypy --strict --warn-unreachable` through `mypy.api`, and ruff through the interpreter's `-m ruff`
-with the repository's rule selection.
+with a copy of the repository's rule selection.

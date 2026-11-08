@@ -56,6 +56,10 @@ Building the site needs Docker Engine and no local Ruby: `bash scripts/site-buil
   45 slides with speaker notes, on what the language gives you so you don't write the pattern.
   Code on the slides is read from the tested examples at build time; `presentation/build-notes.md`
   says how to rebuild it.
+- [301: Testing, legacy code and AI](presentation/design-patterns-with-python-301-testing-legacy-and-ai.pptx):
+  42 slides with speaker notes, on proving it works, changing inherited code and AI on pattern-heavy code.
+  Code on the slides is read from the tested examples at build time; `presentation/build-notes.md`
+  says how to rebuild it.
 
 ## Licence
 

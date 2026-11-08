@@ -56,4 +56,4 @@ def test_mypy_refuses_an_assistant_without_reply(tmp_path: Path) -> None:
 
     assert [_codes(bare), _codes(complete)] == [["arg-type"], []]
     assert (bare_status, complete_status) == (1, 0)
-    assert "Assistant" in bare
+    assert [line for line in bare.splitlines() if "[arg-type]" in line and "Assistant" in line]

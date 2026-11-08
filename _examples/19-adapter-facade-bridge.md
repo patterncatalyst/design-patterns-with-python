@@ -41,7 +41,7 @@ From the repository root, once:
 uv sync --locked --all-packages
 ```
 
-Then from the example directory:
+Then change into the example directory:
 
 ```bash
 cd examples/19-adapter-facade-bridge

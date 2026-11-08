@@ -156,7 +156,14 @@ def test_mypy_checks_a_direct_assignment_to_a_module_name(tmp_path: Path) -> Non
     assert status == 1
     # The name is also not re-exported by seams.legacy, which mypy --strict reports separately.
     assert _codes(stdout) == ["assignment", "attr-defined"]
-    assert "Incompatible types in assignment" in stdout
+    assert (
+        'error: Module "seams.legacy" does not explicitly export attribute "request_quote"'
+        "  [attr-defined]"
+    ) in stdout
+    assert (
+        'error: Incompatible types in assignment (expression has type "Callable[[str], Decimal]", '
+        'variable has type "Callable[[str, Decimal], Decimal]")  [assignment]'
+    ) in stdout
 
 
 def test_mypy_types_a_patch_as_a_magic_mock_or_as_its_replacement(tmp_path: Path) -> None:

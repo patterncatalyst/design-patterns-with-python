@@ -9,11 +9,12 @@ illustrative.
 
 `legacy.py` is the engine as inherited: its constructor already takes `fastline_quote`,
 `airco_price` and `margin` as keyword parameters, and its only tests are five rows written from the
-requirement. `refactored.py` is the same engine after two catalogue refactorings.
+requirement. `refactored.py` is the same engine after three catalogue refactorings.
 
+- Replace Magic Literal: `CENT` names the quantum the total is rounded to.
 - Extract Function: `_cheapest` and `_with_margin` hold the choice and the margin.
 - Replace Primitive with Object: carrier prices are `Money` at full precision, and only the total
-  is rounded, once, half up. `CENT` names the quantum.
+  is rounded, once, half up.
 
 Two more refactors live in `tests/conftest.py` as altered engines. They change totals that the golden quotes record.
 

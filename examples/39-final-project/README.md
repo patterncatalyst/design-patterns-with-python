@@ -33,8 +33,8 @@ replaced in turn by a stand-in that does nothing useful, produces its own exact 
 `tests/conftest.py` holds the one comparison form: `_EagerBookingDesk` publishes `BOOKED` before
 clearance, so a held booking leaves a tracking event behind. The `publish_form` fixture selects it.
 
-Two mypy checks run over small snippets: a gateway without `cancel` is refused where the desk
-expects a `CarrierGateway`, and the same gateway with `cancel` is accepted.
+One test runs mypy twice over small snippets: a gateway without `cancel` is refused where the
+desk expects a `CarrierGateway`, and the same gateway with `cancel` is accepted.
 
 ## Layout
 

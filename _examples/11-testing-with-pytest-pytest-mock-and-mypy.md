@@ -15,7 +15,8 @@ its title.
 ## Fixtures and parametrize
 
 `conftest.py` supplies a consignment, a fixed instant, a factory for fake gateways and a `yield`
-fixture whose teardown runs on failure. Parametrized cases carry ids that name the claim.
+fixture whose teardown line is printed for a failing test in the chapter's experiment.
+Parametrized cases carry ids that name the claim.
 
 ## What each double checks
 
