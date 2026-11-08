@@ -131,5 +131,9 @@ The plan's doc 24 count of 39 test names included 4 module filenames; the measur
 
 | doc | kind | value | reason | signed |
 | --- | --- | --- | --- | --- |
+| 34 | quote | I Need To Make a Change but I Don't Know What Tests To Write | CA1: the Feathers chapter title corrected to the book's wording (O3) | owner check, evidence H, 2026-11-08 |
+| 34 | quote | +I Need to Make a Change, but I Don't Know What Tests to Write | CA1: the corrected title, checked by the owner in the book's O'Reilly page (O3) | owner check, evidence H, 2026-11-08 |
+| 35 | quote | I Need To Make a Change but I Don't Know What Tests To Write | CA1: the Feathers chapter title corrected to the book's wording (O3) | owner check, evidence H, 2026-11-08 |
+| 35 | quote | +I Need to Make a Change, but I Don't Know What Tests to Write | CA1: the corrected title, checked by the owner in the book's O'Reilly page (O3) | owner check, evidence H, 2026-11-08 |
 
 (Empty. `prose_invariants.py` reads this table from B1b on.)
