@@ -142,6 +142,19 @@ DECK_BANNED = (
         "cross-language word",
     ),
 )
+DECK_NUMBER_RE = re.compile(r"-(101|201|301)-")
+# Deck 101 teaches the three-way split, so only 201 and 301 refuse its labels.
+DECK_SPLIT_DECKS = frozenset({"201", "301"})
+DECK_SPLIT_RE = re.compile(
+    r"\b(?:dissolv(?:e|es|ed|ing)|surviv(?:e|es|ed|ing)|disambiguat(?:e|es|ed|ing)|disambiguation)\b",
+    re.IGNORECASE,
+)
+DECK_SELF_RE = re.compile(r"\bthe\s+deck\b", re.IGNORECASE)
+SENTENCE_END_RE = re.compile(r"(?<=[.!?])\s")
+FIGURE_BREAKOUT_PX = 982
+FIGURE_FLOOR_PX = 8.0
+SVG_VIEWBOX_RE = re.compile(r'<svg\b[^>]*\bviewBox="([^"]+)"')
+SVG_FONT_RE = re.compile(r'<text\b[^>]*\bfont-size="([\d.]+)"')
 DECK_BOOK_RE = re.compile(r"\b(the|this) book('s)?\b", re.IGNORECASE)
 DECK_SLIDE_RE = re.compile(r"ppt/slides/slide(\d+)\.xml$")
 DECK_FIELD_RE = re.compile(r"<a:fld\b.*?</a:fld>", re.DOTALL)
@@ -290,6 +303,32 @@ def caption_findings(rel: str, line: int, caption: str) -> list[Finding]:
     if "TODO" in caption:
         out.append(Finding(rel, line, "caption contains TODO"))
     return out
+
+
+def check_figure_legibility(rel: str, svg: str) -> list[Finding]:
+    """The smallest label, scaled to the breakout width, must be at least the floor."""
+    box = SVG_VIEWBOX_RE.search(svg)
+    if box is None:
+        return [Finding(rel, 1, "svg has no viewBox")]
+    parts = box.group(1).replace(",", " ").split()
+    try:
+        width = float(parts[2])
+    except IndexError, ValueError:
+        return [Finding(rel, 1, f"viewBox {box.group(1)!r} has no width")]
+    sizes = [float(m) for m in SVG_FONT_RE.findall(svg)]
+    if not sizes or width <= 0:
+        return []
+    smallest = min(sizes) * FIGURE_BREAKOUT_PX / width
+    if smallest < FIGURE_FLOOR_PX:
+        return [
+            Finding(
+                rel,
+                1,
+                f"smallest label renders at {smallest:.1f} px at {FIGURE_BREAKOUT_PX} px, "
+                f"floor {FIGURE_FLOOR_PX:g}",
+            )
+        ]
+    return []
 
 
 def check_figure_files(root: Path, rel: str, text: str) -> list[Finding]:
@@ -926,6 +965,10 @@ def validate(root: Path) -> Report:
         if liquid_processed(path, root):
             rep.errors.extend(check_templates(rel, text))
 
+    for path in sorted((root / "diagrams").glob("*.svg")):
+        rel = path.relative_to(root).as_posix()
+        rep.errors.extend(check_figure_legibility(rel, path.read_text(encoding="utf-8")))
+
     for path in em_dash_only(root):
         rel = path.relative_to(root).as_posix()
         rep.errors.extend(check_em_dash(rel, path.read_text(encoding="utf-8")))
@@ -1052,6 +1095,20 @@ def check_deck(
     for where, text in texts:
         if not where.endswith(closing) and DECK_BOOK_RE.search(text):
             err(f"{where}: book pointer")
+
+    deck_id = DECK_NUMBER_RE.search(path.name)
+    for where, text in texts:
+        if where == "notes 1":
+            # The cover notes may name the deck once, in their opening sentence.
+            text = (
+                SENTENCE_END_RE.split(text, maxsplit=1)[-1] if SENTENCE_END_RE.search(text) else ""
+            )
+        if DECK_SELF_RE.search(text):
+            err(f"{where}: self-reference 'the deck'")
+    if deck_id is not None and deck_id.group(1) in DECK_SPLIT_DECKS:
+        for where, text in texts:
+            if DECK_SPLIT_RE.search(text):
+                err(f"{where}: three-way-split label")
 
     cfg = host_ids.Config()
     for name, body in xml.items():
@@ -1309,6 +1366,18 @@ def self_test() -> int:
     fm, size = split_front_matter('---\ntitle: "Q"\norder: 3\n---\nbody')
     expect("front matter", fm == {"title": "Q", "order": "3"} and size == 4)
 
+    legible = (
+        '<svg viewBox="0 0 1000 500"><text font-size="9">a</text>'
+        '<text font-size="13">b</text></svg>'
+    )
+    tiny = '<svg viewBox="0 0 1300 500"><text font-size="7.5">a</text></svg>'
+    expect("figure legible passes", not check_figure_legibility("a.svg", legible))
+    expect("figure too small fails", bool(check_figure_legibility("a.svg", tiny)))
+    narrow = '<svg viewBox="0 0 700 300"><text font-size="7">a</text></svg>'
+    expect("figure scales up to the breakout width", not check_figure_legibility("a.svg", narrow))
+    expect("figure floor edge", not check_figure_legibility("a.svg", legible.replace("9", "8.2")))
+    expect("figure without viewBox fails", bool(check_figure_legibility("a.svg", "<svg></svg>")))
+
     deck_self_test(expect)
 
     for f in failures:
@@ -1364,12 +1433,13 @@ def deck_self_test(expect: Callable[[str, bool], None]) -> None:
         panel: tuple[int, ...] = (2,),
         creator: str = DECK_OWNER,
         core_extra: str = "",
+        name: str = "d.pptx",
     ) -> list[Finding]:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             (root / "presentation").mkdir()
             write_synthetic_deck(
-                root / "presentation" / "d.pptx",
+                root / "presentation" / name,
                 slides,
                 creator=creator,
                 core_extra=core_extra,
@@ -1441,6 +1511,38 @@ def deck_self_test(expect: Callable[[str, bool], None]) -> None:
     )
     expect("deck appendix pointer", bool(run([*good[:2], ("Body", long + " in Appendix A")])))
     expect("deck cross-language", bool(run([*good[:2], ("Body", long + " in Java")])))
+    for label in ("dissolves", "survived", "disambiguating", "disambiguation", "dissolve"):
+        body = [*good[:2], ("Body", long + f" it {label} here"), good[2]]
+        expect(f"deck 201 refuses label {label}", bool(run(body, name="x-201-y.pptx")))
+        expect(f"deck 301 refuses label {label}", bool(run(body, name="x-301-y.pptx")))
+        expect(f"deck 101 allows label {label}", not run(body, name="x-101-y.pptx"))
+    expect(
+        "deck 201 refuses label in slide text",
+        bool(run([*good[:2], ("It dissolves", long), good[2]], name="x-201-y.pptx")),
+    )
+    expect("deck 201 label control", not run(good, name="x-201-y.pptx"))
+    expect(
+        "deck 201 near-miss words",
+        not run(
+            [*good[:2], ("Body", long + " a survey of dissolution"), good[2]], name="x-201-y.pptx"
+        ),
+    )
+    expect(
+        "deck refuses the deck",
+        bool(run([*good[:2], ("Body", long + " the deck shows"), good[2]])),
+    )
+    expect(
+        "deck refuses the deck in slide text",
+        bool(run([*good[:2], ("The deck", long), good[2]])),
+    )
+    expect(
+        "deck cover notes may open with the deck",
+        not run([("Cover", "The deck runs in nine sections. " + short), *good[1:]]),
+    )
+    expect(
+        "deck cover notes refuse the deck after the opening sentence",
+        bool(run([("Cover", "Opening. The deck runs on. " + short), *good[1:]])),
+    )
     expect(
         "deck owner name in core.xml",
         bool(run(good, core_extra="<dc:title>Zed Quux</dc:title>")),

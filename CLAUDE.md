@@ -70,8 +70,9 @@ _plans/                  plans and status; verification status lives only here
 
 Every chapter follows the same shape: learning objectives; why this matters; the figure; the body;
 "Build, run, observe" on hands-on chapters; "When not to use it" on every pattern chapter, holding
-the one AI sidebar; "For deeper coverage" citing the hub's `books.yml` and this book's
-`/bibliography/`.
+the one AI sidebar; "For deeper coverage" citing this book's `/bibliography/`, kept in step with the hub's
+`books.yml` (the chapter text never says "the hub"). The figure walk-through paragraph stays: it is
+the figure's text alternative.
 
 - Body prose targets **1,900-2,500 words**, excluding code and diagrams. The ceiling is an error in validate.py; the floor is a warning (owner decision 2026-11-05): length serves the reader, so never pad to reach it and never cut a fact to sit under the ceiling.
 - **One paired SVG + `.excalidraw` figure per chapter**, generated with `lgtm-diagram-generator`
@@ -84,11 +85,13 @@ the one AI sidebar; "For deeper coverage" citing the hub's `books.yml` and this 
 - **AI sidebar**: exactly one per pattern chapter, written as an explicit
   `<blockquote class="ai-sidebar" markdown="1">` ... `</blockquote>`. Never the kramdown form
   `{: .ai-sidebar}` (it breaks blockquote parsing under kramdown-GFM). The check is
-  `grep -c '<blockquote class="ai-sidebar"'` equals 1. Content (lgtm-professional-voice, 2026-11-05):
-  state the problem in one or two sentences, then give a ready-to-paste sample prompt as a nested
-  `>` quote that bakes in the chapter's decision rule, then at most one line of review action. Not
-  a description of what an assistant gets wrong. Chapters 0-20 were retrofitted to this form in
-  r10b (owner decision 2026-11-05).
+  `grep -c '<blockquote class="ai-sidebar"'` equals 1. Content (lgtm-professional-voice, 2026-11-05;
+  wording settled in r25): open with what the request leaves open ("'Write the pricing strategies'
+  leaves the shape and the rounding open"), then give a ready-to-paste sample prompt as a nested `>`
+  quote that bakes in the chapter's decision rule, then at most one line of review action. Never a
+  claim about what an assistant does or may write ("an assistant may ..."), because no test in the
+  book witnesses it. The bold lead-in names what is being specified ("Specifying X"), not
+  "Reviewing assistant-written X".
 - **Structure** (lgtm-professional-voice, 2026-11-05): intent before mechanism; explain a subtle
   mechanism by a minimal example first; prose doesn't re-narrate a code block (the code shows how;
   prose adds the force, the trade-off, the domain fact); close by mapping each learning objective
@@ -174,8 +177,9 @@ the one AI sidebar; "For deeper coverage" citing the hub's `books.yml` and this 
 2. `uv run python scripts/validate.py` exits 0.
 3. `lgtm-professional-voice` `scan.sh` to **0 ban-tier** over the chapter, with `--stats` reviewed.
    Repo-wide gate: `bash ~/.claude/skills/lgtm-professional-voice/scripts/scan.sh --tier ban --fail
-   --exclude LICENSE-docs.md --exclude CLAUDE.md --exclude validate.py --exclude host_ids.py .`
-   (those four name the banned patterns or are verbatim legal text).
+   --exclude LICENSE-docs.md --exclude CLAUDE.md --exclude validate.py --exclude host_ids.py
+   --exclude .venv-ft .` (the first four name the banned patterns or are verbatim legal text;
+   `.venv-ft` is the free-threaded environment, which the scanner does not prune).
 4. `lgtm-idiomatic-review` scan over the example: 0 ban-tier.
 5. `python3 scripts/host_ids.py check` exits 0.
 6. Quoted output matches a fresh run modulo scrubbing.
@@ -230,3 +234,10 @@ re-measure; defer only content that belongs to a future part.
 - 2026-11-04 (r05): Python 3.15.2. The book, pins and floor move from 3.14.10 to 3.15.2 (CPython 3.15.2
   was released 2026-10-25). Measurements taken on 3.14.10 stay labelled as such; the older plans
   (r02 to r04) and the spike findings remain as history.
+- 2026-11-08 (r25, decision 7): the six appendix word-floor warnings (appendices A to F: 1,595,
+  1,703, 1,880, 1,824, 917 and 1,896 words) are confirmed as owner-accepted. They are not padded
+  and not exempted in `validate.py`; the floor stays a warning.
+- 2026-11-08 (r25, O2): the owner approved a terse rewording of the whole book (r26 to r28). From
+  r26 on, tests are named on a `*Tests:*` line after the paragraph, not inside the sentence, and
+  the 1,900-word floor is dropped. The terse register lives in `lgtm-professional-voice`. Until
+  r26 changes `validate.py`, the current floor and the test-naming rule still apply.
