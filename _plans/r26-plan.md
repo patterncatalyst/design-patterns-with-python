@@ -23,13 +23,38 @@ The rules are the terse pattern register in `~/.claude/skills/lgtm-professional-
 
 ## Owner decisions
 
-(Filled at the plan gate.)
+2026-11-08, at the plan gate:
+
+- O1: decision 1 takes the **alternative**, the Camel layout: one H2 per pattern with H3 subheads. "The pattern layout (O1)" below pins the shape; GT2, GT6, PL3, PL4, the targets, the excerpts and the criteria follow it.
+- O2: decisions 2 to 6 as recommended.
+- O3: the Feathers title takes the book's straight house form: "I Need to Make a Change, but I Don't Know What Tests to Write" (evidence H).
+- O4: hub PR #62 was merged as 9a3b034; no open hub item remains.
+
+## The pattern layout (O1)
+
+Read from Camel 07, 09, 11 and 13 (evidence G): an H2 `## Pattern: <Name>`, then `### The problem`, `### The solution` and `### How Camel models it` in that order (53 to 60 uses each across chapters 3 to 18), then topic H3s named for the point (`### Evaluation order matters`, `### Wire tap vs. multicast`). The book takes it as:
+
+- `## Learning objectives`, `## Why this matters` (the shared domain story, at most 3 sentences), the figure with one sentence and its description (decision 4);
+- per pattern, `## Pattern: <Name>`:
+  - `### The problem`: the domain failure, at most 3 sentences; failure cases as one-sentence bullets;
+  - `### The solution`: one bold definition (`A **Mediator** ...`), restating a definition the chapter or its cited source already gives, then the verdict line `**Bucket: survives.**` (or `dissolves.`, `needs disambiguating.`) with one reason sentence;
+  - `### How Python models it`: code first, at most 2 sentences after each block, `*Tests:*` lines;
+  - topic H3s, a comparison as `### X vs. Y` with a table;
+- then the spine tail, in today's order: `## When not to use it` (bold-led bullets, one per pattern, and the one AI sidebar), `## Build, run, observe`, `## What you can do now`, `## For deeper coverage`.
+
+**23** becomes `## Pattern: Chain of Responsibility` (problem, solution, How Python models it: the stage types and `clear`; `### The terminal and the order`; `### Linked chain vs. tuple`; `### Chain vs. match`) and `## Pattern: Mediator` (problem, solution, How Python models it: `receive` and `_try_release`; `### Mediator vs. choreography`; `### Mediator vs. signal`), each with its own Bucket line. **24** becomes one `## Pattern: Iterator` (problem, solution, How Python models it: the protocol and the generator `__iter__`), with today's four body H2s as topic H3s: `### One pass or many`, `### Read only what you need`, `### Delegating with yield from`, `### Who closes the source`. 01 and 03 hold no pattern and keep their own H2s.
+
+**T6 under this layout.** Code, a table or the figure within 60 prose words applies per H3: to `### How Python models it` and every topic H3. `### The problem` and `### The solution` are exempt, capped by sentences instead (3, and 2 plus the Bucket line). `--terse-stats` measures per H2, and a pattern H2 now holds its whole treatment, so GT1 adds a per-H3 report (words and lead-in per H3) for the packet; the `--terse-stats` columns are recorded as they come.
+
+**Appendix E** takes its Bucket cell from the Bucket line, its Force cell from `### The problem` and its When-not cell from the pattern's bullet.
+
+**CLAUDE.md's spine text** (B1a) becomes: "Every chapter: learning objectives; why this matters; the figure, with one sentence in the body and its walk-through in the figure description. A pattern chapter then has one `## Pattern: <Name>` per pattern, each with `### The problem`, `### The solution` (a bold one-sentence definition and the `**Bucket: ...**` line) and `### How Python models it` (code first), then topic H3s. Then 'When not to use it' on every pattern chapter, bold-led bullets holding the one AI sidebar; 'Build, run, observe' on hands-on chapters; 'What you can do now'; 'For deeper coverage' citing this book's `/bibliography/`, kept in step with the hub's `books.yml` (the chapter text never says 'the hub')."
 
 ## Decisions with recommendations
 
 1. **Where the pattern block sits** (T1 against the spine). The spine fixes the H2s: Learning objectives, Why this matters, the figure, the body, When not to use it (with the sidebar), Build, run, observe, What you can do now, For deeper coverage. T1 wants Problem, Solution, Idiom, verdict, When not to use it. They conflict in three places: T1 has no "Why this matters"; the spine puts the figure before any code; CLAUDE.md's "intent before mechanism" says the opposite of T1's "problem before mechanism".
-   - **Recommend:** keep every spine H2. "Why this matters" holds the **Problem** (at most 3 sentences; failure cases as one-sentence bullets), the **Solution** (one bold sentence per pattern, restating a definition the chapter or its cited source already gives) and the verdict line `**Bucket: survives.**` (or `dissolves.`, `needs disambiguating.`), once per pattern or once for a chapter whose patterns share it. Then the figure with one sentence. Each body H2 opens with code, a table or the figure within 60 words (T6). "When not to use it" becomes bold-led bullets. CLAUDE.md's structure line becomes "problem before mechanism" for pattern chapters.
-   - Alternative: Camel's form, an H2 per pattern with H3 subheads (The problem, The solution, The Python idiom). Closer to the model, but `validate.py`'s spine and every pattern chapter's headings change, and r27 inherits a structural rewrite as well as a wording one.
+   - **Owner (O1): the alternative**, laid out in "The pattern layout (O1)". The recommendation was: keep every spine H2; "Why this matters" holds the **Problem** (at most 3 sentences; failure cases as one-sentence bullets), the **Solution** (one bold sentence per pattern, restating a definition the chapter or its cited source already gives) and the verdict line `**Bucket: survives.**` (or `dissolves.`, `needs disambiguating.`), once per pattern or once for a chapter whose patterns share it. Then the figure with one sentence. Each body H2 opens with code, a table or the figure within 60 words (T6). "When not to use it" becomes bold-led bullets. CLAUDE.md's structure line becomes "problem before mechanism" for pattern chapters.
+   - Alternative (taken): Camel's form, an H2 per pattern with H3 subheads. Closer to the model, but `validate.py`'s spine and every pattern chapter's headings change, and r27 inherits a structural rewrite as well as a wording one.
 
 2. **The thesis chapters' budgets** (T7, T11). T11 allows thesis framing in the chapters that set the thesis up. T7 caps "force" at 3 per chapter after the defining chapter. 01 is the defining chapter (43 uses today); 03 sets the bucket map, and its second sorting question is about the force (23 uses).
    - **Recommend:** 01 may frame the thesis and defines "force" and "Consequences" once; target "force(s)" at most 12 and ABSTR/k at most 10. 03 may frame the buckets; target "force(s)" at most 8 and ABSTR/k at most 5. 03's map table stays byte-identical (Deck 101 copies its cells verbatim, reconciliation row 317). 23 and 24 take the full T7: at most 3 and 1.5. T1 doesn't apply to 01 or 03 (no pattern block); 01 turns its four forces and three shapes into tables (T6), since it has no code.
@@ -63,7 +88,7 @@ Planner's choices (stated here; the owner can overturn any):
 
 All runs on the release branch at 15cc747, read-only, with scratch scripts under `<scratchpad>`; nothing in the repo or on the host changed.
 
-A. **Repo.** PR #26 merged 2026-11-08 as 15cc747; `git tag --points-at 15cc747` is `r25.x`; `gh release view r25.x` is "r25.x: Retro and QA sweep". The r25 plan still shows C6 and C7 `todo`; `iteration-plan.md` shows "r25 (active)" and PDP-021 `active`. Hub PR #63 (r25's URL fix) is merged; hub PR #62 ("Python book no longer cites Mythical Man-Month or Code Complete") is still open. Reconciliation rows run to 469, so r26 starts at 470. Step-row prefixes used in plans: A, C, D, G to N, P to Z. B, E, F and O have no step row; `grep -rnE '(run: |^\| )B[0-9]' _plans/` prints nothing, while E appears as row ids (`E11-1`) in the r24 census, so r26 uses B. `validate.py`: 0 errors, 6 warnings (all six are the appendix floors).
+A. **Repo.** PR #26 merged 2026-11-08 as 15cc747; `git tag --points-at 15cc747` is `r25.x`; `gh release view r25.x` is "r25.x: Retro and QA sweep". The r25 plan still shows C6 and C7 `todo`; `iteration-plan.md` shows "r25 (active)" and PDP-021 `active`. Hub PR #63 (r25's URL fix) is merged; hub PR #62 ("Python book no longer cites Mythical Man-Month or Code Complete") was open at planning and has since merged as 9a3b034 (O4). Reconciliation rows run to 469, so r26 starts at 470. Step-row prefixes used in plans: A, C, D, G to N, P to Z. B, E, F and O have no step row; `grep -rnE '(run: |^\| )B[0-9]' _plans/` prints nothing, while E appears as row ids (`E11-1`) in the r24 census, so r26 uses B. `validate.py`: 0 errors, 6 warnings (all six are the appendix floors).
 
 B. **Book baseline** (`scan.sh --terse-stats _docs`; median of 47 files, TESTS summed): WORDS 2,200, SECMED 228, LEAD 102, PAR 48, ABSTR/k 2.9, TESTS 1,030. `scan.sh --tier terse _docs`: 177 lines in 8 patterns (0 ban-tier). With a project row for "the bucket is", "sorts it" and "the force behind" the total is 209 (32 more lines in 14 files).
 
@@ -92,7 +117,7 @@ F. **Carried items.**
    - Typography: the docs write straight apostrophes in their own prose. A curly `’` appears only inside verbatim quotations of sources (21 lines in 12 docs, such as `33.md:159`, `37.md:52`, `42.md:104`), which keep the source's typography.
 
 H. **Owner checks in O'Reilly** (2026-11-08, the owner's own account; O'Reilly answers 403 to scripted requests, so a script can't fetch these pages).
-   - **The Feathers title.** Chapter 13 of *Working Effectively with Legacy Code* (https://learning.oreilly.com/library/view/-/0131177052/) is titled "I Need to Make a Change, but I Don’t Know What Tests to Write", with a typographic apostrophe. This is the evidence for CA1. B2a copies this entry into `_plans/evidence/r26-pilot.md` ("Owner checks"), which row 473 cites.
+   - **The Feathers title.** Chapter 13 of *Working Effectively with Legacy Code* (https://learning.oreilly.com/library/view/-/0131177052/) is titled "I Need to Make a Change, but I Don’t Know What Tests to Write": the book prints a curly apostrophe. The owner chose the book's straight house form, "I Need to Make a Change, but I Don't Know What Tests to Write" (O3). This is the evidence for CA1. B2a copies this entry into `_plans/evidence/r26-pilot.md` ("Owner checks"), which row 473 cites.
    - **The O'Reilly links.** The three canonical links r25 put in `bibliography.html` (Architecture Patterns with Python, Effective Python, Python Object-Oriented Programming) and the uncanonical `/library/view/-/<isbn>/` originals all open their book pages. This stands as the owner's check of r25's LK2, which the r25 link sweep could follow only by redirect.
    - **Route for O'Reilly facts from now on.** The book's HTML page on O'Reilly lists the chapter titles, so an owner check of that page, recorded with its date and URL in the iteration's evidence file, is the evidence for a title or table-of-contents fact. A planner or validator asks the owner for it rather than scripting a fetch.
 
@@ -101,7 +126,7 @@ G. **The style study** (read-only, 2026-11-08, `<scratchpad>/style/`). Against t
 ## Work items
 
 **Gates and tooling (GT)**, built and self-tested before any prose changes.
-- GT1: `scripts/prose_invariants.py`, comparing each changed doc with `--base`. It fails on any difference, unless waived, in:
+- GT1: `scripts/prose_invariants.py`, with a `--sections` report (words and lead-in per H3, for T6 under O1), comparing each changed doc with `--base`. It fails on any difference, unless waived, in:
   - the fenced blocks, byte-exact, as a multiset (an order change is reported);
   - the set of test names in prose and on `*Tests:*` lines;
   - the set of link targets: Markdown links, bare URLs, `relative_url` targets, `href`s;
@@ -117,7 +142,7 @@ G. **The style study** (read-only, 2026-11-08, `<scratchpad>/style/`). Against t
   - drop `MIN_WORDS` and the floor warning; keep the ceiling error; the self-test proves a 1,500-word doc gives no warning and a 2,600-word doc an error;
   - parse `*Tests:*` lines (`*Tests:* `test_a`, `test_b[id]`.`): a blank line before, after a paragraph, list or table, never directly after a heading or fence; every name a defined test (error);
   - for `TERSE_DOCS`, a backticked test name on any prose line except a `*Tests:*` line is an error, counted on the lines `--terse-stats` counts (tables, headings, HTML, Liquid and `>` lines excluded);
-  - for `TERSE_DOCS` pattern chapters, at least one `**Bucket: (dissolves|survives|needs disambiguating).**` line, and no "Read the figure" paragraph in the body;
+  - for `TERSE_DOCS` pattern chapters, the O1 layout: at least one `## Pattern: <Name>` H2, each opening with `### The problem`, `### The solution` and `### How Python models it` in that order; inside `### The solution`, one bold definition and exactly one `**Bucket: (dissolves|survives|needs disambiguating).**` line; every `## Pattern:` H2 between `## Why this matters` and `## When not to use it`; and no "Read the figure" paragraph in the body;
   - a `described="true"` include needs the matching `desc-<name>` description right after it;
   - Appendix E: each Bucket, Force and When-not cell appears verbatim in the doc its Chapter cell links (98 of 98 today);
   - the claims coupling (planner's choices).
@@ -126,13 +151,13 @@ G. **The style study** (read-only, 2026-11-08, `<scratchpad>/style/`). Against t
 - GT3: CI: the `validate` job checks out with `fetch-depth: 0` and runs `prose_invariants.py --self-test` always, and `--base origin/${{ github.base_ref }}` on pull requests. `ci-ok` already depends on `validate`.
 - GT4: site. `_includes/excalidraw.html` takes `described`; `assets/css/site.css` styles `.figure-description` (body text size, a summary that reads "Describe the figure"); the duplicate meta goes (decision on the layout above). Verified in the built site: every page has exactly one `<meta name="description">`, its content is listed against the old one for every page and any change explained (a part page that falls back to an excerpt gets its old value as a `description` key); in 23 and 24 the `aria-describedby` id resolves, the description's code spans render as `<code>`, and nothing scrolls sideways at 390 px.
 - GT5: `.voice-patterns.tsv` at the root with the project's T11 rows (terse tier: "the bucket is", "sorts it", "the force behind", "That's the force"), used as `scan.sh --tier terse --patterns .voice-patterns.tsv _docs`.
-- GT6: CLAUDE.md: the spine (the walk-through moves to the figure description), the word rule (ceiling 2,500, no floor), the `*Tests:*` line, the Bucket line and pattern block (decision 1), "problem before mechanism" for pattern chapters, `TERSE_DOCS`, the invariants script in the per-chapter gates, and a dated r26 note under O2 saying `validate.py` now enforces it.
+- GT6: CLAUDE.md: the spine (the walk-through moves to the figure description), the word rule (ceiling 2,500, no floor), the `*Tests:*` line, the spine text in "The pattern layout (O1)", "problem before mechanism" for pattern chapters in the Structure line, `TERSE_DOCS`, the invariants script in the per-chapter gates, and a dated r26 note under O2 saying `validate.py` now enforces it.
 
 **Pilot (PL)**, under T1 to T12 and decisions 1 to 4.
 - PL1: doc 01. The thesis chapter: framing allowed, "force" and "Consequences" defined once, the four forces and the three shapes as tables, no T1 block. Targets in decision 2.
 - PL2: doc 03. The map chapter: bucket framing allowed, the map table byte-identical, the two sorting questions and the disambiguation entries bold-led. Its one in-prose test name (the `_GUARDED` experiment) moves to a `*Tests:*` line.
-- PL3: doc 23. T1 per pattern in "Why this matters", the walk-through to the description, 31 test names onto `*Tests:*` lines, both experiments still re-runnable from their sentences.
-- PL4: doc 24. The same; quotations to one per body section under decision 3; provenance (the GoF credit, PEP authors) to "For deeper coverage".
+- PL3: doc 23. The O1 layout with two `## Pattern:` H2s, the walk-through to the description, 31 test names onto `*Tests:*` lines, both experiments still re-runnable from their sentences.
+- PL4: doc 24. The O1 layout with one `## Pattern: Iterator` and four topic H3s; quotations to one per H3 under decision 3; provenance (the GoF credit, PEP authors) to "For deeper coverage".
 - PL5: Appendix E rows 68 to 70 take the new wording of 23 and 24, verbatim (decision 5).
 - PL6: reconciliation. Every existing row for chapters 1, 3, 23 and 24 (evidence E) is re-read against the new text and gets an r26 note (claim unchanged, or adjusted with the new wording). New rows for each claim the pilot changed or added: each bold definition and Bucket line, the Appendix E rows, and the gates.
 - PL7: the 23 deck-census sentences (evidence E) each get the new sentence that carries the same fact, re-grepped, in the evidence file. The census file itself is history and stays.
@@ -140,13 +165,12 @@ G. **The style study** (read-only, 2026-11-08, `<scratchpad>/style/`). Against t
   Each pilot executor records, for its doc: base and after words, `--terse-stats`, `--stats`, terse-tier hits (fixed or kept, with a reason), the invariants result and every waiver.
 
 **Carried (CA)**
-- CA1: the Feathers title to the book's own form, "I Need to Make a Change, but I Don’t Know What Tests to Write" (evidence H). The title is quoted from the source, so it keeps the source's curly `’`, as every verbatim quotation in the docs does (evidence F); the docs' own prose stays straight. A count-asserted replace: exactly 2 hits in `_docs/34`, 3 in `_docs/35` and 1 in `presentation/deck-301.js`, then 0 of the old form in any tracked file outside `_plans/`. Deck 301 is rebuilt and run through the r25 deck pipeline on the changed notes page; 101 and 201 are untouched.
+- CA1: the Feathers title to the owner's form, "I Need to Make a Change, but I Don't Know What Tests to Write", straight apostrophe (O3, evidence H). A count-asserted replace: exactly 2 hits in `_docs/34`, 3 in `_docs/35` and 1 in `presentation/deck-301.js`, then 0 of the old form in any tracked file outside `_plans/`. Deck 301 is rebuilt and run through the r25 deck pipeline on the changed notes page; 101 and 201 are untouched.
 - CA2: the duplicate meta (GT4).
 
 **Bookkeeping (BK)**
 - BK1: the r25 plan's C6 and C7 set to `done`, with a dated Corrections note: PR #26 squash-merged as 15cc747, tagged `r25.x`, notes-only release "r25.x: Retro and QA sweep", hub PR #63 merged; and under O2, the PRD status says the rewording is in progress rather than complete.
 - BK2: `iteration-plan.md`: PDP-021 `done`, r25 closed, PDP-022 `active`, r26 marked active, dated note.
-- BK3: hub PR #62 is still open; the orchestrator checks whether #63 superseded it and asks the owner to merge or close it.
 
 ## Before and after, one per doc
 
@@ -164,7 +188,7 @@ Short excerpts showing the target; the executors write the real text.
 > - **All of it.** A feature resolves a force only if it resolves all of it, not just the easy half.
 > - **"Dissolves" never means "forget it".** The force remains, and a team still uses the name. Only the catalogue's class structure goes.
 
-**23, line 67** (T8, T5):
+**23, line 67** (T8, T5), landing under `## Pattern: Chain of Responsibility`, `### How Python models it`:
 > The first stage that decides wins. `test_the_first_stage_that_decides_wins` gives a declaration with no documents and unpaid duty, and the reason is the missing invoice, because `check_documents` runs before `assess_duty`. Stages after the winner don't run: `test_stages_after_a_decision_are_not_called` records the names of the stages that were called and gets `["passing", "holding"]`, with a third stage left out. A clean declaration reaches the final stage and is released (`test_a_clean_declaration_is_released`). [...]
 
 > The first stage that decides wins. A declaration with no documents and unpaid duty is held for the missing invoice, because `check_documents` runs before `assess_duty`. Later stages don't run: the recorded calls are `["passing", "holding"]`, without the third stage.
@@ -173,12 +197,33 @@ Short excerpts showing the target; the executors write the real text.
 >
 > A clean declaration reaches the final stage and is released. [...]
 
-**24, line 47** (T9, T11; a waived quotation and a waived duplicate number):
+**24, lines 22 and 47** (O1 layout, T9, T11; a waived quotation and a waived duplicate number):
+> A tracking history is read page by page by a display and a report. Both want the events one at a time and neither should care how the history stores them. That's the force behind Iterator, and Python resolves it inside the language: a generator function writes the cursor for you. [...]
+>
 > A function with `yield` is a generator function, and calling it returns a generator iterator. The glossary says "Each yield temporarily suspends processing, remembering the execution state (including local variables and pending try-statements)." The suspended frame holds the position a cursor class would keep in a field. Schemenauer, Peters and Hetland introduced generators in PEP 255, "Simple Generators". The bucket is dissolves, as the sorting in [What 1994 assumed, and what Python dissolves](...) puts it.
 
-> A function with `yield` is a generator function, and calling it returns a generator iterator. Each `yield` suspends the function and keeps its local variables and pending `try` statements. That suspended frame holds the position a cursor class kept in a field.
+> ## Pattern: Iterator
+>
+> ### The problem
+>
+> A display and a report read a tracking history page by page. Both want the events one at a time, and neither should care how the history stores them.
+>
+> ### The solution
+>
+> An **Iterator** walks a collection without exposing how it's stored.
+>
+> **Bucket: dissolves.** A generator function writes the cursor for you.
+>
+> ### How Python models it
+>
+> ```python
+>     def __iter__(self) -> Iterator[HandlingEvent]:
+>         yield from self._events
+> ```
+>
+> A function with `yield` is a generator function, and calling it returns a generator iterator. Each `yield` suspends the function and keeps its local variables and pending `try` statements, so the frame holds the position a cursor class kept in a field.
 
-   The verdict becomes `**Bucket: dissolves.**` in "Why this matters"; the PEP 255 credit joins its link in "For deeper coverage". Waivers: the glossary quotation (paraphrased; the glossary link stays), and one "255" (the number now appears once, beside its link).
+   The PEP 255 credit joins its link in "For deeper coverage". Waivers: the glossary quotation (paraphrased; the glossary link stays), and one "255" (the number now appears once, beside its link).
 
 ## The owner's reading packet
 
@@ -188,7 +233,7 @@ The top section of `_plans/evidence/r26-pilot.md`, one screen per doc, written a
 - two links: the doc's diff in the PR (`.../pull/<n>/files#diff-<sha256 of the path>`, GitHub's file anchor) and the doc on the branch;
 - the four before and after excerpts above, replaced by the real ones.
 
-Targets: TESTS 0 (gate); LEN median at most 15, p90 at most 30 (T4); PAR at most 40 (T5); LEAD at most 60 and SECMED at most 150 (T6); ABSTR/k at most 1.5 in 23 and 24, and decision 2's budgets in 01 and 03 (T7); no floor, the 2,500 ceiling, and a 1,600-word aim for 23 and 24 (T12, the study's figure, not a gate).
+Targets: TESTS 0 (gate); LEN median at most 15, p90 at most 30 (T4); PAR at most 40 (T5); per H3 (GT1's report), lead-in at most 60 and section at most 150 for `### How Python models it` and topic H3s, `### The problem` at most 3 sentences and `### The solution` at most 2 plus the Bucket line, with `--terse-stats` LEAD and SECMED recorded per H2 (T6); ABSTR/k at most 1.5 in 23 and 24, and decision 2's budgets in 01 and 03 (T7); no floor, the 2,500 ceiling, and a 1,600-word aim for 23 and 24 (T12, the study's figure, not a gate).
 
 **The question for the owner:** go, or adjust? Go means r27 applies T1 to T12 as piloted to the 21 pattern chapters. Adjust means naming the rules to change (for example the Bucket line, the quotation budget, the `*Tests:*` form or a target); r26 then applies the change to the four docs in one more round, with a confirmation, before the merge.
 
@@ -197,12 +242,12 @@ Targets: TESTS 0 (gate); LEN median at most 15, p90 at most 30 (T4); PAR at most
 1. The gates land before any prose: GT1 to GT6 are merged on the branch before the first PL commit (`git log`).
 2. `prose_invariants.py --self-test` passes, and fails with each check disabled (recorded); CI runs it on the PR.
 3. `validate.py`: no floor (the six appendix warnings are gone), the ceiling error kept, and every new GT2 check passing on the tree, each with a self-test that fails when the check is disabled.
-4. The four pilot docs: TESTS 0; `prose_invariants.py --base 15cc747` passes with only waivers the facts reader signed; the sidebars byte-identical and `grep -c` 1 in 23 and 24; captions and 03's map table byte-identical; spine headings present; 23 and 24's walk-throughs in the figure description, with `aria-describedby` resolving in the built HTML.
+4. The four pilot docs: TESTS 0; `prose_invariants.py --base 15cc747` passes with only waivers the facts reader signed; the sidebars byte-identical and `grep -c` 1 in 23 and 24; captions and 03's map table byte-identical; spine headings present; 23 and 24 in the O1 layout (GT2's check); 23 and 24's walk-throughs in the figure description, with `aria-describedby` resolving in the built HTML.
 5. Every claim keeps its witness: the facts and sources readers pass; `--claims` has 0 unresolved; every row in evidence E carries an r26 note; new rows from 470 resolve.
 6. Appendix E: 98 of 98 cells verbatim (the GT2 check).
-7. CA1: the counts asserted (2, 3, 1), the new form byte-equal to evidence H's title, 0 old forms outside `_plans/`, Deck 301 rebuilt and through the deck pipeline, 101 and 201 unchanged.
+7. CA1: the counts asserted (2, 3, 1), the new form byte-equal to O3's straight-apostrophe title, 0 old forms outside `_plans/`, Deck 301 rebuilt and through the deck pipeline, 101 and 201 unchanged.
 8. Every built page has exactly one `<meta name="description">`; changed contents are listed and explained.
-9. BK1 to BK3 done; no stale status in the plans.
+9. BK1 and BK2 done; no stale status in the plans.
 10. All gates green (QA step 2) and `ci-ok` green on the PR.
 11. The reading packet is complete; the owner's go or adjust answer is recorded under "Owner decisions".
 12. Every QA round, repair and confirmation is recorded in `_plans/evidence/r26-pilot.md`, and a confirmation follows the last repair.
@@ -227,7 +272,7 @@ Only suffixed ids are cited as `run:` tokens: B1a to B1d, B2a, B3a to B3e, B4a, 
 
 | id | what | depends on | status |
 | --- | --- | --- | --- |
-| B0 | Bookkeeping BK1 to BK3; record the owner's decisions; evidence file started with the baseline (evidence B, C) | - | todo |
+| B0 | Bookkeeping BK1 and BK2; record the owner's decisions; evidence file started with the baseline (evidence B, C) | - | todo |
 | B1a | `validate.py` GT2 and CLAUDE.md GT6, with self-tests and the mutation proof (worktree) | B0 | todo |
 | B1b | `prose_invariants.py` GT1 and CI GT3, with self-tests and the mutation proof (worktree) | B0 | todo |
 | B1c | Site GT4 and `.voice-patterns.tsv` GT5; a site build and the built-page checks (worktree) | B0 | todo |
@@ -253,7 +298,7 @@ Rows 470 onward go in at B4a with resolving tokens; "Sweep:" rows start `open` a
 | 470 | 1, 3, 23, 24 | Sweep: the reworded docs keep every fenced block, test name, link, `source:` URL, long quotation, number, inline code span, sidebar and caption of 15cc747, apart from signed waivers | run: B4a, run: _plans/evidence/r26-pilot.md |
 | 471 | 1, 3, 23, 24 | Sweep: no test name inside a sentence; every `*Tests:*` name is a defined test that asserts its paragraph's claim | run: B1a, run: B5a |
 | 472 | 45 | Every Bucket, Force and When-not cell of Appendix E is verbatim in its developing chapter | run: B1a, run: B3e |
-| 473 | 34, 35 | The Feathers chapter is titled "I Need to Make a Change, but I Don’t Know What Tests to Write" (owner check in O'Reilly, 2026-11-08) | run: B2a, run: _plans/evidence/r26-pilot.md |
+| 473 | 34, 35 | The Feathers chapter is titled "I Need to Make a Change, but I Don't Know What Tests to Write" (owner check in O'Reilly, 2026-11-08: the book's curly apostrophe in the house's straight form) | run: B2a, run: _plans/evidence/r26-pilot.md |
 | 474 | 0-46 | Every built page has one `<meta name="description">` | run: B1c |
 
 Then one row per bold definition and Bucket line the pilot adds, each with the test or `source:` token that witnesses it, and the r26 notes on the rows in evidence E.
@@ -267,7 +312,7 @@ Then one row per bold definition and Bucket line the pilot adds, each with the t
 - **Worktrees under the repo** get scanned by the integration gates. Mitigation: gates run only with the main tree alone.
 - **Verbatim followers.** Appendix E, Deck 101's map table and the deck census copy chapter text. Mitigation: the Appendix E check, 03's table frozen, PL7.
 - **kramdown and `<details>`.** `markdown="1"` inside `<details>` may not parse. Mitigation: GT4 checks the built HTML; the fallback is `markdown="block"` on the inner `div`.
-- **The measurement counts the description.** `--terse-stats` counts the walk-through's words in "Why this matters". Mitigation: the packet reports that section's words with and without it.
+- **The measurement counts the description.** `--terse-stats` counts the description's words in the section that holds the figure. Mitigation: the packet reports that section's words with and without it.
 - **The owner adjusts the rules.** Mitigation: one adjust round in r26, confirmed, so r27 starts from a pilot that matches the rules.
 
 ## Corrections
