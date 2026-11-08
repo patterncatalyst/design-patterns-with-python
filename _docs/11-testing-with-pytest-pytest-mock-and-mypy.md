@@ -235,15 +235,11 @@ Without `error`, a Python 3.15 deprecation scrolls past. A Protocol that inherit
 - **A test never seen failing.** If its check can be deleted with every test still green, it measures nothing.
 - **One parametrize case per line of the implementation.** The cases should be the claims. Three named cases for the cheapest carrier say more than ten that restate the sort.
 
-<blockquote class="ai-sidebar" markdown="1">
-
-**Specifying tests.** "Test the booking" leaves open what a double is built from, what is asserted and where the clock comes from. Paste a prompt that states the form:
-
-> Name each test after the claim it witnesses. Build doubles for `CarrierGateway` with `mocker.create_autospec(CarrierGateway, instance=True)` or a hand-written fake, never a plain `Mock`. Assert the returned reference before the calls. Inject the clock and the environment mapping instead of patching, and use `monkeypatch.context()` for the one real-environment test. Keep `--strict-markers`, `xfail_strict` and `filterwarnings = ["error"]`.
-
-If a test has never been seen failing, delete its check in a scratch copy and confirm it fails.
-
-</blockquote>
+> **🤖 Explore with your agent**
+>
+> "Name each test after the claim it witnesses. Build doubles for `CarrierGateway` with `mocker.create_autospec(CarrierGateway, instance=True)` or a hand-written fake, never a plain `Mock`. Assert the returned reference before the calls. Inject the clock and the environment mapping instead of patching, and use `monkeypatch.context()` for the one real-environment test. Keep `--strict-markers`, `xfail_strict` and `filterwarnings = ["error"]`."
+>
+> If a test has never been seen failing, delete its check in a scratch copy and confirm it fails.
 
 ## Build, run, observe
 

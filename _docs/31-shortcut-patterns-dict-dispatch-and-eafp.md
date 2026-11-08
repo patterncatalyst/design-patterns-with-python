@@ -187,13 +187,11 @@ Raising and catching an exception is dearer than a failed check, so EAFP is chea
 - **A closed set** where mypy should report a missing kind wants `match` with `assert_never`; **an open set extended by type** wants `singledispatch`.
 - **Costly misses.** Look first when the operation does work before it fails, or when a miss is common and costly to handle, because the exception path on a miss is the slow one.
 
-<blockquote class="ai-sidebar" markdown="1">
-**Specifying a dispatch table.** "Handle each document kind" leaves open how the kinds are dispatched and where the exception handling goes. Paste a prompt that states the form:
-
-> Dispatch on `DocumentKind` through a read-only `frozendict` typed `Mapping[DocumentKind, DocumentIssuer]`, with a test that every kind has an entry. Put only the lookup inside `try`/`except KeyError`, raise `UnsupportedDocumentError` from `None`, and call the issuer outside the `try`. Read shared state with one lookup in `try`/`except KeyError`, not `in` followed by indexing, and don't use `getattr` defaults or `hasattr` on properties.
-
-If the reply wraps the call in the `try`, ask which `KeyError` it means to catch.
-</blockquote>
+> **🤖 Explore with your agent**
+>
+> "Dispatch on `DocumentKind` through a read-only `frozendict` typed `Mapping[DocumentKind, DocumentIssuer]`, with a test that every kind has an entry. Put only the lookup inside `try`/`except KeyError`, raise `UnsupportedDocumentError` from `None`, and call the issuer outside the `try`. Read shared state with one lookup in `try`/`except KeyError`, not `in` followed by indexing, and don't use `getattr` defaults or `hasattr` on properties."
+>
+> If the reply wraps the call in the `try`, ask which `KeyError` it means to catch.
 
 ## Build, run, observe
 

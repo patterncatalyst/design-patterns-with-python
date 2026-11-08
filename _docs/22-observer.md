@@ -193,13 +193,11 @@ A subscriber can add a subscriber, remove itself or publish, while the signal is
 
 - **Observer.** Call the parties directly when the set is fixed at the time the subject is built. A tuple of callables is enough. With one subscriber, pass a callable. If the parties must reply to each other, so that who acts depends on what the others did, a mediator decides. If delivery has to survive a crash, use a durable queue: an in-memory signal's subscribers and queue vanish with the process.
 
-<blockquote class="ai-sidebar" markdown="1">
-**Specifying an observer.** "An event system" leaves open how a subscriber is typed, what a failing subscriber does to the rest, and who keeps a subscriber alive. Paste a prompt that states the contract:
-
-> Write a generic `Signal[E]` with `subscribe(subscriber) -> Unsubscribe`, where a subscriber is a typed callable and not a base class. Deliver in subscription order over a snapshot. Run every subscriber, then raise one `ExceptionGroup` for the failures. Queue events published during delivery. Hold bound methods through `weakref.WeakMethod` and functions and lambdas strongly. Say in the docstring that it is single-threaded.
-
-If the reply holds every bound method strongly or iterates the live list, ask for the check that fails.
-</blockquote>
+> **🤖 Explore with your agent**
+>
+> "Write a generic `Signal[E]` with `subscribe(subscriber) -> Unsubscribe`, where a subscriber is a typed callable and not a base class. Deliver in subscription order over a snapshot. Run every subscriber, then raise one `ExceptionGroup` for the failures. Queue events published during delivery. Hold bound methods through `weakref.WeakMethod` and functions and lambdas strongly. Say in the docstring that it is single-threaded."
+>
+> If the reply holds every bound method strongly or iterates the live list, ask for the check that fails.
 
 ## Build, run, observe
 

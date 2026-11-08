@@ -219,15 +219,11 @@ A rule that has to do more than price, such as explain its price or validate a c
 
 - **Strategy.** A single rule called from one place is a function, with no registry. A registry consulted with a literal key everywhere, `RATE_RULES["zone"](c)`, is a dispatch table in disguise, and a plain call reads better. Rules that need different inputs are a signature problem: a rule that wants the carrier as well as the consignment doesn't fit `PricingRule`, and the slot changes before any registry does. A rule object with no configuration to hold and no value comparison to make adds a class an audit can't use.
 
-<blockquote class="ai-sidebar" markdown="1">
-
-**Specifying strategies.** "Add the pricing rules" leaves open how a rule is typed, where it is registered and what the quote records. Paste a prompt that states the form:
-
-> Type the slot as `type PricingRule = Callable[[Consignment], Money]`. Register rules in a read-only `frozendict` typed `Mapping[str, PricingRule]`: a function, a `partial` that binds every parameter its rule needs, or a frozen dataclass with `__call__` when the configuration must compare by value. Raise an unknown name as `RatingError`. Record the registry key on `RateQuote`, not `__name__`. A rule's result depends only on its argument. No base class.
-
-If a `partial` entry binds nothing, ask for the call that fails.
-
-</blockquote>
+> **🤖 Explore with your agent**
+>
+> "Type the slot as `type PricingRule = Callable[[Consignment], Money]`. Register rules in a read-only `frozendict` typed `Mapping[str, PricingRule]`: a function, a `partial` that binds every parameter its rule needs, or a frozen dataclass with `__call__` when the configuration must compare by value. Raise an unknown name as `RatingError`. Record the registry key on `RateQuote`, not `__name__`. A rule's result depends only on its argument. No base class."
+>
+> If a `partial` entry binds nothing, ask for the call that fails.
 
 ## Build, run, observe
 

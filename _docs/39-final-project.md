@@ -214,15 +214,11 @@ Billing is built here. An `Invoice` holds `LineItem`s, for freight and for duty,
 - **Steps across processes or a network.** The `ExitStack` holds its callbacks in the memory of the process that runs it, as the stand-in plan and client hold their state. A booking that must survive a restart needs the record of what to undo stored somewhere that outlives the process. *Architecture Patterns with Python* covers that abstraction over atomic operations in "Unit of Work Pattern".
 - **A step that can't be undone.** `CarrierGateway` asks for `cancel`; a carrier that can't cancel needs a different design, because the callback would have nothing to call.
 
-<blockquote class="ai-sidebar" markdown="1">
-
-**Adding a stage to the booking.** "Add an insurance step" names no place for the undo or for the event. Keep the slice's rules:
-
-> Add the step inside the `ExitStack` in `BookingDesk.ship`, after the carrier booking and before clearance, and register its inverse with `undo.callback`. Publish nothing before `undo.pop_all()`. Take the new collaborator as a keyword parameter of `BookingDesk` and choose it only in `build_desk`. Extend `acceptance_failures` with the step's expected result, and add a held-declaration test that shows the step undone.
-
-If the diff imports a concrete class outside `app.py`, ask why the composition root didn't choose it.
-
-</blockquote>
+> **🤖 Explore with your agent**
+>
+> "Add the step inside the `ExitStack` in `BookingDesk.ship`, after the carrier booking and before clearance, and register its inverse with `undo.callback`. Publish nothing before `undo.pop_all()`. Take the new collaborator as a keyword parameter of `BookingDesk` and choose it only in `build_desk`. Extend `acceptance_failures` with the step's expected result, and add a held-declaration test that shows the step undone."
+>
+> If the diff imports a concrete class outside `app.py`, ask why the composition root didn't choose it.
 
 ## Build, run, observe
 

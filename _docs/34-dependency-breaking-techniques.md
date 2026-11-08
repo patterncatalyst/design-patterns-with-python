@@ -207,15 +207,11 @@ Feathers's chapter "Dependency Breaking Techniques" is the catalogue; read each 
 | Redirect a global reference | A patch where the name is looked up, as in Seams in Python |
 | Wrap an API in your own shape | `airco_quote` |
 
-<blockquote class="ai-sidebar" markdown="1">
-
-**Breaking a dependency without changing behaviour.** "Make `RateEngine` testable" doesn't say how, and a rewrite can quietly change the tie-break or the timeout. Fix the order:
-
-> Before changing `RateEngine`, write a characterisation table: for each row, the carriers' answers and the `(carrier, total, calls)` the code produces today, including the tie-break and the gram truncation. Change one thing per step and run the table after each: carriers as keyword parameters defaulting to the real calls; then `airco_quote` wrapping the AIRCO SDK into `CarrierQuoter`; then a `quote` function taking `quoters`, bound with `functools.partial`. Don't fix behaviour in the same step.
-
-If an expected value in the table changed in the diff, ask which step meant to change behaviour.
-
-</blockquote>
+> **🤖 Explore with your agent**
+>
+> "Before changing `RateEngine`, write a characterisation table: for each row, the carriers' answers and the `(carrier, total, calls)` the code produces today, including the tie-break and the gram truncation. Change one thing per step and run the table after each: carriers as keyword parameters defaulting to the real calls; then `airco_quote` wrapping the AIRCO SDK into `CarrierQuoter`; then a `quote` function taking `quoters`, bound with `functools.partial`. Don't fix behaviour in the same step."
+>
+> If an expected value in the table changed in the diff, ask which step meant to change behaviour.
 
 ## Build, run, observe
 

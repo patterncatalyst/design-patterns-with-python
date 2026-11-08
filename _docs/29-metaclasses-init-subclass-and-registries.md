@@ -185,13 +185,11 @@ Two other metaclass hooks are dissolved or invisible. PEP 520, by Eric Snow, say
 - **A metaclass.** A metaclass is the wrong tool for anything `__init_subclass__`, a class decorator or a descriptor does.
 - **Uncertain imports.** Registration that depends on modules nobody is sure will be imported leaves a carrier missing until a booking asks for its code and gets `UnknownCarrierError`.
 
-<blockquote class="ai-sidebar" markdown="1">
-**Specifying a class registry.** "A plugin registry" leaves open how classes register and what is refused. State the form:
-
-> Register carrier classes with `__init_subclass__(cls, *, code: str | None = None)` on `CarrierBase`, with no `**kwargs` and no metaclass. Use `inspect.isabstract(cls)`: an abstract class takes no code, a concrete class must have one, and a duplicate code raises `DuplicateCarrierError`. Expose the registry as a read-only `MappingProxyType`. In tests, define only classes that are refused or abstract, and check a carrier that registers in a fresh interpreter.
-
-If the reply adds a metaclass, ask what it does that `__init_subclass__` can't.
-</blockquote>
+> **🤖 Explore with your agent**
+>
+> "Register carrier classes with `__init_subclass__(cls, *, code: str | None = None)` on `CarrierBase`, with no `**kwargs` and no metaclass. Use `inspect.isabstract(cls)`: an abstract class takes no code, a concrete class must have one, and a duplicate code raises `DuplicateCarrierError`. Expose the registry as a read-only `MappingProxyType`. In tests, define only classes that are refused or abstract, and check a carrier that registers in a fresh interpreter."
+>
+> If the reply adds a metaclass, ask what it does that `__init_subclass__` can't.
 
 ## Build, run, observe
 

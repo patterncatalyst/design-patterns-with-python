@@ -194,13 +194,11 @@ The suite also runs against `BaseRate` and `FlatRate`, and a new calculator join
 - **Split on a request you've received.** Pulling audit out of `price` before a second reason to change exists adds a parameter and a name for one caller.
 - **A contract suite pays off with two implementations.** With one calculator, the contract is a docstring and its own tests. With two, a shared suite is the only place the second is held to the first's promises.
 
-<blockquote class="ai-sidebar" markdown="1">
-**Specifying a split.** "Split the rate calculation" leaves open how many Protocols it needs, where the tax rules live and what an override may accept. Paste a prompt that states the form:
-
-> Split `quote` into pricing, tax and audit. Pricing is a `RateCalculator` Protocol, tax a `TaxRule` looked up by destination country in a read-only mapping, audit an `AuditSink` callable. Add no Protocol or base class without a second implementation. An override may accept more and promise more, never less. Write one parametrised contract test that every `RateCalculator` must pass.
-
-If an override narrows `price`, ask for the contract case it fails.
-</blockquote>
+> **🤖 Explore with your agent**
+>
+> "Split `quote` into pricing, tax and audit. Pricing is a `RateCalculator` Protocol, tax a `TaxRule` looked up by destination country in a read-only mapping, audit an `AuditSink` callable. Add no Protocol or base class without a second implementation. An override may accept more and promise more, never less. Write one parametrised contract test that every `RateCalculator` must pass."
+>
+> If an override narrows `price`, ask for the contract case it fails.
 
 ## Build, run, observe
 

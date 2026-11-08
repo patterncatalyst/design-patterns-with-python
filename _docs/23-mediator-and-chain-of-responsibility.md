@@ -205,13 +205,11 @@ The cost is that coordination rules sit in one class, and a mediator that takes 
 - **Chain of Responsibility.** With one check, call the function. With a fixed set of rules that nobody extends, write one `match` with a default.
 - **Mediator.** With parties that don't depend on each other's replies, use a signal. If a mediator starts to make a choice that belongs to one colleague, move that rule back to the colleague.
 
-<blockquote class="ai-sidebar" markdown="1">
-**Specifying a chain and a mediator.** "A chain of responsibility" doesn't say what "pass it on" means, which stage is final or who decides when none do. State those in the prompt:
-
-> Write the clearance chain as `clear(declaration, stages, /, *, final=release)`, where each stage is a typed callable returning `Decision | None`, `None` passes the declaration on, the first decision wins, and `final` is typed `Callable[[CustomsDeclaration], Decision]` so it can't pass. Write release coordination as one `ClearanceMediator` that receives a closed union of messages through `match` with `assert_never`, releases only after every report it still owes (duty if unpaid, inspection if restricted) has arrived, in either order, and releases once.
-
-If the reply puts the final stage inside the tuple or lets the parties call each other, ask for the check that fails.
-</blockquote>
+> **🤖 Explore with your agent**
+>
+> "Write the clearance chain as `clear(declaration, stages, /, *, final=release)`, where each stage is a typed callable returning `Decision | None`, `None` passes the declaration on, the first decision wins, and `final` is typed `Callable[[CustomsDeclaration], Decision]` so it can't pass. Write release coordination as one `ClearanceMediator` that receives a closed union of messages through `match` with `assert_never`, releases only after every report it still owes (duty if unpaid, inspection if restricted) has arrived, in either order, and releases once."
+>
+> If the reply puts the final stage inside the tuple or lets the parties call each other, ask for the check that fails.
 
 ## Build, run, observe
 

@@ -302,13 +302,11 @@ Currencies don't mix: adding a USD rule to a EUR one raises `cannot add USD to E
 - **Memento.** With a booking that is itself an immutable value, keep the old value and skip the snapshot class. When undo has a cheap inverse, use a command.
 - **Interpreter.** With a rule set that doesn't change and that nobody reads back, a plain function is enough.
 
-<blockquote class="ai-sidebar" markdown="1">
-**Specifying a visitor, a memento and an interpreter.** A request for "a visitor" or "a memento" names a 1994 shape and leaves open whether the kinds are closed, what a snapshot captures and what it must leave alone. State those in the prompt:
-
-> Over the closed `HandlingEvent` union, write each operation as one function using `match` that ends in `case _: assert_never(event)`. Snapshot a `Booking` into a frozen `BookingSnapshot` holding the request and a `frozenset` of documents, leave the audit out, and restore it in a `rollback` context manager that re-raises. Write tariff rules as frozen node dataclasses under `type Expr`, with `evaluate` and `explain` each a single `match`.
-
-If the reply adds an `accept` method or snapshots with `copy.copy`, ask for the test that fails.
-</blockquote>
+> **🤖 Explore with your agent**
+>
+> "Over the closed `HandlingEvent` union, write each operation as one function using `match` that ends in `case _: assert_never(event)`. Snapshot a `Booking` into a frozen `BookingSnapshot` holding the request and a `frozenset` of documents, leave the audit out, and restore it in a `rollback` context manager that re-raises. Write tariff rules as frozen node dataclasses under `type Expr`, with `evaluate` and `explain` each a single `match`."
+>
+> If the reply adds an `accept` method or snapshots with `copy.copy`, ask for the test that fails.
 
 ## Build, run, observe
 

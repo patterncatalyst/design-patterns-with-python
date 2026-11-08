@@ -203,13 +203,11 @@ Delegating to `str` lets `f"{price:>12}"` right-align `EUR 12.50` in twelve colu
 - **`__bool__` on an amount** makes zero falsy, which surprises code that tests `if amount:` to mean "has an amount", so `Money` leaves it out.
 - **Equality across types**, such as `Money == Decimal`, would need a hash that agrees across both.
 
-<blockquote class="ai-sidebar" markdown="1">
-**Specifying dunders.** "Write the value type's dunders" leaves open the operand types, what equality and hash compare and how ordering is derived. Paste a prompt that states the contract:
-
-> `__eq__` takes `object` and returns `NotImplemented` for foreign types, and `__hash__` hashes the same key equality compares. Type each operator's operand, return `NotImplemented` for anything else, and raise `ValueError` for mixed currencies. Add `__rmul__` for a scalar factor. Derive ordering from `__lt__` with `functools.total_ordering`. No `__radd__` for `0`: callers pass `start=` to `sum`. Add a test that puts two equal values in a set.
-
-If equal values can hash differently, ask for that set test.
-</blockquote>
+> **🤖 Explore with your agent**
+>
+> "`__eq__` takes `object` and returns `NotImplemented` for foreign types, and `__hash__` hashes the same key equality compares. Type each operator's operand, return `NotImplemented` for anything else, and raise `ValueError` for mixed currencies. Add `__rmul__` for a scalar factor. Derive ordering from `__lt__` with `functools.total_ordering`. No `__radd__` for `0`: callers pass `start=` to `sum`. Add a test that puts two equal values in a set."
+>
+> If equal values can hash differently, ask for that set test.
 
 ## Build, run, observe
 

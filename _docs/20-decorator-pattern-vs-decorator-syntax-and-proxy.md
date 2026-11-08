@@ -236,13 +236,11 @@ It passes the same behaviour cases and it's shorter. It has four costs, the mypy
 - **`@decorator` syntax.** Don't put `@retry` around an operation that isn't safe to repeat, such as a booking without an idempotency key, since a repeat can book twice.
 - **Proxy.** Don't put a caching proxy over data that must be fresh, and write the proxy explicitly where a forwarding one would do.
 
-<blockquote class="ai-sidebar" markdown="1">
-**Specifying wrappers and proxies.** "A decorator" leaves open whether the behaviour is a stack chosen per consignment or a function rebound at definition, which one is called "Decorator", and which wrapper sits outside. Paste a prompt that states the form:
-
-> For price adjustments, write frozen layers that hold a `RateCalculator` and satisfy the same Protocol, composed per consignment by `layers_for`, with fixed fees inside the tax layer. For call behaviour, write `@` factories with `functools.wraps` and a `ParamSpec`, `@audited` above `@retry`. Write the proxy as a class that defines every member of `CarrierGateway`, with no `__getattr__` forwarding. Say "Decorator" only for the layer stack.
-
-If the proxy forwards through `__getattr__`, ask what mypy reports for a typo.
-</blockquote>
+> **🤖 Explore with your agent**
+>
+> "For price adjustments, write frozen layers that hold a `RateCalculator` and satisfy the same Protocol, composed per consignment by `layers_for`, with fixed fees inside the tax layer. For call behaviour, write `@` factories with `functools.wraps` and a `ParamSpec`, `@audited` above `@retry`. Write the proxy as a class that defines every member of `CarrierGateway`, with no `__getattr__` forwarding. Say "Decorator" only for the layer stack."
+>
+> If the proxy forwards through `__getattr__`, ask what mypy reports for a typo.
 
 ## Build, run, observe
 
