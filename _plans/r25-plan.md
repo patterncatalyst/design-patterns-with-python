@@ -391,7 +391,7 @@ C1a and C1b run first, alone, because they touch many files mechanically. Then C
 
 | Step | What | Depends | Status |
 | --- | --- | --- | --- |
-| C0 | Bookkeeping with dated notes: BK1 to BK5; record the owner's decisions; re-check every pin; decision 11's `bundle lock --update` in the container and a site build; `verify.sh` and `validate.py` green | - | todo |
+| C0 | Bookkeeping with dated notes: BK1 to BK5; record the owner's decisions; re-check every pin; decision 11's `bundle lock --update` in the container and a site build; `verify.sh` and `validate.py` green | - | done |
 | C1a | Validator and CLAUDE.md: VA1, VA2, VA4 (and VA3 after C1b); CLAUDE.md's sidebar, spine (decision 8) and dated notes (decision 7); every new check has a self-test that fails without it; `--self-test` green | C0 | todo |
 | C1b | The mechanical link pass LK1 to LK5, with the reconciliation `source:` tokens moved in the same commit by the orchestrator; the link sweep re-run; `validate.py --claims` green | C0 | todo |
 | C2a | Docs 00 to 13 (group table) | C1a, C1b | todo |
@@ -464,3 +464,4 @@ Row 30's deepcopy claim (VO6) gets a row at C4a only if TS2 adds its test. A def
 - **Orphaned processes.** soffice, node, the HTTP server and headless Firefox. Mitigation: `pgrep -x soffice.bin`, `pgrep -af 'http.server|firefox'` before handback.
 
 ## Corrections after the build
+- Step C0: BK1 to BK5 are recorded as dated 2026-11-08 notes (r24 plan D6 `done` with notes for BK1, BK3 and BK4; `iteration-plan.md` closes r24, marks r25 active, adds PDP-021 and the r26 to r28 roadmap rows per O2; the build plan's ruby/setup-ruby and csv cells corrected). Every pin was re-checked against upstream and is still the latest stable. Decision 11: `bundle lock --update sass-embedded addressable` in the ruby:4.0.9 container moved sass-embedded 1.106.1 to 1.108.1 and addressable 2.9.0 to 2.9.2; `scripts/site-build.sh` passes twice with the new lock.

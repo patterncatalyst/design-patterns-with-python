@@ -86,14 +86,17 @@ PDP-150..152 decks 101/201/301.
 | actions/configure-pages | v6 (6.0.0) | 2026-11-03 | GitHub releases |
 | actions/upload-pages-artifact | v5 (5.0.0) | 2026-11-03 | GitHub releases |
 | actions/deploy-pages | v5 (5.0.1) | 2026-11-03 | GitHub releases |
-| ruby/setup-ruby | v1 (1.336.0), ruby-version 4.0.9 | 2026-11-03 | GitHub releases |
+| ruby/setup-ruby | v1 (1.338.0), ruby-version 4.0.9 | 2026-11-08 | GitHub releases |
 | ruby container (site build) | ruby:4.0.9 | 2026-11-03 | Docker Hub |
 | pptxgenjs (npm, deck builder) | 4.0.1, exact pin (`dist-tags.latest`; `beta` 4.0.1-beta.2 is a pre-release) | 2026-11-07 | npmjs.com/package/pptxgenjs |
 | image-size (npm override only) | 2.1.0 | 2026-11-07 | npmjs.com/package/image-size |
 | cairosvg (PyPI, run through `uv run --no-project`) | 2.9.1 | 2026-11-07 | PyPI |
-| Jekyll + plugins | jekyll 4.4.1, seo-tag 2.9.1, sitemap 1.4.0, redirect-from 0.17.0, sass-converter 3.1.0 (all current); csv 3.3.6 -> bump to 3.3.7 | 2026-11-03 | rubygems.org |
+| Jekyll + plugins | jekyll 4.4.1, seo-tag 2.9.1, sitemap 1.4.0, redirect-from 0.17.0, sass-converter 3.1.0 (all current); csv 3.3.7 | 2026-11-08 | rubygems.org |
 
 2026-11-07 (r22): pins re-checked against upstream: CPython 3.15.2, uv 0.13.7, pytest 9.2.0, pytest-mock 3.17.0, mypy 2.4.1 and ruff 0.17.4 are all still the latest stable; the npm and cairosvg rows are new for the deck build.
+
+2026-11-08 (r25): every row re-checked against upstream and still the latest stable: CPython 3.15.2 (endoflife.date), uv and uv-build 0.13.7, pytest 9.2.0, pytest-mock 3.17.0, mypy 2.4.1, ruff 0.17.4, cairosvg 2.9.1, pptxgenjs 4.0.1 (`dist-tags.latest`), image-size 2.1.0, actions/checkout 7.0.1, configure-pages 6.0.0, deploy-pages 5.0.1, upload-pages-artifact 5.0.0, setup-uv 10.3.3, ruby:4.0.9, Jekyll 4.4.1 with seo-tag 2.9.1, sitemap 1.4.0, redirect-from 0.17.0, sass-converter 3.1.0. Two cells corrected (BK5): ruby/setup-ruby is 1.338.0 (was 1.336.0; the workflow pins `@v1`) and csv is 3.3.7 (the lock already had it).
+2026-11-08 (r25, decision 11): transitive gems bumped in the ruby:4.0.9 container with `bundle lock --update sass-embedded addressable`: sass-embedded 1.106.1 to 1.108.1 and addressable 2.9.0 to 2.9.2. The held gems (json 3, liquid 5, rouge 5, terminal-table 4, unicode-display_width 3) stay at Jekyll 4.4.1's own constraints. `scripts/site-build.sh` passes twice with the new lock.
 
 2026-11-04 (r05): Python 3.15.2. The CPython and mypy rows above are re-verified for r05; the other rows are unchanged from 2026-11-03.
 
