@@ -373,6 +373,41 @@ Status values: open, verified, adjusted, dropped.
 | 354 | 0-46 | Deck: ban-tier scan clean on the builder, slide text and notes | run: Y4b | verified (r22) |
 | 355 | 0-46 | Deck: committed figure PNGs equal a fresh render | run: _plans/evidence/r22-deck-qa.md | verified (r22) |
 | 356 | 0-46 | Deck: every rendered page viewed and passed | run: _plans/evidence/r22-deck-qa.md | verified (r22) |
+| 357 | 7 | Deck: equal values must hash alike, and a set test catches a broken hash | `test_a_turned_carton_is_one_set_element`, `test_defining_eq_alone_makes_a_class_unhashable` | open |
+| 358 | 7 | Deck: the reflected operand answers when the left operand declines | `test_a_factor_times_money_uses_the_reflected_method`, `test_sum_needs_a_money_start` | open |
+| 359 | 8 | Deck: Value Object dissolves into a frozen, slotted dataclass | `test_equal_values_are_interchangeable`, `test_a_frozen_value_refuses_assignment` | open |
+| 360 | 8 | Deck: frozen is a setattr guard, shallow, and an amendment is a new value | `test_frozen_is_a_setattr_guard_not_a_seal`, `test_frozen_is_shallow`, `test_an_amendment_is_a_new_value_and_the_other_booking_keeps_the_old` | open |
+| 361 | 9 | Deck: absence in the type, with the branch mypy requires | `test_mypy_requires_a_branch_for_absence`, `test_book_with_turns_absence_into_a_booking_error` | open |
+| 362 | 9 | Deck: a null object can hide a lost booking | `test_a_null_gateway_hides_a_lost_booking`, `test_no_discount_is_a_null_object_that_loses_nothing` | open |
+| 363 | 9 | Deck: a Protocol is checked at use and an ABC at construction | `test_mypy_checks_protocols_at_use_and_abcs_at_construction`, `test_abc_refuses_an_incomplete_subclass_at_construction` | open |
+| 364 | 10 | Deck: a writer commits on success and discards on an exception | `test_writer_commits_only_on_success`, `test_writer_closes_and_discards_on_an_exception` | open |
+| 365 | 10 | Deck: a truthy exit swallows, and suppress names one exception | `test_a_truthy_exit_swallows_the_exception`, `test_suppress_swallows_only_the_named_exception` | open |
+| 366 | 10 | Deck: the generator form needs try, and mypy can't see it missing | `test_the_generator_form_needs_try`, `test_mypy_cannot_see_a_missing_try` | open |
+| 367 | 26 | Deck: wraps copies the metadata and signature tools follow it | `test_wraps_keeps_the_name_qualname_doc_and_module`, `test_inspect_signature_follows_wrapped_to_the_original_parameters` | open |
+| 368 | 26 | Deck: a keyword-only factory refuses bare use at definition | `test_a_keyword_only_factory_used_bare_fails_at_definition`, `test_a_positional_factory_used_bare_binds_the_name_to_its_inner_decorator` | open |
+| 369 | 26 | Deck: stacking order decides whether a cache hit is timed | `test_stacking_order_decides_whether_a_cache_hit_is_timed` | open |
+| 370 | 27 | Deck: one descriptor validates every field, where copied setters drift | `test_one_descriptor_class_validates_every_field`, `test_a_copy_pasted_property_validator_drifts` | open |
+| 371 | 27 | Deck: the costs of cached_property | `test_cached_property_needs_an_instance_dict`, `test_a_cached_property_over_mutable_state_goes_stale` | open |
+| 372 | 30 | Deck: a history loads once, on the first lazy read | `test_every_history_form_loads_once_for_every_field`, `test_nothing_is_loaded_until_a_field_is_read` | open |
+| 373 | 30 | Deck: copy recurses through a careless getattr | `test_copy_recurses_through_a_getattr_that_reads_a_missing_attribute`, `test_each_fix_keeps_getattr_out_of_recursion` | open |
+| 374 | 28 | Deck: singledispatch per registered type, with the fallback as design | `test_the_most_specific_registration_wins`, `test_a_raising_fallback_names_an_unregistered_kind` | open |
+| 375 | 28 | Deck: another module extends the set when imported | `test_another_module_extends_the_set_when_it_is_imported`, `test_mypy_refuses_a_kind_outside_a_union_fallback` | open |
+| 376 | 29 | Deck: a class keyword registers and refuses at definition | `test_every_registry_form_refuses_a_bad_carrier_class_and_keeps_the_registry`, `test_mypy_reports_a_misspelt_class_keyword` | open |
+| 377 | 29 | Deck: what a metaclass costs | `test_a_second_metaclass_conflicts_with_the_bases_metaclass`, `test_mypy_does_not_check_metaclass_class_keywords`, `test_mypy_refuses_self_in_a_metaclass_new`, `test_only_a_metaclass_gives_the_class_object_operators` | open |
+| 378 | 31 | Deck: the try holds only the lookup | `test_an_issuers_own_key_error_passes_through_issue`, `test_a_try_around_the_call_reports_an_issuers_bug_as_an_unsupported_kind` | open |
+| 379 | 31 | Deck: EAFP's guarantee covers one gap | `test_an_eafp_read_reloads_when_another_thread_evicts_first`, `test_two_eafp_readers_that_both_miss_both_load` | open |
+| 380 | 32 | Deck: two rating forms quote one table | `test_every_rating_form_quotes_the_same_table`, `test_every_rating_form_refuses_an_unknown_zone` | open |
+| 381 | 32 | Deck: a Visitor breaks on a new charge kind | `test_a_new_charge_kind_breaks_the_engines_visitor_at_run_time`, `test_mypy_reports_a_visitor_missing_a_new_visit_method` | open |
+| 382 | 32 | Deck: a located dependency fails at first use, unseen by mypy | `test_a_located_engine_fails_at_the_first_quote_when_nothing_is_registered`, `test_mypy_does_not_see_a_missing_registration` | open |
+| 383 | 37 | Deck: the build flag and the runtime GIL state | `test_the_build_flag_and_the_runtime_gil_state_agree`, `test_mypy_types_the_build_flag_as_any` | open |
+| 384 | 37 | Deck: a lock over read and write gives each thread its own slot | `test_two_threads_parked_between_read_and_write_take_the_same_slot`, `test_a_lock_across_read_and_write_gives_each_thread_its_own_slot` | open |
+| 385 | 37 | Deck: threads share the argument, processes and interpreters copy it | `test_threads_share_the_argument_and_processes_and_interpreters_copy_it`, `test_a_process_pool_cannot_send_a_lambda` | open |
+| 386 | 38 | Deck: an unawaited coroutine is a value, warned at collection | `test_calling_a_coroutine_function_without_await_gives_a_coroutine_not_a_quote`, `test_a_quote_that_is_never_awaited_warns_when_it_is_collected` | open |
+| 387 | 38 | Deck: stopping early closes the feed | `test_first_departure_closes_the_feed_when_it_stops_early`, `test_breaking_out_of_async_for_leaves_the_feed_open` | open |
+| 388 | 38 | Deck: a task group for quotes, isolation for subscribers | `test_a_failing_subscriber_does_not_stop_the_others`, `test_a_task_group_publisher_cancels_the_other_subscribers_when_one_fails` | open |
+| 389 | 7-38 | Deck: the metaclass-cost, sources and books tables match the chapters | run: _plans/evidence/r23-deck-witness-census.md | open |
+| 390 | 7-37 | Chapter fixes P1 to P14: the manifest contract, the null-gateway sentence, the dict-key line, the weight message, the fixture sentence, the mypy sentence, the quoted messages under test, the cards, the docs and What's New links, the free-threaded pin, the probe, the bench flag, the mypy command | run: Z1c | verified (r23) |
+| 391 | 7-37 | Figure fixes F1 to F9 regenerated from their specs, and figures 07, 09, 10, 31 and 37 pass the arrow census | run: Z1c | verified (r23) |
 
 2026-11-04 (r05): Python 3.15.2. Rows 47 to 64 are added at the move to 3.15.2 and start `open`; the r05 steps fill in their evidence. Rows 1 to 46 were verified on 3.14.10 and keep that evidence; row 47 covers the re-run of their quoted output on 3.15.2.
 
@@ -427,3 +462,5 @@ Status values: open, verified, adjusted, dropped.
 2026-11-07 (r22, Y2): Rows 313 to 349 are added. Every claim that begins "Deck:" starts open, because the deck is not built; its test names and sentences are witnessed by `_plans/evidence/r22-deck-witness-census.md` (113 test names, each defined once, 191 cases passing three forward runs and one reverse run in a fresh copy), and Y5 closes each row when the slide is checked. Rows 348 and 349 are verified (r22) by the done Y1d. Rows 350 to 356 depend on the built deck and are added at Y5.
 
 2026-11-07 (r22, Y5): Rows 313 to 347 are verified. The Y5 validation re-ran every witness test by node id in a fresh copy (191 passed, twice) and checked each slide's claim against its census row. Rows 350 to 356 are added and verified. Round 2 passed every criterion except positional pointers in three divider notes, which repair round 2 fixed; `check_decks()` now refuses those phrasings.
+
+2026-11-07 (r23, Z2): Rows 357 to 391 are added. Every claim that begins "Deck:" starts open, because the deck is not built; its test names and sentences are witnessed by `_plans/evidence/r23-deck-witness-census.md` (147 test names, each defined once, 215 cases passing three forward runs and one reverse run on 2026-11-07). Rows 390 and 391 are the Z1c fixes and are verified (r23): P1 to P14 and F1 to F9 are applied at e074ef7, and figures 07, 09, 10, 31 and 37 pass the arrow census re-run in Z1b. Row 377 gains `test_mypy_refuses_self_in_a_metaclass_new`, because the chapter's "four places" need it. Rows 392 to 398 cite Z4a, Z4b and the QA record and are added at Z5.

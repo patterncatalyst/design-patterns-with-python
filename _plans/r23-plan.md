@@ -425,10 +425,10 @@ Build, from `<repo>/presentation`: `npm ci`; `./render-png.sh 07 09 10 31 37`; `
 | Step | What | Depends | Status |
 | --- | --- | --- | --- |
 | Z0 | Bookkeeping with dated notes: `iteration-plan.md` closes r22 (PDP-150 `done`), marks PDP-151 and r23 `active`, and fixes the stale rows (B1); re-check every pin; record the owner's decisions; `verify.sh` and `validate.py` green | - | done |
-| Z1a | `deck-lib.js` and the `deck-101.js` refactor with the identity proof (decision 3); `render-png.sh` default list (B2); `build-notes.md` (B3); the five new PNGs after Z1c's figure fixes | Z0, Z1c for the PNGs | todo |
-| Z1b | `_plans/evidence/r23-deck-witness-census.md`, after Z1c, so lines, anchors and the figure census are taken from the fixed tree | Z1c | todo |
+| Z1a | `deck-lib.js` and the `deck-101.js` refactor with the identity proof (decision 3); `render-png.sh` default list (B2); `build-notes.md` (B3); the five new PNGs after Z1c's figure fixes | Z0, Z1c for the PNGs | done |
+| Z1b | `_plans/evidence/r23-deck-witness-census.md`, after Z1c, so lines, anchors and the figure census are taken from the fixed tree | Z1c | done |
 | Z1c | Decision 5's book fixes P1 to P14 and F1 to F9, each with its chapter's tests, `verify.sh` and `validate.py` green and every recurrence grepped; figures regenerated through `diagrams/specs` | Z0 | done |
-| Z2 | Rows 357 to 391 into `_plans/reconciliation-plan.md` with a dated note; every quote, line or test that differs from this plan goes in Corrections; a failed witness cuts the slide | Z1b | todo |
+| Z2 | Rows 357 to 391 into `_plans/reconciliation-plan.md` with a dated note; every quote, line or test that differs from this plan goes in Corrections; a failed witness cuts the slide | Z1b | done |
 | Z3 | `deck-201.js` (Sonnet executor) from the inventory and the census, notes written to the settled voice rules, with no chapter, appendix, book or positional pointer | Z1a, Z2 | todo |
 | Z4a | Build and QA pipeline steps 1 to 12 (executor view of every page); `_plans/evidence/r23-deck-qa.md`; README "Companion decks" entry | Z3 | todo |
 | Z4b | Voice pass on `deck-201.js` and the extracted text: ban tier, `--stats`, the house-voice rubric, the step 8 grep; rebuild and re-run pipeline steps 3 to 10 | Z4a | todo |
@@ -529,6 +529,20 @@ Rows 357 to 391 go in at Z2, after the census exists (so its `run:` path resolve
   - The P9 and P10 link changes moved the `source:` URLs in reconciliation rows 170, 177, 178 and 225.
   - Nine figures were regenerated: 07, 09, 10, 26, 28, 29, 31, 32 and 37.
   - The orchestrator re-ran the gates at e074ef7 in the real repo: `verify.sh` passes, `validate.py` reports 0 errors and `site-build.sh` passes.
+- Step Z1a (part 2): `render-png.sh --deck 201` rendered figures 07, 09, 10, 31 and 37 into `presentation/png/`, and `./render-png.sh --check` prints `same` for all sixteen figures. Z1a is done.
+- Step Z1b: `_plans/evidence/r23-deck-witness-census.md` is written. All 147 witness and notes-witness names are defined once, and the four runs (three forward, one reverse) each report 215 passed on 2026-11-07. No slide is cut. Differences from this plan:
+  - Slide 6: the range `values.py:15-23` is unchanged, but its longest line is now 92 characters (plan: 81), after P4.
+  - Slide 7: `test_money_validates_and_of_normalises` is added as a notes witness for 08.md validation without repair.
+  - Slide 16: the two `partial` tests are `test_a_decorator_that_supplies_an_argument_reports_the_original_parameters` and `test_partial_reports_the_parameters_that_remain`.
+  - Slide 22: the claim is reworded, because "where Proxy is disambiguated" uses the book's bucket vocabulary.
+  - Slide 27: the range is widened from 44-52 to 44-58, so the slide shows the registration (a contiguous run of the chapter's fence, block lines 18 to 32).
+  - Slide 28: `test_mypy_refuses_self_in_a_metaclass_new` is added, because the chapter's "four places" include the `Self` limit; the table has four cost rows and one row for what a metaclass buys.
+  - Slide 40: the claim is the Iterator row at 38.md:50.
+  - Figure 09: the smallest label is 9.5 pt, not 9.1. All five figures pass the arrow census and the 6.3 pt floor (6.8 to 9.5 pt).
+  - Deck 101's `js:NNN` references in the boundary section are stale since the Z1a refactor. The conclusion holds, with two near repeats (slides 30 and 32) that need the notes to lead with the EAFP read and the shared table.
+  - The census lists 19 standalone-wording items for the executor brief, mostly the bucket vocabulary and internal codes.
+  - Observation for the validation step: `Positive.__set__` in chapter 27 (`fields.py:37`) raises "must be positive" for non-finite values, the pattern P4 fixed for `Weight`. The tests match `must be positive`, so it is tested as written; it is not changed here.
+- Step Z2: rows 357 to 391 are added to `_plans/reconciliation-plan.md` with a dated note. Rows that begin "Deck:" start `open`; rows 390 and 391 (the Z1c fixes) are `verified (r23)`. Row 377 gains the `Self` test, and row 389 cites the census path. `validate.py --claims` reports 0 errors; every new token resolves.
 
 Step Z0: `iteration-plan.md` closes r22 (PDP-150 `done`), marks PDP-151 and r23 `active`, and sets the 80 stale rows to `done` (B1): the 31 `todo` rows for r01 and r02 (PDP-001, 003 to 020, 100a to 104c less the three exceptions below), PDP-105a to PDP-120c (48 `active` rows for r03 to r09), and PDP-150 (the 49th `active` row). PDP-101a and PDP-104a keep `n.a. (argument chapter)` and PDP-102a keeps `covered by PDP-103a`. A dated 2026-11-07 (r23) note is appended. Pins re-checked 2026-11-07 against upstream and unchanged: pptxgenjs 4.0.1 (`dist-tags.latest`; `beta` 4.0.1-beta.2 not used), image-size 2.1.0, cairosvg 2.9.1, CPython 3.15.2 (endoflife.date and python.org cycle 3.15), uv 0.13.7, pytest 9.2.0, pytest-mock 3.17.0, mypy 2.4.1, ruff 0.17.4. No pin row changed, so `r01-build-plan.md` is untouched.
 
