@@ -6,7 +6,7 @@ from structural_typing.domain import Money, Weight
 
 @pytest.mark.parametrize("kilograms", [0.0, -1.0, float("inf"), float("nan")])
 def test_weight_must_be_positive_and_finite(kilograms: float) -> None:
-    with pytest.raises(ValueError, match="kilograms must be positive"):
+    with pytest.raises(ValueError, match="kilograms must be positive and finite"):
         Weight(kilograms)
 
 

@@ -23,7 +23,7 @@ class Weight:
 
     def __post_init__(self) -> None:
         if not (math.isfinite(self.kilograms) and self.kilograms > 0):
-            raise ValueError(f"kilograms must be positive, got {self.kilograms}")
+            raise ValueError(f"kilograms must be positive and finite, got {self.kilograms}")
 
 
 @dataclass(frozen=True, slots=True)

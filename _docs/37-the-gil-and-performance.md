@@ -21,11 +21,11 @@ By the end of this chapter you can:
 
 Two bookings reach the same sailing from two threads, and each reserves a slot. The global interpreter lock sounds like the answer, because only one thread runs bytecode at a time. It protects the interpreter's own structures, and a reservation that reads a count and then writes a slot is several steps of your code.
 
-In one example run, 300 trials of four threads each adding 1 to a shared attribute 5,000 times lost an update in none on the default build and in all 300 on the free-threaded build. A race that doesn't fire on one build still exists, so the example forces the interleaving with a seam, and its tests give the same answer on both builds. How much faster threads, processes or interpreters rate a batch depends on the build and the work, and that lives in a benchmark script, not an assertion.
+In the recorded runs of `bench/lost_update_probe.py`, 300 trials of four threads each adding 1 to a shared attribute 5,000 times lost an update in none on the default build and in all 300 on the free-threaded build. A race that doesn't fire on one build still exists, so the example forces the interleaving with a seam, and its tests give the same answer on both builds. How much faster threads, processes or interpreters rate a batch depends on the build and the work, and that lives in a benchmark script, not an assertion.
 
 {% include excalidraw.html name="37-the-gil-and-performance" caption="Figure 37.1: Two threads reserving a slot on one sailing. Parked between reading and writing, they take the same slot on either build; a lock that covers the read and the write gives each its own." %}
 
-Read the figure from the top. `StowagePlan.reserve` ("pick slot, gap, store") has two arrows down. The left one reaches "no lock: nullcontext" ("two threads meet in the gap (Barrier)"), and a dashed arrow from there reaches a dashed box, "the two threads take the same SlotId" ("on either build; one reservation is left"). The right arrow reaches an accent box, "Lock over the read and the write" ("_RecordingLock: the second caller waits"), and a solid arrow goes on to "each thread gets its own SlotId" ("two reservations are stored"). Both lanes end at a bar: "a lock that covers the read and the write keeps the pair together" ("the GIL does not join them").
+Read the figure from the top. `StowagePlan.reserve` ("pick slot, gap, store") has two arrows down. The left one reaches "no lock: nullcontext" ("two threads meet in the gap (Barrier)"), and a dashed arrow from there reaches a dashed box, "the two threads take the same SlotId" ("on either build; one reservation is left"). The right arrow reaches an accent box, "Lock over the read and the write" ("_RecordingLock: the second caller waits"), and a solid arrow goes on to "each thread gets its own SlotId" ("two reservations are stored"). Beneath the lanes, connected to neither, a bar reads "a lock that covers the read and the write keeps the pair together" ("the GIL does not join them").
 
 ## Two builds, one question
 
@@ -49,7 +49,7 @@ Two functions are needed because the build and the running state can differ. The
 
 `sysconfig.get_config_var` is typed `Any`, so returning a comparison on it from a `-> bool` function is a mypy `no-any-return` error, and `bool(...)` is what the module does about it. `test_mypy_types_the_build_flag_as_any` runs the unwrapped form and `build.py` through `--strict` mypy and finds the code in only the first.
 
-On the default build, threads interleave because the lock changes hands. The sys documentation describes `sys.getswitchinterval()` as returning "the interpreter’s “thread switch interval” in seconds", and `sys.setswitchinterval` as setting "the ideal duration of the “timeslices” allocated to concurrently running Python threads". It adds that "which thread becomes scheduled at the end of the interval is the operating system’s decision." The glossary adds "Also, the GIL is always released when doing I/O." A run on 3.15.2 reads 0.005 from `sys.getswitchinterval()`. A thread loses the interpreter when its timeslice ends or when it waits on I/O, and where in your code that happens isn't yours to choose.
+On the default build, threads interleave because the lock changes hands. The sys documentation describes `sys.getswitchinterval()` as returning "the interpreter’s “thread switch interval” in seconds", and `sys.setswitchinterval` as setting "the ideal duration of the “timeslices” allocated to concurrently running Python threads". It adds that "which thread becomes scheduled at the end of the interval is the operating system’s decision." The glossary adds "Also, the GIL is always released when doing I/O." In the recorded probe runs on 3.15.2, `sys.getswitchinterval()` reads 0.005. A thread loses the interpreter when its timeslice ends or when it waits on I/O, and where in your code that happens isn't yours to choose.
 
 ## The GIL is not your lock
 
@@ -247,12 +247,13 @@ tests/test_stowage.py::test_the_reservations_view_refuses_assignment PASSED [100
 Success: no issues found in 12 source files
 ```
 
-`uv run python bench/gil_bench.py` prints the benchmark report. To run the tests on the free-threaded build, install it and build a second environment from the same lockfile, from the repository root:
+`uv run python bench/gil_bench.py --cpu-class "16-thread x86-64 CPU"` prints the benchmark report; the flag takes a class, never a model. `bench/lost_update_probe.py` takes it too, and its recorded outputs are `bench/lost_update_probe.out.txt` and `bench/lost_update_probe.ft.out.txt`. To run the tests on the free-threaded build, install it and build a second environment from the same lockfile, from the repository root:
 
 ```bash
-uv python install 3.15t
-UV_PROJECT_ENVIRONMENT=.venv-ft uv sync --python 3.15t --locked --all-packages
+uv python install 3.15.2t
+UV_PROJECT_ENVIRONMENT=.venv-ft uv sync --python 3.15.2t --locked --all-packages
 .venv-ft/bin/python -m pytest examples/37-the-gil-and-performance
+.venv-ft/bin/python examples/37-the-gil-and-performance/bench/lost_update_probe.py --cpu-class "16-thread x86-64 CPU"
 ```
 
 The same 15 cases pass there. Each experiment below runs in a scratch copy of the repository: delete the copy's `.venv`, run `uv sync --locked --all-packages` from its root and check that `gil_and_performance.__file__` points into the copy.

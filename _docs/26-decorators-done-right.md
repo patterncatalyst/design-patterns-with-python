@@ -31,7 +31,7 @@ Each one is a rule about how decorators compose, and each has a test.
 
 {% include excalidraw.html name="26-decorators-done-right" caption="Figure 26.1: The order of a stack decides whether a timer sees a cache hit. functools.wraps keeps a renderer's identity for runtime tools, ParamSpec keeps its signature for mypy, and a class decorator belongs above a slotted dataclass." %}
 
-Read the figure from the top down. `render_bill`, "the function both stacks wrap", has an arrow to each stack. On the left `timed_render` is outer and `cached_for` inner, with the note "timer outside: every call timed" beneath. On the right `cached_for` is outer and `timed_render` inner, with "timer inside: only misses timed" beneath. Lower down, `functools.wraps` ("copies name, doc, dict; adds __wrapped__") leads to `inspect.signature` ("follows __wrapped__"), and `ParamSpec` ("keeps the signature") leads to `mypy` ("sees the original parameters"). Between them a dashed, muted box reads "a decorator that supplies an argument: the signature misleads; use partial". At the bottom `document_kind` ("above: registers the class the name holds") leads to `dataclass(slots=True)` ("returns a new class").
+Read the figure from the top down. A box reading "a render function", "the function both stacks wrap", has an arrow to each stack; the stacking test supplies a renderer of its own for both orders. On the left `timed_render` is outer and `cached_for` inner, with the note "timer outside: every call timed" beneath. On the right `cached_for` is outer and `timed_render` inner, with "timer inside: only misses timed" beneath. Lower down, `functools.wraps` ("copies name, doc, dict; adds __wrapped__") leads to `inspect.signature` ("follows __wrapped__"), and `ParamSpec` ("keeps the signature") leads to `mypy` ("sees the original parameters"). Between them a dashed, muted box reads "a decorator that supplies an argument: the signature misleads; use partial". At the bottom `document_kind` ("above: registers the class the name holds") leads to `dataclass(slots=True)` ("returns a new class").
 
 ## What wraps copies
 
@@ -323,17 +323,17 @@ The sed masks an object address the pytest message carries. Five metadata tests 
 
 ```text
 E       AssertionError: Regex pattern did not match.
-tests/test_factories.py:121: AssertionError
+tests/test_factories.py:123: AssertionError
 E       AssertionError: assert {'arg-type'} == {'arg-type', 'call-arg'}
 tests/test_static.py:185: AssertionError
 FAILED tests/test_factories.py::test_a_keyword_only_factory_used_bare_fails_at_definition
 FAILED tests/test_static.py::test_mypy_refuses_a_keyword_only_factory_used_bare
 2 failed, 38 passed in 3.16s
-tests/test_factories.py:123: error: Unused "type: ignore[call-arg]" comment  [unused-ignore]
+tests/test_factories.py:125: error: Unused "type: ignore[call-arg]" comment  [unused-ignore]
 Found 1 error in 1 file (checked 9 source files)
 ```
 
-The bare `@cached_for` still fails at the `def`, but not with the refusal the test expects. It reaches `if seconds <= 0` with a function in place of a number, and the pytest report gives the actual message as "'<=' not supported between instances of 'function' and 'int'", which doesn't match "takes 0 positional arguments". mypy now reports only `[arg-type]`, so the code set changes, and the `# type: ignore[call-arg, arg-type]` on the decorator is half unused: member mypy exits 1 with `[unused-ignore]`.
+The bare `@cached_for` still fails at the `def`, but not with the refusal the test expects. It reaches `if seconds <= 0` with a function in place of a number, and the pytest report gives the actual message as "'<=' not supported between instances of 'function' and 'int'", which doesn't match "takes 0 positional arguments". mypy now reports only `[arg-type]`, so the code set changes, and the `# type: ignore[call-arg, arg-type]` on the decorator is half unused: the member's mypy run exits 1 with `[unused-ignore]`.
 
 ## What you can do now
 

@@ -53,7 +53,7 @@ def test_an_amendment_is_a_new_value_and_the_other_booking_keeps_the_old(
 
 
 def test_replace_runs_post_init() -> None:
-    with pytest.raises(ValueError, match="kilograms must be positive"):
+    with pytest.raises(ValueError, match="kilograms must be positive and finite"):
         replace(Weight(1.0), kilograms=-1.0)
     with pytest.raises(ValueError, match="bay must be at least 1"):
         replace(SlotId(1, 0, 1), bay=0)

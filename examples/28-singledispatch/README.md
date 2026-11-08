@@ -33,9 +33,9 @@ Registration and the module that loads.
 
 `singledispatchmethod` and mypy.
 
-- `SurchargeSchedule.surcharge` dispatches on `DryContainer`, `ReeferContainer` and `TankContainer`,
-  and on the argument after `self`: a `5` in that position takes the fallback, which raises
-  `SurchargeError`.
+- `SurchargeSchedule.surcharge` dispatches on one argument, the one after `self`:
+  `DryContainer`, `ReeferContainer` and `TankContainer` take their own rules, and a `5` in that
+  position takes the fallback, which raises `SurchargeError`.
 - mypy 2.4.1 checks calls and registrations against the fallback's signature, and with an `object`
   fallback `tariff_code(42)` passes. A union fallback refuses a foreign kind. A `register(cls, fn)`
   whose class differs from the parameter, and a forward reference, pass mypy and fail at run time.

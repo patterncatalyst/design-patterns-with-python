@@ -35,7 +35,7 @@ emit(
             "w": 340,
             "h": 60,
             "style": "ghost",
-            "lines": ["_RateEngine.quote", "9 classes, 17 functions, 57 lines, 11 calls"],
+            "lines": ["_RateEngine", "9 classes, 17 functions, 57 lines, 11 calls"],
         },
         {
             "x": 430,

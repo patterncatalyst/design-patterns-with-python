@@ -46,4 +46,5 @@
 <path d="M500,500 L500,580" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
 <path d="M560,500 L810,580" fill="none" stroke="#555" stroke-width="2" marker-end="url(#a)"/>
 <text x="500" y="345" font-size="11" fill="#555" text-anchor="middle">most specific class first</text>
+<text x="500" y="375" font-size="11" fill="#555" text-anchor="middle">amber arrows: next in the MRO when the class before is unregistered</text>
 </svg>

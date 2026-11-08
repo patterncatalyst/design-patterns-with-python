@@ -67,10 +67,10 @@
   section: "Ch. 7"
   title: How Python evaluates factor times price
   caption: >-
-    How Python evaluates factor times price. The interpreter asks the left
-    operand's type first; Decimal returns NotImplemented for Money, so Money's
-    reflected method answers, and only when both decline does the expression
-    raise TypeError.
+    How Python evaluates factor times price. The left operand's type asks first
+    and returns NotImplemented for a Money, so Money's reflected method answers.
+    For a float factor that method declines too, and the expression raises
+    TypeError.
 
 - name: 08-dataclasses-and-value-semantics
   section: "Ch. 8"

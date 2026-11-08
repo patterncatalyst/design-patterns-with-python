@@ -66,7 +66,7 @@ Then from this directory:
 
 ```bash
 uv run pytest
-uv run mypy --strict src tests bench
+uv run mypy --strict src tests
 uv run python -I bench/lookup_cost.py
 ```
 

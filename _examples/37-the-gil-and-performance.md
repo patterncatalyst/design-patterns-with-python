@@ -33,8 +33,9 @@ is on. The tests hold on both builds.
 
 ## The benchmark
 
-`bench/gil_bench.py` times the batch and some waits. No test asserts a timing, and the recorded
-outputs for each build sit beside the script.
+`bench/gil_bench.py` times the batch and some waits. `bench/lost_update_probe.py` counts the trials
+in which four unlocked threads lose an update. No test asserts a timing or a count, and the recorded
+outputs for each build sit beside the scripts.
 
 ## What mypy checks
 
@@ -55,7 +56,8 @@ Then from the example directory:
 cd examples/37-the-gil-and-performance
 uv run pytest -v
 uv run mypy --strict src tests
-uv run python bench/gil_bench.py
+uv run python bench/gil_bench.py --cpu-class "16-thread x86-64 CPU"
+uv run python bench/lost_update_probe.py --cpu-class "16-thread x86-64 CPU"
 ```
 
 The example README lists what each test verifies and how to run the tests on the free-threaded

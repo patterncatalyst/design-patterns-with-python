@@ -1,3 +1,4 @@
+import re
 from collections.abc import Callable
 from decimal import Decimal
 from typing import TYPE_CHECKING
@@ -131,7 +132,8 @@ def test_a_copy_pasted_property_validator_drifts() -> None:
 
 
 def test_a_property_without_a_setter_refuses_assignment(container: Container) -> None:
-    with pytest.raises(AttributeError, match="has no setter"):
+    message = "property 'payload_kg' of 'Container' object has no setter"
+    with pytest.raises(AttributeError, match=re.escape(message)):
         container.payload_kg = Decimal(1)  # type: ignore[misc]
 
 

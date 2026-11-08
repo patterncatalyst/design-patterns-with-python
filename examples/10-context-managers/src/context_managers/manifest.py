@@ -93,7 +93,7 @@ def manifest_file(path: Path, *, opener: Opener = open_utf8) -> Iterator[TextIO]
 def write_manifests(
     manifests: Iterable[Manifest], directory: Path, *, opener: Opener = open_utf8
 ) -> list[Path]:
-    """Write every manifest or none: a failure discards the partials of all those entered."""
+    """Write one manifest per entry: a failed open discards the partials of every writer entered."""
     paths: list[Path] = []
     with ExitStack() as stack:
         for manifest in manifests:
