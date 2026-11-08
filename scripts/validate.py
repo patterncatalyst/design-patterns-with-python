@@ -736,7 +736,6 @@ PYTEST_HEADER_RE = re.compile(r"^platform linux -- Python 3\.\d+")
 VERSION_MENTION_RE = re.compile(r"(?<![\w./-])3\.1\d(?:\.\d+)?t?(?!\w|\.\d)")
 VERSION_ALLOW: dict[str, tuple[str, ...]] = {
     "_docs/02-what-1994-assumed-and-python-dissolves.md": ("new in 3.12",),
-    "_docs/08-dataclasses-and-value-semantics.md": ("On Python 3.15 the message names",),
     "_docs/09-protocol-and-structural-typing.md": (
         "new in 3.15",
         "Python 3.15 adds a `sentinel`",
