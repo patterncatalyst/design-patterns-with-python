@@ -10,7 +10,7 @@ render_with_liquid: false
 
 Method. A fresh copy of the tree (`git ls-files` plus untracked, copied with `cp --parents`), `.venv` and `.venv-ft` removed, `uv sync --locked --all-packages`, and `__file__` of an example package checked to sit inside the copy. Every command ran in the copy with its output passed through `python3 scripts/host_ids.py filter`, the copy path replaced by `<repo>`, and durations normalised. A block matches when its lines equal the scrubbed output, allowing the omissions its prose states (the banner, `note:` lines, a trailing `Found N errors` line, `...` for elided test rows). Experiment blocks were produced by making the edit the prose names in a second fresh copy, running the stated filter, and restoring the file (`diff -r` of the touched member against the repo was clean afterwards). The `<string>:N: error` blocks come from mypy runs inside the member tests: a pytest plugin recorded every `mypy.api.run` output during a full-suite run (1,407 passed), and each block's lines were checked against those outputs.
 
-Result: 185 fenced output blocks in 47 docs, 181 match and 4 were fixed (19:313, 21:256, 30:219, 30:236). The three prose items the r25 evidence left open were also re-run (below).
+Result: 185 fenced output blocks in 47 docs, 182 match and 3 were fixed (19:313, 30:219, 30:236); C3a's 21:256 edit was withdrawn at validation round 1. The three prose items the r25 evidence left open were also re-run (below).
 
 ### Fixes
 
@@ -153,7 +153,7 @@ In a scratch copy, `test_deepcopy_fails_with_a_type_error_when_the_loader_answer
 | 20:222 | `uv run pytest -v` then `mypy --strict src tests` in the member | match |
 | 20:290 | scratch-copy edit named in the prose, then the filter and mypy command given there | match |
 | 20:308 | scratch-copy edit named in the prose, then the filter and mypy command given there | match |
-| 21:256 | `uv run pytest -v` then `mypy --strict src tests` in the member | match (C3a's edit reverted in round 1) |
+| 21:256 | `uv run pytest -v` then `mypy --strict src tests bench` in the member | match (C3a's edit reverted in round 1) |
 | 21:322 | scratch-copy edit named in the prose, then the filter and mypy command given there | match |
 | 21:335 | scratch-copy edit named in the prose, then the filter and mypy command given there | match |
 | 22:49 | mypy.api.run output captured from the member tests (`uv run pytest -p capmypy`) | match |
@@ -397,3 +397,47 @@ Verdict: repairs needed. 12 blocking items and 16 nits; every blocking item and 
 | Validator: DK4 incomplete | blocking 10 |
 | Validator: evidence file lacks the C1 and C2 records | blocking 11 |
 | Validator: rows 438 and 439 claim dropped sweeps | blocking 12 |
+
+## Confirmation after round 1
+
+Fresh Opus confirmation (QA step 9). It did not run round 1. Fresh copy made with the plan's three commands, at a895b67. Verdict: fail, 1 problem.
+
+- Gates:
+  - `verify.sh`: 1407 passed, `verify: all steps passed`.
+  - `validate.py`: 0 errors and 6 accepted warnings (appendix E is now 931 words).
+  - `--self-test` ok. `--claims`: every row resolved.
+  - `host_ids` 0 hits. Ban scan 0. `ruff format --check`: 667 files already formatted.
+  - `site-build.sh` built 108 pages with the `Gemfile.lock` md5 unchanged.
+- Links touched by the round: `https://www.patternlanguage.com/` answers 200 with 0 redirects, and the page names the three authors, Oxford University Press and 1977. The Creative Commons URL answers 200 with 0 redirects.
+- Decks:
+  - `render-png.sh --check` prints `same` for 301 (2), 101 (6) and 201 (5).
+  - Rebuilt 101, 201 and 301 differ from the committed files only in `docProps/core.xml`, and 201 is equal to `main`.
+  - soffice with a private profile renders 301 as 42 pages, with the five fonts embedded.
+  - Page 2 viewed: "Eight sections" with eight bullets. "lives." wraps inside its box, and nothing is clipped.
+  - Notes 2 has 124 words.
+  - Pointer grep: one allowed hit ("the books", the reading list).
+- Every sentence changed in round 1 was re-read against its test or source:
+  - Chapter 21: 9 files with `bench`, 8 without.
+  - Chapter 39: removing `cancel` gives 2 failed, and removing `release` gives 3 failed.
+  - Chapter 22: replacing the `finally` gives 1 failed, 1 passed.
+  - The mypy probes for `04` and `06` were reproduced.
+  - The cuts at `06:58` and `12:157` leave connected paragraphs.
+- Mutations:
+  - With `check_collection_front_matter` disabled, `--self-test` fails ("collection front matter reflowed", "collection front matter lacks a key").
+  - With the pre-round cards restored, `validate.py` reports 2 errors.
+  - Example 05's `liskov_note` fails when either expectation is flipped (`[widened-return]` or `[narrowed-argument]`, 1 failed, 2 passed).
+- Overflow, headless Firefox at 390 and 1280 px (bibliography, home, examples index, the part 7 page, chapters 25, 31 and 34): 0 of 14 overflow.
+  - "Open full size" is shown at 390, 900, 1024 and 1099, and hidden at 1100 and 1280.
+  - "Download .excalidraw" is one line at every width.
+- Problem 1: round 1's chapter 16 sidebar opening "how often the carrier is chosen" gives the AI-claim grep one hit (`often`, not a frequency claim). That made row 437 and this file's sidebar census ("prints nothing") untrue on the tree. The replacement "whether the carrier is chosen once or on every call" is tested in the copy: validate 0 errors, ban scan 0, AI-claim grep hits `[]`. It goes in as repair round 2, and a confirmation follows it.
+- Correction to the C3a table: the `21:256` row's method is `uv run pytest -v` then `uv run mypy --strict src tests bench` in the member, not `src tests`. With round 1's revert, C3a's tally reads 182 match and 3 fixed (19:313, 30:219, 30:236).
+```
+
+## Repair round 2 (2026-11-08)
+
+Applied by the orchestrator with exact-match asserts:
+- Problem 1 of confirmation 1: the chapter 16 sidebar now says "whether the carrier is chosen once or on every call". This is the confirmation's tested string, applied verbatim.
+- Two recorded items fixed now as well:
+  - Duplicate `<title>`: `jekyll-seo-tag` emitted a second `<title>` after the layout's own. The layout now calls `{% seo title=false %}`, the plugin's documented switch, and the hand-written title stays.
+  - CLAUDE.md's decision 7 note: Appendix E now has 931 words (it had 917).
+- C3a's tally and its `21:256` table row are corrected: 182 match and 3 fixed, and the command is `src tests bench`.

@@ -235,7 +235,7 @@ re-measure; defer only content that belongs to a future part.
   was released 2026-10-25). Measurements taken on 3.14.10 stay labelled as such; the older plans
   (r02 to r04) and the spike findings remain as history.
 - 2026-11-08 (r25, decision 7): the six appendix word-floor warnings (appendices A to F: 1,595,
-  1,703, 1,880, 1,824, 917 and 1,896 words) are confirmed as owner-accepted. They are not padded
+  1,703, 1,880, 1,824, 931 and 1,896 words) are confirmed as owner-accepted. They are not padded
   and not exempted in `validate.py`; the floor stays a warning.
 - 2026-11-08 (r25, O2): the owner approved a terse rewording of the whole book (r26 to r28). From
   r26 on, tests are named on a `*Tests:*` line after the paragraph, not inside the sentence, and
