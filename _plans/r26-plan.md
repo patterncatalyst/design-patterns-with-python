@@ -30,6 +30,7 @@ The rules are the terse pattern register in `~/.claude/skills/lgtm-professional-
 - O3: the Feathers title takes the book's straight house form: "I Need to Make a Change, but I Don't Know What Tests to Write" (evidence H).
 - O4: hub PR #62 was merged as 9a3b034; no open hub item remains.
 - O5 (owner, 2026-11-08, during B1d): no git worktrees from now on. One branch (`release/r26`) and one PR. Parallel executors edit only the files they own and run no git command that writes (no add, commit, stash, checkout, reset, restore or pull). The orchestrator stages by path and commits each step. This replaces the worktree isolation in the B3 rows and the process section.
+- O6 (owner, 2026-11-08): the Python version is stated only on setup surfaces: prerequisites (doc 00), Appendix A (doc 41), README, `_config.yml`, CI and the site front pages. Every other chapter and example README drops it. (1) Recorded pytest output is re-recorded with `--no-header`, so no fence carries a `platform ... Python 3.15.2` line. (2) `docs.python.org/3.15/` links become `docs.python.org/3/`, and quotations taken from those pages are re-checked against the `/3/` text. (3) Facts about a feature or a measurement keep their version ("`frozendict`, new in 3.15", "recorded on Python 3.15.2"). (4) Incidental mentions go. Step B4b does it, before the readers.
 
 ## The pattern layout (O1)
 
