@@ -118,7 +118,7 @@ Blocking:
 
 1. Slide 9 notes: three tests assert exact outcome counts of both runs, and `test_an_unknown_option_fails_under_strict_config` asserts `ExitCode.USAGE_ERROR` and the stderr line "Unknown config option". The same fix is in `_docs/42-appendix-b-pytest.md` and in the card blurb of `_examples/42-appendix-b-pytest.md`. The remaining "exact outcome counts" sentences in `_docs`, `_examples` and `examples/42-*` say "most" or name inner sessions in general and were left.
 2. Slide 31 notes: the five-fail, 18-pass count and the mypy exit are now two separate causes.
-3. Slide 33 notes: the desk takes each collaborator as a keyword parameter, which matches the composition-root section of the final-project chapter.
+3. Slide 33 notes: the desk takes its parts as keyword parameters, so it never decides which carrier or which pricing rule it has, which matches the composition-root section of the final-project chapter (the subscriber reaches the desk through the events signal, not as a parameter).
 4. Slide 12 notes: `book_cheapest` calls the stub with the booking reference (`booking.py` calls `notify(reference)`); the same correction is in row 285 and the D2 dated note of `_plans/reconciliation-plan.md` and in the Step D2 note of `_plans/r24-plan.md`.
 5. Slide 2: Reference entry removed, notes name the seven themes and add one sentence on the reference section, `fontSize: 18, gap: 14` in both calls. Notes: 120 words.
 6. Figure 33: canvas 1020 x 420, positions as briefed, edge labels staggered beside their own arrows (left label right of the left arrow, right label left of the right arrow).
@@ -128,10 +128,24 @@ Figure label sizes on the slide (points = 72 x min(12.09/W, 4.95/H) x 11): figur
 
 Should-fix 8 to 14, nits, and items 15 to 21 are applied as briefed: slide 6 quotation, slide 11 caption, slide 5 notes and mypy cell, slide 38, slide 35, README lines of examples 36 and 35 (`CENT` matches the `refactored.py` docstring), slide 7 teardown sentence replaced by a sentence on what the slide shows (128 words), slide 12 Dummy Object passage cut to one sentence, slide 17 bullet, slide 21 closing sentence (91 words), slide 27 notes sentence (134 words), slide 40 notes, slide 42 two bullets, and the nits for slides 10, 30, 4, 3, 15, 23, 31 and the Stub cell.
 
-Pointer grep (`follow|next|previous|earlier|later|above|below|before it|after it|chapter|appendix|book|this (deck|slide)|these slides|in order`) over notes and slide text: every hit is a verb or an identifier (`book`, `booked`, `booking`, `book_best`, `test_unittest_mock_patch_follows_the_same_lookup_rule`), "next band's price", "next prompt" (the loop's next request), or "books" on the reference slides. No positional pointer. The plan's step 8 list adds only allowed hits ("member" in a mypy test name and in "a missing member"; "above 5 kg" a weight). Case-sensitive cross-language grep: no hits. AI-claim grep (including "most ", typically, tend, assistants may/might/will, accura): two hits, both inside attributed quotations (Fowler's Strangler Fig "often" and OWASP's "accuracy").
+Pointer grep (`follow|next|previous|earlier|later|above|below|before it|after it|chapter|appendix|book|this (deck|slide)|these slides|in order`) over notes and slide text: every hit is a verb or an identifier (`book`, `booked`, `booking`, `book_best`, `test_unittest_mock_patch_follows_the_same_lookup_rule`), "next band's price", "next prompt" (the loop's next request), or "books" on the reference slides. No positional pointer. The plan's step 8 list adds only allowed hits ("member" in a mypy test name and in "a missing member"; "above 5 kg" a weight). Case-sensitive cross-language grep: no hits. AI-claim grep (including "most ", typically, tend, assistants may/might/will, accura): three hits: two inside attributed quotations (Fowler's Strangler Fig "often" and OWASP's "accuracy"), and slide 38's "The oracle verifies accuracy at the rows it lists", which is decision 8's "the gates verify what they list".
 
 Pages viewed after the rebuild: 2, 5, 6, 7, 9, 11, 12, 15, 17, 21, 27, 31, 33, 35, 36, 38, 40 and 42, plus both figure PNGs at full size. Decks 101 and 201 rebuild with only `docProps/core.xml` differing; the committed files were restored.
 
 ### Orchestrator follow-up to repair round 1 (2026-11-08)
 
 The repair left figure 40's amber line crossing the label at "go back". The label was centred on the line, and the gap between the shape-review and oracle arrows is too narrow for one line on either side. The edge label is now two right-aligned amber notes (`anchor: end`, x 622, y 136 and 151) to the left of the line. Only figure 40's spec, SVG and `.excalidraw` changed. The PNG was re-rendered and viewed (the label is clear of the line), the deck was rebuilt, and `render-png.sh --check` prints 18 `same`.
+
+## Confirmation of repair round 1, and repair round 2 (2026-11-08)
+
+A fresh Opus confirmation (plan QA step 14) checked `2852691..1a92c93`. It confirmed every repair item, both figures (smallest labels on the slide are 9.33 pt for figure 33 and 9.56 pt for figure 40), the 17 repaired pages and every gate. It failed on one new error: the slide 33 notes said the desk takes the subscriber as a parameter. `BookingDesk.__init__` takes keyword-only `rule`, `plan`, `gateway`, `clear` and `events`, and the subscriber reaches it through the `events` signal. It also found three older problems:
+- Page 9's last bullet wrapped "merged." onto a line of its own.
+- This file's AI-claim line under-counted the step 8 hits.
+- The plan's round 1 note named the wrong READMEs.
+
+Repair round 2, the second and last, applied the confirmation's replacement strings verbatim. The confirmation had already rebuilt and rendered them in scratch, and each was applied with an exact-match assert:
+- **Slide 33 notes:** the desk "takes its parts as keyword parameters, so it never decides which carrier or which pricing rule it has". The orchestrator re-read `BookingDesk.__init__` to check it.
+- **Slide 9 bullet:** "applies to a run: a subdirectory's table replaces the root's, with no merge." The orchestrator re-rendered and viewed page 9: it's one line, with no orphan.
+- **This file and the plan note:** corrected in place.
+
+Every gate was re-run after round 2.

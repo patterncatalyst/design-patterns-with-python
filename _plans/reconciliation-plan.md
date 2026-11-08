@@ -452,7 +452,7 @@ Status values: open, verified, adjusted, dropped.
 | 433 | 11-44 | Deck: metadata PatternCatalyst, no host identifier or runtime name in any part | run: D4a | verified (r24) |
 | 434 | 11-44 | Deck: ban-tier scan, pointer grep and AI-claim grep clean on the builder, slide text and notes | run: D4b | verified (r24) |
 | 435 | 11-44 | Deck: committed PNGs equal a fresh render, and Decks 101 and 201 rebuild unchanged from the shared module | run: _plans/evidence/r24-deck-qa.md | verified (r24) |
-| 436 | 11-44 | Deck: every rendered page viewed and passed by two independent viewers, and every repair confirmed | run: _plans/evidence/r24-deck-qa.md | open |
+| 436 | 11-44 | Deck: every rendered page viewed and passed by two independent viewers, and every repair confirmed | run: _plans/evidence/r24-deck-qa.md | verified (r24) |
 
 2026-11-04 (r05): Python 3.15.2. Rows 47 to 64 are added at the move to 3.15.2 and start `open`; the r05 steps fill in their evidence. Rows 1 to 46 were verified on 3.14.10 and keep that evidence; row 47 covers the re-run of their quoted output on 3.15.2.
 
@@ -515,3 +515,5 @@ Status values: open, verified, adjusted, dropped.
 2026-11-07 (r24, D2): Rows 399 to 429 are added and start open. Every claim that begins "Deck:" is witnessed by `_plans/evidence/r24-deck-witness-census.md` (91 test names, each defined once, 155 cases passing in three forward runs and one reverse run in a fresh copy), and D5 closes each row when its slide is checked. Rows 427 to 429 name the done steps D1c and D1a and are closed at D5. Row 285 ("stub as a dummy") was re-read against Appendix D's qualified Dummy Object paragraph after the D1c fix: `book_cheapest` does call the stub and only the test never reads it, so the row said more than the text. It now says the dummy use holds only in the qualified sense, and its status reads "verified (r21); amended (r24)". Rows 430 to 436 depend on the built deck and are added at D5.
 
 2026-11-08 (r24, D5 round 1): Rows 399 to 429 are verified (r24). The validator re-ran their witnesses: 152 cases forward and in reverse, and all 13 experiments. Rows 430 to 435 are added from the r24 plan and verified (r24) after the repair-round gates; row 436 stays open until the confirmation pass. Row 285 now says `book_cheapest` calls the stub with the booking reference, which matches the appendix.
+
+2026-11-08 (r24, D5): Row 436 is verified. Two independent Opus viewers passed every page, a fresh Opus pass confirmed repair round 1, and round 2 applied that pass's tested strings verbatim, with page 9 re-viewed.
