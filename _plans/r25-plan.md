@@ -392,8 +392,8 @@ C1a and C1b run first, alone, because they touch many files mechanically. Then C
 | Step | What | Depends | Status |
 | --- | --- | --- | --- |
 | C0 | Bookkeeping with dated notes: BK1 to BK5; record the owner's decisions; re-check every pin; decision 11's `bundle lock --update` in the container and a site build; `verify.sh` and `validate.py` green | - | done |
-| C1a | Validator and CLAUDE.md: VA1, VA2, VA4 (and VA3 after C1b); CLAUDE.md's sidebar, spine (decision 8) and dated notes (decision 7); every new check has a self-test that fails without it; `--self-test` green | C0 | todo |
-| C1b | The mechanical link pass LK1 to LK5, with the reconciliation `source:` tokens moved in the same commit by the orchestrator; the link sweep re-run; `validate.py --claims` green | C0 | todo |
+| C1a | Validator and CLAUDE.md: VA1, VA2, VA4 (and VA3 after C1b); CLAUDE.md's sidebar, spine (decision 8) and dated notes (decision 7); every new check has a self-test that fails without it; `--self-test` green | C0 | done |
+| C1b | The mechanical link pass LK1 to LK5, with the reconciliation `source:` tokens moved in the same commit by the orchestrator; the link sweep re-run; `validate.py --claims` green | C0 | done |
 | C2a | Docs 00 to 13 (group table) | C1a, C1b | todo |
 | C2b | Docs 14 to 30 | C1a, C1b | todo |
 | C2c | Docs 31 to 40 | C1a, C1b | todo |
@@ -464,4 +464,17 @@ Row 30's deepcopy claim (VO6) gets a row at C4a only if TS2 adds its test. A def
 - **Orphaned processes.** soffice, node, the HTTP server and headless Firefox. Mitigation: `pgrep -x soffice.bin`, `pgrep -af 'http.server|firefox'` before handback.
 
 ## Corrections after the build
+- Step C1a: done in 3621f97.
+  - **VA1:** CLAUDE.md's gate now has `--exclude .venv-ft` (the command reports 0).
+  - **VA2:** Decks 201 and 301 refuse the three-way-split labels in every inflection, with 101 exempt. Every deck refuses "the deck" outside the opening sentence of the cover notes.
+  - **VA4:** `check_figure_legibility()` puts an 8 px floor on each figure at the 982 px breakout width; all 41 figures pass.
+  - **Mutation proof:** every new check makes `--self-test` fail when it's disabled. A width-scaling case was added after the first mutation passed.
+  - **CLAUDE.md:** the sidebar rule, the spine (decision 8), and dated notes for decision 7 and O2.
+  - The new checks flag Deck 101 notes 2 and 3 ("the deck"), which are DK2 and fixed at C2g. Until then `validate.py` shows those 2 errors.
+  - **Incident:** C1a ran `git stash` in the shared tree and briefly took C1b's uncommitted edits. The pop restored them, and C1b re-applied one lost token move. Parallel briefs now forbid `git stash` and `git checkout` of files an agent doesn't own.
+- Step C1b: done in a5473f7.
+  - 155 `/3/` to `/3.15/` rewrites in 40 docs, and none elsewhere. 62 reconciliation `source:` lines moved (73 tokens).
+  - 3 O'Reilly canonicals, the 2 chapter 0 roots, the cosmicpython link, and 3 typeshed links pinned to d03a581a (the quote is confirmed at that commit), with their tokens moved.
+  - All 57 changed URLs end at 200 with no redirect, and all 11 fragments resolve. `--claims` shows 0 unresolved.
+  - No deck builder carries a changed URL.
 - Step C0: BK1 to BK5 are recorded as dated 2026-11-08 notes (r24 plan D6 `done` with notes for BK1, BK3 and BK4; `iteration-plan.md` closes r24, marks r25 active, adds PDP-021 and the r26 to r28 roadmap rows per O2; the build plan's ruby/setup-ruby and csv cells corrected). Every pin was re-checked against upstream and is still the latest stable. Decision 11: `bundle lock --update sass-embedded addressable` in the ruby:4.0.9 container moved sass-embedded 1.106.1 to 1.108.1 and addressable 2.9.0 to 2.9.2; `scripts/site-build.sh` passes twice with the new lock.
