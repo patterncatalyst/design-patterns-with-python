@@ -403,7 +403,7 @@ C1a and C1b run first, alone, because they touch many files mechanically. Then C
 | C2g | Cards and READMEs (CD), decks DK1 to DK6 and FG2 with QA pipeline step 6 | C1a | done |
 | C3a | Whole-book quoted-output re-run in a fresh copy after C2a to C2e; mismatches returned to the doc owner and fixed | C2a to C2e | done |
 | C3b | Integration: every gate (QA step 2), the link sweep, the legibility check, `site-build.sh`; evidence file brought up to date | C3a, C2f, C2g | done |
-| C4a | Reconciliation: the 32 legacy rows re-witnessed (decision 6), VA5, rows 437 onward added with resolving tokens | C3b | todo |
+| C4a | Reconciliation: the 32 legacy rows re-witnessed (decision 6), VA5, rows 437 onward added with resolving tokens | C3b | done |
 | C5a | Opus validation with the three independent readers (QA steps 7 and 8); rows that start `open` closed | C4a | todo |
 | C5b | Repair rounds (at most two), each followed by a confirmation, the last one included (QA step 9) | C5a | todo |
 | C6 | PR, `ci-ok` green, the hub PR (decision 12) opened; ask the owner before merging either | C5b | todo |
@@ -472,6 +472,13 @@ Row 30's deepcopy claim (VO6) gets a row at C4a only if TS2 adds its test. A def
   - **CLAUDE.md:** the sidebar rule, the spine (decision 8), and dated notes for decision 7 and O2.
   - The new checks flag Deck 101 notes 2 and 3 ("the deck"), which are DK2 and fixed at C2g. Until then `validate.py` shows those 2 errors.
   - **Incident:** C1a ran `git stash` in the shared tree and briefly took C1b's uncommitted edits. The pop restored them, and C1b re-applied one lost token move. Parallel briefs now forbid `git stash` and `git checkout` of files an agent doesn't own.
+- Step C4a: done in 6661496.
+  - The 32 legacy rows are re-witnessed with resolving tokens; 190 named cases passed three times forward and once in reverse.
+  - Rows 5 and 26 are `verified (r25)`. Row 27 is `adjusted (r25)`: the row's own wording overclaimed, the chapter didn't. Row 4 gains the chapter 18 class-form tests.
+  - No chapter prose changed.
+  - VA5: `CLAIMS_FIRST_ENFORCED = 1` and the legacy branch is removed. The new self-test fails when the check is disabled and when the constant is 47.
+  - Rows 437 to 465 are added. The "Sweep:" rows start `open` for C5a.
+  - `--claims` shows 0 unresolved and 0 legacy rows.
 - Step C3b: done in ec99e6c.
   - Gates: all green. 1407 tests, `validate.py` 0 errors (6 accepted warnings), `--claims` and `--self-test` ok, ruff, `host_ids` 0, the ban scan 0, `site-build.sh` ok with the lock unchanged, and `render-png.sh --check` reports the same for 13 figures.
   - Idiom scan: the 69 ban-tier hits are all `print()` in CLI and benchmark scripts, where the print is the output.
