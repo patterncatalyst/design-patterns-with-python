@@ -258,7 +258,7 @@ Targets: TESTS 0 (gate); LEN median at most 15, p90 at most 30 (T4); PAR at most
 
 ## QA pipeline
 
-1. **Isolation.** Each parallel executor gets its own git worktree (`isolation: worktree`) and commits there. The orchestrator merges the worktree branches into `release/r26` one at a time, then removes the worktree. Nobody runs `git stash`, `git pull --autostash`, `git reset` or `git checkout` on files they don't own (r25 lost work to two of these). Only the orchestrator writes `_plans/`, the reconciliation table, the evidence file and doc 45; executors hand their records over as text. Integration gates run only when `git worktree list` shows the main tree alone, because worktrees inside the repo would be scanned by ruff, `host_ids` and the voice scan.
+1. **Isolation.** B1a to B3d ran in git worktrees; from O5 on, there are none. Parallel executors edit only the files they own, in the main tree, and run no git command that writes. Only the orchestrator stages by path and commits, and only the orchestrator writes `_plans/`, the reconciliation table, the evidence file and doc 45; executors hand their records over as text. Nobody runs `git stash`, `git pull --autostash`, `git reset` or `git checkout` (r25 lost work to two of these).
 2. **Gates:** `bash scripts/verify.sh` (no example changes expected: `git diff --stat 15cc747 -- examples spikes` empty); `uv run python scripts/validate.py` with `--self-test` and `--claims`; `prose_invariants.py --self-test` and `--base 15cc747` over the changed docs; `python3 scripts/host_ids.py check`; the repo-wide ban gate from CLAUDE.md; `scan.sh --stats`, `--terse-stats` and `--tier terse --patterns .voice-patterns.tsv` over `_docs`, before and after; `bash scripts/site-build.sh` with `Gemfile.lock` unchanged and the GT4 checks on the built pages; the deck pipeline for 301 (CA1).
 3. **Experiments.** The five experiments in 03, 23 and 24 are re-run in a fresh copy from the rewritten sentences, and must give the quoted output. The fences are byte-identical by GT1, so no other output is re-run.
 4. **Independent Opus readers**, separate agents that never see each other's findings or this plan's conclusions:
@@ -275,15 +275,15 @@ Only suffixed ids are cited as `run:` tokens: B1a to B1d, B2a, B3a to B3e, B4a, 
 | id | what | depends on | status |
 | --- | --- | --- | --- |
 | B0 | Bookkeeping BK1 and BK2; record the owner's decisions; evidence file started with the baseline (evidence B, C) | - | done |
-| B1a | `validate.py` GT2 and CLAUDE.md GT6, with self-tests and the mutation proof (worktree) | B0 | done |
-| B1b | `prose_invariants.py` GT1 and CI GT3, with self-tests and the mutation proof (worktree) | B0 | done |
-| B1c | Site GT4 and `.voice-patterns.tsv` GT5; a site build and the built-page checks (worktree) | B0 | done |
+| B1a | `validate.py` GT2 and CLAUDE.md GT6, with self-tests and the mutation proof | B0 | done |
+| B1b | `prose_invariants.py` GT1 and CI GT3, with self-tests and the mutation proof | B0 | done |
+| B1c | Site GT4 and `.voice-patterns.tsv` GT5; a site build and the built-page checks | B0 | done |
 | B1d | Orchestrator: merge B1a to B1c in that order, remove the worktrees, run QA step 2 on the unchanged docs (everything green, the invariants check finds no change) | B1a, B1b, B1c | done |
-| B2a | CA1, the Feathers title, with Deck 301's rebuild and pipeline (worktree); the evidence H owner checks handed to the orchestrator for the evidence file | B0 | done |
-| B3a | Doc 01, PL1 (worktree), committed as bfd43f5 | B1d | done |
-| B3b | Doc 03, PL2 (worktree), committed as 1da9483 | B1d | done |
-| B3c | Doc 23, PL3 (worktree), committed as de7c17f | B1d | done |
-| B3d | Doc 24, PL4 (worktree), committed as 077cc25 | B1d | done |
+| B2a | CA1, the Feathers title, with Deck 301's rebuild and pipeline; the evidence H owner checks handed to the orchestrator for the evidence file | B0 | done |
+| B3a | Doc 01, PL1, committed as bfd43f5 | B1d | done |
+| B3b | Doc 03, PL2, committed as 1da9483 | B1d | done |
+| B3c | Doc 23, PL3, committed as de7c17f | B1d | done |
+| B3d | Doc 24, PL4, committed as 077cc25 | B1d | done |
 | B3e | Orchestrator: merge B2a and B3a to B3d, remove the worktrees, then PL5 (Appendix E rows 68 to 70), committed as ba96856 | B2a, B3a to B3d | done |
 | B4a | Integration: QA steps 2 and 3, PL6 rows, PL7 census, the reading packet drafted | B3e | done |
 | B4b | O6: the Python version on setup surfaces only (pytest `--no-header` re-record, `/3/` doc links, incidental mentions, the `validate.py` allowlist) | B4a | done |
@@ -311,8 +311,7 @@ Then one row per bold definition and Bucket line the pilot adds, each with the t
 - **A fact lost in the rewrite.** The invariants catch tokens, not meaning. Mitigation: the facts reader, paragraph by paragraph, and the claims coupling rule.
 - **Waivers as a loophole.** Mitigation: every waiver has a reason, the facts reader signs it, and the packet shows the count per doc.
 - **Fragments.** Deleting framing can leave choppy text. Mitigation: the register reader reads cold.
-- **Shared tree.** r25 lost work twice to `stash` and `--autostash`. Mitigation: worktrees, the forbidden commands, one owner per shared file (QA step 1).
-- **Worktrees under the repo** get scanned by the integration gates. Mitigation: gates run only with the main tree alone.
+- **Shared tree.** r25 lost work twice to `stash` and `--autostash`. Mitigation: disjoint file ownership, the forbidden commands, one owner per shared file (QA step 1, O5).
 - **Verbatim followers.** Appendix E, Deck 101's map table and the deck census copy chapter text. Mitigation: the Appendix E check, 03's table frozen, PL7.
 - **kramdown and `<details>`.** `markdown="1"` inside `<details>` may not parse. Mitigation: GT4 checks the built HTML; the fallback is `markdown="block"` on the inner `div`.
 - **The measurement counts the description.** `--terse-stats` counts the description's words in the section that holds the figure. Mitigation: the packet reports that section's words with and without it.
