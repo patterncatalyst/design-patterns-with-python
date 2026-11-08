@@ -199,13 +199,11 @@ Borg suits code that must construct its own object and still share configuration
 
 - **Singleton.** Pass a parameter when state differs per test, per tenant or per request. If the "singleton" is a cache, write a cache and name it one, with an eviction rule and a reset. When several threads write to one mutable global, the lock is the smaller problem; change the shape. A class whose only reason to exist is to be single is a module.
 
-<blockquote class="ai-sidebar" markdown="1">
-**Specifying a singleton.** "A singleton" leaves open when the instance is built, how a test or a tenant gets its own, and what happens when two threads ask first. Paste a prompt that states the form:
-
-> Build `TARIFF` at import time in `tariff_table`, or reach it with `lazy from singleton import tariff_table` to load it on first use. Take the table as a parameter of `quote`, so tests and tenants pass their own. If the load needs run-time input, use `LoadOnce`: a lock with a double check and a `sentinel` marker. Don't use `functools.cache` as call-once, and don't override `__new__` or write a metaclass.
-
-If the reply claims call-once under threads, ask for the `Barrier` test that forces the race.
-</blockquote>
+> **🤖 Explore with your agent**
+>
+> "Build `TARIFF` at import time in `tariff_table`, or reach it with `lazy from singleton import tariff_table` to load it on first use. Take the table as a parameter of `quote`, so tests and tenants pass their own. If the load needs run-time input, use `LoadOnce`: a lock with a double check and a `sentinel` marker. Don't use `functools.cache` as call-once, and don't override `__new__` or write a metaclass."
+>
+> If the reply claims call-once under threads, ask for the `Barrier` test that forces the race.
 
 ## Build, run, observe
 

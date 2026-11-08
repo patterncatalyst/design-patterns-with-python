@@ -199,13 +199,11 @@ Now the scope opens when iteration starts and closes when it ends. Before the ch
 - **A call that cleans up after itself.** A manager wrapped around `Path.read_text`, which already closes its own file, adds a block and nothing else.
 - **Swallowing to keep going.** That belongs in `suppress` with one named exception, or in an explicit `try`/`except` at the place that knows how to recover.
 
-<blockquote class="ai-sidebar" markdown="1">
-**Specifying cleanup.** "Write the manifest to disk" leaves open when the final path is replaced, what happens on failure and who closes the handle. Paste a prompt that states the contract:
-
-> Write `ManifestWriter` to write `<name>.partial`, close on every path, replace the final path only on success and delete the partial on failure, with `__exit__` returning `None`. In the `@contextmanager` form, wrap the `yield` in `try`/`except`/`else`. Open several writers on an `ExitStack`. Swallow only a named exception, with `contextlib.suppress`. Add a test that raises mid-write and asserts the handle is closed.
-
-If the generator form has no `try`, ask for that test run against it.
-</blockquote>
+> **🤖 Explore with your agent**
+>
+> "Write `ManifestWriter` to write `<name>.partial`, close on every path, replace the final path only on success and delete the partial on failure, with `__exit__` returning `None`. In the `@contextmanager` form, wrap the `yield` in `try`/`except`/`else`. Open several writers on an `ExitStack`. Swallow only a named exception, with `contextlib.suppress`. Add a test that raises mid-write and asserts the handle is closed."
+>
+> If the generator form has no `try`, ask for that test run against it.
 
 ## Build, run, observe
 

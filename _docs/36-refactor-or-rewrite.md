@@ -173,15 +173,11 @@ A rewrite needs a parity table, an accepted-differences list and a seam to route
 - If no seam exists, a rewrite is all or nothing.
 - If the transitional code would cost more than the structure it replaces, refactor.
 
-<blockquote class="ai-sidebar" markdown="1">
-
-**Rewriting behind a router.** A request to "rewrite the rating engine" names no oracle, so nothing says the new quotes must match the old ones at a band limit. Keep both engines running:
-
-> Write `rating.quote` beside the legacy `RateEngine`, not in place of it. Add a parity table with every zone, a weight on each band limit and one just above it, and one above the last band, and assert that the list of rows where the two engines differ equals `ACCEPTED_DIFFERENCES`. Route consignments through `Router`: send only the zones in `migrated` to the rewrite, and run it in shadow for the rest.
-
-If `ACCEPTED_DIFFERENCES` grew in the diff, ask who decided that quote should change.
-
-</blockquote>
+> **🤖 Explore with your agent**
+>
+> "Write `rating.quote` beside the legacy `RateEngine`, not in place of it. Add a parity table with every zone, a weight on each band limit and one just above it, and one above the last band, and assert that the list of rows where the two engines differ equals `ACCEPTED_DIFFERENCES`. Route consignments through `Router`: send only the zones in `migrated` to the rewrite, and run it in shadow for the rest."
+>
+> If `ACCEPTED_DIFFERENCES` grew in the diff, ask who decided that quote should change.
 
 ## Build, run, observe
 

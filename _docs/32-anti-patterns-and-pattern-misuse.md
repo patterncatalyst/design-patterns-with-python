@@ -156,15 +156,11 @@ The function wins in the one-carrier case: one owner and one tariff schedule, so
 
 The question for any class in a design is which change it makes cheaper.
 
-<blockquote class="ai-sidebar" markdown="1">
-
-**Specifying the shape the forces justify.** A request for "a flexible rating engine" leaves the structure open, and a factory, a strategy and a visitor for one flat fee all type-check. State the forces:
-
-> Price a consignment with one function, `quote(consignment, tariff)`, over a frozen `Tariff`. Use frozen dataclasses with public fields, no `get_` or `set_` methods, and pass every dependency as a parameter. Add a class or a Protocol only when it holds state, offers several operations or has a second implementation today, and name the change it makes cheaper.
-
-If the reply adds a class, ask which change it makes cheaper. For reviewing generated code in general, see [Working with AI and LLM tools]({{ '/docs/40-working-with-ai-and-llm-tools/' | relative_url }}).
-
-</blockquote>
+> **🤖 Explore with your agent**
+>
+> "Price a consignment with one function, `quote(consignment, tariff)`, over a frozen `Tariff`. Use frozen dataclasses with public fields, no `get_` or `set_` methods, and pass every dependency as a parameter. Add a class or a Protocol only when it holds state, offers several operations or has a second implementation today, and name the change it makes cheaper."
+>
+> If the reply adds a class, ask which change it makes cheaper. For reviewing generated code in general, see [Working with AI and LLM tools]({{ '/docs/40-working-with-ai-and-llm-tools/' | relative_url }}).
 
 ## Build, run, observe
 

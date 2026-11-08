@@ -208,13 +208,11 @@ PEP 562 also names a second use: "Another widespread use case for __getattr__ wo
 - **Wrapping another object's interface** wants an explicit proxy, as [Decorator the pattern vs @decorator the syntax, and Proxy]({{ '/docs/20-decorator-pattern-vs-decorator-syntax-and-proxy/' | relative_url }}) shows.
 - **A computed value** that a plain `property` states more directly doesn't need an interception hook.
 
-<blockquote class="ai-sidebar" markdown="1">
-**Specifying a lazy object.** "Lazy loading" leaves open which names `__getattr__` may load, and a hook that fetches or forwards whatever name is missing recurses under `copy` and turns a typo into a fetch. Paste a prompt that states the form:
-
-> Declare `TrackingHistory`'s loaded fields as class annotations. Write `__getattr__` to load only the names in a fixed set, store them with `vars(self).update(...)`, and raise `AttributeError` for every other name. Refuse assignment to loaded fields in `__setattr__`, list them in `__dir__`, and define `__iter__` explicitly. For a single lazy value, use `functools.cached_property` instead.
-
-If `__getattr__` reads an attribute it doesn't own, ask what `copy.copy` does.
-</blockquote>
+> **🤖 Explore with your agent**
+>
+> "Declare `TrackingHistory`'s loaded fields as class annotations. Write `__getattr__` to load only the names in a fixed set, store them with `vars(self).update(...)`, and raise `AttributeError` for every other name. Refuse assignment to loaded fields in `__setattr__`, list them in `__dir__`, and define `__iter__` explicitly. For a single lazy value, use `functools.cached_property` instead."
+>
+> If `__getattr__` reads an attribute it doesn't own, ask what `copy.copy` does.
 
 ## Build, run, observe
 

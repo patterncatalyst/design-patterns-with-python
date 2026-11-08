@@ -185,13 +185,11 @@ Asynchronous generators follow the same rules with `aclose()`; see [asyncio and 
 
 - **Iterator.** Pass the tuple when the data is already in a list that callers index or measure. Materialise once, or pass an iterable, when a result is needed twice. When a source must close at a known point, let a context manager own it and let the generator only read. When the function produces one value, return it.
 
-<blockquote class="ai-sidebar" markdown="1">
-**Specifying an iterator.** "Make the history iterable" doesn't say whether it's walked once or many times, how much a page reads or who closes the log. State those in the prompt:
-
-> Make `TrackingHistory.__iter__` a generator so every loop gets a fresh iterator. Write `pages(history, size)` with `itertools.batched` so the first page reads only `size` events, and `page(history, number, size)` with `islice`. Write the log reader as a generator that opens its file inside `with`, annotate it `Generator[HandlingEvent, None, int]`, and close it with `contextlib.closing` where a caller may stop early.
-
-If the reply returns `self` from `__iter__` or builds a `list` first, ask for the test that fails.
-</blockquote>
+> **🤖 Explore with your agent**
+>
+> "Make `TrackingHistory.__iter__` a generator so every loop gets a fresh iterator. Write `pages(history, size)` with `itertools.batched` so the first page reads only `size` events, and `page(history, number, size)` with `islice`. Write the log reader as a generator that opens its file inside `with`, annotate it `Generator[HandlingEvent, None, int]`, and close it with `contextlib.closing` where a caller may stop early."
+>
+> If the reply returns `self` from `__iter__` or builds a `list` first, ask for the test that fails.
 
 ## Build, run, observe
 

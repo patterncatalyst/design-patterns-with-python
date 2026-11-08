@@ -232,13 +232,11 @@ A function wrapper works on a method unchanged. The [descriptor guide](https://d
 - **Fresh or unhashable data.** A cache over data that must be fresh serves the wrong answer for a window, and one over unhashable arguments raises.
 - **An unread registry.** A registry that nobody reads is a dictionary to keep in step.
 
-<blockquote class="ai-sidebar" markdown="1">
-**Specifying a decorator.** "A caching decorator" doesn't say how the wrapper keeps its identity, how the window is passed or where the timer sits, so the reply decides each one for you. State them in the prompt:
-
-> Write `cached_for` as a PEP 695 `[**P, R]` factory with keyword-only `seconds` and an injected `clock`, its wrapper decorated with `functools.wraps(func)` and typed `Callable[P, R]`. Put `timed_render` inside the cache so only misses are timed. Where a decorator would supply an argument, use `functools.partial`. Put `document_kind` above `@dataclass(slots=True)`, and never put `functools.cache` on a method.
-
-If the reply drops `wraps` or the `*`, ask for the test that fails.
-</blockquote>
+> **🤖 Explore with your agent**
+>
+> "Write `cached_for` as a PEP 695 `[**P, R]` factory with keyword-only `seconds` and an injected `clock`, its wrapper decorated with `functools.wraps(func)` and typed `Callable[P, R]`. Put `timed_render` inside the cache so only misses are timed. Where a decorator would supply an argument, use `functools.partial`. Put `document_kind` above `@dataclass(slots=True)`, and never put `functools.cache` on a method."
+>
+> If the reply drops `wraps` or the `*`, ask for the test that fails.
 
 ## Build, run, observe
 

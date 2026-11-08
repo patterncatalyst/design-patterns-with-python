@@ -235,15 +235,11 @@ The runtime doesn't. `CustomsDeclarer.declare.__final__` is `True`, and a subcla
 
 - **Template Method.** Write a function when there is one variant. If every hook is optional, nothing is fixed: that's a pipeline of strategies, and a list of callables says it more directly. If the order itself changes by destination, model a list of stages; [Mediator and Chain of Responsibility]({{ '/docs/23-mediator-and-chain-of-responsibility/' | relative_url }}) covers clearance stages that can stop a consignment. A class is the wrong tool when the steps share nothing: binding unrelated functions into a class adds inheritance and buys no shared state.
 
-<blockquote class="ai-sidebar" markdown="1">
-
-**Specifying a template.** "Write a template for the customs declaration" leaves open which steps are fixed, where the invariant lives and what a variant may override. Paste a prompt that states the form:
-
-> Write `declare_customs` as a function that fixes the order and the invariant steps (refuse an empty consignment, total in one currency, invoice first) and takes `CustomsHooks`, a frozen keyword-only dataclass with `classify` and `duty` undefaulted and `extra_documents` defaulted. Use an ABC only when destinations share a table and a schedule, and mark its `declare` with `typing.final`. No default bodies in a `Protocol`.
-
-If an invariant sits inside a hook, ask for a test where a variant skips it.
-
-</blockquote>
+> **🤖 Explore with your agent**
+>
+> "Write `declare_customs` as a function that fixes the order and the invariant steps (refuse an empty consignment, total in one currency, invoice first) and takes `CustomsHooks`, a frozen keyword-only dataclass with `classify` and `duty` undefaulted and `extra_documents` defaulted. Use an ABC only when destinations share a table and a schedule, and mark its `declare` with `typing.final`. No default bodies in a `Protocol`."
+>
+> If an invariant sits inside a hook, ask for a test where a variant skips it.
 
 ## Build, run, observe
 

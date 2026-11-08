@@ -225,13 +225,11 @@ A new carrier is one kit value and one registry entry, plus its product classes.
 - **Factory Method.** With one product, a registry of constructors in a `Callable` slot is enough. With one carrier, call the class. If the choice is a configuration value, such as sandbox or live, put it in a settings value.
 - **Abstract Factory.** If the products don't have to match, pass them separately.
 
-<blockquote class="ai-sidebar" markdown="1">
-**Specifying factories.** "A factory" leaves open whether the carrier is chosen once or on every call, how an unknown code fails and what ties a gateway to its label printer. Paste a prompt that states the form:
-
-> Register constructors in a read-only `frozendict` of `GatewayFactory`, each a `from_settings` classmethod returning `Self`, and raise an unknown code as `UnknownCarrierError`. Put each carrier's gateway, label printer and rate source in one frozen `CarrierKit[R]`, choose the kit once by carrier code, and tie the gateway to the label printer through the reference type `R`. No `type[...]` slot and no if-chain.
-
-If two modules branch on the carrier code, ask for the kit.
-</blockquote>
+> **🤖 Explore with your agent**
+>
+> "Register constructors in a read-only `frozendict` of `GatewayFactory`, each a `from_settings` classmethod returning `Self`, and raise an unknown code as `UnknownCarrierError`. Put each carrier's gateway, label printer and rate source in one frozen `CarrierKit[R]`, choose the kit once by carrier code, and tie the gateway to the label printer through the reference type `R`. No `type[...]` slot and no if-chain."
+>
+> If two modules branch on the carrier code, ask for the kit.
 
 ## Build, run, observe
 

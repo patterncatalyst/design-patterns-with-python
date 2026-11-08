@@ -41,7 +41,7 @@ IDIOM_DOCS: frozenset[int] = frozenset(range(26, 32))
 MAX_WORDS = 2500
 CAPTION_MIN = 20
 CAPTION_MAX = 45
-SIDEBAR = '<blockquote class="ai-sidebar" markdown="1">'
+SIDEBAR = "> **🤖 Explore with your agent**"
 
 XREF_RE = re.compile(r"\b(ch\.?|chapter)\s*\d+\b", re.IGNORECASE)
 FM_PROSE_KEYS = ("title", "description", "blurb")
@@ -390,7 +390,11 @@ def check_prose(rel: str, text: str, kind: str, status: str) -> tuple[list[Findi
             count = text.count(SIDEBAR)
             if count != 1:
                 errors.append(
-                    Finding(rel, 1, f"pattern chapter has {count} ai-sidebar blocks, need 1")
+                    Finding(
+                        rel,
+                        1,
+                        f"pattern chapter has {count} Explore-with-your-agent callouts, need 1",
+                    )
                 )
     return errors, warnings
 

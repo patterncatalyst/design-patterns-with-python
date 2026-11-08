@@ -102,16 +102,13 @@ validates.
 - **Captions are 20-45 words**, one or two sentences, a gloss and not an identifier inventory; no
   angle-bracket generics. The HTML caption may start `Figure N.1:`, but no numbers appear inside
   SVGs or in body prose (no baked-in chapter or part numbers).
-- **AI sidebar**: exactly one per pattern chapter, written as an explicit
-  `<blockquote class="ai-sidebar" markdown="1">` ... `</blockquote>`. Never the kramdown form
-  `{: .ai-sidebar}` (it breaks blockquote parsing under kramdown-GFM). The check is
-  `grep -c '<blockquote class="ai-sidebar"'` equals 1. Content (lgtm-professional-voice, 2026-11-05;
-  wording settled in r25): open with what the request leaves open ("'Write the pricing strategies'
-  leaves the shape and the rounding open"), then give a ready-to-paste sample prompt as a nested `>`
-  quote that bakes in the chapter's decision rule, then at most one line of review action. Never a
-  claim about what an assistant does or may write ("an assistant may ..."), because no test in the
-  book witnesses it. The bold lead-in names what is being specified ("Specifying X"), not
-  "Reviewing assistant-written X".
+- **AI callout ("Explore with your agent")**: exactly one per pattern chapter, the format of the
+  minikube-on-fedora and openshift-local-on-fedora books (owner decision 2026-11-08). A plain
+  markdown blockquote: `> **🤖 Explore with your agent**`, a `>` line, the prompt as one quoted
+  paragraph (`> "..."`) naming the example's own types and the chapter's decision rule, then
+  optionally `>` and one line on how to check the reply. No HTML wrapper, no class, no nested
+  quote, no "Specifying X" lead-in. Never a claim about what an assistant does. `validate.py`
+  counts the heading line.
 - **Structure** (lgtm-professional-voice, 2026-11-05): intent before mechanism (problem before
   mechanism for pattern chapters, which open each pattern with `### The problem`); explain a subtle
   mechanism by a minimal example first; prose doesn't re-narrate a code block (the code shows how;

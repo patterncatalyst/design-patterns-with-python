@@ -166,15 +166,11 @@ Feathers gets the code to a state where Fowler's discipline holds, and Fowler's 
 
 That order also fixes the question to ask of a failing run. A red intent row says the code no longer meets the requirement. A red golden row says a total moved, and the next question is whether this step was meant to move it. Regenerating the file to turn the run green answers a different question.
 
-<blockquote class="ai-sidebar" markdown="1">
-
-**Refactoring code whose tests record intent.** "Tidy up `RateEngine`" doesn't say what must not change, and a tidy-up can move a total while the existing tests pass. Order the work:
-
-> Before changing `RateEngine`, record golden quotes: run the current engine over both zones and the weights from 0.5 to 30 kg in 0.5 kg steps, and write the results to `tests/golden/rate_quotes.json` with sorted keys. Then refactor one named step at a time, keeping carrier prices at full precision until the total is quantised half up, and run the golden test after each. Don't regenerate the file in the same change.
-
-If the diff touches `rate_quotes.json`, ask which step meant to change a quote.
-
-</blockquote>
+> **🤖 Explore with your agent**
+>
+> "Before changing `RateEngine`, record golden quotes: run the current engine over both zones and the weights from 0.5 to 30 kg in 0.5 kg steps, and write the results to `tests/golden/rate_quotes.json` with sorted keys. Then refactor one named step at a time, keeping carrier prices at full precision until the total is quantised half up, and run the golden test after each. Don't regenerate the file in the same change."
+>
+> If the diff touches `rate_quotes.json`, ask which step meant to change a quote.
 
 ## Build, run, observe
 

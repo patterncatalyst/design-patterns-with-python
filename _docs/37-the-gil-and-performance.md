@@ -220,15 +220,11 @@ The serial rows are about 1.2 times longer on the free-threaded build. The how-t
 | Waits (I/O) | threads or asyncio | threads or asyncio |
 | CPU-bound pure Python | process or interpreter pool | process or interpreter pool; measure a thread pool, with every shared write behind a lock |
 
-<blockquote class="ai-sidebar" markdown="1">
-
-**Parallel code that assumes the GIL.** A request to "speed up rating with threads" names neither the build nor what the threads share, and on the free-threaded build a shared write can lose updates. Make the sharing explicit:
-
-> Rate the batch through `rate_batch` with a `PoolFactory` from `POOLS`, with no shared mutable state. Where state must be shared, as in `StowagePlan.reserve`, hold one lock across the read and the write, and add a test that parks two threads in the gap with a `threading.Barrier`. Report timings from `bench/gil_bench.py` on both builds, not from a test.
-
-If a test asserts a duration, ask which build and machine it was written for.
-
-</blockquote>
+> **🤖 Explore with your agent**
+>
+> "Rate the batch through `rate_batch` with a `PoolFactory` from `POOLS`, with no shared mutable state. Where state must be shared, as in `StowagePlan.reserve`, hold one lock across the read and the write, and add a test that parks two threads in the gap with a `threading.Barrier`. Report timings from `bench/gil_bench.py` on both builds, not from a test."
+>
+> If a test asserts a duration, ask which build and machine it was written for.
 
 ## Build, run, observe
 

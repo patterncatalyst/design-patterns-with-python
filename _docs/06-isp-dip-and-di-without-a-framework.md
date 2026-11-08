@@ -184,13 +184,11 @@ The autospec enforces the shape at run time instead. That wrong autospec raises 
 - **Don't inject the standard library.** A function that needs the current directory can call `pathlib.Path.cwd()`. Inject what varies between environments or what a test must control: a carrier, a clock a test must fix, a message sink.
 - **Hand wiring has a size limit.** With dozens of services, lifetimes, scopes and ordered start-up, the root function becomes the problem, and a container library is a reasonable tool. The signal is the size of the wiring, not the presence of injection.
 
-<blockquote class="ai-sidebar" markdown="1">
-**Specifying seams.** "Make booking testable" leaves open what the seam is, who owns it and where the adapter is chosen. Paste a prompt that states the form:
-
-> Have each policy module declare a Protocol with only the methods it calls: `BookingGateway` with `book` and `cancel`, `TrackingGateway` with `track`, parameters positional-only. Adapters inherit nothing and import no policy module. Inject through a frozen dataclass field or `functools.partial`. Choose the adapter in one `build_app` function, in the only module that imports `carriers`. No container library for wiring this small. Add an `ast` test that policy modules don't import adapters.
-
-If a fake has to stub a method its consumer never calls, ask for the narrower Protocol.
-</blockquote>
+> **🤖 Explore with your agent**
+>
+> "Have each policy module declare a Protocol with only the methods it calls: `BookingGateway` with `book` and `cancel`, `TrackingGateway` with `track`, parameters positional-only. Adapters inherit nothing and import no policy module. Inject through a frozen dataclass field or `functools.partial`. Choose the adapter in one `build_app` function, in the only module that imports `carriers`. No container library for wiring this small. Add an `ast` test that policy modules don't import adapters."
+>
+> If a fake has to stub a method its consumer never calls, ask for the narrower Protocol.
 
 ## Build, run, observe
 

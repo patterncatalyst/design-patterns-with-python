@@ -224,15 +224,11 @@ The page cautions: "Use caution when using join() with immediate set to true."
 
 asyncio helps when the program waits on something outside it. Of work that doesn't wait, the asyncio documentation says: "Blocking (CPU-bound) code should not be called directly." Rating a large batch is CPU-bound, and [The GIL and performance]({{ '/docs/37-the-gil-and-performance/' | relative_url }}) covers that case. A codebase with no I/O to wait on gains nothing from coroutines, and a single sequential call has no second task to overlap with.
 
-<blockquote class="ai-sidebar" markdown="1">
-
-**Async code with no rule for its edges.** A request to "make the carrier calls async" names no rule for the coroutine that has to be awaited, the blocking SDK or the feed that must close on cancellation. Name each:
-
-> Make `RateSource.quote` an `async def` and adapt the blocking AIRCO SDK with `asyncio.to_thread`. Run the sources in an `asyncio.TaskGroup` under `asyncio.timeout(within)`. Open the feed with `carrier_session` and read it through `contextlib.aclosing`. Stop the command worker with `Queue.shutdown()`, not a sentinel. Run `mypy --strict` and pytest with `filterwarnings = ["error"]`.
-
-If a test awaits `asyncio.sleep` with a non-zero delay, ask which event it is waiting for.
-
-</blockquote>
+> **🤖 Explore with your agent**
+>
+> "Make `RateSource.quote` an `async def` and adapt the blocking AIRCO SDK with `asyncio.to_thread`. Run the sources in an `asyncio.TaskGroup` under `asyncio.timeout(within)`. Open the feed with `carrier_session` and read it through `contextlib.aclosing`. Stop the command worker with `Queue.shutdown()`, not a sentinel. Run `mypy --strict` and pytest with `filterwarnings = ["error"]`."
+>
+> If a test awaits `asyncio.sleep` with a non-zero delay, ask which event it is waiting for.
 
 ## Build, run, observe
 

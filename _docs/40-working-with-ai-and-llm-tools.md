@@ -225,15 +225,11 @@ The gates verify what they list. The oracle says nothing about a weight outside 
 
 OWASP's [LLM09:2025 entry, Misinformation](https://genai.owasp.org/llmrisk/llm092025-misinformation/), names the failure: "Overreliance occurs when users place excessive trust in LLM-generated content, failing to verify its accuracy." The gates verify accuracy at chosen points, and everything between those points is trust.
 
-<blockquote class="ai-sidebar" markdown="1">
-
-**Asking for code you will gate.** "Write the pricing strategies" leaves the shape and the rounding open. Paste a prompt that names the gates the reply must pass:
-
-> Write `price(rule, consignment, /)` over `type PricingRule = Callable[[Consignment], Money]`, with the rules in a read-only `frozendict` and an unknown name raising `RatingError`. Round with `quantize(CENT, rounding=ROUND_HALF_UP)`. No base classes, no static-only classes, no getters or setters. The reply must pass `mypy --strict`, ruff, `review_gate.shape.review` and the grid in `tests/test_gates.py`.
-
-If the diff touches `GRID` or `EXPECTED_ROWS`, ask who decided that answer should change.
-
-</blockquote>
+> **🤖 Explore with your agent**
+>
+> "Write `price(rule, consignment, /)` over `type PricingRule = Callable[[Consignment], Money]`, with the rules in a read-only `frozendict` and an unknown name raising `RatingError`. Round with `quantize(CENT, rounding=ROUND_HALF_UP)`. No base classes, no static-only classes, no getters or setters. The reply must pass `mypy --strict`, ruff, `review_gate.shape.review` and the grid in `tests/test_gates.py`."
+>
+> If the diff touches `GRID` or `EXPECTED_ROWS`, ask who decided that answer should change.
 
 ## Build, run, observe
 

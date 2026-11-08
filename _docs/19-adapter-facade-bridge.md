@@ -257,13 +257,11 @@ The cost sits on the implementor, and the benefit on the abstraction, so keep th
 - **Facade.** A facade over a subsystem with one caller can be inlined.
 - **Bridge.** A bridge where one axis doesn't vary is a parameter, and the second hierarchy is a cost with no return.
 
-<blockquote class="ai-sidebar" markdown="1">
-**Specifying an adapter.** "Integrate a carrier" leaves open which clients need an adapter, what units cross the boundary and what the caller sees of the SDK. Paste a prompt that states the form:
-
-> Register a client that already satisfies `CarrierGateway` as it is. For one that doesn't, write an object adapter that holds the client, converts units through `Weight.pounds` and `Weight.from_pounds`, and raises `CarrierError` from the SDK's error. Write the facade as a module function, `ship`, whose signature names only domain types. Make booking kinds a bridge over the narrow Protocol, not a class per kind and carrier.
-
-If a weight crosses as a `float`, ask for a `Weight` parameter.
-</blockquote>
+> **🤖 Explore with your agent**
+>
+> "Register a client that already satisfies `CarrierGateway` as it is. For one that doesn't, write an object adapter that holds the client, converts units through `Weight.pounds` and `Weight.from_pounds`, and raises `CarrierError` from the SDK's error. Write the facade as a module function, `ship`, whose signature names only domain types. Make booking kinds a bridge over the narrow Protocol, not a class per kind and carrier."
+>
+> If a weight crosses as a `float`, ask for a `Weight` parameter.
 
 ## Build, run, observe
 

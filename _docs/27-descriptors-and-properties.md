@@ -213,13 +213,11 @@ The functools page offers an alternative: "If a mutable mapping is not available
 - **Changing state.** A value derived from state that changes belongs to a `property`, not `cached_property`.
 - **Slots.** A dataclass with `slots=True` takes no `Positive` field and no `cached_property`.
 
-<blockquote class="ai-sidebar" markdown="1">
-**Specifying managed attributes.** "Validate the weights" leaves open where the rule lives, whether the classes are slotted and which values are cached. State the forms in the prompt:
-
-> Validate every positive `Decimal` field with one `Positive` descriptor that learns its name in `__set_name__`, raises `AttributeError` on class access and stores through `vars(instance)`, on dataclasses without `slots=True`. Use `@property` for a value computed from state that changes, and `functools.cached_property` only on a frozen class. Don't copy a validating setter from one property to another.
-
-If the reply adds `slots=True` or a setter per field, ask for the test that fails.
-</blockquote>
+> **🤖 Explore with your agent**
+>
+> "Validate every positive `Decimal` field with one `Positive` descriptor that learns its name in `__set_name__`, raises `AttributeError` on class access and stores through `vars(instance)`, on dataclasses without `slots=True`. Use `@property` for a value computed from state that changes, and `functools.cached_property` only on a frozen class. Don't copy a validating setter from one property to another."
+>
+> If the reply adds `slots=True` or a setter per field, ask for the test that fails.
 
 ## Build, run, observe
 

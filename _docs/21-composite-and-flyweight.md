@@ -223,13 +223,11 @@ Parsing `"NLRTM;SGSIN;NLRTM"` through `route` gives one object for the first and
 - **Composite.** A flat list of consignments with no nesting needs a tuple and `sum`, not a union. Leaves and groups that share no question are two types, with no union to join them.
 - **Flyweight.** A handful of commodities doesn't need a pool. Mutable values aren't shared. Comparing codes with `is` ties correctness to interning; use `==`.
 
-<blockquote class="ai-sidebar" markdown="1">
-**Specifying trees and flyweights.** "A composite" leaves open whether leaves and groups share a base class, and "a flyweight" leaves open who owns the shared objects and when they go. Paste a prompt that states the form:
-
-> Model a consolidation as a frozen dataclass holding a tuple of parts, with `type Shipment = Consignment | ConsolidatedShipment` and `.weight` on both kinds. Reject an empty group and a consignment that appears twice. Use `match` with `assert_never` where the kinds differ. Share commodities from a pool built on `weakref.WeakValueDictionary`, with frozen slotted dataclasses and `weakref_slot=True`, and intern port codes with `sys.intern`. No Component base class and no `__new__` caching.
-
-If the reply gives a leaf an `add` method or caches in `__new__`, ask for the union and the pool function.
-</blockquote>
+> **🤖 Explore with your agent**
+>
+> "Model a consolidation as a frozen dataclass holding a tuple of parts, with `type Shipment = Consignment | ConsolidatedShipment` and `.weight` on both kinds. Reject an empty group and a consignment that appears twice. Use `match` with `assert_never` where the kinds differ. Share commodities from a pool built on `weakref.WeakValueDictionary`, with frozen slotted dataclasses and `weakref_slot=True`, and intern port codes with `sys.intern`. No Component base class and no `__new__` caching."
+>
+> If the reply gives a leaf an `add` method or caches in `__new__`, ask for the union and the pool function.
 
 ## Build, run, observe
 

@@ -229,15 +229,11 @@ Over 10,000 seeds the same voyage averaged 5.2758 delay days against 5.25 from t
 
 - **State.** A two-state flag is a `bool`. A lifecycle that nothing ever checks, because nothing branches on it, is an enum field. A workflow whose steps users configure at run time is data in a store, and a type per step would be a mistake. Ordered processing stages that can stop an item belong with [Mediator and Chain of Responsibility]({{ '/docs/23-mediator-and-chain-of-responsibility/' | relative_url }}).
 
-<blockquote class="ai-sidebar" markdown="1">
-
-**Specifying a state machine.** "The State pattern" leaves open whether the lifecycle is classes, a mutable field or a table, and what happens to a status that has no arm. Paste a prompt that states the form:
-
-> Write the lifecycle as `TRANSITIONS`, a read-only `frozendict` from `(ConsignmentStatus, HandlingKind)` to the next status, and raise `TransitionError`, naming both halves, for an absent pair. Where states carry data, make them frozen dataclasses in a union and write `apply_event` as a `match` on the state with an arm per state and `assert_never` last, no wildcard. Pass a `random.Random` in for delays. Test that every status is reachable and `DELIVERED` is terminal.
-
-If the `match` ends in `case _: raise`, ask what mypy reports when a state is added.
-
-</blockquote>
+> **🤖 Explore with your agent**
+>
+> "Write the lifecycle as `TRANSITIONS`, a read-only `frozendict` from `(ConsignmentStatus, HandlingKind)` to the next status, and raise `TransitionError`, naming both halves, for an absent pair. Where states carry data, make them frozen dataclasses in a union and write `apply_event` as a `match` on the state with an arm per state and `assert_never` last, no wildcard. Pass a `random.Random` in for delays. Test that every status is reachable and `DELIVERED` is terminal."
+>
+> If the `match` ends in `case _: raise`, ask what mypy reports when a state is added.
 
 ## Build, run, observe
 

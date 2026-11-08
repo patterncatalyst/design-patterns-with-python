@@ -177,13 +177,11 @@ A dry container costs nothing, a reefer is charged per day and a tank has a clea
 - **A single kind** is a function.
 - **Uncertain imports.** A kind that depends on an import its caller never makes meets the fallback.
 
-<blockquote class="ai-sidebar" markdown="1">
-**Specifying a generic function.** "A lookup per commodity type" leaves open what an unknown kind gets, how implementations are registered and where their classes come from. State those in the prompt:
-
-> Write `tariff_code` with `functools.singledispatch` and an `object` fallback that raises `TariffCodeError`. Register each commodity kind with an annotated implementation, not `register(cls, fn)`, and import every class an annotation names at run time. In tests, don't register on `tariff_code`: use a fresh dispatcher, and check another module's registrations in a fresh interpreter.
-
-If the fallback returns a default code, ask which test catches an unregistered kind.
-</blockquote>
+> **🤖 Explore with your agent**
+>
+> "Write `tariff_code` with `functools.singledispatch` and an `object` fallback that raises `TariffCodeError`. Register each commodity kind with an annotated implementation, not `register(cls, fn)`, and import every class an annotation names at run time. In tests, don't register on `tariff_code`: use a fresh dispatcher, and check another module's registrations in a fresh interpreter."
+>
+> If the fallback returns a default code, ask which test catches an unregistered kind.
 
 ## Build, run, observe
 

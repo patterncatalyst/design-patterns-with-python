@@ -207,13 +207,11 @@ A patch gets the first test around code that can't change yet. Its costs, agains
 
 The next step is the parameter, which [Dependency-breaking techniques for modern Python]({{ '/docs/34-dependency-breaking-techniques/' | relative_url }}) makes.
 
-<blockquote class="ai-sidebar" markdown="1">
-**Specifying where to patch.** "Mock the carrier" leaves the target open, and a patch on the module that defines a `from`-imported function changes nothing. State the target:
-
-> Patch `request_quote` where `seams.legacy` looks it up, with `monkeypatch.setattr("seams.legacy.request_quote", fake)`, not on `seams.fastline`. Keep `raising` at its default. With `mocker.patch`, pass `autospec=True`. Pass `margin=` instead of patching `MARGIN`, and don't call `importlib.reload` in a test. Then name the constructor parameter that would let a test drop the patch.
-
-Run it once with the fake returning another price; if the quote doesn't move, the patch missed.
-</blockquote>
+> **🤖 Explore with your agent**
+>
+> "Patch `request_quote` where `seams.legacy` looks it up, with `monkeypatch.setattr("seams.legacy.request_quote", fake)`, not on `seams.fastline`. Keep `raising` at its default. With `mocker.patch`, pass `autospec=True`. Pass `margin=` instead of patching `MARGIN`, and don't call `importlib.reload` in a test. Then name the constructor parameter that would let a test drop the patch."
+>
+> Run it once with the fake returning another price; if the quote doesn't move, the patch missed.
 
 ## Build, run, observe
 

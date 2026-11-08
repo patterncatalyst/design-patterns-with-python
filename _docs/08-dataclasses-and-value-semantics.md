@@ -196,13 +196,11 @@ What mypy checks and misses, in one place:
 - **One aggregate changing in place.** A running tally with thousands of updates is a mutable object with a method, not a stream of replacements.
 - **Equality that isn't field by field.** A carton that may be stowed on any face is equal to its rotation, and no field comparison says so. Write `__eq__` and a matching `__hash__` by hand; see [The data model: dunder methods as the substrate]({{ '/docs/07-the-data-model/' | relative_url }}).
 
-<blockquote class="ai-sidebar" markdown="1">
-**Specifying value types.** "Write the value types" leaves open whether they mutate, what their field types are and where normalising happens. Paste a prompt that states the form:
-
-> Write each value as `@dataclass(frozen=True, slots=True)` with immutable field types (`tuple`, `frozenset`, `Decimal`). `__post_init__` only validates and raises; normalise in a classmethod such as `Money.of` before construction. Amend with `dataclasses.replace`. Use `order=True` only where field order is the meaning, and `eq=False` for an entity such as `StowagePlan`. Add a test that puts two equal values in a set.
-
-If `__post_init__` assigns through `object.__setattr__`, ask for the normalising constructor.
-</blockquote>
+> **🤖 Explore with your agent**
+>
+> "Write each value as `@dataclass(frozen=True, slots=True)` with immutable field types (`tuple`, `frozenset`, `Decimal`). `__post_init__` only validates and raises; normalise in a classmethod such as `Money.of` before construction. Amend with `dataclasses.replace`. Use `order=True` only where field order is the meaning, and `eq=False` for an entity such as `StowagePlan`. Add a test that puts two equal values in a set."
+>
+> If `__post_init__` assigns through `object.__setattr__`, ask for the normalising constructor.
 
 ## Build, run, observe
 

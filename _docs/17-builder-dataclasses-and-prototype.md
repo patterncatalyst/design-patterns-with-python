@@ -235,13 +235,11 @@ The field type is the better answer. A tuple has no `append`, so `replace(clone,
 - **Builder.** A value with three fields needs a plain frozen dataclass or an ordinary constructor. An object whose construction is a process, such as opening a connection or calling a service, is a function. A builder kept only for a fluent style gives up the type checker's missing-argument report in exchange for a chain of method calls.
 - **Prototype.** `replace` and the copy functions fit a request that holds no resources. Don't deep-copy a lock; build another.
 
-<blockquote class="ai-sidebar" markdown="1">
-**Specifying a builder.** "A builder" leaves open where the cross-field rules run, how a template is copied and whether a class is needed at all. Paste a prompt that states the form:
-
-> Write `BookingRequest` as `@dataclass(frozen=True, slots=True, kw_only=True)` with the cross-field rules in `__post_init__`, closed choices as `Literal` types and `documents` as a `tuple`. Keep templates in a read-only `frozendict` and copy them with `dataclasses.replace` or `copy.replace`, which rerun `__post_init__`. No builder class and no `clone` method.
-
-If a template field is a `list`, ask for a check that appends through a copy.
-</blockquote>
+> **🤖 Explore with your agent**
+>
+> "Write `BookingRequest` as `@dataclass(frozen=True, slots=True, kw_only=True)` with the cross-field rules in `__post_init__`, closed choices as `Literal` types and `documents` as a `tuple`. Keep templates in a read-only `frozendict` and copy them with `dataclasses.replace` or `copy.replace`, which rerun `__post_init__`. No builder class and no `clone` method."
+>
+> If a template field is a `list`, ask for a check that appends through a copy.
 
 ## Build, run, observe
 
