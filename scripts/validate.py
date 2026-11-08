@@ -472,6 +472,20 @@ def check_described_figures(rel: str, text: str) -> list[Finding]:
     return out
 
 
+def check_undescribed_figures(rel: str, text: str) -> list[Finding]:
+    """In a `TERSE_DOCS` doc every figure include carries `described="true"` (its walk-through
+    lives in the figure description, CLAUDE.md's spine)."""
+    out: list[Finding] = []
+    for m in INCLUDE_RE.finditer(text):
+        params = dict(PARAM_RE.findall(m.group(1)))
+        if params.get("described") != "true":
+            line = text.count("\n", 0, m.start()) + 1
+            out.append(
+                Finding(rel, line, 'figure include needs described="true" and a description')
+            )
+    return out
+
+
 def check_pattern_layout(rel: str, text: str) -> list[Finding]:
     """The O1 layout for a pattern chapter: one `## Pattern: <Name>` H2 per pattern."""
     out: list[Finding] = []
@@ -855,6 +869,32 @@ def check_pytest_header(rel: str, text: str) -> list[Finding]:
             out.append(
                 Finding(rel, n, "pytest platform header in a fence: record with --no-header")
             )
+    return out
+
+
+REPO_PATH_PHRASE = "with the repository path shown as `<repo>`"
+
+
+def check_repo_path_phrase(rel: str, text: str) -> list[Finding]:
+    """O6 sweep: the phrase promising a `<repo>` path must lead into a fence that shows one.
+    A run recorded with --no-header prints no rootdir, so the phrase would be stale there."""
+    out: list[Finding] = []
+    lines = text.split("\n")
+    for n, line in enumerate(lines, start=1):
+        if REPO_PATH_PHRASE not in line:
+            continue
+        i = n
+        while i < len(lines) and not lines[i].strip():
+            i += 1
+        fence: list[str] = []
+        if i < len(lines) and lines[i].startswith("```"):
+            j = i + 1
+            while j < len(lines) and not lines[j].startswith("```"):
+                fence.append(lines[j])
+                j += 1
+        if not any("<repo>" in ln for ln in fence):
+            msg = "'shown as `<repo>`' before a fence with no <repo> path (a --no-header run)"
+            out.append(Finding(rel, n, msg))
     return out
 
 
@@ -1428,6 +1468,7 @@ def validate(root: Path) -> Report:
         if entry.get("number") in TERSE_DOCS:
             rep.errors.extend(check_terse_tests(rel, text))
             rep.errors.extend(check_described_figures(rel, text))
+            rep.errors.extend(check_undescribed_figures(rel, text))
             if kind == "pattern":
                 rep.errors.extend(check_pattern_layout(rel, text))
         rep.errors.extend(check_figure_captions(rel, text))
@@ -1476,6 +1517,11 @@ def validate(root: Path) -> Report:
         rep.errors.extend(check_link_forms(rel, path.read_text(encoding="utf-8")))
 
     seen: dict[str, set[str]] = {}
+    for path in reader_facing(root):
+        if path.suffix != ".svg":
+            rel = path.relative_to(root).as_posix()
+            rep.errors.extend(check_repo_path_phrase(rel, path.read_text(encoding="utf-8")))
+
     for path in reader_facing(root):
         rel = path.relative_to(root).as_posix()
         if path.suffix == ".svg" or rel in SETUP_SURFACES:
@@ -1802,6 +1848,8 @@ def terse_self_test(expect: Callable[[str, bool], None]) -> None:
     )
     plain = '{% include excalidraw.html name="fig" caption="c" %}\n'
     expect("undescribed include ignored", not check_described_figures("a.md", plain))
+    expect("terse figure needs described", len(check_undescribed_figures("a.md", plain)) == 1)
+    expect("terse described figure ok", not check_undescribed_figures("a.md", GOOD_DESCRIBED))
 
     force_text = (
         "---\nt: x\n---\nA Force and forces, `force`, reinforce.\n> a force\n```\nforce\n```\n"
@@ -2134,6 +2182,21 @@ def self_test() -> int:
         bool(check_pytest_header("a.md", f"```text\n{header}\n```")),
     )
     expect("pytest header outside a fence passes", not check_pytest_header("a.md", header))
+    phrase = f"A fresh run, {REPO_PATH_PHRASE}:\n\n"
+    no_header = phrase + "```text\ncollecting ... collected 1 item\n```\n"
+    expect(
+        "repo phrase before a --no-header fence fails",
+        len(check_repo_path_phrase("a.md", no_header)) == 1,
+    )
+    with_repo = phrase + "```text\nrootdir: <repo>\n```\n"
+    expect(
+        "repo phrase before a fence with <repo> passes",
+        not check_repo_path_phrase("a.md", with_repo),
+    )
+    expect(
+        "repo phrase with no fence fails", bool(check_repo_path_phrase("a.md", phrase + "Text.\n"))
+    )
+    expect("no repo phrase passes", not check_repo_path_phrase("a.md", "A fresh run produces:\n"))
     expect(
         "pytest output without the header passes",
         not check_pytest_header("a.md", "```text\ncollecting ... collected 1 item\n```"),

@@ -188,7 +188,7 @@ uv run pytest -v --no-header
 uv run mypy --strict src tests
 ```
 
-A fresh run, with the repository path shown as `<repo>`:
+A fresh run produces:
 
 ```text
 ============================= test session starts ==============================

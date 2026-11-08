@@ -440,7 +440,8 @@ def parse_waivers(evidence: str) -> tuple[list[Waiver], list[str]]:
             continue
         doc_s, kind, value, reason, signed = cells
         m = re.match(r"\d+", doc_s)
-        value = value.strip("`")
+        if kind != "code":  # a code value is itself a backticked span: keep its backticks
+            value = value.strip("`")
         bare = value.removeprefix("+")
         if not m or kind not in KINDS or not bare:
             notes.append(f"waiver row ignored (doc or kind not valid): {line.strip()[:80]}")
@@ -879,6 +880,18 @@ def self_test() -> int:
     ws, notes = parse_waivers(table)
     ok = len(ws) == 1 and ws[0].value == "255" and len(notes) == 1
     print(f"  {'ok  ' if ok else 'FAIL'} the waiver table accepts only signed rows")
+    failed += not ok
+    # a code waiver keeps its backticks, so it matches a code finding
+    table = (
+        "## Waivers\n\n| doc | kind | value | reason | signed |\n| --- | --- | --- | --- | --- |\n"
+        "| 99 | code | `<repo>` | the path is no longer shown | reader |\n"
+        "| 99 | code | +`test_a` | a new *Tests:* line | reader |\n"
+        "| 99 | test | +test_a | a new *Tests:* line | reader |\n"
+    )
+    ws, notes = parse_waivers(table)
+    res = compare("Run, `<repo>`.\n", "Run.\n\n*Tests:* `test_a`.\n", ws)
+    ok = [w.value for w in ws] == ["`<repo>`", "+`test_a`", "+test_a"] and not res.failures
+    print(f"  {'ok  ' if ok else 'FAIL'} a code waiver keeps its backticks and covers the change")
     failed += not ok
     # a section report on a pattern layout flags long lead-ins
     layout = (
