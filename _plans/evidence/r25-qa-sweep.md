@@ -431,7 +431,6 @@ Fresh Opus confirmation (QA step 9). It did not run round 1. Fresh copy made wit
   - "Download .excalidraw" is one line at every width.
 - Problem 1: round 1's chapter 16 sidebar opening "how often the carrier is chosen" gives the AI-claim grep one hit (`often`, not a frequency claim). That made row 437 and this file's sidebar census ("prints nothing") untrue on the tree. The replacement "whether the carrier is chosen once or on every call" is tested in the copy: validate 0 errors, ban scan 0, AI-claim grep hits `[]`. It goes in as repair round 2, and a confirmation follows it.
 - Correction to the C3a table: the `21:256` row's method is `uv run pytest -v` then `uv run mypy --strict src tests bench` in the member, not `src tests`. With round 1's revert, C3a's tally reads 182 match and 3 fixed (19:313, 30:219, 30:236).
-```
 
 ## Repair round 2 (2026-11-08)
 
@@ -441,3 +440,24 @@ Applied by the orchestrator with exact-match asserts:
   - Duplicate `<title>`: `jekyll-seo-tag` emitted a second `<title>` after the layout's own. The layout now calls `{% seo title=false %}`, the plugin's documented switch, and the hand-written title stays.
   - CLAUDE.md's decision 7 note: Appendix E now has 931 words (it had 917).
 - C3a's tally and its `21:256` table row are corrected: 182 match and 3 fixed, and the command is `src tests bench`.
+
+## Confirmation after round 2
+
+Fresh Opus confirmation (QA step 9). It ran neither repair round. Fresh copy made with the plan's three commands, at 283d31d. Verdict: fail, 1 problem.
+
+- Gates:
+  - `verify.sh`: 1407 passed, `verify: all steps passed`.
+  - `validate.py`: 0 errors and 6 accepted warnings. `--self-test` ok. `--claims`: 469 rows resolved.
+  - `host_ids`: 887 files, 0 hits. Ban scan 0. `ruff format --check`: 667 files already formatted.
+  - `site-build.sh` built 108 pages with the `Gemfile.lock` md5 unchanged.
+- Links: round 2 changed no URL in any reader-facing file.
+- Decks: none changed. `render-png.sh --check` prints `same` for 301 (2), 101 (6) and 201 (5).
+- Chapter 16 opening: each of its three open questions is pinned by the prompt and taught in the body (choose the kit once at the composition root; `UnknownCarrierError`; the reference type `R`). The AI-claim grep over the 36 sidebars prints nothing. Every prompt and review paragraph is byte-identical to e32dea5, and the 18 openings in 5 to 22 changed.
+- Title: across all 108 built pages, each has exactly one `<title>`, and `og:title` is present on all 108. The home page, chapter 16, example 16, the bibliography and the part 0 page also carry `twitter:title`, the descriptions, canonical, `og:url` and JSON-LD. Each page still has two `<meta name="description">` (pre-existing).
+- Problem 1: the round 1 confirmation section pasted above ended with the closing fence of the report's wrapper, which left an unmatched fence before "Repair round 2". That made the rest of the file render as code. The fence was removed. Tested in the copy: markdown-it renders the "Repair round 2" heading, validate shows 0 errors, and the ban scan shows 0.
+
+## Recorded correction after confirmation 2 (2026-11-08)
+
+The plan caps repair rounds at two (QA step 9), so the orchestrator applied confirmation 2's one finding as a recorded correction, not a third round. The finding was a stray closing code fence that round 2 pasted into this file, which turned the "Repair round 2" section into a code block. The confirmation's tested string was applied verbatim with an exact-match assert. The file is internal: it isn't rendered on the site and isn't reader-facing. It now has 0 fence lines, which was checked with `grep -c '^```'`, and every gate it touches (`validate.py`, `--claims` and the ban scan) passes.
+
+Left for r26 (the confirmation recorded it and the owner was told; not a failure): every built page carries two `<meta name="description">` tags, the layout's own plus `jekyll-seo-tag`'s. This was already the case before r25.
