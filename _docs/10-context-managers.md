@@ -4,7 +4,7 @@ order: 10
 layout: tutorial
 sectionid: docs
 part: "python-substrate"
-description: "The with statement runs __exit__ on every path out of a block, which removes the boilerplate of Resource Acquisition; what release means, whether an exception propagates and the order across resources stay with the author."
+description: "The with statement runs &#95;&#95;exit&#95;&#95; on every path out of a block, which removes the boilerplate of Resource Acquisition; what release means, whether an exception propagates and the order across resources stay with the author."
 ---
 
 ## Learning objectives

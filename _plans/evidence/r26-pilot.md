@@ -19,7 +19,7 @@ The owner's go or adjust answer after the reading packet is recorded here at B6.
 
 ## Owner checks
 
-(B2a copies evidence H of the plan here: the O'Reilly chapter title check of 2026-11-08, the link check, and the route for O'Reilly facts.)
+2026-11-08, the owner, in their own O'Reilly account: (1) read Chapter 13's title on the book page for *Working Effectively with Legacy Code* (https://learning.oreilly.com/library/view/-/0131177052/): "I Need to Make a Change, but I Don’t Know What Tests to Write". The book prints a curly apostrophe; the owner chose the straight house form, "I Need to Make a Change, but I Don't Know What Tests to Write" (O3). (2) confirmed that the four O'Reilly links open their book pages: the three canonical ones r25 put in `bibliography.html` (Architecture Patterns with Python, Effective Python, Python Object-Oriented Programming) and the original uncanonical `/library/view/-/<isbn>/` link.
 
 ## Baseline commands
 
@@ -109,6 +109,23 @@ Book-wide medians: WORDS 2,200 (terse-stats count), SECMED 228, LEAD 102, PAR 48
 - Terse-tier hits: the plan gives 01: 7, 03: 3, 23: 9, 24: 10; this run gives 7, 3, 8 and 9 (`--hits all` lists 8 matching lines in 23 and 9 in 24). The plan's counts for 23 and 24 are each one higher; the cause is not known, so the baseline here is the measured one.
 - The invariant baselines of C (fenced blocks, distinct test names, URLs, `relative_url` targets, long quotations, digit tokens, walk-throughs) are not re-run at B0: they need `scripts/prose_invariants.py`, which B1b builds, and B1b records the base figures from it.
 - The terse-stats WORDS column (2,488 / 2,414 / 2,105 / 2,260) differs from `validate.py`'s count (2,484 / 2,388 / 2,144 / 2,273) because the two tools exclude different lines; the 2,500 ceiling is measured with `validate.py`'s.
+
+## Invariant baseline (B1d)
+
+From `uv run python scripts/prose_invariants.py --baseline 1 3 23 24` on the unchanged tree at B1d:
+
+| doc | fences | test names | URLs | relative_url | quotations | numbers | numbers, tags kept | walk-throughs |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 01 | 0 | 0 | 0 | 2 | 0 | 4 | 4 | 0 |
+| 03 | 6 | 1 | 5 | 25 | 2 | 10 | 10 | 0 |
+| 23 | 13 | 27 | 2 | 5 | 3 | 12 | 13 | 1 |
+| 24 | 9 | 35 | 11 | 5 | 20 | 62 | 63 | 1 |
+
+The plan's doc 24 count of 39 test names included 4 module filenames; the measured count is 35.
+
+## Project voice patterns (B1d)
+
+`scan.sh --tier terse --patterns .voice-patterns.tsv _docs` gives 217 matching lines (0 ban-tier), against a baseline of 177 without the project rows. 207 remain once the double count with the skill's row 123 ("the force behind") is removed.
 
 ## Waivers
 

@@ -2,7 +2,7 @@
 layout: example
 order: 30
 title: "Dynamic attributes: __getattr__ and Proxy as a feature"
-description: A tracking history that declares its fields, loads them once from a slow feed on the first read through __getattr__, and behaves like any other object under dir(), copy, iteration and mypy, with a cached_property form on the same table and a module-level __getattr__ that deprecates an old name.
+description: A tracking history that declares its fields, loads them once from a slow feed on the first read through &#95;&#95;getattr&#95;&#95;, and behaves like any other object under dir(), copy, iteration and mypy, with a cached_property form on the same table and a module-level &#95;&#95;getattr&#95;&#95; that deprecates an old name.
 github_path: examples/30-dynamic-attributes-and-proxy
 card_eyebrow: "Idiomatic Python · Dynamic attributes"
 card_blurb: "A tracking history loads its fields on the first read and keeps them as plain attributes. A __getattr__ that reads a missing attribute recurses under copy, and an allow-list stops it."
