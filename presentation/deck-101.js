@@ -71,7 +71,7 @@ const { S, divider, bullets, bulletSlide, tableSlide, codeSlide, figSlide, notes
   ];
   bullets(s, left, { w: 5.95, fontSize: 16, gap: 10 });
   bullets(s, right, { x: 6.85, w: 5.86, fontSize: 16, gap: 10 });
-  notes(s, `The deck runs in nine sections. The first two set up the question: what a pattern is, and what changed between 1994 and Python 3.15. SOLID comes third, because the principles are the forces the catalogue's patterns answer. The four middle sections walk the catalogue by what a pattern does: selecting behaviour, creating objects, composing structure, coordinating and traversing. Choosing well turns the catalogue back into a judgement about when to leave a pattern out, and the reference section closes with versions and reading. What to show: nothing needs running here. Fallback: the eight section names carry the same route.`, 90, "route");
+  notes(s, `The deck runs in nine sections. Why patterns and What 1994 assumed set up the question: what a pattern is, and what changed between 1994 and Python 3.15. SOLID in Python treats the principles as the forces the catalogue's patterns answer. Four sections walk the catalogue by what a pattern does: selecting behaviour, creating objects, composing structure, coordinating and traversing. Choosing well turns the catalogue back into a judgement about when to leave a pattern out, and Reference gives the versions, sources and reading. What to show: nothing needs running here. Fallback: each bullet names a section and its subject.`, 90, "route");
 }
 
 // ===========================================================================
@@ -85,7 +85,7 @@ bulletSlide("WHY PATTERNS", "Decisions under forces", [
   ["The shape", " is what is left after those forces are traded off, so the useful question is which forces are present in your system."],
   ["Consequences", " are the ledger: what the pattern buys, and what it costs in indirection and extra objects."],
   ["A pattern has a price,", " paid whether or not the benefit turns up. A hook for variation that never varies buys nothing."],
-], `The catalogue's own framing isn't a menu of diagrams. A pattern is a solution to a problem in a context, and the problem is a set of forces. Gamma, Helm, Johnson and Vlissides, in Design Patterns, give their patterns a Consequences section that lists what it buys and what it costs, and that section is the ledger used throughout the catalogue sections. A pattern whose consequences you can't state has a cost nobody has counted. No code appears here: the claim rests on that reading of the catalogue, and no test backs it. What to show: pick a pattern from the catalogue sections and ask which force is present and what the ledger says. Fallback: the Consequences idea is stated in four bullets and needs no demonstration.`);
+], `The catalogue's own framing isn't a menu of diagrams. A pattern is a solution to a problem in a context, and the problem is a set of forces. Gamma, Helm, Johnson and Vlissides, in Design Patterns, give their patterns a Consequences section that lists what it buys and what it costs, and that section is the ledger a pattern is judged by. A pattern whose consequences you can't state has a cost nobody has counted. No code appears here: the claim rests on that reading of the catalogue, and no test backs it. What to show: pick a pattern and ask which force is present and what the ledger says. Fallback: the Consequences idea is stated in four bullets and needs no demonstration.`);
 
 codeSlide("WHY PATTERNS", "Proof that runs",
   "examples/00-prerequisites/src/consignments/consignment.py", 36, 43,
@@ -214,7 +214,7 @@ codeSlide("SOLID IN PYTHON", "The composition root",
 
 figSlide("SOLID IN PYTHON", "Wiring the application", "06-isp-dip-and-di-without-a-framework",
   "The composition root builds one carrier adapter and passes it to the booking and tracking consumers, which name the small Protocol they need.",
-  `The figure shows dependency injection without a framework. The composition root builds one carrier adapter and passes it to two consumers, booking and tracking. The consumers name the small Protocol they need, and the adapter satisfies both Protocols structurally and imports neither. That's the inversion: the policy code points at an abstraction it owns, and the concrete adapter is named in one place. The arrows match the arguments in build_app, so the figure and the build_app listing describe the same call. What to show: the figure beside the build_app listing. Fallback: the caption gives the direction of the dependencies in words.`);
+  `The figure shows dependency injection without a framework. The composition root builds one carrier adapter and passes it to two consumers, booking and tracking. The consumers name the small Protocol they need, and the adapter satisfies both Protocols structurally and imports neither. That's the inversion: the policy code points at an abstraction it owns, and the concrete adapter is named in one place. The arrows match the arguments in build_app, so the figure and the code describe the same call. What to show: the figure at full width, following the adapter to both consumers. Fallback: the caption gives the direction of the dependencies in words.`);
 
 tableSlide("SOLID IN PYTHON", "Principles beyond SOLID",
   ["Principle", "What its test shows"], [
@@ -249,7 +249,7 @@ codeSlide("SELECTING AND VARYING BEHAVIOUR", "Strategy as a callable",
 
 figSlide("SELECTING AND VARYING BEHAVIOUR", "Rules in a registry", "12-strategy-the-callable",
   "The caller names a rule, the read-only RATE_RULES registry returns a callable, and quote records the name with the price.",
-  `The figure follows one quote through the registry. The caller names a rule, the read-only RATE_RULES mapping returns a callable, and quote prices the consignment with it and records the rule's name next to the price. Whether the callable is a function, a partial or a frozen dataclass makes no difference to the call, which is the point of the slot. The arrows correspond to lines in the code, so the figure is a reading aid for the registry listing. What to show: the figure at full width, tracing a name to a callable to a price. Fallback: the caption says the same in one sentence, and the registry listing has it.`);
+  `The figure follows one quote through the registry. The caller names a rule, the read-only RATE_RULES mapping returns a callable, and quote prices the consignment with it and records the rule's name next to the price. Whether the callable is a function, a partial or a frozen dataclass makes no difference to the call, which is the point of the slot. The arrows correspond to lines in the code, so the figure is a reading aid for the registry. What to show: the figure at full width, tracing a name to a callable to a price. Fallback: the caption says the same in one sentence.`);
 
 codeSlide("SELECTING AND VARYING BEHAVIOUR", "Hooks, not subclasses",
   "examples/13-template-method-and-the-function-alternative/src/template_method/hooks.py", 28, 35,
@@ -321,7 +321,7 @@ codeSlide("COMPOSING AND ADAPTING STRUCTURE", "A bridge over a Protocol",
 
 figSlide("COMPOSING AND ADAPTING STRUCTURE", "One call, two axes", "19-adapter-facade-bridge",
   "The facade picks a gateway and a booking kind; the kinds work through the narrow gateway Protocol, and one client reaches it through an adapter.",
-  `The figure combines the three patterns in one call. The facade picks a gateway and a booking kind. The booking kinds work through the narrow gateway Protocol, which is the bridge. One carrier client already satisfies the Protocol, and the other reaches it through an adapter that converts units, which is why a dashed arrow marks the unit read from the consignment's weight. The arrows correspond to calls in the code, including the registration of the facade's collaborators. What to show: the figure at full width, then follow a single ship call from the facade to a carrier. Fallback: the caption gives the flow, and the bridge listing shows the booking kind.`);
+  `The figure combines the three patterns in one call. The facade picks a gateway and a booking kind. The booking kinds work through the narrow gateway Protocol, which is the bridge. One carrier client already satisfies the Protocol, and the other reaches it through an adapter that converts units, which is why a dashed arrow marks the unit read from the consignment's weight. The arrows correspond to calls in the code, including the registration of the facade's collaborators. What to show: the figure at full width, then follow a single ship call from the facade to a carrier. Fallback: the caption gives the flow.`);
 
 bulletSlide("COMPOSING AND ADAPTING STRUCTURE", "Two things called Decorator", [
   ["The pattern", " builds a value: a wrapper object that holds another and presents the same interface, composed while the program runs."],
@@ -410,7 +410,7 @@ codeSlide("COORDINATING AND TRAVERSING", "A tariff, two readings",
 
 figSlide("COORDINATING AND TRAVERSING", "Match, snapshot, tariff tree", "25-visitor-memento-interpreter",
   "Operations over the event union are matches; a booking rolls back from a frozen snapshot; one tariff tree is priced and explained.",
-  `The figure draws three columns from the same module. In the first, each operation over the closed event union is one match, and mypy reports a kind it leaves out. In the second, a booking rolls back from a frozen snapshot that leaves the audit alone. In the third, one tariff tree is both priced and explained. The arrows trace the code in the match, rollback and tariff listings. What to show: the figure at full width, one column at a time. Fallback: the caption lists the three columns, one per pattern.`);
+  `The figure draws three columns from the same module. In the first, each operation over the closed event union is one match, and mypy reports a kind it leaves out. In the second, a booking rolls back from a frozen snapshot that leaves the audit alone. In the third, one tariff tree is both priced and explained. The arrows trace the code in the match, the rollback and the tariff evaluation. What to show: the figure at full width, one column at a time. Fallback: the caption lists the three columns, one per pattern.`);
 
 // ===========================================================================
 // Section: Choosing well
@@ -459,7 +459,7 @@ tableSlide("CHOOSING WELL", "Pattern to force",
   bullets(s, [
     ["Review line:", " if the reply adds an accept method or snapshots with copy.copy, ask for the test that fails."],
   ], { y: 5.85, h: 0.9, fontSize: 17 });
-  notes(s, `A request for a visitor or a memento names a 1994 shape and leaves open the decisions that matter, so the prompt states them: the closed set of event kinds, a match per operation that ends in assert_never, a frozen snapshot that leaves the audit out, a rollback context manager that re-raises, and tariff rules as frozen nodes. The review line is a check on the reply. An accept method means the Visitor shape came back, and copy.copy means the snapshot may share state with the booking; in either case ask for the test that fails. No test backs the claim; the prompt and the review line stand as written. What to show: the prompt beside the visitor, memento and tariff listings it describes. Fallback: the prompt reads as a checklist on its own.`, 90, "bullets");
+  notes(s, `A request for a visitor or a memento names a 1994 shape and leaves open the decisions that matter, so the prompt states them: the closed set of event kinds, a match per operation that ends in assert_never, a frozen snapshot that leaves the audit out, a rollback context manager that re-raises, and tariff rules as frozen nodes. The review line is a check on the reply. An accept method means the Visitor shape came back, and copy.copy means the snapshot may share state with the booking; in either case ask for the test that fails. No test backs the claim; the prompt and the review line stand as written. What to show: read the prompt aloud and name each decision it fixes. Fallback: the prompt reads as a checklist on its own.`, 90, "bullets");
 }
 
 // ===========================================================================

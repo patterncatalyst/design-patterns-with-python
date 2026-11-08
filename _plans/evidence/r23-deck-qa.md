@@ -189,3 +189,27 @@ Nits applied:
 Pages re-viewed: 7, 13, 18, 23 and 43. No lone words; the PEP row fits. Rebuilt: Deck 201 has 45 slides (minimum notes 48) and Deck 101 has 62 (minimum notes 50). `validate.py` reports 0 errors and `--self-test` reports ok. A grep of both decks for chapter, appendix, self or positional pointers finds 0.
 
 Census item 13 (2026-11-07): `Positive.__set__` now raises "must be positive and finite"; see the r23 plan's orchestrator note.
+
+## Repair round 2 (2026-11-07, orchestrator)
+
+Round 2 of the validation, at 4145b1d, failed on three blocking items. Two were introduced in repair round 1. Every fix uses the validator's tested text.
+- **B1:** Deck 101 notes 2 said "the eight section names", but the deck has nine sections. The notes also named sections by position ("The first two", "comes third", "closes with"). They now name each section by its title: 100 words.
+- **B2:** Deck 201 notes 33 claimed a singledispatch alternative that the misuse example never shows. They now give the function form: one definition, `quote`, plus a field on `Tariff`.
+- **B3:** the four new pointer self-tests built a trailing slide whose notes were under the floor, so they failed whatever the phrase was. They now use `good[2]`. A control case, a plain-English "a weight above 30 kg" case and a closing-slide book-exemption case are added. With the three new checks disabled in a scratch copy, the self-test reports 8 failures. With the checks in place, it reports ok.
+
+Should-fix items:
+- The self-reference check now matches "this" or "these" followed by "deck", "slide" or "slides". Deck 201 notes 42 are fixed accordingly.
+- Deck 201 notes 36 read "the results aren't a recommendation".
+- The slide 43 PEP row now reads "Python Enhancement Proposals" in the first column and lists the PEP numbers in the second, so 3129 no longer wraps alone. Page 43 was re-rendered and viewed.
+
+Nits applied:
+- **Deck 101 notes 4, 21, 26, 38, 53 and 57** no longer lean on another slide's listing or on "the catalogue sections".
+- **The above/below pattern** now matches only pointer forms ("the table above", "see below", a sentence-final "above"), so "a weight above 30 kg" passes.
+- **The probe docstring** is re-flowed.
+
+Left as is: the Deck 201 page 35 divider title wraps "patterns" onto a second line, which is within the two-line limit.
+
+After the repair:
+- **Decks:** Deck 101 has 62 slides (minimum notes 50) and Deck 201 has 45 (minimum notes 45, the panel floor).
+- **Validation:** `validate.py` reports 0 errors.
+- **Pointer grep:** over both decks it finds only "the listing", meaning the same slide's own code, and Deck 201's own singledispatch section.
