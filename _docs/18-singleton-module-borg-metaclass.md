@@ -148,11 +148,11 @@ The inner check needs an interleaving, and the test forces it with a lock that m
 
 The lock is injected through `lock=`, which defaults to `threading.Lock()`. Both threads have passed the first check by the time they wait on the barrier in `__enter__`, so the only way forward is through the second check. `test_load_once_runs_the_loader_once_when_two_threads_pass_the_first_check` finds one load, the same table from both threads and two entries to the lock. Nothing sleeps. The Barrier timeout is a guard that a healthy run never reaches. Why threads interleave at all is the subject of [The GIL and performance]({{ '/docs/37-the-gil-and-performance/' | relative_url }}).
 
-The marker is `NOT_LOADED`, built with the `sentinel` type that Python 3.15 adds. The What's New page, for PEP 661 by Tal Einat, says the type is "for creating unique sentinel values with a concise representation". A loader may return `None`, so `None` can't mark "not loaded yet". `test_load_once_keeps_a_loader_that_returns_none` runs a loader that returns `None` three times and finds one call. A loader that raises leaves the marker in place, and `test_a_failed_load_is_tried_again` finds two attempts and then `"ok"`.
+The marker is `NOT_LOADED`, built with the `sentinel` type that Python 3.15 adds. The What's New page, for PEP 661 by Tal Einat and Jelle Zijlstra, says the type is "for creating unique sentinel values with a concise representation". A loader may return `None`, so `None` can't mark "not loaded yet". `test_load_once_keeps_a_loader_that_returns_none` runs a loader that returns `None` three times and finds one call. A loader that raises leaves the marker in place, and `test_a_failed_load_is_tried_again` finds two attempts and then `"ok"`.
 
 ## Borg, the metaclass, and `__new__`
 
-Three class forms sit beside the ladder. They are fixtures in `tests/conftest.py`, they stand for code a team inherits or an assistant writes, and each has one measured cost. They run the same behaviour table as the module. The `__new__` form:
+Three class forms sit beside the ladder. They are fixtures in `tests/conftest.py`, they stand for code a team inherits, and each has one measured cost. They run the same behaviour table as the module. The `__new__` form:
 
 <!-- fmt:off -->
 ```python

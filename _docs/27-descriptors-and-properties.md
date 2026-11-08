@@ -198,7 +198,7 @@ The functools page offers an alternative: "If a mutable mapping is not available
 
 ## When not to use it
 
-Skip the descriptor when one field in one class needs a rule: a `property` pair is shorter, and it passes the same table. A frozen value type that's validated once at construction needs neither, because `__post_init__` runs the check ([Dataclasses and value semantics]({{ '/docs/08-dataclasses-and-value-semantics/' | relative_url }}) covers it). A value derived from state that changes belongs to a `property`, not `cached_property`. A slotted class takes no descriptor field and no `cached_property`.
+Skip the descriptor when one field in one class needs a rule: a `property` pair is shorter, and it passes the same table. A frozen value type that's validated once at construction needs neither, because `__post_init__` runs the check ([Dataclasses and value semantics]({{ '/docs/08-dataclasses-and-value-semantics/' | relative_url }}) covers it). A value derived from state that changes belongs to a `property`, not `cached_property`. A dataclass with `slots=True` takes no `Positive` field and no `cached_property`.
 
 <blockquote class="ai-sidebar" markdown="1">
 **Specifying managed attributes.** "Validate the weights" leaves open where the rule lives, whether the classes are slotted and which values are cached. State the forms in the prompt:

@@ -308,7 +308,7 @@ tests/test_static.py::test_mypy_refuses_adding_to_a_frozen_consolidation[assign]
 tests/test_static.py::test_mypy_accepts_add_on_a_component_leaf PASSED   [100%]
 
 ============================== 44 passed in 3.61s ==============================
-Success: no issues found in 8 source files
+Success: no issues found in 9 source files
 ```
 
 The suite has 31 test functions and 44 cases. The groups are:

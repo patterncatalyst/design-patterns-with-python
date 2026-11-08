@@ -55,7 +55,7 @@ class BookingGateway(Protocol):
     def cancel(self, reference: str, /) -> None: ...
 ```
 
-Tracking asks for one, `track(self, consignment_id: ConsignmentId, /) -> tuple[HandlingEvent, ...]`, in `TrackingGateway`. The positional-only `/` matters: without it the parameter name is part of the member's signature, because a caller may pass it by keyword, and the typing specification then requires an implementer to use the same name. mypy 2.4.1 doesn't enforce that for a method member, so the `/` states the intent where the checker would not.
+Tracking asks for one, `track(self, consignment_id: ConsignmentId, /) -> tuple[HandlingEvent, ...]`, in `TrackingGateway`. The positional-only `/` matters: without it the parameter name is part of the member's signature, because a caller may pass it by keyword, and the typing specification then requires an implementer to use the same name.
 
 The adapters name none of this. `FastlineGateway` and `AircoGateway` are plain classes with `book`, `track` and `cancel`, no base class and no import of either policy module. The test `test_adapters_satisfy_every_role_without_naming_one` assigns each adapter to a variable annotated `BookingGateway`, one annotated `TrackingGateway` and one annotated `CarrierGateway`, and checks that none of those Protocols appears in the adapter's method resolution order. The annotated assignments are the static witness: pytest executes them but doesn't check the annotations, and the member's `mypy --strict` run does, so a green pytest run alone doesn't cover that half of the claim. A Protocol is structural, so an adapter satisfies it by having the right members, as [Protocol, duck typing, and structural typing with mypy]({{ '/docs/09-protocol-and-structural-typing/' | relative_url }}) develops.
 
@@ -138,7 +138,7 @@ def build_app(
     return App(BookingService(gateway, audit), partial(tracking_history, gateway=gateway))
 ```
 
-`app` is the one module in the source tree that imports `carriers`, and `test_build_app_shares_one_gateway_between_booking_and_tracking` checks that both consumers get the same gateway object. Choosing a carrier is an argument to `build_app`, and `test_swapping_the_carrier_changes_no_consumer` shows that `FASTLINE` and `AIRCO` produce references prefixed with their code through the same `BookingService` and the same `tracking_history`.
+`app` imports `carriers` and neither policy module does (`test_policy_modules_do_not_import_the_adapters`), and `test_build_app_shares_one_gateway_between_booking_and_tracking` checks that both consumers get the same gateway object. Choosing a carrier is an argument to `build_app`, and `test_swapping_the_carrier_changes_no_consumer` shows that `FASTLINE` and `AIRCO` produce references prefixed with their code through the same `BookingService` and the same `tracking_history`.
 
 An unknown code fails at start-up, where the mistake is cheap to find. `build_app("NOSUCH", ...)` raises `ValueError: unknown carrier 'NOSUCH', expected one of ['AIRCO', 'FASTLINE']`, and `test_unknown_carrier_fails_at_the_composition_root` matches on the code. Tests that need a different adapter pass a substitute `gateways=` mapping. `test_composition_root_accepts_a_substitute_without_patching` wires `FakeCarrier` that way and checks that `GATEWAYS` is unchanged afterwards, so no test needs to patch module state.
 

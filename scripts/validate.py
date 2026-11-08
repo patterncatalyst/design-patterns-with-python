@@ -95,6 +95,20 @@ STALE_RE = re.compile(r"(?<![\d.])(?:[Pp]ython ?3\.(\d+)|3\.(\d+)\.\d+)")
 STALE_EXEMPT = ("since ", "before ", "until ", "new in ")
 STALE_WINDOW = 16
 PYTEST_MOCK_RE = re.compile(r"pytest[- ]mock[\s|=`*-]*$|\bmock-$", re.IGNORECASE)
+COLLECTION_KEYS: dict[str, tuple[str, ...]] = {
+    "_docs": ("layout", "title", "order", "part", "description"),
+    "_parts": ("title", "order", "part_name"),
+    "_examples": (
+        "layout",
+        "title",
+        "order",
+        "description",
+        "github_path",
+        "card_eyebrow",
+        "card_blurb",
+        "card_title",
+    ),
+}
 CLAIMS_REL = "_plans/reconciliation-plan.md"
 CLAIMS_FIRST_ENFORCED = 1
 CLAIM_ROW_RE = re.compile(r"^\|\s*(\d+)\s*\|")
@@ -402,6 +416,17 @@ def check_front_matter_xrefs(rel: str, text: str) -> list[Finding]:
             for m in XREF_RE.finditer(value)
         )
     return out
+
+
+def check_collection_front_matter(rel: str, text: str, keys: tuple[str, ...]) -> list[Finding]:
+    """A collection file's front matter closes with a --- line and sets every key Jekyll needs."""
+    fm, size = split_front_matter(text)
+    if not size:
+        return [Finding(rel, 1, "front matter is missing or never closes with a --- line")]
+    missing = [key for key in keys if not fm.get(key)]
+    if missing:
+        return [Finding(rel, 1, f"front matter lacks {', '.join(missing)}")]
+    return []
 
 
 def check_codetabs(rel: str, text: str) -> list[Finding]:
@@ -970,6 +995,12 @@ def validate(root: Path) -> Report:
         if status == "in-progress":
             rep.info.append(Finding(rel, 1, "status in-progress: prose rules not applied"))
 
+    for folder, keys in COLLECTION_KEYS.items():
+        for path in sorted((root / folder).glob("*.md")):
+            rel = path.relative_to(root).as_posix()
+            text = path.read_text(encoding="utf-8")
+            rep.errors.extend(check_collection_front_matter(rel, text, keys))
+
     diagrams_yml = root / "_data" / "diagrams.yml"
     if diagrams_yml.is_file():
         for line, item in parse_diagram_yaml(diagrams_yml.read_text(encoding="utf-8")):
@@ -1198,6 +1229,17 @@ def self_test() -> int:
     expect("xref in card blurb", len(check_front_matter_xrefs("e.md", card)) == 1)
     clean = '---\ntitle: "T"\norder: 5\nchapter: 7\nblurb: "No refs."\n---\n'
     expect("front matter clean", not check_front_matter_xrefs("p.md", clean))
+    keys = ("title", "order")
+    expect("collection front matter ok", not check_collection_front_matter("e.md", clean, keys))
+    flowed = '---\nlayout: example order: 5 title: "T" ---\nbody\n'
+    expect(
+        "collection front matter reflowed",
+        bool(check_collection_front_matter("e.md", flowed, keys)),
+    )
+    expect(
+        "collection front matter lacks a key",
+        bool(check_collection_front_matter("e.md", clean, ("title", "card_title"))),
+    )
     bare_tabs = '{% include codetabs.html %}\n{% include codetabs.html labels="A|B" %}\n'
     expect("codetabs without labels", len(check_codetabs("a.md", bare_tabs)) == 1)
     expect("ai-sidebar attr", bool(check_prose("a.md", "{: .ai-sidebar}\n", "argument", "stub")[0]))

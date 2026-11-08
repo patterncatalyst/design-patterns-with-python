@@ -154,7 +154,7 @@ A configured rule is checked less well. `partial(per_kg, rat=Decimal("1.20"))` i
 <string>:9: note: "per_kg" defined in "strategy_callable.rules"
 ```
 
-A `partial` that binds nothing is accepted where it's assigned to the typed `PricingRule` slot, as a registry entry is. The same test asserts exit 0 and empty output for `partial(per_kg)`, and `test_an_unbound_partial_fails_only_when_called` shows the runtime end of it: `TypeError`, "missing 1 required keyword-only argument: 'rate'". The check does apply when the partial is called directly. A snippet that returns `partial(per_kg)(c)` from a function reports `Missing named argument "rate" for "per_kg"  [call-arg]`. The gap is in the assignment, which is the one the chapter titled [ISP, DIP, and dependency injection without a framework]({{ '/docs/06-isp-dip-and-di-without-a-framework/' | relative_url }}) documents. Read a registry's `partial` entries by eye.
+A `partial` that binds nothing is accepted where it's assigned to the typed `PricingRule` slot, as a registry entry is. The same test asserts exit 0 and empty output for `partial(per_kg)`, and `test_an_unbound_partial_fails_only_when_called` shows the runtime end of it: `TypeError`, "missing 1 required keyword-only argument: 'rate'". The gap is in the assignment, which is the one the chapter titled [ISP, DIP, and dependency injection without a framework]({{ '/docs/06-isp-dip-and-di-without-a-framework/' | relative_url }}) documents. Read a registry's `partial` entries by eye.
 
 When a rule needs keyword parameters, overloads or attributes the callable type can't express, the callback Protocol with a positional-only `/` is the form to use. The chapter titled [Protocol, duck typing, and structural typing with mypy]({{ '/docs/09-protocol-and-structural-typing/' | relative_url }}) covers it.
 
@@ -292,7 +292,7 @@ The checker passed the registry, and the failure shows up at call time, in the p
 - Select a rule by name: `RATE_RULES`, the `RatingError` for an unknown name, and the key recorded on the quote.
 - Choose the form of a configured rule: the five-form table, with `partial` for `per_kg` and a frozen `ZoneRate` where an audit must compare values.
 - Read the registry cases: the mypy errors for a registered class, and `test_an_unbound_partial_fails_only_when_called` for the one mistake mypy accepts.
-- Recognise when a strategy must be an object: `_make_loyalty_discount` returns different money on a second call, a rule with several operations needs the `RateCalculator` Protocol, and the prompt keeps assistants from adding structure.
+- Recognise when a strategy must be an object: `_make_loyalty_discount` returns different money on a second call, a rule with several operations needs the `RateCalculator` Protocol, and the sample prompt asks for no base class.
 
 ## For deeper coverage
 

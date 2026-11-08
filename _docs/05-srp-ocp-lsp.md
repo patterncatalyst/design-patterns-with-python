@@ -170,7 +170,7 @@ A tax rule that never varies doesn't need a mapping. If the book shipped to one 
 A contract suite pays off when two implementations exist. With one calculator, the contract is a docstring and the calculator's own tests. With two, the suite is the only place where the second is held to the first's promises.
 
 <blockquote class="ai-sidebar" markdown="1">
-**Specifying a split.** "Split the rate calculation" leaves open how many Protocols it needs, whether a registry may hold one entry and what an override may accept. Paste a prompt that states the form:
+**Specifying a split.** "Split the rate calculation" leaves open how many Protocols it needs, where the tax rules live and what an override may accept. Paste a prompt that states the form:
 
 > Split `quote` into pricing, tax and audit. Pricing is a `RateCalculator` Protocol, tax a `TaxRule` looked up by destination country in a read-only mapping, audit an `AuditSink` callable. Add no Protocol or base class without a second implementation. An override may accept more and promise more, never less. Write one parametrised contract test that every `RateCalculator` must pass.
 

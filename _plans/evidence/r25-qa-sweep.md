@@ -16,7 +16,7 @@ Result: 185 fenced output blocks in 47 docs, 181 match and 4 were fixed (19:313,
 
 - `30:219` and `30:236` (chapter 30). The quoted `AssertionError` lines were `tests/test_lookup.py:195` and `:218`. TS2 added a test above them, so they are now `:201` and `:224`. The chapter produced the blocks with two edits in a deliberately altered copy, `__dir__` deleted from `TrackingHistory` (experiment one) and the allow-list check and its `raise` deleted from `__getattr__` (experiment two). Both were repeated in a fresh copy with the stated filter and mypy command. Experiment one now prints `2 failed, 39 passed` and experiment two `4 failed, 37 passed`, because TS2 also raised the suite from 40 to 41 cases (27 test functions). The fences, the sentence "27 test functions and 41 cases" and "All 41 cases pass" were corrected. No card or README repeats these numbers.
 - `19:313` (chapter 19, experiment two, adding `cancel` to `CarrierGateway`). TS3 made `test_mypy_reports_an_implementor_missing_a_primitive` assert `note:     insure`. With `cancel` added, mypy lists `cancel, insure` on one note line, so that test fails as well. The fence now shows two failures (`2 failed, 33 passed`, the extra `E` line, `tests/test_static.py:129` and the second `FAILED` line), and the sentence after it says two failures and why.
-- `21:256` (chapter 21, session block). The closing mypy line said `9 source files`; the member has 8 (4 sources and 4 test modules), which the experiment blocks below it already say. Corrected to 8.
+- `21:256` (chapter 21, session block). The closing mypy line said `9 source files`; the member has 8 (4 sources and 4 test modules), which the experiment blocks below it already say. Corrected to 8. Withdrawn at validation round 1: the command is `uv run mypy --strict src tests bench`, which checks 9 files (bench/commodity_memory.py is the ninth); the fence is back to 9.
 
 ### TS2 cause removed (chapter 30, line 120)
 
@@ -153,7 +153,7 @@ In a scratch copy, `test_deepcopy_fails_with_a_type_error_when_the_loader_answer
 | 20:222 | `uv run pytest -v` then `mypy --strict src tests` in the member | match |
 | 20:290 | scratch-copy edit named in the prose, then the filter and mypy command given there | match |
 | 20:308 | scratch-copy edit named in the prose, then the filter and mypy command given there | match |
-| 21:256 | `uv run pytest -v` then `mypy --strict src tests` in the member | fixed |
+| 21:256 | `uv run pytest -v` then `mypy --strict src tests` in the member | match (C3a's edit reverted in round 1) |
 | 21:322 | scratch-copy edit named in the prose, then the filter and mypy command given there | match |
 | 21:335 | scratch-copy edit named in the prose, then the filter and mypy command given there | match |
 | 22:49 | mypy.api.run output captured from the member tests (`uv run pytest -p capmypy`) | match |
@@ -302,3 +302,98 @@ Row 23 (no timed sleep in the async tests): a grep for `sleep(`, `time.`, `perf_
 ### VA5 mutation proof
 
 `CLAIMS_FIRST_ENFORCED` is 1 and the legacy branch is gone. In a scratch copy of `validate.py`: (a) with the skip condition made `r.row < 10**9`, `--self-test` exits 1 with "claim errors include row 46 with no token and every unresolved row" and "claim row 1 without a token is an error"; (b) with the constant set back to 47, it exits 1 with "claims are enforced from row 1" and the same two. The real file passes.
+
+## C5a validation, round 1 (2026-11-08)
+
+Fresh copy (the plan's three commands). Verdict: 12 blocking items and 16 nits, recorded with their tested strings in the round's validation report; this section holds the records the C1 and C2 steps did not write here, and the runs behind the round's repairs.
+
+### Sidebar census (C2a, C2b)
+
+All 36 `ai-sidebar` blocks were compared paragraph by paragraph with e32dea5. Chapters 5 to 22: the opening paragraph changed in each, to the "Specifying ..." lead-in and a "leaves open" sentence; chapters 23 to 40: unchanged. Every prompt paragraph and review line in all 36 is byte-identical to e32dea5. `grep -c '<blockquote class="ai-sidebar"'` is 1 in each of chapters 5 to 40 and 0 elsewhere. The AI-claim grep (`assistants? (may|might|will|tend)|often|usually|typically`) over the 36 blocks prints nothing. Round 1 tightened the openings of 5 ("where the tax rules live") and 16 ("how often the carrier is chosen") to what their prompts pin.
+
+### Link sweep and typeshed pin (C1b, re-run at C5a)
+
+Before (planning evidence B): 212 distinct URLs, 8 redirects, 155 `docs.python.org/3/` hits. After round 1: 212 tokens from the reader files and deck builders; 209 answer 200 with no redirect, `https://astral.sh/uv/install.sh` and the `.git` clone URL redirect once, and one token is the Liquid text `https://github.com/{{`. 0 `docs.python.org/3/`. 13 of 13 fragments found. The typeshed links are pinned to d03a581a8ebf525cba072b3e24e97f64825505b9, where `stdlib/unittest/mock.pyi` lines 140 and 141 read "# We subclass with "Any" because mocks are explicitly designed to stand in for other types," and "# something that can't be expressed with our static type system."
+
+### Figure legibility and overflow (C2f, measured at C5a)
+
+The built site (copy), served locally under its baseurl, opened in headless Firefox in iframes; for each figure the smallest SVG font-size times the rendered SVG width over the viewBox width. 41 figures:
+
+| Viewport | Figures under 8 px | Smallest |
+| --- | --- | --- |
+| 1280 | 0 | 8.72 (34) |
+| 1100 | 0 | 8.33 (34) |
+| 1024 | 1 | 7.70 (34) |
+| 900 | 5 (34, 25, 31, 36, 08) | 6.64 (34) |
+| 899 (prose column) | 27 | 5.26 (34) |
+| 390 | 41 | 2.37 (34) |
+
+VA4's 982 px matches what a reader sees at 1100 px and wider. Round 1 shows the "Open full size" link below 1100 px (measured: shown at 1099, 1024, 900, 390; hidden at 1100, 1280). Overflow, 108 pages at 390 and 1280 px: before round 1 only `/bibliography/` at 390 (438 against 378); after round 1, 0 of 216. "Download .excalidraw" wrapped on every figure page at 900 px and wider before round 1 and on none after. The header brand sits at the content edge after round 1 (24 px at 390 to 1024, 118 at 1280; before, 0 and 94).
+
+### Deck pipeline, 101 and 301 (C2g, re-run at C5a)
+
+`npm ci` (pptxgenjs 4.0.1). `render-png.sh --check --deck 101`, `201`, `301`: `same` for 6, 5 and 2 figures. The unchanged 301 builder rebuilds to a deck that differs from the committed one only in `docProps/core.xml`. Deck 201 has no diff against main. After round 1's DK4 edit: `slides: 42 min notes words: 63`; only `slide2.xml`, `notesSlide2.xml` and `core.xml` differ; notes 2 has 124 words. soffice with a private profile: 101 62 pages, 301 42 pages; `pdffonts` Overpass-Bold, RedHatText-Regular and Bold, RedHatMono-Regular and Bold, all embedded, as at r24; page 2 of both viewed (101 "Nine sections" with the Reference bullet; 301 "Eight sections" with eight bullets, no clipping). `pgrep -x soffice.bin` empty afterwards. 101's `dc:title` is "Design Patterns with Python: 101, Patterns and SOLID in Python", matching its cover.
+
+### Decision 3, accepted variations
+
+Each deck is internally consistent in these, and changing them would re-open three validated decks for no reader gain (decision 3, option 1):
+- Divider subtitles: 101 lists patterns, 201 and 301 name the section's idea.
+- Credit table rows: row shapes differ between decks (301 puts some titles in "Used for" and merges "OWASP; mypy; Ruff").
+- Author names: 301 "Reading further" gives full names, the others short forms.
+- The "Credits:" label: 201 and 301 use it; 101 credits in prose.
+- The closing run instruction: 301 splits it over two bullets.
+- "What to show:": 301 has it on the cover and dividers.
+
+### Round 1 runs
+
+- Chapter 21: `uv run mypy --strict src tests bench` in the member prints `Success: no issues found in 9 source files`; `src tests` prints 8. C3a's 21:256 edit is withdrawn.
+- Chapter 22: with the `finally` replaced by a reset after the `try`, `test_the_signal_accepts_new_events_after_an_interrupted_delivery` fails and `test_the_signal_accepts_new_events_after_a_failed_delivery` passes (`1 failed, 1 passed`).
+- Chapter 39: deleting `undo.callback(self._gateway.cancel, reference)` gives `2 failed, 21 passed` (`test_a_held_declaration_releases_the_slot_and_cancels_the_carrier_booking`, `test_the_undo_runs_in_reverse_order_of_the_steps`); deleting the release callback gives `3 failed, 20 passed`.
+- Appendix E: every Bucket, Force and When-not cell checked verbatim against its chapter; one miss (Mediator force), fixed in round 1.
+- Front matter: PyYAML over all 161 tracked front-matter files; cards 36 and 42 failed (CD14's rewrap merged every key and the closing `---` into prose); restored in round 1. The new `check_collection_front_matter` reports both broken cards, and `--self-test` fails with the check disabled.
+- mypy 2.4.1 probes: a Protocol method with a renamed parameter is accepted (a callback Protocol is not); `partial(per_kg)(c)` reports `[call-arg]`; a non-exhaustive `match` passes `--strict` and fails with `--enable-error-code exhaustive-match`; a name left behind by a rename reports `[attr-defined]` or `[name-defined]`.
+
+### Validation round 1
+
+Verdict: repairs needed. 12 blocking items and 16 nits; every blocking item and every nit classed "fix this round" is applied in round 1 (C5b). The Feathers chapter title (R2-N8) is the owner's decision and is not applied.
+
+| Finding | Class |
+| --- | --- |
+| R1-B1 `06:58` mypy doesn't enforce names | blocking 2 (narrowed) |
+| R1-B2 `12:157` `partial(per_kg)(c)` snippet | blocking 3 |
+| R1-B3 `12:295` "keeps assistants from adding structure" | blocking 4 |
+| R1-B4 `21:311` 8 vs 9 | blocking 1 |
+| R1 N1 `05:138` Liskov note | nit 1 |
+| R1 N2 `06:141` "the one module" | nit 2 |
+| R1 N3 `22:120` counterfactual | nit 3 (run recorded, no prose change) |
+| R1 N4 `17:38`, `18:155`, plus `04:98` | nit 4 |
+| R1 N5 `18:151` PEP 661 author | nit 5 |
+| R1 N6 `05:173` opening | nit 6 |
+| R1 N7 `16:192` opening | nit 7 |
+| R1 N8 meta-narration, "this chapter" | out of scope (O1) |
+| R1 N9 slug "selecting-varying-behavior" | wrong (not a defect) |
+| R2-B1 `45:69` Mediator cell | blocking 5 |
+| R2-B2 `45:108` "Consequences sections hold the forces" | blocking 6 |
+| R2-B3 `04:58` "only in a match that ends in assert_never" | blocking 7 |
+| R2 N1 `04:80` `retry` | nit 8 |
+| R2 N2 `39:24` cancel fails 2 | nit 9 |
+| R2 N3 `27:201` slotted class | nit 10 |
+| R2 N4 "this member" | out of scope (O1) |
+| R2 N5 `43:23` vs autospec | wrong |
+| R2 N6 `43:50` meta-narration | out of scope (O1) |
+| R2 N7 Alexander not cited | nit 12 |
+| R2 N8 Feathers chapter title punctuation | not checkable this round; owner's decision |
+| R2 small `04:112` "catches most of the references" | nit 11 |
+| R2 small `04:136`, `01:71` "thirty years ago" | out of scope (O1) |
+| R2 small `45:47-49` "in this chapter" | wrong |
+| R3-1 cards 36 and 42 front matter | blocking 8 |
+| R3-2 bibliography overflow | blocking 9 |
+| R3-3 header padding | nit 13 |
+| R3-4 "Tutorial content", breadcrumb "Tutorial" | nit 14 |
+| R3-5 VA4 floor vs reality | nit 15 |
+| R3-6 "Download .excalidraw" wraps | nit 16 |
+| R3-7 cover-note self-reference | wrong |
+| R3-8 301 notes 2 "sources, books and reading" | folded into blocking 10 |
+| Validator: DK4 incomplete | blocking 10 |
+| Validator: evidence file lacks the C1 and C2 records | blocking 11 |
+| Validator: rows 438 and 439 claim dropped sweeps | blocking 12 |

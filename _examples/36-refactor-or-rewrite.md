@@ -1,11 +1,13 @@
 ---
-layout: example order: 36 title: "Refactor or rewrite" description: A legacy rating engine and a
-bisect-based rewrite held to the same quotes by a parity table, joined by a router that moves
-one zone at a time and runs the rewrite in shadow for the rest. github_path:
-examples/36-refactor-or-rewrite card_eyebrow: "Changing inherited code · Refactor or rewrite"
-card_blurb: "A first draft of the rewrite quotes 5, 20 and 50 kg differently from the legacy
-engine. A parity table lists every row where the two engines differ, and a router serves one
-zone at a time." card_title: "Parity table and strangler-style router" ---
+layout: example
+order: 36
+title: "Refactor or rewrite"
+description: A legacy rating engine and a bisect-based rewrite held to the same quotes by a parity table, joined by a router that moves one zone at a time and runs the rewrite in shadow for the rest.
+github_path: examples/36-refactor-or-rewrite
+card_eyebrow: "Changing inherited code · Refactor or rewrite"
+card_blurb: "A first draft of the rewrite quotes 5, 20 and 50 kg differently from the legacy engine. A parity table lists every row where the two engines differ, and a router serves one zone at a time."
+card_title: "Parity table and strangler-style router"
+---
 
 One shipping domain witnesses the argument. A legacy rating engine prices a consignment by weight
 band in an `if`/`elif` chain. A rewrite holds the bands as data and finds one with `bisect_left`.

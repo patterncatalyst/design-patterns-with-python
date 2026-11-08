@@ -35,7 +35,7 @@ Read the figure from the top down. `TEMPLATES`, "read-only: name to template req
 
 Gamma, Helm, Johnson and Vlissides, in *Design Patterns* (1994), give Builder to a product too involved to produce in one call. A director walks through the steps, and interchangeable builders decide what the finished product turns out to be. Brandon Rhodes, in [The Builder Pattern](https://python-patterns.guide/gang-of-four/builder/), observes that Python programs reach for builders for convenience, a short series of calls that hides a tangle of construction, and rarely for the original aim of one process producing several representations. The force that remains is an object with many parts, several of them optional, that has to be complete and valid before anyone uses it. Python resolves that force with a class declaration, so the bucket is dissolves.
 
-The shape that signals the problem is a long positional signature. This fixture, in the example's `conftest.py`, stands for a constructor a team inherits or an assistant writes:
+The shape that signals the problem is a long positional signature. This fixture, in the example's `conftest.py`, stands for a constructor a team inherits:
 
 <!-- fmt:off -->
 ```python

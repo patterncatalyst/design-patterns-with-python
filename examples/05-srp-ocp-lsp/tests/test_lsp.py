@@ -217,22 +217,23 @@ def rate(consignment: Consignment, audit: AuditSink) -> list[RateQuote]:
 
 
 @pytest.mark.parametrize(
-    ("snippet", "code", "message"),
+    ("snippet", "code", "message", "liskov_note"),
     [
-        (_NARROWED_ARGUMENT, "override", "This violates the Liskov substitution principle"),
-        (_WIDENED_RETURN, "override", 'Return type "Money | None"'),
-        (_MISSPELLED, "misc", "marked as an override, but no base method was found"),
+        (_NARROWED_ARGUMENT, "override", "This violates the Liskov substitution principle", True),
+        (_WIDENED_RETURN, "override", 'Return type "Money | None"', False),
+        (_MISSPELLED, "misc", "marked as an override, but no base method was found", False),
     ],
     ids=["narrowed-argument", "widened-return", "misspelled-override"],
 )
 def test_mypy_rejects_an_incompatible_override(
-    snippet: str, code: str, message: str, tmp_path: Path
+    snippet: str, code: str, message: str, liskov_note: bool, tmp_path: Path
 ) -> None:
     stdout, status = _run(snippet, tmp_path)
 
     assert status == 1
     assert _codes(stdout) == {code}
     assert message in stdout
+    assert ("Liskov substitution principle" in stdout) == liskov_note
 
 
 def test_mypy_accepts_an_override_that_widens_the_argument(tmp_path: Path) -> None:

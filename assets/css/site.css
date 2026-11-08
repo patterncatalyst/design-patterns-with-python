@@ -104,7 +104,7 @@ hr { border: 0; border-top: 1px solid var(--rule); margin: 2.5rem 0; }
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    padding: .85rem 0;
+    padding-block: .85rem;
 }
 .site-header__brand {
     font-weight: 600;
@@ -581,11 +581,13 @@ pre code { background: transparent; padding: 0; color: inherit; font-size: .92em
 }
 .excalidraw-figure__caption a { font-weight: 500; }
 .excalidraw-figure__links { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: flex-end; }
+.excalidraw-figure__links a { white-space: nowrap; }
 .excalidraw-figure__full { display: none; }
 
 /* Wide viewports: the figure leaves the 720 px prose column and takes the
    1080 px container width, centred on the column. Narrow viewports keep the
-   column and show a link to the full-size SVG instead. */
+   column. Below 1100 px the figure is narrower than the 982 px that
+   validate.py's legibility floor assumes, so it links to the full-size SVG. */
 @media (min-width: 900px) {
     .excalidraw-figure {
         position: relative;
@@ -594,7 +596,7 @@ pre code { background: transparent; padding: 0; color: inherit; font-size: .92em
         transform: translateX(-50%);
     }
 }
-@media (max-width: 899px) {
+@media (max-width: 1099px) {
     .excalidraw-figure__full { display: inline; }
     .excalidraw-figure__caption { flex-wrap: wrap; }
 }
@@ -789,7 +791,7 @@ pre code { background: transparent; padding: 0; color: inherit; font-size: .92em
 .tutorial__main :is(h1, h2, h3, h4) { overflow-wrap: anywhere; }
 @media (max-width: 640px) {
     /* a wide table scrolls inside its own box instead of the page */
-    .tutorial__main table { display: block; max-width: 100%; overflow-x: auto; }
+    :is(.tutorial__main, .section) table { display: block; max-width: 100%; overflow-x: auto; }
     .site-header__inner { flex-wrap: wrap; gap: .5rem 1rem; }
     .site-nav { flex-wrap: wrap; gap: .25rem 1rem; }
 }
