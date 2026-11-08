@@ -86,7 +86,7 @@ unzip -q -d old old.pptx
 diff -rq old new                       # only docProps/core.xml may differ
 ```
 
-Run in a scratch directory outside the repository. Both trees hold 342 parts;
+Run the commands from `presentation/`; the unzip targets can sit in any scratch directory. Both trees hold 342 parts;
 `docProps/core.xml` differs only in its `created` and `modified` timestamps.
 After the proof, `git checkout` restores the committed `.pptx`, so its bytes do
 not change and a refactor commit holds only code. Re-run the proof whenever

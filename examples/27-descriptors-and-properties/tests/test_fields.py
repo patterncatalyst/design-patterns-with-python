@@ -119,7 +119,7 @@ class _DriftedDimensions:
     @height_cm.setter
     def height_cm(self, value: Decimal) -> None:
         if value <= 0:
-            raise ValueError(f"height_cm must be positive and finite, got {value}")
+            raise ValueError(f"height_cm must be positive, got {value}")
         self._height_cm = value
 
 

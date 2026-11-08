@@ -3,7 +3,8 @@
 This is a measurement of one build on one machine, not a test: whether the race fires depends on
 the build and the scheduler, so no test asserts a count. Run it with
 ``uv run python bench/lost_update_probe.py --cpu-class "<a class, never a model>"`` for the default
-build and with ``.venv-ft/bin/python`` in place of ``uv run python`` for the free-threaded one. The
+build, and with the repository root's ``.venv-ft/bin/python`` in place of ``uv run python`` for the
+free-threaded one, as the chapter's run line does from the root. The
 report names the Python version, the build, whether the GIL is on and the date, and nothing that
 identifies the host.
 """

@@ -256,7 +256,7 @@
   section: "Ch. 29"
   title: Class creation, one hook, a read-only registry
   caption: >-
-    Creating a carrier class runs __set_name__ and then __init_subclass__, which
+    Creating a carrier class runs any __set_name__ hooks and then __init_subclass__, which
     refuses a bad class and registers a concrete one in a read-only view. A
     metaclass can enforce the same rules, but it can conflict with another
     library's metaclass.

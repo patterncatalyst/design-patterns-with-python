@@ -161,3 +161,31 @@ Rebuilt with `node deck-201.js` (45 slides, minimum notes words 48 on the Refere
 | stiff | until they are asked for | until they're asked for |
 | stiff | and others named where they are used | and others named where they're used |
 | stiff | what it cannot check in a metaclass | what it can't check in a metaclass |
+
+## Repair round 1 (2026-11-07, orchestrator)
+
+The Z5 validation at d76d1f6 failed on one blocking item: seven notes pointing elsewhere. They were slides 2, 4, 12, 20, 22, 39 and 43, each pointing at another example by its title phrase, at the dividers, at "where they're used", or at a figure edge not on the slide. All seven are replaced with the validator's tested strings.
+
+Should-fix items applied:
+- Slide 18 notes name `test_a_function_wrapper_binds_self_on_a_method`. Slide 39 notes name `test_mypy_reports_a_quote_call_whose_result_is_never_used`.
+- The figure 29 caption, in the include and in the registry, reads "runs any __set_name__ hooks and then __init_subclass__", which matches F6.
+- The sign-only setter in `test_fields.py` (line 122) keeps "must be positive". The earlier orchestrator note named line 121 and left line 122 changed in error.
+- The lone wrapped words on slides 7 and 18 are fixed.
+- Slide 36 now says "it isn't recommended", and slide 27 names the reference-sharing CarrierBase.
+- `check_decks()` gains:
+  - "above", "below", "the dividers" and "where they're used" in the positional pattern;
+  - a "this deck" and "this slide" self-reference check;
+  - a book-pointer check that exempts only the closing slide.
+  The three-way-split labels are not banned globally, because they are Deck 101's subject. Self-tests cover each.
+- The new checks found three hits in Deck 101. They are fixed under fix-now: notes 2 ("the section names on the dividers" became "the eight section names"), and notes 13 and 57 ("No test backs this slide" became "No test backs the claim"). Deck 101 was rebuilt.
+
+Nits applied:
+- PEP 8 is added to the PEPs row.
+- The slide 23 and slide 13 captions, and the slide 37 notes.
+- The comma splice at chapter 28, line 32.
+- The probe docstring now names the repository root's `.venv-ft`.
+- `build-notes.md` now says where the proof commands run.
+
+Pages re-viewed: 7, 13, 18, 23 and 43. No lone words; the PEP row fits. Rebuilt: Deck 201 has 45 slides (minimum notes 48) and Deck 101 has 62 (minimum notes 50). `validate.py` reports 0 errors and `--self-test` reports ok. A grep of both decks for chapter, appendix, self or positional pointers finds 0.
+
+Census item 13 (2026-11-07): `Positive.__set__` now raises "must be positive and finite"; see the r23 plan's orchestrator note.

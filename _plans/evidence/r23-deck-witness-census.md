@@ -1275,3 +1275,5 @@ No title needs a change. The Boundary table's own "(slides 9, 10)" style referen
 ## Cuts and narrowings
 
 None. Every claim has a witness test or a recorded chapter sentence, and no chapter now contradicts one. Slides 22, 27 and 28 are reworded or widened as recorded above; no claim is stretched.
+
+2026-11-07 (Z5 repair 1): Corrections item 13 is out of date. `Positive.__set__` and the property setters in `conftest.py` now raise "must be positive and finite"; the sign-only test-local setter in `test_fields.py` keeps "must be positive". Slide 18 also cites `test_a_function_wrapper_binds_self_on_a_method`, and slide 39 also cites `test_mypy_reports_a_quote_call_whose_result_is_never_used`. Both are defined once and pass.
