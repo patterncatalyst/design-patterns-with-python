@@ -272,7 +272,7 @@ Only suffixed ids are cited as `run:` tokens: B1a to B1d, B2a, B3a to B3e, B4a, 
 
 | id | what | depends on | status |
 | --- | --- | --- | --- |
-| B0 | Bookkeeping BK1 and BK2; record the owner's decisions; evidence file started with the baseline (evidence B, C) | - | todo |
+| B0 | Bookkeeping BK1 and BK2; record the owner's decisions; evidence file started with the baseline (evidence B, C) | - | done |
 | B1a | `validate.py` GT2 and CLAUDE.md GT6, with self-tests and the mutation proof (worktree) | B0 | todo |
 | B1b | `prose_invariants.py` GT1 and CI GT3, with self-tests and the mutation proof (worktree) | B0 | todo |
 | B1c | Site GT4 and `.voice-patterns.tsv` GT5; a site build and the built-page checks (worktree) | B0 | todo |
@@ -317,4 +317,8 @@ Then one row per bold definition and Bucket line the pilot adds, each with the t
 
 ## Corrections
 
-(None yet.)
+- Step B0: done (2026-11-08).
+  - BK1: the r25 plan's C6 and C7 are `done`, with a Corrections note (PR #26 as 15cc747, tag `r25.x`, hub PRs #63 as 903c077 and #62 as 9a3b034). The PRD status line (O2) lives outside the repo and is not changed by B0.
+  - BK2: `iteration-plan.md` shows r25 closed, r26 active, PDP-021 `done`, PDP-022 `active` (added in the infrastructure range), and a dated note.
+  - The owner decisions O1 to O4 are copied into `_plans/evidence/r26-pilot.md`, which also holds the baseline (evidence B, C) from a fresh run.
+  - Differences from the plan, none affecting a target: "force(s)" counts 49, 24, 2, 1 against the plan's 43, 23, 2, 1 (counting rule), and terse-tier hits 8 and 9 in 23 and 24 against 9 and 10. Everything else matches. The invariant baselines wait for `prose_invariants.py` (B1b).
