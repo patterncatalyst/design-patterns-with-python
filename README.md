@@ -62,6 +62,11 @@ Building the site needs Docker Engine and no local Ruby: `bash scripts/site-buil
   says how to rebuild it.
 
 ## Licence
+## Status
+
+The book's chapters, examples and decks are complete. A terse rewording of the whole book is in
+progress, and the text is being tightened chapter by chapter.
+
 
 Code is licensed under Apache-2.0 (see `LICENSE`). Prose, diagrams and the slide decks under
 `presentation/` are licensed under CC BY 4.0 (see `LICENSE-docs.md`).
