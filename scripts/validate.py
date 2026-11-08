@@ -34,7 +34,10 @@ EM_DASH = "\u2014"
 PROSE_STATUSES = frozenset({"done", "drafted", "verified"})
 # Docs the terse rewording has finished (r26 plan, decision 6). r26 adds each pilot doc as it
 # lands; r27 and r28 extend the set. Empty on an unreworded tree, so the checks cost nothing.
-TERSE_DOCS: frozenset[int] = frozenset({1, 3, 23, 24})
+TERSE_DOCS: frozenset[int] = frozenset(range(47))
+# Pattern-kind chapters about Python mechanisms (decorators, descriptors, singledispatch,
+# metaclasses, dynamic attributes, shortcut idioms): they keep their own H2s, not `## Pattern:`.
+IDIOM_DOCS: frozenset[int] = frozenset(range(26, 32))
 MAX_WORDS = 2500
 CAPTION_MIN = 20
 CAPTION_MAX = 45
@@ -1405,7 +1408,7 @@ def validate(root: Path) -> Report:
             rep.errors.extend(check_terse_tests(rel, text))
             rep.errors.extend(check_described_figures(rel, text))
             rep.errors.extend(check_undescribed_figures(rel, text))
-            if kind == "pattern":
+            if kind == "pattern" and entry.get("number") not in IDIOM_DOCS:
                 rep.errors.extend(check_pattern_layout(rel, text))
         rep.errors.extend(check_figure_captions(rel, text))
         rep.errors.extend(check_figure_files(root, rel, text))

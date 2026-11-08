@@ -88,11 +88,10 @@ validates.
   holds the tests, and `_plans/reconciliation-plan.md` maps each claim to its test. No
   self-reference: no "the book", "this chapter", "the suite", "the test", "the example shows". Code
   speaks for itself; prose adds the problem, the choice and the trade-off. Chapter 24 is the model.
-- **`TERSE_DOCS`** in `scripts/validate.py` lists the docs the terse rewording has finished. It
-  is empty until the pilot lands; r26 adds 1, 3, 23 and 24, r27 and r28 extend it, and r28 replaces
-  it with "all docs". For those docs validate.py enforces the test-name rule, the O1 layout above
-  for pattern chapters (including the Bucket line and no "Read the figure" paragraph in the body)
-  and, for a `described="true"` figure include, the matching `desc-<name>` description.
+- **`TERSE_DOCS`** in `scripts/validate.py` covers every doc (r26). For each, validate.py errors
+  on a test name in prose, an undescribed figure, and, for pattern chapters, a missing
+  `## Pattern:` layout. `IDIOM_DOCS` (26 to 31, chapters about Python mechanisms) keep their own
+  H2s.
 - **Appendix E** quotes each developing chapter's Bucket, Force and When-not clauses verbatim;
   validate.py checks all 98 cells against the chapter each row links. Rewording a chapter means
   updating its rows.
