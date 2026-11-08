@@ -11,31 +11,45 @@ description: "A chain of responsibility is a tuple of callables, but which stage
 
 By the end of this chapter you can:
 
-- Say what Python removes from Chain of Responsibility and Mediator, the handler class with its successor link and the Mediator and Colleague classes, and which decisions survive.
+- Say what Python removes from Chain of Responsibility and Mediator (the handler class with its successor link, the Mediator and Colleague classes) and which choices Python leaves to you.
 - Write a clearance chain as a tuple of typed callables, where `None` passes the declaration on and a separately typed final stage can't.
-- Say what mypy checks about a chain, the shape of each stage, and what it can't see, their order.
+- Say what mypy checks about a chain (the shape of each stage) and what it can't see (their order).
 - Write one mediator that releases a declaration exactly once, after every report it still owes has arrived (duty if unpaid, inspection if restricted), in either order.
 - Choose between a chain, a `match`, a mediator and a signal.
 
 ## Why this matters
 
-Customs clearance is a row of checks, and each one can stop a consignment: the documents are incomplete, the duty is unpaid, the commodity needs inspection. The code that submits a declaration shouldn't know which check stops it, and a new check shouldn't mean an edit at every call site. That's the force behind Chain of Responsibility. A consignment held for duty or inspection then waits on two parties who don't know each other, billing and the inspection party, and something has to decide when the reports it is owed have arrived. That's the force behind Mediator. One story joins them: the chain decides whether a declaration is held, and the mediator decides when a held one is released. Three things go wrong in the obvious versions.
+A customs declaration passes a row of checks. A held one then waits on reports from parties who don't know each other. The chain decides whether a declaration is held, and the mediator decides when a held one is released. Python's syntax makes neither choice for you, so both patterns survive, in the sense of [The three-way split: dissolve, survive, disambiguate]({{ '/docs/03-the-three-way-split/' | relative_url }}).
 
-A restricted batch of batteries is cleared. Someone appended the inspection stage after the release stage, so release decided first. mypy accepts the code.
+{% include excalidraw.html name="23-mediator-and-chain-of-responsibility" caption="Figure 23.1: A declaration passes along an ordered tuple of clearance stages; the first stage that decides ends the walk, and a clean one is released by the final stage. A separate mediator releases a declaration after the reports it is owed arrive." described="true" %}
 
-A clean declaration comes back from a chain of linked handler objects as `None`. Nobody said what the last handler does when it passes.
+<details class="figure-description" markdown="1">
+<summary>Describe the figure</summary>
+<div id="desc-23-mediator-and-chain-of-responsibility" markdown="1">
+The chain runs from the top down. `CustomsDeclaration` goes to `clear`, "walks the stages in order". Below it sit `check_documents`, `assess_duty` and `inspect_goods`, each with a "None: pass it on" arrow down, and then `release`, "final stage: decides". Each stage also has an arrow to `Held`, "the stage stops the walk", and the figure draws nothing out of `Held`. On the right, apart from the chain, `Settlement` and `Inspection` feed `ClearanceMediator`, "releases once nothing is outstanding", which sends `CLEARED` to `TrackingHistory.record`. A muted dashed box, "linked chain", reads "falls off the end with None".
+</div>
+</details>
 
-Billing and the inspection party are wired to tell each other what happened. A settlement that arrives before the inspection is dropped, and the batteries never clear.
+The figure draws the chain on the left and the mediator on the right.
 
-Each is a decision, and both patterns survive because Python's syntax doesn't make those decisions for you.
+## Pattern: Chain of Responsibility
 
-{% include excalidraw.html name="23-mediator-and-chain-of-responsibility" caption="Figure 23.1: A declaration passes along an ordered tuple of clearance stages; the first stage that decides ends the walk, and a clean one is released by the final stage. A separate mediator releases a declaration after the reports it is owed arrive." %}
+### The problem
 
-Read the figure from the top down. `CustomsDeclaration` goes to `clear`, "walks the stages in order". Below it sit `check_documents`, `assess_duty` and `inspect_goods`, each with a "None: pass it on" arrow down, and then `release`, "final stage: decides". Each stage also has an arrow to `Held`, "the stage stops the walk", and the figure draws nothing out of `Held`. On the right, apart from the chain, `Settlement` and `Inspection` feed `ClearanceMediator`, "releases once nothing is outstanding", which sends `CLEARED` to `TrackingHistory.record`. A muted dashed box, "linked chain", reads "falls off the end with None".
+Each customs check can stop a consignment: the documents are incomplete, the duty is unpaid, the commodity needs inspection. The code that submits a declaration shouldn't know which check stops it, and a new check shouldn't mean an edit at every call site. Two obvious versions go wrong:
 
-## A chain is a tuple of stages
+- **A misordered chain.** Someone appends the inspection stage after release, so release decides first, a restricted batch of batteries is cleared, and mypy accepts the code.
+- **A linked chain with no terminal.** A clean declaration comes back as `None`, because nobody said what the last handler does when it passes.
 
-Chain of Responsibility is for a request that several parties might deal with, where the sender can't say which. In *Design Patterns* by Gamma, Helm, Johnson and Vlissides (1994), the receivers are objects that each hold a reference to the next, and a request travels along them until one takes it. The class that carries the successor link is the part Python removes. A stage is a function from a declaration to a decision, or to `None` for "not mine", and the chain is a tuple of them. The bucket is survives, as [The three-way split: dissolve, survive, disambiguate]({{ '/docs/03-the-three-way-split/' | relative_url }}) sorts it.
+### The solution
+
+A **Chain of Responsibility** passes a request along a row of receivers until one takes it. The sender needn't say which one will.
+
+**Bucket: survives.** Python removes the class that carries the successor link, not the order or the final stage.
+
+### How Python models it
+
+A stage is a function from a declaration to a `Decision`, or to `None` for "not mine". The chain is a tuple of them. [PEP 695](https://peps.python.org/pep-0695/) "also introduces a new statement for declaring type aliases", and that statement writes the three below.
 
 ```python
 type Decision = Released | Held
@@ -43,7 +57,7 @@ type ClearanceStage = Callable[[CustomsDeclaration], Decision | None]
 type FinalStage = Callable[[CustomsDeclaration], Decision]
 ```
 
-[PEP 695](https://peps.python.org/pep-0695/), by Eric Traut, "also introduces a new statement for declaring type aliases", and that statement writes these three. `Released` and `Held` are frozen dataclasses, and `Held` carries a reason. The two stage types differ by one `| None`, and that difference is the point of the next section. The `X | None` form is the one [Protocol, duck typing, and structural typing with mypy]({{ '/docs/09-protocol-and-structural-typing/' | relative_url }}) narrows before use.
+`Released` and `Held` are frozen dataclasses, and `Held` carries a reason. The two stage types differ by one `| None`. `X | None` is the form that [Protocol, duck typing, and structural typing with mypy]({{ '/docs/09-protocol-and-structural-typing/' | relative_url }}) narrows before use.
 
 The walk is a loop:
 
@@ -62,11 +76,67 @@ def clear(
     return final(declaration)
 ```
 
-Three decisions are visible in it. What "pass it on" means: a stage returns `None`. Which stage runs first: the order of `stages`, which the caller supplies, and `CLEARANCE_STAGES` is the tuple of `check_documents`, `assess_duty` and `inspect_goods` that the tests pass in. Who decides when nobody does: `final`, which defaults to `release`.
+Three choices are visible in it:
 
-The first stage that decides wins. `test_the_first_stage_that_decides_wins` gives a declaration with no documents and unpaid duty, and the reason is the missing invoice, because `check_documents` runs before `assess_duty`. Stages after the winner don't run: `test_stages_after_a_decision_are_not_called` records the names of the stages that were called and gets `["passing", "holding"]`, with a third stage left out. A clean declaration reaches the final stage and is released (`test_a_clean_declaration_is_released`). A restricted commodity, a missing document and unpaid duty are each held, in the tuple form and in the two comparison forms below (`test_a_restricted_commodity_is_held_for_inspection`, `test_a_declaration_missing_a_document_is_held` and `test_an_unpaid_declaration_is_held_for_duty`).
+- **Pass it on:** a stage returns `None`.
+- **Which stage runs first:** the order of `stages`, which the caller supplies. `CLEARANCE_STAGES` is the tuple of `check_documents`, `assess_duty` and `inspect_goods` that the tests pass in.
+- **Who decides when nobody does:** `final`, which defaults to `release`.
 
-The comparison form is the linked chain that *Design Patterns* draws, written as a test fixture so it runs the same hold table:
+The first stage that decides wins. A declaration with no documents and unpaid duty is held for the missing invoice, because `check_documents` runs before `assess_duty`. Later stages don't run. A test records the names of the stages that were called and gets `["passing", "holding"]`, without the third stage.
+
+*Tests:* `test_the_first_stage_that_decides_wins`, `test_stages_after_a_decision_are_not_called`.
+
+A clean declaration reaches the final stage and is released. A restricted commodity, a missing document and unpaid duty are each held. The two comparison forms below, the linked chain and the `match`, hold them too.
+
+*Tests:* `test_a_clean_declaration_is_released`, `test_a_restricted_commodity_is_held_for_inspection`, `test_a_declaration_missing_a_document_is_held`, `test_an_unpaid_declaration_is_held_for_duty`.
+
+### The terminal and the order
+
+`final` is typed `Callable[[CustomsDeclaration], Decision]`, so it can't return `None`. Passing a stage that can pass in that position prints:
+
+```text
+<string>:10: error: Argument "final" to "clear" has incompatible type "Callable[[CustomsDeclaration], Released | Held | None]"; expected "Callable[[CustomsDeclaration], Released | Held]"  [arg-type]
+```
+
+A stage with the wrong return type is an `[arg-type]` error too. A stage that returns a value on one path and falls off the end on another gets `Missing return statement  [return]`.
+
+*Tests:* `test_mypy_refuses_a_stage_that_can_pass_as_the_final_stage`, `test_mypy_refuses_a_stage_with_the_wrong_return_type`, `test_mypy_reports_a_stage_that_falls_off_the_end`.
+
+Appending a new stage to the default order is a plain tuple operation. A stage that holds everything then runs ahead of `final`. An empty chain leaves `final` to decide, once with a releasing final and once with a holding one.
+
+*Tests:* `test_a_stage_added_to_the_chain_runs_before_the_final_stage`, `test_an_empty_chain_leaves_the_decision_to_the_final_stage`.
+
+Order is another matter. This test builds the misordered chain:
+
+```python
+def test_a_stage_added_after_release_clears_a_restricted_commodity(
+    declaration: DeclarationFactory,
+) -> None:
+    misordered: list[ClearanceStage] = [check_documents, assess_duty, release]
+    misordered.append(inspect_goods)
+
+    assert clear(declaration(restricted=True), misordered) == Released()
+```
+
+`release` is a function that returns `Released()`, so it satisfies `ClearanceStage` as well as `FinalStage`. Placed inside the chain it decides, the loop stops there, and `inspect_goods` never sees the batteries.
+
+mypy type-checks `clear(declaration, (release, inspect_goods))` under `--strict` and exits 0 with empty output. It checks the shape of each stage, and a chain's order is a property of the whole tuple. A test that runs a restricted declaration through the production order is what sees a misplaced `release`.
+
+*Tests:* `test_a_stage_added_after_release_clears_a_restricted_commodity`, `test_mypy_cannot_see_release_placed_inside_the_chain`.
+
+`describe` consumes a `Decision` with `match`, and mypy reports a missing arm at the call to `assert_never`. A `match` that handles only `Released` prints:
+
+```text
+<string>:12: error: Argument 1 to "assert_never" has incompatible type "Held"; expected "Never"  [arg-type]
+```
+
+A `Decision` that gains a third member turns each `match` that ends in `assert_never` into the same kind of error.
+
+*Tests:* `test_mypy_reports_a_decision_left_unhandled`.
+
+### Linked chain vs. tuple
+
+*Design Patterns* draws the receivers as objects that each hold a reference to the next. A request travels along them until one takes it. The comparison form is that linked chain, written as a test fixture so it runs the same hold table:
 
 ```python
 class _Handler:
@@ -82,51 +152,49 @@ class _Handler:
         return self._next.handle(declaration) if self._next is not None else None
 ```
 
-It holds the same three cases. It parts from `clear` on a clean declaration: `test_a_linked_chain_with_no_terminal_returns_none` gets `None`, because no handler is responsible for the end. `clear` has `final`, and a name for "nobody decided" is what the loop adds. A reduced model of this handler, which is not part of the example, goes through `describe`, a function that needs a `Decision`. `test_mypy_refuses_a_linked_chain_result_where_a_decision_is_needed` runs it through the test's own helper and prints:
+| Declaration | `clear` over a tuple | Linked chain |
+| --- | --- | --- |
+| Restricted, missing a document, or unpaid | held | held |
+| Clean | released by `final` | `None`, because no handler is responsible for the end |
+
+A reduced model of this handler, which isn't part of the example, passes its result to `describe`, a function that needs a `Decision`. The test's own helper runs mypy on it and prints:
 
 ```text
 <string>:18: error: Argument 1 to "describe" has incompatible type "Released | Held | None"; expected "Released | Held"  [arg-type]
 ```
 
-## The terminal and the order
+`clear` has `final`, and a name for "nobody decided" is what the loop adds.
 
-`final` is typed `Callable[[CustomsDeclaration], Decision]`, so it can't return `None`. A stage that can pass is refused in that position. `test_mypy_refuses_a_stage_that_can_pass_as_the_final_stage` passes one and prints:
+*Tests:* `test_a_linked_chain_with_no_terminal_returns_none`, `test_mypy_refuses_a_linked_chain_result_where_a_decision_is_needed`.
 
-```text
-<string>:10: error: Argument "final" to "clear" has incompatible type "Callable[[CustomsDeclaration], Released | Held | None]"; expected "Callable[[CustomsDeclaration], Released | Held]"  [arg-type]
-```
+### Chain vs. match
 
-A stage with the wrong return type is an `[arg-type]` error too (`test_mypy_refuses_a_stage_with_the_wrong_return_type`), and a stage that returns a value on one path and falls off the end on another gets `Missing return statement  [return]` (`test_mypy_reports_a_stage_that_falls_off_the_end`). A new stage appended to the default order is a plain tuple operation, and `test_a_stage_added_to_the_chain_runs_before_the_final_stage` shows a stage that holds everything running ahead of `final`. An empty chain leaves the decision to `final` (`test_an_empty_chain_leaves_the_decision_to_the_final_stage`, once with a releasing final and once with a holding one).
+When the rules are closed and fixed, one `match` with a default is the chain. The `match` statement, as the Python tutorial puts it, "takes an expression and compares its value to successive patterns given as one or more case blocks". The conftest function `_clear_by_match` is that form and passes the same hold table.
 
-Order is another matter. This test builds the misordered chain:
+| | Tuple of stages | `_clear_by_match` |
+| --- | --- | --- |
+| Takes | the declaration, the stages and `final` | the declaration and nothing else |
+| Its order lives in | the tuple the caller passes | source |
+| A caller can extend it or test a stage on its own | yes | no |
+| Choose it when | someone adds rules | nobody adds rules |
 
-```python
-def test_a_stage_added_after_release_clears_a_restricted_commodity(
-    declaration: DeclarationFactory,
-) -> None:
-    misordered: list[ClearanceStage] = [check_documents, assess_duty, release]
-    misordered.append(inspect_goods)
+## Pattern: Mediator
 
-    assert clear(declaration(restricted=True), misordered) == Released()
-```
+### The problem
 
-`release` is a function that returns `Released()`, so it satisfies `ClearanceStage` as well as `FinalStage`. Placed inside the chain it decides, the loop stops there, and `inspect_goods` never sees the batteries. `test_mypy_cannot_see_release_placed_inside_the_chain` type-checks `clear(declaration, (release, inspect_goods))` under `--strict`, and mypy exits 0 with empty output. The type system checks the shape of each stage, and a chain's order is a property of the whole tuple. A test that runs a restricted declaration through the production order is what sees a misplaced `release`.
+A consignment held for duty or inspection waits on two parties who don't know each other, billing and the inspection party. Something has to decide when the reports it is owed have arrived. If each party calls the others instead, each must know who else exists and what order they report in:
 
-`describe` consumes a decision with `match`. When an arm is missing, mypy says so at the call to `assert_never`. `test_mypy_reports_a_decision_left_unhandled` has a `match` that handles `Released` and prints:
+- **Parties wired to each other.** Billing and the inspection party tell each other what happened, so a settlement that arrives before the inspection is dropped and the batteries never clear.
 
-```text
-<string>:12: error: Argument 1 to "assert_never" has incompatible type "Held"; expected "Never"  [arg-type]
-```
+### The solution
 
-A `Decision` that gains a third member turns each `match` that ends in `assert_never` into the same kind of error.
+A **Mediator** is an object that coordinates a group of parties whose actions depend on one another. The parties talk to it, not to each other.
 
-When the rules are closed and fixed, one `match` with a default is the chain. The `match` statement, as the Python tutorial puts it, "takes an expression and compares its value to successive patterns given as one or more case blocks". The conftest function `_clear_by_match` is that form and passes the same hold table. The difference shows in its signature. It takes the declaration and nothing else, so its order lives in source and a caller can't extend it or test a stage on its own. Choose it when nobody adds rules, and the tuple when someone does.
+**Bucket: survives.** The abstract Mediator and Colleague classes dissolve, but the release rule stays, written once with its state.
 
-## Mediator: one place decides when to release
+### How Python models it
 
-Mediator is for a group of parties whose actions depend on one another. If each party calls the others, each must know who else exists and what order they report in. *Design Patterns* moves that knowledge into an object of its own, and the parties talk to it. In Python the abstract Mediator and Colleague classes dissolve. A colleague needs only the mediator's `receive`, and the mediator is given a callable that does the release. The rule is what survives, written once with its state.
-
-Here the rule is that a declaration is released exactly once, after duty is settled if it was unpaid and inspection has passed if the commodity is restricted, in either order. A `Settlement` is billing reporting that duty is paid in full, and an `Inspection` carries the inspection party's result. Both are messages:
+A colleague needs only the mediator's `receive`, and the mediator is given a callable that does the release. A `Settlement` is billing reporting that duty is paid in full. An `Inspection` carries the inspection party's result:
 
 <!-- fmt:off -->
 ```python
@@ -159,27 +227,62 @@ Here the rule is that a declaration is released exactly once, after duty is sett
 ```
 <!-- fmt:on -->
 
-`ClearanceMessage` is `Settlement | Inspection`, and `_outstanding` starts as what the declaration still needs: duty if it isn't paid, inspection if the commodity is restricted, so a declaration that owes one of them is released on that one report (`test_a_declaration_that_owes_one_report_is_released_on_that_report`). The rule lives in `_try_release`, next to the state it reads. No colleague knows another exists. A declaration with nothing outstanding is released at construction (`test_a_declaration_with_nothing_outstanding_is_released_at_once`), and the event it records is `CLEARED` at the declaration's port (`test_release_records_a_cleared_handling_event_at_the_port`).
+`ClearanceMessage` is `Settlement | Inspection`. The rule lives in `_try_release`, next to the state it reads, and no colleague knows another exists.
 
-`test_the_mediator_releases_in_either_order` runs inspection first and settlement first. After the first message the history is empty, and after the second it holds one `CLEARED` event. A second settlement after release adds nothing (`test_a_duplicate_settlement_releases_once`). A failed inspection holds the consignment: after a settlement and an `Inspection(CN1, False)` the history is empty (`test_a_failed_inspection_holds_the_consignment`). A message for another consignment is refused, and `test_a_message_for_another_consignment_is_refused` expects a `ClearanceError` that names `CN-2`, then finds the history still empty after the right inspection. The class says in its docstring that it's single-threaded, and the example has no thread test.
+A declaration is released exactly once, in either order. `_outstanding` starts as what the declaration still needs: duty if it isn't paid, inspection if the commodity is restricted. Release waits until the owed duty is settled and the owed inspection has passed.
 
-The choreography is the other form. In `_Choreography`, in `tests/conftest.py`, inspection tells billing and billing releases, and billing acts on a settlement only after it has been told the inspection passed. Both forms pass `test_release_follows_inspection_then_settlement`, where the inspection comes first. They part when the settlement arrives first: `test_a_choreography_loses_a_settlement_that_arrives_before_inspection` sends the settlement, then the inspection, and the history is empty. The settlement was dropped because billing hadn't been told yet, and nothing asks it again. The mediator keeps the outstanding set, so the order of arrival doesn't matter.
+A declaration that owes one of them is released on that one report. One with nothing outstanding is released at construction, and the event it records is `CLEARED` at the declaration's port.
 
-Two static checks apply to the messages. A message the mediator doesn't know is refused. `test_mypy_refuses_a_message_the_mediator_does_not_know` passes a `HandlingEvent` to `receive` and prints:
+*Tests:* `test_a_declaration_that_owes_one_report_is_released_on_that_report`, `test_a_declaration_with_nothing_outstanding_is_released_at_once`, `test_release_records_a_cleared_handling_event_at_the_port`.
+
+With inspection first or settlement first, the history is empty after the first message and holds one `CLEARED` event after the second. A second settlement after release adds nothing.
+
+*Tests:* `test_the_mediator_releases_in_either_order`, `test_a_duplicate_settlement_releases_once`.
+
+A failed inspection holds the consignment: after a settlement and an `Inspection(CN1, False)` the history is empty. A message for another consignment is refused: the `ClearanceError` names `CN-2`. The history is still empty after the right inspection.
+
+*Tests:* `test_a_failed_inspection_holds_the_consignment`, `test_a_message_for_another_consignment_is_refused`.
+
+The class says in its docstring that it's single-threaded, and the example has no thread test.
+
+mypy refuses a message the mediator doesn't know. Passing a `HandlingEvent` to `receive` prints:
 
 ```text
 <string>:7: error: Argument 1 to "receive" of "ClearanceMediator" has incompatible type "HandlingEvent"; expected "Settlement | Inspection"  [arg-type]
 ```
 
-And the second `Inspection` arm of `receive` is `case Inspection()`, not `case Inspection(passed=False)`, because mypy 2.4.1 doesn't treat `True` and `False` patterns on a field as exhausting the class. `test_mypy_cannot_exhaust_a_match_on_true_and_false_patterns` runs a reduced model, a one-field class matched on both values and then on `assert_never`, and mypy reports `Argument 1 to "assert_never" has incompatible type "Inspection"; expected "Never"`.
+The second `Inspection` arm of `receive` is `case Inspection()`, not `case Inspection(passed=False)`. That's because mypy 2.4.1 doesn't treat `True` and `False` patterns on a field as exhausting the class. A reduced model, a one-field class matched on both values and then on `assert_never`, gets `Argument 1 to "assert_never" has incompatible type "Inspection"; expected "Never"`.
 
-## A mediator decides, a signal broadcasts
+*Tests:* `test_mypy_refuses_a_message_the_mediator_does_not_know`, `test_mypy_cannot_exhaust_a_match_on_true_and_false_patterns`.
 
-[Observer]({{ '/docs/22-observer/' | relative_url }}) builds a `Signal` that delivers each event to its subscribers, in order, and leaves what they do to them. A mediator knows the messages its colleagues send and decides who acts next: `receive` turns two reports into one release, and a `Signal` has no rule of that kind. The Observer chapter's "When not to use it" section draws the same line: when parties must reply to each other, so that who acts depends on what the others did, a mediator decides and an observer can't. A mediator carries a cost too. All the coordination rules sit in one class, so a mediator that takes on every rule in a system becomes the place everything changes. Keep the rule for one declaration's release in it, and nothing else.
+### Mediator vs. choreography
+
+The choreography is the other form. In `_Choreography`, in `tests/conftest.py`, inspection tells billing and billing releases. Billing acts on a settlement only after it has been told the inspection passed.
+
+| Arrival order | `ClearanceMediator` | `_Choreography` |
+| --- | --- | --- |
+| Inspection, then settlement | released | released |
+| Settlement, then inspection | released | history empty |
+
+Billing dropped the settlement because it hadn't been told yet, and nothing asks it again. The mediator keeps the outstanding set, so the order of arrival doesn't matter.
+
+*Tests:* `test_release_follows_inspection_then_settlement`, `test_a_choreography_loses_a_settlement_that_arrives_before_inspection`, `test_the_mediator_releases_in_either_order`.
+
+### Mediator vs. signal
+
+[Observer]({{ '/docs/22-observer/' | relative_url }}) builds a `Signal` that delivers each event to its subscribers, in order, and leaves what they do to them. A mediator knows the messages its colleagues send and decides who acts next.
+
+| | Mediator | `Signal` |
+| --- | --- | --- |
+| Decides who acts next | yes: `receive` turns two reports into one release | no rule of that kind |
+| Fits | parties who must reply to each other, so that who acts depends on what the others did | parties that don't depend on each other's replies |
+
+The Observer chapter's "When not to use it" section draws the same line. A mediator carries a cost too: all the coordination rules sit in one class. A mediator that takes on every rule in a system becomes the place everything changes. Keep the rule for one declaration's release in it, and nothing else.
 
 ## When not to use it
 
-With one check, call the function. With a fixed set of rules that nobody extends, write one `match` with a default. With parties that don't depend on each other's replies, use a signal. And if a mediator starts to make a decision that belongs to one colleague, move that rule back to the colleague.
+- **Chain of Responsibility.** With one check, call the function. With a fixed set of rules that nobody extends, write one `match` with a default.
+- **Mediator.** With parties that don't depend on each other's replies, use a signal. If a mediator starts to make a choice that belongs to one colleague, move that rule back to the colleague.
 
 <blockquote class="ai-sidebar" markdown="1">
 **Specifying a chain and a mediator.** "A chain of responsibility" doesn't say what "pass it on" means, which stage is final or who decides when none do. State those in the prompt:
@@ -287,12 +390,14 @@ Only the duplicate settlement fails: after release, a second message calls `_try
 
 ## What you can do now
 
-- Say what survives: the handler class and successor link dissolve into the tuple behind `clear`, and `ClearanceMediator` is a class with a `receive` method and no Colleague base, with the decisions left to you.
-- Write the chain: `clear(declaration, stages, /, *, final=release)`, where `None` passes and `final` is a `FinalStage`, witnessed by `test_the_first_stage_that_decides_wins` and `test_stages_after_a_decision_are_not_called`.
-- Know what mypy checks: a stage's shape, a final stage that can pass and a missing `match` arm, and not the order, as `test_a_stage_added_after_release_clears_a_restricted_commodity` shows.
-- Release once: `ClearanceMediator.receive` and `_try_release`, in either order, witnessed by `test_the_mediator_releases_in_either_order` and experiment two.
-- Choose a form: a `match` for closed rules, a signal for independent parties, and the mediator where one rule needs the reports it is owed, as `test_a_choreography_loses_a_settlement_that_arrives_before_inspection` shows.
+- Say which choices survive: the handler class and successor link dissolve into the tuple behind `clear`. `ClearanceMediator` is a class with a `receive` method and no Colleague base, and the choices are left to you.
+- Write the chain: `clear(declaration, stages, /, *, final=release)`, where `None` passes and `final` is a `FinalStage`.
+- Know what mypy checks: a stage's shape, a final stage that can pass and a missing `match` arm, and not the order.
+- Release once: `ClearanceMediator.receive` and `_try_release`, in either order, with experiment two showing the duplicate release that the released check stops.
+- Choose a form: a `match` for closed rules, a signal for independent parties, and the mediator where one rule needs the reports it is owed.
+
+*Tests:* `test_the_first_stage_that_decides_wins`, `test_stages_after_a_decision_are_not_called`, `test_a_stage_added_after_release_clears_a_restricted_commodity`, `test_the_mediator_releases_in_either_order`, `test_a_choreography_loses_a_settlement_that_arrives_before_inspection`.
 
 ## For deeper coverage
 
-*Design Patterns* (Gamma, Helm, Johnson and Vlissides) is the source for both Chain of Responsibility and Mediator. The Python tutorial's [`match` statements](https://docs.python.org/3.15/tutorial/controlflow.html) cover the pattern syntax `describe` and `receive` use, and [PEP 695](https://peps.python.org/pep-0695/) specifies the `type` statement. The site python-patterns.guide, by Brandon Rhodes, has no page on either pattern in its index. The [bibliography page]({{ '/bibliography/' | relative_url }}) lists the books.
+*Design Patterns* (Gamma, Helm, Johnson and Vlissides, 1994) is the source for both Chain of Responsibility and Mediator. The Python tutorial's [`match` statements](https://docs.python.org/3.15/tutorial/controlflow.html) cover the pattern syntax `describe` and `receive` use. [PEP 695](https://peps.python.org/pep-0695/), by Eric Traut, specifies the `type` statement. The site python-patterns.guide, by Brandon Rhodes, has no page on either pattern in its index. The [bibliography page]({{ '/bibliography/' | relative_url }}) lists the books.
